@@ -1,18 +1,15 @@
 #pragma once
-#include <array>
 
 
 namespace detail
 {
-	template<class T, size_t N, class Iterator>
-	std::array<T, N> makeArray(Iterator first)
+	template<class Container, class Iterator>
+	void fillContainer(Iterator first, Container& container)
 	{
-		std::array<T, N> arr = {};
-		for (size_t i = 0; i < N; i++)
+		for (size_t i = 0; i < container.size(); i++)
 		{
-			arr[i] = *first;
+			container[i] = *first;
 			++first;
 		}
-		return arr;
 	}
 }

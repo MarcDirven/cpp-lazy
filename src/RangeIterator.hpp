@@ -9,9 +9,9 @@ namespace detail
 	template<class IntType>
 	class ConstRangeIterator
 	{
-		IntType _begin;
-		IntType _end;
-		IntType _step;
+		IntType _begin{};
+		IntType _end{};
+		IntType _step{};
 
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -37,19 +37,6 @@ namespace detail
 			return _begin;
 		}
 
-		ConstRangeIterator& operator++()
-		{
-			_begin += _step;
-			return *this;
-		}
-
-		ConstRangeIterator operator++(int) const
-		{
-			auto tmp = *this;
-			++tmp;
-			return tmp;
-		}
-
 		bool operator!=(const ConstRangeIterator& other) const
 		{
 			if (_step < 0)
@@ -59,16 +46,15 @@ namespace detail
 			return _begin < other._end;
 		}
 
-		ConstRangeIterator operator-(const ConstRangeIterator& other) const
+		ConstRangeIterator& operator++()
 		{
-			return std::distance(_begin, other._end);
+			_begin += _step;
+			return *this;
 		}
 
-		ConstRangeIterator operator+(const difference_type other) const
+		ConstRangeIterator operator++(int) const
 		{
-			auto tmp = *this;
-			tmp._begin = tmp._begin + other;
-			return tmp;
+			return ConstRangeIterator(_begin + _step, _end, _step);
 		}
 	};
 
@@ -88,9 +74,9 @@ namespace lz
 	template<class IntType>
 	class RangeObject
 	{
-		IntType _begin;
-		IntType _end;
-		IntType _step;
+		IntType _begin{};
+		IntType _end{};
+		IntType _step{};
 
 	public:
 		using value_type = IntType;
@@ -131,15 +117,23 @@ namespace lz
 			return const_iterator(_begin, _end, _step);
 		}
 
+		template<class T>
+		T to()
+		{
+			return T(begin(), end());
+		}
+		
 		std::vector<value_type> toVector() const
 		{
-			return std::vector<value_type>(begin(), end());
+			return to<std::vector<value_type>>();
 		}
 
 		template<size_t N>
 		std::array<value_type, N> toArray() const
 		{
-			return detail::makeArray<value_type, N>(begin());
+			std::array<value_type, N> container;
+			detail::fillContainer(begin(), container);
+			return container;
 		}
 	};
 

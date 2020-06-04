@@ -16,12 +16,12 @@ namespace detail
 		using reference = typename const_iterator::reference;
 
 	private:
-		const_iterator _iterator;
-		const_iterator _end;
-		Function _function;
-		
+		const_iterator _iterator{};
+		const_iterator _end{};
+		Function _function{nullptr};
+
 	public:
-		ConstWhereIterator(const_iterator begin, const_iterator end, Function function, const bool isEndIterator):
+		ConstWhereIterator(const_iterator begin, const_iterator end, Function function, const bool isEndIterator) :
 			_iterator(std::move(begin)),
 			_end(std::move(end)),
 			_function(function)
@@ -43,6 +43,16 @@ namespace detail
 			return _iterator.operator->();
 		}
 
+		bool operator!=(const ConstWhereIterator& other) const
+		{
+			return _iterator != other._end;
+		}
+
+		bool operator==(const ConstWhereIterator& other) const
+		{
+			return !(*this == other);
+		}
+
 		ConstWhereIterator& operator++()
 		{
 			if (_iterator != _end)
@@ -52,27 +62,17 @@ namespace detail
 			return *this;
 		}
 
-		ConstWhereIterator operator++() const
+		ConstWhereIterator operator++(int)
 		{
 			auto tmp = *this;
-			++tmp;
+			++*this;
 			return tmp;
-		}
-
-		bool operator!=(const ConstWhereIterator& other)
-		{
-			return _iterator != other._end;
-		}
-		
-		ConstWhereIterator operator-(const ConstWhereIterator& other) const
-		{
-			return std::distance(_iterator - other._end);
 		}
 
 		ConstWhereIterator operator+(const difference_type other) const
 		{
 			auto tmp = *this;
-			tmp._iterator = tmp._iterator + other;
+			for (difference_type i = 0; i != other; ++i, ++tmp) {}
 			return tmp;
 		}
 	};
@@ -90,8 +90,8 @@ namespace detail
 		using pointer = typename iterator::pointer;
 		using reference = typename iterator::reference;
 
-		WhereIterator(iterator begin, iterator end, Function function):
-			ConstWhereIterator(begin, end, function)
+		WhereIterator(iterator begin, iterator end, Function function, const bool isEndIterator):
+			ConstWhereIterator<Container, Function>(begin, end, function, isEndIterator)
 		{
 		}
 
@@ -105,32 +105,22 @@ namespace detail
 			return const_cast<pointer>(Base::operator->());
 		}
 
+		bool operator!=(const WhereIterator& other)
+		{
+			return Base::operator!=(other);
+		}
+		
 		WhereIterator& operator++()
 		{
 			Base::operator++();
 			return *this;
 		}
 
-		WhereIterator operator++() const
+		WhereIterator operator++(int)
 		{
 			auto tmp = *this;
 			Base::operator++();
 			return tmp;
-		}
-
-		bool operator!=(const WhereIterator& other)
-		{
-			return Base::operator!=(other);
-		}
-
-		WhereIterator operator-(const WhereIterator& other) const
-		{
-			return Base::operator-(other);
-		}
-
-		WhereIterator operator+(const difference_type other) const
-		{
-			return Base::operator+(other);
 		}
 	};
 }
@@ -190,7 +180,9 @@ namespace lz
 		template<size_t N>
 		std::array<value_type, N> toArray() const
 		{
-			return detail::makeArray<value_type, N>(begin());
+			std::array<value_type, N> container{};
+			detail::fillContainer(begin(), container);
+			return container;
 		}
 	};
 	
