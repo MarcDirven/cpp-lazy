@@ -19,9 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MapIterator.hpp" />
     <ClInclude Include="RangeIterator.hpp" />
     <ClInclude Include="Tools.hpp" />
-    <ClInclude Include="WhereIterator.hpp" />
+    <ClInclude Include="FilterIterator.hpp" />
     <ClInclude Include="SplitIterator.hpp" />
   </ItemGroup>
   <ItemGroup>

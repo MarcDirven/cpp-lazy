@@ -18,13 +18,16 @@
     <ClInclude Include="SplitIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WhereIterator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RangeIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tools.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterIterator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapIterator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

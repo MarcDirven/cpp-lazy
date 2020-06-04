@@ -19,10 +19,16 @@ namespace detail
 
 		std::string _substring;
 
+		void find()
+		{
+			_current = std::find(_begin, _end, *_delimiterBegin);
+			_substring = std::string(_begin, _current);
+		}
+		
 	public:
 		using reference = const std::string&;
 		using pointer = const std::string*;
-		using iterator_category = std::bidirectional_iterator_tag;
+		using iterator_category = std::input_iterator_tag;
 		using value_type = std::string;
 		using difference_type = std::string::const_iterator::difference_type;
 		
@@ -32,8 +38,7 @@ namespace detail
 			_begin(std::move(begin)),
 			_end(std::move(end))
 		{
-			_current = std::find(_begin, _end, *_delimiterBegin);
-			_substring = std::string(_begin, _current);
+			find();
 		}
 
 		reference operator*() const
@@ -59,8 +64,7 @@ namespace detail
 		ConstSplitIterator& operator++()
 		{
 			_begin = _current == _end ? _end : _current + std::distance(_delimiterBegin, _delimiterEnd);
-			_current = std::find(_begin, _end, *_delimiterBegin);
-			_substring = std::string(_begin, _current);
+			find();
 			return *this;
 		}
 		
@@ -71,19 +75,22 @@ namespace detail
 			return tmp;
 		}
 
-		ConstSplitIterator& operator--()
+		ConstSplitIterator& operator+=(const difference_type offset)
 		{
-			_end = _current == _begin ? _begin : _current + std::distance(_delimiterBegin, _delimiterEnd);
-			_current = std::find(_begin, _end, *_delimiterBegin);
-			_substring = std::string(_begin, _end);
+			for (difference_type i = 0; i < offset; i++, ++*this)
+			{
+				if (_begin == _end)
+				{
+					break;
+				}
+			}
 			return *this;
 		}
-
+		
 		ConstSplitIterator operator+(const difference_type offset) const
 		{
 			auto tmp = *this;
-			for (difference_type i = 0; i < offset; i++, ++tmp) {}
-			return tmp;
+			return tmp += offset;
 		}
 	};
 
@@ -94,7 +101,7 @@ namespace detail
 	public:
 		using reference = std::string&;
 		using pointer = std::string*;
-		using iterator_category = std::forward_iterator_tag;
+		using iterator_category = std::input_iterator_tag;
 		using value_type = std::string;
 		using difference_type = std::string::const_iterator::difference_type;
 		
@@ -136,11 +143,16 @@ namespace detail
 			return tmp;
 		}
 
+		SplitIterator& operator+=(const difference_type offset)
+		{
+			ConstSplitIterator::operator+=(offset);
+			return *this;
+		}
+
 		SplitIterator operator+(const difference_type offset) const
 		{
 			auto tmp = *this;
-			for (difference_type i = 0; i < offset; i++, ++tmp) {}
-			return tmp;
+			return tmp += offset;
 		}
 	};
 }
@@ -163,9 +175,6 @@ namespace lz
 
 		using iterator = detail::SplitIterator;
 		using const_iterator = detail::ConstSplitIterator;
-
-		using reverse_iterator = std::reverse_iterator<iterator>;
-		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		SplitObject(std::string&& string, std::string&& delimiter) :
 			_string(std::move(string)),
@@ -191,26 +200,6 @@ namespace lz
 		const_iterator end() const
 		{
 			return const_iterator(_string.begin(), _string.end(), _delimiter.begin(), _delimiter.end());
-		}
-
-		reverse_iterator rbegin()
-		{
-			return reverse_iterator(begin());
-		}
-
-		reverse_iterator rend()
-		{
-			return reverse_iterator(end());
-		}
-
-		const_reverse_iterator rbegin() const
-		{
-			return const_reverse_iterator(begin());
-		}
-
-		const_reverse_iterator rend() const
-		{
-			return const_reverse_iterator(end());
 		}
 
 		template<template<typename, typename...> class Container, typename... Args>

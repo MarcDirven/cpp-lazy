@@ -52,9 +52,48 @@ namespace detail
 			return *this;
 		}
 
-		ConstRangeIterator operator++(int) const
+		ConstRangeIterator operator++(int)
 		{
-			return ConstRangeIterator(_begin + _step, _end, _step);
+			auto tmp = *this;
+			++*this;
+			return tmp;
+		}
+
+		ConstRangeIterator& operator--()
+		{
+			_begin -= _step;
+			return *this;
+		}
+
+		ConstRangeIterator operator--(int)
+		{
+			auto tmp = *this;
+			--*this;
+			return tmp;
+		}
+
+		ConstRangeIterator& operator+=(const difference_type offset)
+		{
+			_begin += (offset * _step);
+			return *this;
+		}
+
+		ConstRangeIterator operator+(const difference_type offset) const
+		{
+			auto* tmp = *this;
+			return tmp += offset;
+		}
+
+		ConstRangeIterator& operator-=(const difference_type offset)
+		{
+			_begin -= (offset * _step);
+			return *this;
+		}
+
+		ConstRangeIterator operator-(const difference_type other) const
+		{
+			auto tmp = *this;
+			return tmp -= other;
 		}
 	};
 
@@ -79,16 +118,19 @@ namespace lz
 		IntType _step{};
 
 	public:
-		using value_type = IntType;
-		using size_type = size_t;
-		using difference_type = ptrdiff_t;
-		using pointer = IntType*;
-		using const_pointer = const IntType*;
-		using reference = IntType&;
-		using const_reference = const IntType&;
-
 		using iterator = detail::RangeIterator<IntType>;
 		using const_iterator = detail::ConstRangeIterator<IntType>;
+
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		using value_type = typename iterator::value_type;
+		using size_type = size_t;
+		using difference_type = typename iterator::difference_type;
+		using pointer = typename iterator::pointer;
+		using const_pointer = const pointer;
+		using reference = typename iterator::reference;
+		using const_reference = const reference;
 
 		RangeObject(IntType start, IntType end, IntType step):
 			_begin(start),
@@ -117,15 +159,35 @@ namespace lz
 			return const_iterator(_begin, _end, _step);
 		}
 
-		template<class T>
-		T to()
+		reverse_iterator rbegin()
 		{
-			return T(begin(), end());
+			return reverse_iterator(begin());
+		}
+
+		reverse_iterator rend()
+		{
+			return reverse_iterator(end());
+		}
+		
+		const_reverse_iterator crbegin() const
+		{
+			return const_reverse_iterator(begin());
+		}
+
+		const_reverse_iterator crend() const
+		{
+			return const_reverse_iterator(end());
+		}
+
+		template<template<typename, typename...> class Container, typename... Args>
+		Container<value_type, Args...> to() const
+		{
+			return Container<value_type, Args...>(begin(), end());
 		}
 		
 		std::vector<value_type> toVector() const
 		{
-			return to<std::vector<value_type>>();
+			return to<std::vector>();
 		}
 
 		template<size_t N>
@@ -140,7 +202,7 @@ namespace lz
 	template<class IntType = int>
 	RangeObject<IntType> range(const IntType start, const IntType end, const IntType step = 1)
 	{
-		static_assert(std::is_arithmetic<IntType>(), "type must be of type arithmetic");
+		static_assert(std::is_arithmetic<IntType>::value, "type must be of type arithmetic");
 		return RangeObject<IntType>(start, end, step);
 	}
 
