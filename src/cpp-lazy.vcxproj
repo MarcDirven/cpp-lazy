@@ -24,6 +24,7 @@
     <ClInclude Include="Tools.hpp" />
     <ClInclude Include="FilterIterator.hpp" />
     <ClInclude Include="SplitIterator.hpp" />
+    <ClInclude Include="ZipIterator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

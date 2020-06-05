@@ -4,6 +4,7 @@
 #include "FilterIterator.hpp"
 #include "SplitIterator.hpp"
 #include "MapIterator.hpp"
+#include "ZipIterator.h"
 
 
 struct Test
@@ -11,6 +12,11 @@ struct Test
 	int a{}, b{};
 };
 
+template<typename... Args>
+void args(int)
+{
+	
+}
 
 
 int main(int argc, char** argv)
@@ -25,5 +31,11 @@ int main(int argc, char** argv)
 		return t.a;
 	};
 	auto mapped = lz::map(x, func);
-	std::reverse(mapped.begin(), mapped.end());
+
+	std::array<int, 20> a{};
+	std::array<float, 20> b{};
+	auto z = lz::zip(a, b);
+	auto beg = z.begin();
+	*beg;
+	
 }
