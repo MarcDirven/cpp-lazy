@@ -10,12 +10,13 @@
 struct Test
 {
 	int a{}, b{};
+	using value_type = int;
 };
 
 template<typename... Args>
-void args(int)
+std::tuple<typename Args::value_type...> args(Args... test)
 {
-	
+	return { (test.a)... };
 }
 
 
@@ -33,9 +34,10 @@ int main(int argc, char** argv)
 	auto mapped = lz::map(x, func);
 
 	std::array<int, 20> a{};
-	std::array<float, 20> b{};
-	auto z = lz::zip(a, b);
-	auto beg = z.begin();
-	*beg;
-	
+	std::array<float, 21> b{};
+
+	for (auto zipped : lz::zip(a, b))
+	{
+		std::cout << std::get<0>(zipped) << ' ' << std::get<1>(zipped) << '\n';
+	}
 }
