@@ -36,8 +36,9 @@ int main(int argc, char** argv)
 	std::array<int, 20> a{};
 	std::array<float, 21> b{};
 
-	for (auto zipped : lz::zip(a, b))
+	const auto zipped = lz::zip(a, b);
+	for (auto tuple : zipped)
 	{
-		std::cout << std::get<0>(zipped) << ' ' << std::get<1>(zipped) << '\n';
+		std::cout << std::get<0>(tuple) << ' ' << std::get<1>(tuple) << '\n';
 	}
 }

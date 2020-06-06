@@ -6,36 +6,45 @@
 
 namespace detail 
 {
-	template<typename... Iterator>
-	decltype(auto) deref(Iterator... it)
-	{
-		return std::forward_as_tuple((*it)...);
-	}
-
-	template<typename... Iterator>
-	decltype(auto) arrow(Iterator... it)
-	{
-		return std::forward_as_tuple((it.operator->())...);
-	}
-
-	template<typename... Iterator>
-	decltype(auto) plusplus(Iterator&... it)
-	{
-		return std::forward_as_tuple((++it)...);
-	}
-
-	template<typename... Iterator>
-	decltype(auto) minmin(Iterator&... it)
-	{
-		return std::forward_as_tuple((--it)...);
-	}
+	// template<typename... Iterator>
+	// decltype(auto) deref(Iterator... it)
+	// {
+	// 	return std::forward_as_tuple((*it)...);
+	// }
+	//
+	// template<typename... Iterator>
+	// decltype(auto) arrow(Iterator... it)
+	// {
+	// 	return std::forward_as_tuple((it.operator->())...);
+	// }
+	//
+	// template<typename... Iterator>
+	// decltype(auto) plusplus(Iterator&... it)
+	// {
+	// 	return std::forward_as_tuple((++it)...);
+	// }
+	//
+	// template<typename... Iterator>
+	// decltype(auto) minmin(Iterator&... it)
+	// {
+	// 	return std::forward_as_tuple((--it)...);
+	// }
 
 	template<size_t I, typename... Iterator>
 	struct Nequal
 	{
 		bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
 		{
-			return Nequal<I - 1, Iterator...>{}(begin, end);
+			return Nequal<I - 1, Iterator...>{}(begin, end) || Nequal<I - 2, Iterator...>{}(begin, end);
+		}
+	};
+
+	template<typename... Iterator>
+	struct Nequal<1, Iterator...>
+	{
+		bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
+		{
+			return std::get<1>(begin) != std::get<1>(end) || std::get<0>(begin) != std::get<0>(end);
 		}
 	};
 
@@ -58,15 +67,15 @@ namespace detail
 	class ConstZipIterator
 	{
 		using ConstIterators = std::tuple<typename std::decay_t<Containers>::const_iterator...>;
-
+	protected:
 		ConstIterators _begin{};
 		ConstIterators _end{};
 	
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
-		using difference_type = std::tuple<typename std::decay_t<Containers>::difference_type...>;
-		using pointer = std::tuple<const typename std::decay_t<Containers>::pointer...>;
+		using difference_type = ptrdiff_t;
+		using pointer = std::tuple<typename std::decay_t<Containers>::pointer...>;
 		using reference = std::tuple<typename std::decay_t<Containers>::reference...>;
 	
 		ConstZipIterator(ConstIterators begin, ConstIterators end):
@@ -75,14 +84,20 @@ namespace detail
 		{
 		}
 	
-		decltype(auto) operator*() const
+		reference operator*() const
 		{
-			return apply(deref<typename std::decay_t<Containers>::const_iterator...>, _begin);
+			return apply([](typename std::decay_t<Containers>::const_iterator... iterators)
+			{
+				return std::forward_as_tuple((*iterators)...);
+			}, _begin);	
 		}
 
-		decltype(auto) operator->() const
+		pointer operator->() const
 		{
-			return arrow(arrow<typename std::decay_t<Containers>::const_iterator...>, _begin);
+			return apply([](typename std::decay_t<Containers>::const_iterator... iterators)
+			{
+				return std::forward_as_tuple((iterators.operator->())...);
+			}, _begin);
 		}
 
 		bool operator!=(const ConstZipIterator& other) const
@@ -97,7 +112,10 @@ namespace detail
 
 		ConstZipIterator& operator++()
 		{
-			apply(plusplus<typename std::decay_t<Containers>::const_iterator...>, _begin);
+			apply([](typename std::decay_t<Containers>::const_iterator&... iterators)
+			{
+				return std::forward_as_tuple((++iterators)...);
+			}, _begin);
 			return *this;
 		}
 
@@ -110,61 +128,68 @@ namespace detail
 
 		ConstZipIterator& operator--()
 		{
-			apply(minmin<typename std::decay_t<Containers>::const_iterator...>, _begin);
+			apply([](typename std::decay_t<Containers>::const_iterator&... iterators)
+			{
+				return std::forward_as_tuple((--iterators)...);
+			}, _begin);
 			return *this;
 		}
 
 		ConstZipIterator operator--(int)
 		{
 			auto tmp = *this;
-			--* this;
+			--*this;
 			return tmp;
 		}
 	};
 
 	template<typename... Containers>
-	class ZipIterator
+	class ZipIterator : public ConstZipIterator<Containers...>
 	{
+		using Base = ConstZipIterator<Containers...>;
 		using Iterators = std::tuple<typename std::decay_t<Containers>::iterator...>;
-		Iterators _begin{};
-		Iterators _end{};
 
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
-		using difference_type = std::tuple<typename std::decay_t<Containers>::difference_type...>;
+		using difference_type = ptrdiff_t;
 		using pointer = std::tuple<typename std::decay_t<Containers>::pointer...>;
 		using reference = std::tuple<typename std::decay_t<Containers>::reference...>;
 	
 		ZipIterator(Iterators begin, Iterators end):
-			_begin(std::move(begin)),
-			_end(std::move(end))
+			Base(std::move(begin), std::move(end))
 		{
 		}
 
-		decltype(auto) operator*()
+		reference operator*()
 		{
-			return apply(deref<typename std::decay_t<Containers>::iterator...>, _begin);
+			return apply([](typename std::decay_t<Containers>::iterator... iterators)
+			{
+				return std::forward_as_tuple(const_cast<typename std::decay_t<Containers>::reference>((*iterators))...);
+			}, Base::_begin);
 		}
 
-		decltype(auto) operator->()
+		pointer operator->()
 		{
-			return arrow(arrow<typename std::decay_t<Containers>::iterator...>, _begin);
+			return apply([](typename std::decay_t<Containers>::iterator... iterators)
+			{
+				return std::forward_as_tuple(const_cast<typename std::decay_t<Containers>::pointer>((*iterators))...);
+			}, Base::_begin);
 		}
 
 		bool operator!=(const ZipIterator& other) const
 		{
-			return apply(nequal<typename std::decay_t<Containers>::iterator...>, std::make_tuple(_begin, other._end));
+			return Base::operator!=(other);
 		}
 
 		bool operator==(const ZipIterator& other) const
 		{
-			return !(*this == other);
+			return Base::operator==(other);
 		}
 
 		ZipIterator& operator++()
 		{
-			apply(plusplus<typename std::decay_t<Containers>::iterator...>, _begin);
+			Base::operator++();
 			return *this;
 		}
 
@@ -177,14 +202,14 @@ namespace detail
 
 		ZipIterator& operator--()
 		{
-			apply(minmin<typename std::decay_t<Containers>::iterator...>, _begin);
+			Base::operator--();
 			return *this;
 		}
 
 		ZipIterator operator--(int)
 		{
 			auto tmp = *this;
-			--*this;
+			Base::operator--();
 			return tmp;
 		}
 	};
@@ -210,37 +235,36 @@ namespace lz
 	private:
 		std::tuple<Containers&&...> _containers;
 
-		std::tuple<typename std::decay_t<Containers>::iterator...> beginTuple(Containers&&... containers)
+		iterator makeIterator()
 		{
-			return std::forward_as_tuple((containers.begin())...);
-		}
-		
-		std::tuple<typename std::decay_t<Containers>::iterator...> endTuple(Containers&&... containers)
-		{
-			return std::forward_as_tuple((containers.end())...);
-		}
-		
-		std::tuple<typename std::decay_t<Containers>::const_iterator...> beginTuple(Containers&&... containers) const
-		{
-			return std::forward_as_tuple((containers.begin())...);
-		}
-		
-		std::tuple<typename std::decay_t<Containers>::const_iterator...> endTuple(Containers&&... containers) const
-		{
-			return std::forward_as_tuple((containers.end())...);
+			auto beginIterators = detail::apply([](Containers&&... containers)
+			{
+				return std::forward_as_tuple((containers.begin())...);
+			}, _containers);
+
+			auto endIterators = detail::apply([](Containers&&... containers)
+			{
+				return std::forward_as_tuple((containers.end())...);
+			}, _containers);
+
+			return iterator(std::move(beginIterators), std::move(endIterators));
 		}
 
-		template<typename Iterator, typename... IteratorType>
-		Iterator makeIterator() const
+		const_iterator makeConstIterator() const
 		{
-			auto beginFn = std::mem_fn<std::tuple<IteratorType...>(Containers&&...)>(&ZipObject<Containers...>::beginTuple);
-			auto endFn = std::mem_fn<std::tuple<IteratorType...>(Containers&&...)>(&ZipObject<Containers...>::endTuple);
+			auto beginIterators = detail::apply([](Containers&&... containers)
+			{
+				return std::forward_as_tuple((containers.begin())...);
+			}, _containers);
 
-			auto beginIterators = detail::apply(beginFn, std::tuple_cat(std::make_tuple(*this), _containers));
-			auto endIterators = detail::apply(endFn, std::tuple_cat(std::make_tuple(*this), _containers));
+			auto endIterators = detail::apply([](Containers&&... containers)
+			{
+				return std::forward_as_tuple((containers.end())...); 
+			}, _containers);
 
-			return Iterator(std::move(beginIterators), std::move(endIterators));
+			return const_iterator(std::move(beginIterators), std::move(endIterators));
 		}
+
 	public:
 
 		explicit ZipObject(Containers&&... containers):
@@ -248,24 +272,24 @@ namespace lz
 		{
 		}
 
-		// iterator begin()
-		// {
-		// 	return makeIterator<iterator, typename std::decay_t<Containers>::iterator...>();
-		// }
-		//
-		// iterator end()
-		// {
-		// 	return makeIterator<iterator, typename std::decay_t<Containers>::iterator...>();
-		// }
+		iterator begin()
+		{
+			return makeIterator();
+		}
+		
+		iterator end()
+		{
+			return makeIterator();
+		}
 
 		const_iterator begin() const
 		{
-			return makeIterator<const_iterator, typename std::decay_t<Containers>::const_iterator...>();
+			return makeConstIterator();
 		}
 		
 		const_iterator end() const
 		{
-			return makeIterator<const_iterator, typename std::decay_t<Containers>::const_iterator...>();
+			return makeConstIterator();
 		}
 	};
 
