@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "RangeIterator.hpp"
-#include "FilterIterator.hpp"
-#include "SplitIterator.hpp"
-#include "MapIterator.hpp"
-#include "ZipIterator.h"
+#include "include/RangeIterator.hpp"
+#include "include/FilterIterator.hpp"
+#include "include/SplitIterator.hpp"
+#include "include/MapIterator.hpp"
+#include "include/ZipIterator.h"
 
 
 struct Test
@@ -33,12 +33,14 @@ int main(int argc, char** argv)
 	};
 	auto mapped = lz::map(x, func);
 
-	std::array<int, 20> a{};
-	std::array<float, 21> b{};
+	std::array<int, 2> a{};
+	std::array<float, 1> b{};
+	std::array<int, 3> c{};
 
-	const auto zipped = lz::zip(a, b);
-	for (auto tuple : zipped)
+	auto zipper = lz::zip(a, b, c);
+
+	for (auto tuple : zipper)
 	{
-		std::cout << std::get<0>(tuple) << ' ' << std::get<1>(tuple) << '\n';
+		std::get<0>(tuple) = 20;
 	}
 }

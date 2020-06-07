@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tools.hpp"
+#include "../Tools.hpp"
 
 #include <type_traits>
 #include <algorithm>
@@ -35,6 +35,7 @@ namespace detail
 				return;
 			}
 			_begin = std::find_if(_begin, _end, _function);
+			// TODO: remove find_if to public function
 		}
 
 		reference operator*() const

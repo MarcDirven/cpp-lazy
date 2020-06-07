@@ -1,76 +1,54 @@
 #pragma once
 
 
-#include "Tools.hpp"
+#include "../Tools.hpp"
 
 
 namespace detail 
 {
-	// template<typename... Iterator>
-	// decltype(auto) deref(Iterator... it)
-	// {
-	// 	return std::forward_as_tuple((*it)...);
-	// }
-	//
-	// template<typename... Iterator>
-	// decltype(auto) arrow(Iterator... it)
-	// {
-	// 	return std::forward_as_tuple((it.operator->())...);
-	// }
-	//
-	// template<typename... Iterator>
-	// decltype(auto) plusplus(Iterator&... it)
-	// {
-	// 	return std::forward_as_tuple((++it)...);
-	// }
-	//
-	// template<typename... Iterator>
-	// decltype(auto) minmin(Iterator&... it)
-	// {
-	// 	return std::forward_as_tuple((--it)...);
-	// }
-
 	template<size_t I, typename... Iterator>
-	struct Nequal
+	struct TupIteratorNeq
 	{
 		bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
 		{
-			return Nequal<I - 1, Iterator...>{}(begin, end) || Nequal<I - 2, Iterator...>{}(begin, end);
+			return TupIteratorNeq<I - 1, Iterator...>{}(begin, end) && TupIteratorNeq<I - 2, Iterator...>{}(begin, end);
 		}
 	};
 
 	template<typename... Iterator>
-	struct Nequal<1, Iterator...>
+	struct TupIteratorNeq<1, Iterator...>
 	{
 		bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
 		{
-			return std::get<1>(begin) != std::get<1>(end) || std::get<0>(begin) != std::get<0>(end);
+			return std::get<0>(begin) != std::get<0>(end) && std::get<1>(begin) != std::get<1>(end);;
 		}
 	};
 
 	template<typename... Iterator>
-	struct Nequal<0, Iterator...>
-	{
-		bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
-		{
-			return std::get<0>(begin) != std::get<0>(end);
-		}
-	};
+    struct TupIteratorNeq<0, Iterator...>
+    {
+        bool operator()(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
+        {
+            return std::get<0>(begin) != std::get<0>(end);
+        }
+    };
 
 	template<typename... Iterator>
-	bool nequal(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
+	bool tupIteratorNeq(const std::tuple<Iterator...>& begin, const std::tuple<Iterator...>& end)
 	{
-		return Nequal<sizeof...(Iterator) - 1, Iterator...>{}(begin, end);
+		return TupIteratorNeq<sizeof...(Iterator) - 1, Iterator...>{}(begin, end);
 	}
 	
 	template<typename... Containers>
 	class ConstZipIterator
 	{
 		using ConstIterators = std::tuple<typename std::decay_t<Containers>::const_iterator...>;
-	protected:
+		
 		ConstIterators _begin{};
 		ConstIterators _end{};
-	
+
+        template<class...>
+		friend class ZipIterator;
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
@@ -82,6 +60,11 @@ namespace detail
 			_begin(std::move(begin)),
 			_end(std::move(end))
 		{
+		}
+
+		ConstIterators currentIter() const
+		{
+			return _begin;
 		}
 	
 		reference operator*() const
@@ -102,7 +85,7 @@ namespace detail
 
 		bool operator!=(const ConstZipIterator& other) const
 		{
-			return apply(nequal<typename std::decay_t<Containers>::const_iterator...>, std::make_tuple(_begin, other._end));
+			return apply(tupIteratorNeq<typename std::decay_t<Containers>::const_iterator...>, std::make_tuple(_begin, other._end));
 		}
 
 		bool operator==(const ConstZipIterator& other) const
@@ -163,7 +146,7 @@ namespace detail
 
 		reference operator*()
 		{
-			return apply([](typename std::decay_t<Containers>::iterator... iterators)
+			return apply([](typename std::decay_t<Containers>::const_iterator... iterators)
 			{
 				return std::forward_as_tuple(const_cast<typename std::decay_t<Containers>::reference>((*iterators))...);
 			}, Base::_begin);
@@ -171,7 +154,7 @@ namespace detail
 
 		pointer operator->()
 		{
-			return apply([](typename std::decay_t<Containers>::iterator... iterators)
+			return apply([](typename std::decay_t<Containers>::const_iterator... iterators)
 			{
 				return std::forward_as_tuple(const_cast<typename std::decay_t<Containers>::pointer>((*iterators))...);
 			}, Base::_begin);
@@ -235,34 +218,20 @@ namespace lz
 	private:
 		std::tuple<Containers&&...> _containers;
 
-		iterator makeIterator()
+		template<typename Iterator>
+		Iterator makeIter() const
 		{
 			auto beginIterators = detail::apply([](Containers&&... containers)
 			{
-				return std::forward_as_tuple((containers.begin())...);
+				return std::make_tuple((containers.begin())...);
 			}, _containers);
 
 			auto endIterators = detail::apply([](Containers&&... containers)
 			{
-				return std::forward_as_tuple((containers.end())...);
+				return std::make_tuple((containers.end())...);
 			}, _containers);
 
-			return iterator(std::move(beginIterators), std::move(endIterators));
-		}
-
-		const_iterator makeConstIterator() const
-		{
-			auto beginIterators = detail::apply([](Containers&&... containers)
-			{
-				return std::forward_as_tuple((containers.begin())...);
-			}, _containers);
-
-			auto endIterators = detail::apply([](Containers&&... containers)
-			{
-				return std::forward_as_tuple((containers.end())...); 
-			}, _containers);
-
-			return const_iterator(std::move(beginIterators), std::move(endIterators));
+			return Iterator(std::move(beginIterators), std::move(endIterators));
 		}
 
 	public:
@@ -274,22 +243,22 @@ namespace lz
 
 		iterator begin()
 		{
-			return makeIterator();
+			return makeIter<iterator>();
 		}
 		
 		iterator end()
 		{
-			return makeIterator();
+			return makeIter<iterator>();
 		}
 
 		const_iterator begin() const
 		{
-			return makeConstIterator();
+			return makeIter<const_iterator>();
 		}
 		
 		const_iterator end() const
 		{
-			return makeConstIterator();
+			return makeIter<const_iterator>();
 		}
 	};
 
