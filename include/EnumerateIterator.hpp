@@ -2,7 +2,10 @@
 
 
 #include <vector>
-#include "ZipIterator.hpp"
+#include <array>
+
+#include "Tools.hpp"
+
 
 namespace detail {
     template<typename Container, typename IntType>
@@ -19,10 +22,9 @@ namespace detail {
         decltype(std::declval<Container>().begin()) _iterator;
 
     public:
-        EnumerateIterator(IntType start, decltype(_iterator) iterator):
+        EnumerateIterator(IntType start, decltype(_iterator) iterator) :
             _index(start),
-            _iterator(iterator)
-        {
+            _iterator(iterator) {
         }
 
         reference operator*() const {
@@ -97,10 +99,9 @@ namespace lz {
         iterator _end{};
 
     public:
-        EnumerateObject(Container&& container, IntType start):
+        EnumerateObject(Container&& container, IntType start) :
             _begin(start, container.begin()),
-            _end(start, container.end())
-        {
+            _end(start, container.end()) {
         }
 
         iterator begin() const {
