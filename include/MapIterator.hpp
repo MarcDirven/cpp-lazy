@@ -1,269 +1,125 @@
 #pragma once
+
 #include <functional>
 #include <type_traits>
 
-namespace detail
-{
-	template<class Container, class Function, class ReturnType>
-	class ConstMapIterator
-	{
-		using ConstIterator = typename std::decay_t<Container>::const_iterator;
-	public:
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = typename ConstIterator::value_type;
-		using difference_type = typename ConstIterator::difference_type;
-		using pointer = const std::remove_reference_t<ReturnType>*;
-		using reference = const ReturnType;
 
-	private:
-		ConstIterator _begin{};
-		ConstIterator _end{};
-		Function _function{ nullptr };
+namespace detail {
+    template<class Iterator, class Function>
+    class MapIterator {
+    private:
+        Iterator _iterator;
+        Function _function;
 
-	public:
-		ConstMapIterator(ConstIterator begin, ConstIterator end, Function function):
-			_begin(std::move(begin)),
-			_end(std::move(end)),
-			_function(function)
-		{
-		}
+    public:
+        using value_type = decltype(_function(*_iterator));
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using reference = value_type;
+        using pointer = value_type;
 
-		reference operator*() const
-		{
-			return _function(_begin.operator*());
-		}
+        MapIterator(Iterator iterator, Function function):
+            _iterator(iterator),
+            _function(function)
+        {
+        }
 
-		pointer operator->() const
-		{
-			return _function(_begin.operator->());
-		}
+        value_type operator*() const {
+            return _function(*_iterator);
+        }
 
-		bool operator!=(const ConstMapIterator& other) const
-		{
-			return _begin != other._end;
-		}
+        bool operator!=(const MapIterator& other) const {
+            return _iterator != other._iterator;
+        }
 
-		bool operator==(const ConstMapIterator& other) const
-		{
-			return !(*this == other);
-		}
-		
-		ConstMapIterator& operator++()
-		{
-			++_begin;
-			return *this;
-		}
-		
-		ConstMapIterator operator++(int)
-		{
-			auto tmp = *this;
-			++this;
-			return tmp;
-		}
-		
-		ConstMapIterator& operator--()
-		{
-			--_begin;
-			return *this;
-		}
-		
-		ConstMapIterator operator--(int)
-		{
-			auto tmp = *this;
-			--*this;
-			return tmp;
-		}
-		
-		ConstMapIterator& operator+=(const difference_type offset)
-		{
-			_begin += offset;
-			return *this;
-		}
-		
-		ConstMapIterator operator+(const difference_type offset) const
-		{
-			auto* tmp = *this;
-			return tmp += offset;
-		}
-		
-		ConstMapIterator& operator-=(const difference_type offset)
-		{
-			_begin -= offset;
-			return *this;
-		}
-		
-		ConstMapIterator operator-(const difference_type other) const
-		{
-			auto tmp = *this;
-			return tmp -= other;
-		}
-	};
-	
-	template<class Container, class Function, class ReturnType>
-	class MapIterator : public ConstMapIterator<Container, Function, ReturnType>
-	{
-		using Iterator = typename std::decay_t<Container>::iterator;
-		using Base = ConstMapIterator<Container, Function, ReturnType>;
-	public:
-		using iterator_category = std::bidirectional_iterator_tag;
-		using value_type = typename Iterator::value_type;
-		using difference_type = typename Iterator::difference_type;
-		using pointer = ReturnType*;
-		using reference = ReturnType&;
+        bool operator==(const MapIterator& other) const {
+            return !(*this != other);
+        }
 
-		MapIterator(Iterator begin, Iterator end, Function function):
-			ConstMapIterator<Container, Function, ReturnType>(begin, end, function)
-		{
-		}
+        MapIterator& operator++() {
+            ++_iterator;
+            return *this;
+        }
 
-		reference operator*()
-		{
-			return const_cast<reference>(Base::operator*());
-		}
+        MapIterator& operator--() {
+            --_iterator;
+            return *this;
+        }
 
-		pointer operator->()
-		{
-			return const_cast<reference>(Base::operator->());
-		}
+        MapIterator& operator+=(const difference_type offset) {
+            _iterator += offset;
+            return *this;
+        }
 
-		bool operator!=(const MapIterator& other) const
-		{
-			return Base::operator!=(other);
-		}
+        MapIterator& operator-=(const difference_type offset) {
+            _iterator -= offset;
+            return *this;
+        }
 
-		bool operator==(const MapIterator& other) const
-		{
-			return Base::operator==(other);
-		}
+        MapIterator operator+(const difference_type offset) {
+            auto tmp(*this);
+            tmp += offset;
+            return tmp;
+        }
 
-		MapIterator& operator++()
-		{
-			Base::operator++();
-			return *this;
-		}
-
-		MapIterator operator++(int)
-		{
-			auto tmp = *this;
-			Base::operator++();
-			return tmp;
-		}
-
-		MapIterator& operator--()
-		{
-			Base::operator--();
-			return *this;
-		}
-
-		MapIterator operator--(int)
-		{
-			auto tmp = *this;
-			Base::operator--();
-			return tmp;
-		}
-
-		MapIterator& operator+=(const difference_type offset)
-		{
-			Base::operator+=(offset);
-			return *this;
-		}
-
-		MapIterator operator+(const difference_type offset) const
-		{
-			auto tmp = *this;
-			tmp += offset;
-			return tmp;
-		}
-
-		MapIterator& operator-=(const difference_type offset)
-		{
-			Base::operator-=(offset);
-			return *this;
-		}
-
-		MapIterator operator-(const difference_type offset) const
-		{
-			auto tmp = *this;
-			tmp -= offset;
-			return *this;
-		}
-	};
+        MapIterator operator-(const difference_type offset) {
+            auto tmp(*this);
+            tmp -= offset;
+            return tmp;
+        }
+    };
 }
 
-namespace lz
-{
-	template<class Container, class Function, class ReturnType>
-	class MapObject
-	{
-		using ContainerAlias = std::decay_t<Container>;
-		
-	public:
-		using value_type = typename ContainerAlias::value_type;
-		using size_type = typename ContainerAlias::size_type;
-		using difference_type = typename ContainerAlias::difference_type;
-		using pointer = typename ContainerAlias::pointer;
-		using const_pointer = typename ContainerAlias::const_pointer;
-		using reference = typename ContainerAlias::reference;
-		using const_reference = typename ContainerAlias::const_reference;
+namespace lz {
+    template<class Iterator, class Function>
+    class MapObject {
+    public:
+        using iterator = detail::MapIterator<Iterator, Function>;
+        using const_iterator = iterator;
+        using value_type = typename iterator::value_type;
+        using size_type = size_t;
+        using difference_type = ptrdiff_t;
+        using reference = value_type;
+        using const_reference = value_type;
+        using pointer = std::remove_reference<value_type>*;
+        using const_pointer = value_type;
 
-		using iterator = detail::MapIterator<Container, Function, ReturnType>;
-		using const_iterator = detail::ConstMapIterator<Container, Function, ReturnType>;
-		
-	private:
-		Container&& _container{};
-		Function _function{ nullptr };
-		
-	public:
-		MapObject(Container&& container,Function function):
-			_container(std::forward<Container>(container)),
-			_function(function)
-		{
-		}
+    private:
+        iterator _begin{};
+        iterator _end{};
 
-		iterator begin()
-		{
-			return iterator(_container.begin(), _container.end(), _function);
-		}
-		
-		iterator end()
-		{
-			return iterator(_container.begin(), _container.end(), _function);
-		}
+    public:
+        MapObject(Iterator begin, Iterator end, Function function) :
+	        _begin(begin, function),
+	        _end(end, function)
+        {
+        }
 
-		const_iterator begin() const
-		{
-			return const_iterator(_container.begin(), _container.end(), _function);
-		}
+        iterator begin() const {
+            return _begin;
+        }
 
-		const_iterator end() const
-		{
-			return const_iterator(_container.begin(), _container.end(), _function);
-		}
+        iterator end() const {
+            return _end;
+        }
 
-		template<template<class, class...> class ContainerType, class... Args>
-		ContainerType<ReturnType, Args...> to() const
-		{
-			return ContainerType<ReturnType, Args...>(begin(), end());
-		}
+        template<template<typename, typename...> class Container, typename... Args>
+        Container<value_type, Args...> to() const {
+            return Container<value_type, Args...>(begin(), end());
+        }
 
-		std::vector<ReturnType> toVector() const
-		{
-			return to<std::vector>();
-		}
+        std::vector<value_type> toVector() const {
+            return to<std::vector>();
+        }
+    };
 
-		template<size_t N>
-		std::array<ReturnType, N> toArray() const
-		{
-			std::array<ReturnType, N> container;
-			detail::fillContainer(begin(), container);
-			return container;
-		}
-	};
+    template<class Iterator, class Function>
+    auto maprange(Iterator begin, Iterator end, Function f) {
+        return MapObject<Iterator, Function>(begin, end, f);
+    }
 
-	template<class Container, class Function,
-			 class ReturnType = typename std::result_of<Function(typename std::decay_t<Container>::value_type)>::type>
-	MapObject<Container, Function, ReturnType> map(Container&& container, Function function)
-	{
-		return MapObject<Container, Function, ReturnType>(std::forward<Container>(container), function);
-	}
+    template<class Container, class Function>
+    auto map(Container&& container, Function function) {
+        return maprange(container.begin(), container.end(), function);
+    }
 }

@@ -1,46 +1,42 @@
 #include <iostream>
 
-#include "include/RangeIterator.hpp"
-#include "include/FilterIterator.hpp"
-#include "include/SplitIterator.hpp"
-#include "include/MapIterator.hpp"
-#include "include/ZipIterator.h"
+#include "RangeIterator.hpp"
+#include "FilterIterator.hpp"
+#include "SplitIterator.hpp"
+#include "MapIterator.hpp"
+#include "ZipIterator.h"
 
 
-struct Test
-{
-	int a{}, b{};
-	using value_type = int;
+struct Test {
+    int a{}, b{};
+    using value_type = int;
 };
 
-template<typename... Args>
-std::tuple<typename Args::value_type...> args(Args... test)
-{
-	return { (test.a)... };
+int fn(const Test& test) {
+    return test.a;
 }
 
 
-int main(int argc, char** argv)
-{
-	std::string string("Hello world I'm Marc");
-	std::string delimiter(" ");
-	auto splitted = lz::split(std::move(string), std::move(delimiter));
+int main(int argc, char** argv) {
+    std::string string("a  b  ces  d  e");
+    std::string delimiter("  ");
+    auto splitObject = lz::split(string, std::move(delimiter));
 
-	std::array<Test, 3> x{ Test{2, 3}, Test{3, 4}, Test{5, 9} };
-	auto func = [](const Test& t)
-	{
-		return t.a;
-	};
-	auto mapped = lz::map(x, func);
+    for (auto& x : splitObject) {
+        std::cout << x << '\n';
+    }
 
-	std::array<int, 2> a{};
-	std::array<float, 1> b{};
-	std::array<int, 3> c{};
+    std::vector<Test> x{Test{2, 3}, Test{3, 4}, Test{5, 9}};
+    auto mapped = lz::map(x, [](auto& x) {
+        return x.a;
+    }).toVector();
 
-	auto zipper = lz::zip(a, b, c);
 
-	for (auto tuple : zipper)
-	{
-		std::get<0>(tuple) = 20;
-	}
+    std::array<int, 2> a{};
+    const std::array<float, 3> b{};
+    std::array<int, 3> c{};
+    for (auto z : lz::zip(a, b, c)) {
+
+    }
+
 }

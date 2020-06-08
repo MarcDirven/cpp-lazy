@@ -6,233 +6,202 @@
 #include <algorithm>
 #include <vector>
 
-namespace detail
-{
-	template<class Container, class Function>
-	class ConstFilterIterator
-	{
-		using ConstIterator = typename std::decay_t<Container>::const_iterator;
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = typename ConstIterator::value_type;
-		using difference_type = typename ConstIterator::difference_type;
-		using pointer = typename ConstIterator::pointer;
-		using reference = typename ConstIterator::reference;
+namespace detail {
+    template<class Container, class Function>
+    class ConstFilterIterator {
+        using ConstIterator = typename std::decay_t<Container>::const_iterator;
 
-	private:
-		ConstIterator _begin{};
-		ConstIterator _end{};
-		Function _function{nullptr};
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = typename ConstIterator::value_type;
+        using difference_type = typename ConstIterator::difference_type;
+        using pointer = typename std::decay_t<Container>::const_pointer;
+        using reference = typename std::decay_t<Container>::const_reference;
 
-	public:
-		ConstFilterIterator(ConstIterator begin, ConstIterator end, Function function, const bool isEndIterator) :
-			_begin(std::move(begin)),
-			_end(std::move(end)),
-			_function(function)
-		{
-			if (isEndIterator)
-			{
-				return;
-			}
-			_begin = std::find_if(_begin, _end, _function);
-			// TODO: remove find_if to public function
-		}
+    private:
+        ConstIterator _begin{};
+        ConstIterator _end{};
+        Function _function{nullptr};
 
-		reference operator*() const
-		{
-			return *_begin;
-		}
+    public:
+        ConstFilterIterator(ConstIterator begin, ConstIterator end, Function function) :
+            _begin(begin),
+            _end(end),
+            _function(function) {
+        }
 
-		pointer operator->() const
-		{
-			return _begin.operator->();
-		}
+        void init() {
+            _begin = std::find_if(_begin, _end, _function);
+        }
 
-		bool operator!=(const ConstFilterIterator& other) const
-		{
-			return _begin != other._end;
-		}
+        reference operator*() const {
+            return *_begin;
+        }
 
-		bool operator==(const ConstFilterIterator& other) const
-		{
-			return !(*this == other);
-		}
+        pointer operator->() const {
+            return _begin.operator->();
+        }
 
-		ConstFilterIterator& operator++()
-		{
-			if (_begin != _end)
-			{
-				_begin = std::find_if(_begin + 1, _end, _function);
-			}
-			return *this;
-		}
+        bool operator!=(const ConstFilterIterator& other) const {
+            return _begin != other._end;
+        }
 
-		ConstFilterIterator operator++(int)
-		{
-			auto tmp = *this;
-			++*this;
-			return tmp;
-		}
+        bool operator==(const ConstFilterIterator& other) const {
+            return !(*this != other);
+        }
 
-		ConstFilterIterator& operator+=(const difference_type offset)
-		{
-			for (difference_type i = 0; i < offset; ++i, ++*this)
-			{
-				if (_begin == _end)
-				{
-					break;
-				}
-			}
-			return *this;
-		}
+        ConstFilterIterator& operator++() {
+            if (_begin != _end) {
+                _begin = std::find_if(_begin + 1, _end, _function);
+            }
+            return *this;
+        }
 
-		ConstFilterIterator operator+(const difference_type other) const
-		{
-			auto tmp = *this;
-			tmp += other;
-			return tmp;
-		}
-	};
+        ConstFilterIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
 
-	template<class Container, class Function>
-	class FilterIterator : public ConstFilterIterator<Container, Function>
-	{
-		using iterator = typename std::decay_t<Container>::iterator;
-		using Base = ConstFilterIterator<Container, Function>;
-		
-	public:
-		using iterator_category = typename iterator::iterator_category;
-		using value_type = typename iterator::value_type;
-		using difference_type = typename iterator::difference_type;
-		using pointer = typename iterator::pointer;
-		using reference = typename iterator::reference;
+        ConstFilterIterator& operator+=(const difference_type offset) {
+            for (difference_type i = 0; i < offset; ++i, ++*this) {
+                if (_begin == _end) {
+                    break;
+                }
+            }
+            return *this;
+        }
 
-		FilterIterator(iterator begin, iterator end, Function function, const bool isEndIterator):
-			ConstFilterIterator<Container, Function>(begin, end, function, isEndIterator)
-		{
-		}
+        ConstFilterIterator operator+(const difference_type other) const {
+            auto tmp = *this;
+            tmp += other;
+            return tmp;
+        }
+    };
 
-		reference operator*()
-		{
-			return const_cast<reference>(Base::operator*());
-		}
+    template<class Container, class Function>
+    class FilterIterator final : public ConstFilterIterator<Container, Function> {
+        using iterator = typename std::decay_t<Container>::iterator;
+        using Base = ConstFilterIterator<Container, Function>;
 
-		pointer operator->()
-		{
-			return const_cast<pointer>(Base::operator->());
-		}
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = typename std::decay_t<Container>::value_type;
+        using difference_type = typename std::decay_t<Container>::difference_type;
+        using pointer = typename std::decay_t<Container>::pointer;
+        using reference = typename std::decay_t<Container>::reference;
 
-		bool operator!=(const FilterIterator& other) const
-		{
-			return Base::operator!=(other);
-		}
+        FilterIterator(iterator begin, iterator end, Function function) :
+            ConstFilterIterator<Container, Function>(begin, end, function) {
+        }
 
-		bool operator==(const FilterIterator& other) const
-		{
-			return Base::operator==(other);
-		}
-		
-		FilterIterator& operator++()
-		{
-			Base::operator++();
-			return *this;
-		}
+        reference operator*() {
+            return const_cast<reference>(Base::operator*());
+        }
 
-		FilterIterator operator++(int)
-		{
-			auto tmp = *this;
-			Base::operator++();
-			return tmp;
-		}
+        pointer operator->() {
+            return const_cast<pointer>(Base::operator->());
+        }
 
-		FilterIterator& operator+=(const difference_type offset)
-		{
-			Base::operator+=(offset);
-			return *this;
-		}
+        bool operator!=(const FilterIterator& other) const {
+            return Base::operator!=(other);
+        }
 
-		FilterIterator operator+(const difference_type offset)
-		{
-			auto tmp = *this;
-			return tmp += offset;
-		}
-	};
+        bool operator==(const FilterIterator& other) const {
+            return Base::operator==(other);
+        }
+
+        FilterIterator& operator++() {
+            Base::operator++();
+            return *this;
+        }
+
+        FilterIterator operator++(int) {
+            auto tmp = *this;
+            Base::operator++();
+            return tmp;
+        }
+
+        FilterIterator& operator+=(const difference_type offset) {
+            Base::operator+=(offset);
+            return *this;
+        }
+
+        FilterIterator operator+(const difference_type offset) {
+            auto tmp = *this;
+            return tmp += offset;
+        }
+    };
 }
 
-namespace lz
-{
-	template<class Container, class Function>
-	class FilterObject
-	{
-		Container&& _container{};
-		Function _function{nullptr};
+namespace lz {
+    template<class Container, class Function>
+    class FilterObject {
+        Container _container{};
+        Function _function{nullptr};
 
-		using ContainerAlias = std::decay_t<Container>;
-	public:
-		using value_type = typename ContainerAlias::value_type;
-		using size_type = typename ContainerAlias::size_type;
-		using difference_type = typename ContainerAlias::difference_type;
-		using pointer = typename ContainerAlias::pointer;
-		using const_pointer = typename ContainerAlias::const_pointer;
-		using reference = typename ContainerAlias::reference;
-		using const_reference = typename ContainerAlias::const_reference;
+        using ContainerAlias = std::decay_t<Container>;
+    public:
+        using value_type =  typename ContainerAlias::value_type;
+        using size_type = typename ContainerAlias::size_type;
+        using difference_type = typename ContainerAlias::difference_type;
+        using pointer = typename ContainerAlias::pointer;
+        using const_pointer = typename ContainerAlias::const_pointer;
+        using reference = typename ContainerAlias::reference;
+        using const_reference = typename ContainerAlias::const_reference;
 
-		using iterator = detail::FilterIterator<Container, Function>;
-		using const_iterator = detail::ConstFilterIterator<Container, Function>;
+        using iterator = detail::FilterIterator<Container, Function>;
+        using const_iterator = detail::ConstFilterIterator<Container, Function>;
 
-		FilterObject(Container&& container, Function function):
-			_container(std::forward<Container>(container)),
-			_function(function)
-		{
-		}
+        FilterObject(Container&& container, Function function):
+            _container(container),
+            _function(function) {
+        }
 
-		iterator begin()
-		{
-			return iterator(_container.begin(), _container.end(), _function, false);
-		}
+        iterator begin() {
+            iterator iter(_container.begin(), _container.end(), _function);
+            iter.init();
+            return iter;
+        }
 
-		iterator end()
-		{
-			return iterator(_container.begin(), _container.end(), _function, true);
-		}
-		
-		const_iterator begin() const
-		{
-			return const_iterator(_container.begin(), _container.end(), _function, false);
-		}
+        iterator end() {
+            return iterator(_container.begin(), _container.end(), _function);
+        }
 
-		const_iterator end() const
-		{
-			return const_iterator(_container.begin(), _container.end(), _function, true);
-		}
+        const_iterator begin() const {
+            const_iterator iter(_container.begin(), _container.end(), _function);
+            iter.init();
+            return iter;
+        }
 
-		template<template<typename, typename...> class ContainerType, typename... Args>
-		ContainerType<value_type, Args...> to() const
-		{
-			return ContainerType<value_type, Args...>(begin(), end());
-		}
+        const_iterator end() const {
+            return const_iterator(_container.begin(), _container.end(), _function);
+        }
 
-		std::vector<value_type> toVector() const
-		{
-			return to<std::vector>();
-		}
+        template<template<typename, typename...> class ContainerType, typename... Args>
+        ContainerType<value_type, Args...> to() const {
+            return ContainerType<value_type, Args...>(begin(), end());
+        }
 
-		template<size_t N>
-		std::array<value_type, N> toArray() const
-		{
-			std::array<value_type, N> container{};
-			detail::fillContainer(begin(), container);
-			return container;
-		}
-	};
-	
-	template<class Container, class Function>
-	FilterObject<Container, Function> filter(Container&& container, Function predicate)
-	{
-		using FunctionReturnType = typename std::result_of<Function(typename std::decay_t<Container>::value_type)>::type;
-		static_assert(detail::IsCallable<Function>::value, "template parameter Function is not a function");
-		static_assert(std::is_same<bool, FunctionReturnType>::value, "function must return a bool");
-		
-		return FilterObject<Container, Function>(std::forward<Container>(container), predicate);
-	}
+        std::vector<value_type> toVector() const {
+            return to<std::vector>();
+        }
+
+        template<size_t N>
+        std::array<value_type, N> toArray() const {
+            std::array<value_type, N> container{};
+            detail::fillContainer(begin(), container);
+            return container;
+        }
+    };
+
+    template<class Container, class Function>
+    FilterObject<Container, Function> filter(Container&& container, Function predicate) {
+        using ValueType = typename std::decay_t<Container>::value_type;
+        static_assert(detail::IsCallable<Function>::value, "template parameter Function is not a function");
+        static_assert(std::is_same<bool, decltype(predicate(std::declval<ValueType>()))>::value,
+                      "function must return bool");
+
+        return FilterObject<Container, Function>(container, predicate);
+    }
 }

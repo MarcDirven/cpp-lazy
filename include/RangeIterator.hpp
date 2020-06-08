@@ -2,7 +2,7 @@
 #include <iterator>
 #include <vector>
 
-#include "../Tools.hpp"
+#include "Tools.hpp"
 
 namespace detail
 {
@@ -98,7 +98,7 @@ namespace detail
 	};
 
 	template<class IntType>
-	class RangeIterator : public ConstRangeIterator<IntType>
+	class RangeIterator final : public ConstRangeIterator<IntType>
 	{
 	public:
 		RangeIterator(IntType begin, IntType end, IntType step):
