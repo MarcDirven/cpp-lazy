@@ -7,7 +7,7 @@
 
 
 namespace detail {
-    template<typename SubString>
+    template<class SubString>
     class SplitIterator {
         std::string _delimiter{};
         const std::string& _string = std::string();
@@ -16,7 +16,7 @@ namespace detail {
         SubString _substring{};
 
     public:
-        using reference = const SubString&;
+        using reference = typename std::conditional<__cplusplus < 201703L, const SubString&, SubString>::type;
         using pointer = const SubString*;
         using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
@@ -75,7 +75,7 @@ namespace detail {
 }
 
 namespace lz {
-    template<typename SubString = std::string>
+    template<class SubString = std::string>
     class SplitObject {
     public:
         using iterator = detail::SplitIterator<SubString>;
@@ -109,12 +109,29 @@ namespace lz {
             const_iterator it(_string.size(), _string, _delimiter);
             return it;
         }
+
+        template<template<typename, typename...> class Container, typename... Args>
+        Container<value_type, Args...> to() const {
+            return Container<value_type, Args...>(begin(), end());
+        }
+
+        std::vector<value_type> toVector() const {
+            return to<std::vector>();
+        }
+
+        template<size_t N>
+        std::array<value_type, N> toArray() const {
+            std::array<value_type, N> container;
+            detail::fillContainer(begin(), container);
+            return container;
+        }
     };
 
 #if __cplusplus < 201703L // < C++17
-    template<typename SubString = std::string>
+
+    template<class SubString = std::string>
 #else
-    template<typename SubString = std::string_view>
+    template<class SubString = std::string_view>
 #endif
     auto split(const std::string& str, std::string delimiter) {
         return SplitObject<SubString>(str, std::move(delimiter));

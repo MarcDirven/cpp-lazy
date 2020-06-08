@@ -6,4 +6,4 @@ include_directories(/)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(cpp_lazy main.cpp)
+add_executable(cpp_lazy main.cpp include/EnumerateIterator.hpp)

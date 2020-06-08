@@ -347,7 +347,7 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-# BeatPulse healthcheck temp database
+# BeatPulse healthcheck filter database
 healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
