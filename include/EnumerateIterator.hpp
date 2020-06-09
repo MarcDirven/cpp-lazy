@@ -28,11 +28,11 @@ namespace detail {
         }
 
         reference operator*() const {
-            return value_type(_index, *_iterator);
+            return reference(_index, *_iterator);
         }
 
         pointer operator->() const {
-            return value_type(_index, _iterator.operator->());
+            return pointer(_index, _iterator.operator->());
         }
 
         bool operator==(const EnumerateIterator& other) const {

@@ -11,15 +11,15 @@ namespace detail {
     class FilterIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type = decltype(std::declval<typename std::decay_t<Iterator>::value_type>());
-        using difference_type = typename std::decay_t<Iterator>::difference_type;
-        using pointer = typename std::decay_t<Iterator>::pointer;
-        using reference = typename std::decay_t<Iterator>::reference;
+        using value_type = typename  std::remove_reference<decltype(*std::declval<Iterator>())>::type;
+        using difference_type = std::ptrdiff_t ;
+        using pointer = value_type*;
+        using reference = value_type&;
 
     private:
         Iterator _begin{};
         Iterator _end{};
-        Function _function{nullptr};
+        Function _function{};
 
     public:
         FilterIterator(Iterator begin, Iterator end, Function function) :

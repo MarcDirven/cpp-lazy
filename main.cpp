@@ -8,7 +8,7 @@
 #include "ZipIterator.hpp"
 
 
-
-
 int main(int argc, char** argv) {
+    std::array<int, 32> array{};
+
 }
