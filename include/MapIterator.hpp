@@ -6,10 +6,10 @@
 
 namespace detail {
     template<class Iterator, class Function>
-    class ConstMapIterator {
+    class MapIterator {
     private:
-        Iterator _iterator;
-        Function _function;
+        Iterator _iterator{};
+        Function _function{};
 
     public:
         using value_type = decltype(_function(*_iterator));
@@ -18,51 +18,50 @@ namespace detail {
         using reference = value_type;
         using pointer = value_type;
 
-        ConstMapIterator(Iterator iterator, Function function):
+        MapIterator(Iterator iterator, Function function) :
             _iterator(iterator),
-            _function(function)
-        {
+            _function(function) {
         }
 
         value_type operator*() const {
             return _function(*_iterator);
         }
 
-        bool operator!=(const ConstMapIterator& other) const {
+        bool operator!=(const MapIterator& other) const {
             return _iterator != other._iterator;
         }
 
-        bool operator==(const ConstMapIterator& other) const {
+        bool operator==(const MapIterator& other) const {
             return !(*this != other);
         }
 
-        ConstMapIterator& operator++() {
+        MapIterator& operator++() {
             ++_iterator;
             return *this;
         }
 
-        ConstMapIterator& operator--() {
+        MapIterator& operator--() {
             --_iterator;
             return *this;
         }
 
-        ConstMapIterator& operator+=(const difference_type offset) {
+        MapIterator& operator+=(const difference_type offset) {
             _iterator += offset;
             return *this;
         }
 
-        ConstMapIterator& operator-=(const difference_type offset) {
+        MapIterator& operator-=(const difference_type offset) {
             _iterator -= offset;
             return *this;
         }
 
-        ConstMapIterator operator+(const difference_type offset) {
+        MapIterator operator+(const difference_type offset) {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        ConstMapIterator operator-(const difference_type offset) {
+        MapIterator operator-(const difference_type offset) {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -74,7 +73,7 @@ namespace lz {
     template<class Iterator, class Function>
     class MapObject {
     public:
-        using iterator = detail::ConstMapIterator<Iterator, Function>;
+        using iterator = detail::MapIterator<Iterator, Function>;
         using const_iterator = iterator;
 
         using value_type = typename iterator::value_type;
@@ -91,9 +90,8 @@ namespace lz {
 
     public:
         MapObject(Iterator begin, Iterator end, Function function) :
-	        _begin(begin, function),
-	        _end(end, function)
-        {
+            _begin(begin, function),
+            _end(end, function) {
         }
 
         iterator begin() const {
@@ -121,6 +119,6 @@ namespace lz {
 
     template<class Container, class Function>
     auto map(Container&& container, Function function) {
-        return maprange(container.begin(), container.end(), function);
+        return map(container.begin(), container.end(), function);
     }
 }

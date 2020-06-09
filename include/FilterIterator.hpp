@@ -10,11 +10,11 @@ namespace detail {
     template<class Iterator, class Function>
     class FilterIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = typename  std::remove_reference<decltype(*std::declval<Iterator>())>::type;
-        using difference_type = std::ptrdiff_t ;
-        using pointer = value_type*;
-        using reference = value_type&;
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = typename std::iterator_traits<Iterator>::value_type;
+        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
+        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using reference = typename std::iterator_traits<Iterator>::reference;
 
     private:
         Iterator _begin{};
@@ -53,13 +53,24 @@ namespace detail {
         }
 
         FilterIterator& operator+=(const difference_type offset) {
-            for (difference_type i = 0; i < offset; ++i, ++*this) {}
+            _begin += offset;
             return *this;
         }
 
         FilterIterator operator+(const difference_type other) const {
             auto tmp = *this;
             tmp += other;
+            return tmp;
+        }
+
+        FilterIterator& operator-=(const difference_type offset) {
+            _begin -= offset;
+            return *this;
+        }
+
+        FilterIterator operator-(const difference_type other) const {
+            auto tmp = *this;
+            tmp -= other;
             return tmp;
         }
     };

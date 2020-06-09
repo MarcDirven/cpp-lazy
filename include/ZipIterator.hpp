@@ -51,31 +51,30 @@ namespace detail {
         template<size_t... I>
         void increment(std::index_sequence<I...>) {
             auto expand = {(++std::get<I>(_iterators), 0)...};
-            (void)expand;
+            (void) expand;
         }
 
         template<size_t... I>
         void decrement(std::index_sequence<I...>) {
             auto expand = {(--std::get<I>(_iterators), 0)...};
-            (void)expand;
+            (void) expand;
         }
 
         template<size_t... I>
         void plusIs(std::index_sequence<I...>, const difference_type differenceType) {
             auto expand = {(std::get<I>(_iterators) += differenceType, 0)...};
-            (void)expand;
+            (void) expand;
         }
 
         template<size_t... I>
         void minIs(std::index_sequence<I...>, const difference_type differenceType) {
-            auto expand = {(std::get<I>(_iterators) -=  differenceType, 0)...};
-            (void)expand;
+            auto expand = {(std::get<I>(_iterators) -= differenceType, 0)...};
+            (void) expand;
         }
 
     public:
         explicit ZipIterator(decltype(_iterators) iters) :
-            _iterators(iters)
-        {
+            _iterators(iters) {
         }
 
         value_type operator*() const {

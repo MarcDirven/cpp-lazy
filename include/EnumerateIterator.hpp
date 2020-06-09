@@ -8,21 +8,21 @@
 
 
 namespace detail {
-    template<typename Container, typename IntType>
+    template<class Iterator, class IntType>
     class EnumerateIterator {
     public:
         using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = std::pair<IntType, decltype(*std::declval<Container>().begin())>;
+        using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
         using difference_type = std::ptrdiff_t;
-        using pointer = value_type;
-        using reference = value_type;
+        using pointer = std::pair<IntType, typename std::iterator_traits<Iterator>::pointer>;
+        using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
 
     private:
         IntType _index;
-        decltype(std::declval<Container>().begin()) _iterator;
+        Iterator _iterator;
 
     public:
-        EnumerateIterator(IntType start, decltype(_iterator) iterator) :
+        EnumerateIterator(IntType start, Iterator iterator) :
             _index(start),
             _iterator(iterator) {
         }
@@ -68,6 +68,8 @@ namespace detail {
         }
 
         EnumerateIterator& operator-=(const difference_type offset) {
+            _index -= offset;
+            _iterator -= offset;
             return *this;
         }
 
@@ -80,18 +82,18 @@ namespace detail {
 }
 
 namespace lz {
-    template<typename Container, typename IntType>
+    template<class Iterator, class IntType>
     class EnumerateObject {
     public:
-        using value_type = std::pair<IntType, decltype(*std::declval<Container>().begin())>;
-        using size_type = typename std::decay_t<Container>::size_type;
-        using difference_type = typename std::decay_t<Container>::difference_type;
-        using pointer = typename std::decay_t<Container>::pointer;
-        using const_pointer = typename std::decay_t<Container>::const_pointer;
-        using reference = typename std::decay_t<Container>::reference;
-        using const_reference = typename std::decay_t<Container>::const_reference;
+        using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
+        using size_type = size_t;
+        using difference_type = std::ptrdiff_t;
+        using pointer = std::pair<IntType, typename std::iterator_traits<Iterator>::pointer>;
+        using const_pointer = std::pair<IntType, const typename std::iterator_traits<Iterator>::pointer>;
+        using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
+        using const_reference = std::pair<IntType, const typename std::iterator_traits<Iterator>::reference>;
 
-        using iterator = detail::EnumerateIterator<Container, IntType>;
+        using iterator = detail::EnumerateIterator<Iterator, IntType>;
         using const_iterator = iterator;
 
     private:
@@ -99,9 +101,9 @@ namespace lz {
         iterator _end{};
 
     public:
-        EnumerateObject(Container&& container, IntType start) :
-            _begin(start, container.begin()),
-            _end(start, container.end()) {
+        EnumerateObject(Iterator begin, Iterator end, IntType start) :
+            _begin(start, begin),
+            _end(start, end) {
         }
 
         iterator begin() const {
@@ -129,8 +131,13 @@ namespace lz {
         }
     };
 
+    template<class IntType = int, class Iterator>
+    auto enumeraterange(Iterator begin, Iterator end, IntType start = 0) {
+        return EnumerateObject<Iterator, IntType>(begin, end, start);
+    }
+
     template<class IntType = int, class Container>
     auto enumerate(Container&& container, IntType start = 0) {
-        return EnumerateObject<Container, IntType>(container, start);
+        return enumeraterange(container.begin(), container.end(), start);
     }
 }
