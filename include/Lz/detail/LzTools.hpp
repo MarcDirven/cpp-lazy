@@ -1,12 +1,11 @@
 #pragma once
 
-
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 
-namespace detail {
+namespace lz { namespace detail {
     template<class Container, class Iterator>
     void fillContainer(Iterator first, Container& container) {
         for (size_t i = 0; i < container.size(); i++) {
@@ -15,9 +14,10 @@ namespace detail {
         }
     }
 
-    template<size_t N, class Iterator>
-    void fillArray(Iterator first) {
-        std::array<typename std::iterator_traits<Iterator>::value_type, N> array;
-        return fillContainer(first, array);
+    template<class ValueType, size_t N, class Iterator>
+    std::array<ValueType, N> fillArray(Iterator first) {
+        std::array<ValueType, N> array{};
+        fillContainer(first, array);
+        return array;
     }
-}
+}}

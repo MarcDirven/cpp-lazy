@@ -1,0 +1,81 @@
+#pragma once
+
+#include <iterator>
+
+
+namespace lz { namespace detail {
+    template<class Iterator, class Function>
+    class TakeIterator {
+    private:
+        Iterator _iterator{};
+        Iterator _end{};
+        Function _function{};
+
+    public:
+        using value_type = typename std::iterator_traits<Iterator>::value_type;
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
+        using reference = typename std::iterator_traits<Iterator>::reference;
+        using pointer = typename std::iterator_traits<Iterator>::pointer;
+
+    public:
+        TakeIterator(Iterator iterator, Iterator end, Function function) :
+            _iterator(iterator),
+            _end(end),
+            _function(function) {
+            _iterator = !_function(*iterator) ? end : _iterator;
+        }
+
+        reference operator*() const {
+            return *_iterator;
+        }
+
+        pointer operator->() const {
+            return &_iterator;
+        }
+
+        bool operator!=(const TakeIterator& other) const {
+            if (_iterator == other._end) {
+                return false;
+            }
+            return _function(*_iterator);
+        }
+
+        bool operator==(const TakeIterator& other) const {
+            // Prevent recursion when: TakeWhileIterator<TakeWhileIterator<Iterator, fn>, fn>
+            return &(*_iterator) == &(*other._iterator);
+        }
+
+        TakeIterator& operator++() {
+            ++_iterator;
+            return *this;
+        }
+
+        TakeIterator& operator--() {
+            --_iterator;
+            return *this;
+        }
+
+        TakeIterator& operator+=(const difference_type offset) {
+            _iterator += offset;
+            return *this;
+        }
+
+        TakeIterator& operator-=(const difference_type offset) {
+            _iterator -= offset;
+            return *this;
+        }
+
+        TakeIterator operator+(const difference_type offset) {
+            auto tmp(*this);
+            tmp += offset;
+            return tmp;
+        }
+
+        TakeIterator operator-(const difference_type offset) {
+            auto tmp(*this);
+            tmp -= offset;
+            return tmp;
+        }
+    };
+}}

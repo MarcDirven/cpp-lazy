@@ -1,10 +1,9 @@
 #pragma once
 
+#include <iterator>
 
-#include "Tools.hpp"
 
-
-namespace detail {
+namespace lz { namespace detail {
     template<size_t I, class IteratorTuple>
     struct NeqTup {
         bool operator()(const IteratorTuple& a, const IteratorTuple& b) {
@@ -121,60 +120,4 @@ namespace detail {
             return *this;
         }
     };
-}
-
-namespace lz {
-    template<class... Containers>
-    class ZipObject {
-    public:
-        using value_type = std::tuple<decltype(*std::declval<Containers>().begin())...>;
-        using size_type = size_t;
-        using difference_type = std::ptrdiff_t;
-        using pointer = std::tuple<typename std::decay_t<Containers>::pointer...>;
-        using const_pointer = std::tuple<typename std::decay_t<Containers>::const_pointer...>;
-        using reference = std::tuple<typename std::decay_t<Containers>::reference...>;
-        using const_reference = std::tuple<typename std::decay_t<Containers>::const_reference...>;
-
-        using iterator = detail::ZipIterator<Containers...>;
-        using const_iterator = iterator;
-
-    private:
-        iterator _begin;
-        iterator _end;
-
-    public:
-        explicit ZipObject(Containers&& ... containers) :
-            _begin(std::make_tuple(containers.begin()...)),
-            _end(std::make_tuple(containers.end()...)) {
-        }
-
-        iterator begin() const {
-            return _begin;
-        }
-
-        iterator end() const {
-            return _end;
-        }
-
-        template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to() const {
-            return ContainerType<value_type, Args...>(begin(), end());
-        }
-
-        std::vector<value_type> toVector() const {
-            return to<std::vector>();
-        }
-
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            std::array<value_type, N> container{};
-            detail::fillContainer(begin(), container);
-            return container;
-        }
-    };
-
-    template<class... Containers>
-    ZipObject<Containers...> zip(Containers&& ... containers) {
-        return ZipObject<Containers...>(containers...);
-    }
-}
+}}
