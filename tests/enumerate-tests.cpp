@@ -42,25 +42,25 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     ++begin; // Increment by one
 
     SECTION("Operator++") {
-        REQUIRE((*begin).first == 1); // Index
-        REQUIRE((*begin).second == 2); // element
+        REQUIRE(begin->first == 1); // Index
+        REQUIRE(begin->second == 2); // element
     }
 
     SECTION("Operator--") {
         --begin;
         // Decrement by one, back at begin()
-        REQUIRE((*begin).first == 0); // Index
-        REQUIRE((*begin).second == 1); // element
+        REQUIRE(begin->first == 0); // Index
+        REQUIRE(begin->second == 1); // element
     }
 
     SECTION("Operator+, tests += as well") {
-        REQUIRE((*(begin + 1)).first == 2); // Index
-        REQUIRE((*(begin + 1)).second == 3); // element
+        REQUIRE((begin + 1)->first == 2); // Index
+        REQUIRE((begin + 1)->second == 3); // element
     }
 
     SECTION("Operator-, tests -= as well") {
-        REQUIRE((*(begin - 1)).first == 0); // Index
-        REQUIRE((*(begin - 1)).second == 1); // element
+        REQUIRE((begin - 1)->first == 0); // Index
+        REQUIRE((begin - 1)->second == 1); // element
     }
 }
 
@@ -90,7 +90,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     }
 
     SECTION("To other container") {
-        auto actualList = lz::enumerate(vec).to<std::list>();
+        std::list<std::pair<int, int>> actualList = lz::enumerate(vec).to<std::list>();
         auto expectedPair = std::make_pair(0, 1);
 
         for (const auto& actualPair : actualList) {

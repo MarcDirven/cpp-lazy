@@ -20,4 +20,19 @@ namespace lz { namespace detail {
         fillContainer(first, array);
         return array;
     }
+
+    template<class T>
+    class FakePointerProxy {
+        T t;
+
+    public:
+        explicit FakePointerProxy(const T& t):
+            t(t)
+        {
+        }
+
+        T* operator->() {
+            return &t;
+        }
+    };
 }}

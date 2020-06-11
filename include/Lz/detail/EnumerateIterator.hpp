@@ -6,6 +6,7 @@
 namespace lz { namespace detail {
     template<class Iterator, class IntType>
     class EnumerateIterator {
+    public:
         IntType _index;
         Iterator _iterator;
 
@@ -13,10 +14,8 @@ namespace lz { namespace detail {
         using iterator_category = std::bidirectional_iterator_tag;
         using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
         using difference_type = std::ptrdiff_t;
-        using pointer = void*;
         using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
 
-    public:
         EnumerateIterator(IntType start, Iterator iterator) :
             _index(start),
             _iterator(iterator) {
@@ -24,6 +23,10 @@ namespace lz { namespace detail {
 
         reference operator*() const {
             return reference(_index, *_iterator);
+        }
+
+        FakePointerProxy<reference> operator->() {
+            return FakePointerProxy<decltype(**this)>(**this);
         }
 
         bool operator==(const EnumerateIterator& other) const {
@@ -69,5 +72,7 @@ namespace lz { namespace detail {
             tmp -= offset;
             return tmp;
         }
+
+        using pointer = FakePointerProxy<decltype(std::declval<EnumerateIterator>().operator->())>;
     };
 }}
