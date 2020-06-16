@@ -3,6 +3,11 @@
 
 #include <array>
 #include <vector>
+#if __cplusplus < 201703L // < C++17
+    #include <string>
+#else
+    #include <string_view>
+#endif
 
 #include <Lz/detail/SplitIterator.hpp>
 #include <Lz/detail/LzTools.hpp>
@@ -39,12 +44,17 @@ namespace lz {
         }
 
         template<template<typename, typename...> class Container, typename... Args>
-        Container<value_type, Args...> to() const {
-            return Container<value_type, Args...>(begin(), end());
+        Container<value_type, Args...> to(Args&&... args) const {
+            return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
+        }
+
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return std::vector<value_type, Allocator>(begin(), end(), alloc);
         }
 
         template<size_t N>

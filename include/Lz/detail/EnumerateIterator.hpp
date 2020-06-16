@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iterator>
+#include <Lz/detail/LzTools.hpp>
 
 
 namespace lz { namespace detail {
@@ -11,10 +12,11 @@ namespace lz { namespace detail {
         Iterator _iterator;
 
     public:
-        using iterator_category = std::bidirectional_iterator_tag;
+        using iterator_category = std::random_access_iterator_tag;
         using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
-        using difference_type = std::ptrdiff_t;
+        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
+        using pointer = FakePointerProxy<reference>;
 
         EnumerateIterator(IntType start, Iterator iterator) :
             _index(start),
@@ -27,14 +29,6 @@ namespace lz { namespace detail {
 
         FakePointerProxy<reference> operator->() {
             return FakePointerProxy<decltype(**this)>(**this);
-        }
-
-        bool operator==(const EnumerateIterator& other) const {
-            return !(*this != other);
-        }
-
-        bool operator!=(const EnumerateIterator& other) const {
-            return _iterator != other._iterator;
         }
 
         EnumerateIterator& operator++() {
@@ -55,7 +49,7 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        EnumerateIterator operator+(const difference_type offset) {
+        EnumerateIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
@@ -67,12 +61,42 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        EnumerateIterator operator-(const difference_type offset) {
+        EnumerateIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
         }
 
-        using pointer = FakePointerProxy<decltype(std::declval<EnumerateIterator>().operator->())>;
+        difference_type operator-(const EnumerateIterator& other) const {
+            return _iterator - other._iterator;
+        }
+
+        reference operator[](const difference_type offset) {
+            return *(*this + offset);
+        }
+
+        bool operator==(const EnumerateIterator& other) const {
+            return !(*this != other);
+        }
+
+        bool operator!=(const EnumerateIterator& other) const {
+            return _iterator != other._iterator;
+        }
+
+        bool operator<(const EnumerateIterator& other) const {
+            return _iterator < other._iterator;
+        }
+
+        bool operator>(const EnumerateIterator& other) const {
+            return other < *this;
+        }
+
+        bool operator<=(const EnumerateIterator& other) const {
+            return !(other < *this);
+        }
+
+        bool operator>=(const EnumerateIterator& other) const {
+            return !(*this < other);
+        }
     };
 }}

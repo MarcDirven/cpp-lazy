@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 
 #include <Lz/detail/LzTools.hpp>
 #include <Lz/detail/RangeIterator.hpp>
@@ -14,8 +15,8 @@ namespace lz {
         IntType _step{};
 
     public:
-        using iterator = detail::RangeIterator<IntType>;
         using const_iterator = detail::ConstRangeIterator<IntType>;
+        using iterator = const_iterator;
 
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -61,12 +62,17 @@ namespace lz {
         }
 
         template<template<typename, typename...> class Container, typename... Args>
-        Container<value_type, Args...> to() const {
-            return Container<value_type, Args...>(begin(), end());
+        Container<value_type, Args...> to(Args&&... args) const {
+            return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
+        }
+
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return detail::makeVector<value_type>(begin(), end(), alloc);
         }
 
         template<size_t N>

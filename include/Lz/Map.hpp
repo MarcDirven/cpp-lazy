@@ -40,12 +40,17 @@ namespace lz {
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
+        }
+
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return detail::makeVector<value_type>(begin(), end(), alloc);
         }
 
         template<size_t N>
         std::array<value_type, N> toArray() const {
-            return detail::fillArray<N>(begin());
+            return detail::fillArray<value_type, N>(begin());
         }
     };
 
@@ -56,6 +61,6 @@ namespace lz {
 
     template<class Container, class Function>
     auto map(Container&& container, Function function) {
-        return map(container.begin(), container.end(), function);
+        return maprange(container.begin(), container.end(), function);
     }
 }

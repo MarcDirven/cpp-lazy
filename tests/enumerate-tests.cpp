@@ -4,7 +4,7 @@
 #include <Lz/Enumerate.hpp>
 
 
-TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Creating elements]") {
+TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
     constexpr size_t size = 2;
     std::array<int, size> array = {1, 2};
 
@@ -12,16 +12,16 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Creating elem
         auto enumerate = lz::enumerate(array);
         auto element = *enumerate.begin();
 
-        REQUIRE(element.first == 0);  // Idx
-        REQUIRE(element.second == 1);  // Element
+        CHECK(element.first == 0);  // Idx
+        CHECK(element.second == 1);  // Element
     }
 
     SECTION("Enumerate should create pair with {idx, elm} with offset") {
         auto enumerate = lz::enumerate(array, 2);
         auto element = *enumerate.begin();
 
-        REQUIRE(element.first == 2);  // Idx
-        REQUIRE(element.second == 1);  // Element
+        CHECK(element.first == 2);  // Idx
+        CHECK(element.second == 1);  // Element
     }
 
     SECTION("Enumerate should be by reference") {
@@ -29,7 +29,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Creating elem
         auto element = *enumerate.begin();
         element.second = 500;
 
-        REQUIRE(array[0] == 500);
+        CHECK(array[0] == 500);
     }
 }
 
@@ -42,25 +42,38 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     ++begin; // Increment by one
 
     SECTION("Operator++") {
-        REQUIRE(begin->first == 1); // Index
-        REQUIRE(begin->second == 2); // element
+        CHECK(begin->first == 1); // Index
+        CHECK(begin->second == 2); // element
     }
 
     SECTION("Operator--") {
         --begin;
         // Decrement by one, back at begin()
-        REQUIRE(begin->first == 0); // Index
-        REQUIRE(begin->second == 1); // element
+        CHECK(begin->first == 0); // Index
+        CHECK(begin->second == 1); // element
     }
 
-    SECTION("Operator+, tests += as well") {
-        REQUIRE((begin + 1)->first == 2); // Index
-        REQUIRE((begin + 1)->second == 3); // element
+    SECTION("Operator+(int), tests += as well") {
+        CHECK((begin + 1)->first == 2); // Index
+        CHECK((begin + 1)->second == 3); // element
     }
 
-    SECTION("Operator-, tests -= as well") {
-        REQUIRE((begin - 1)->first == 0); // Index
-        REQUIRE((begin - 1)->second == 1); // element
+    SECTION("Operator-(int), tests -= as well") {
+        CHECK((begin - 1)->first == 0); // Index
+        CHECK((begin - 1)->second == 1); // element
+    }
+
+    SECTION("Operator-(Iterator)") {
+        CHECK(enumerate.end() - begin == 2);
+    }
+
+    SECTION("Operator[]()") {
+        CHECK(enumerate.begin()[1].first == 1);
+        CHECK(enumerate.begin()[1].second == 2);
+    }
+
+    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+        CHECK(enumerate.begin() < enumerate.end());
     }
 }
 
@@ -89,7 +102,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
         }
     }
 
-    SECTION("To other container") {
+    SECTION("To other container using to<>()") {
         std::list<std::pair<int, int>> actualList = lz::enumerate(vec).to<std::list>();
         auto expectedPair = std::make_pair(0, 1);
 

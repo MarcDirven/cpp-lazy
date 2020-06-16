@@ -9,6 +9,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../extern)
 
 add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/test-main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/enumerate-tests.cpp filter-tests.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/enumerate-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/filter-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/map-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/range-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/string-splitter-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/take-tests.cpp zip-tests.cpp)
 
 target_link_libraries(LazyTests cpp-lazy)

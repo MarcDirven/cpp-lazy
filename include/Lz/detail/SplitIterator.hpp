@@ -1,10 +1,11 @@
 #pragma once
 
 #include <algorithm>
+
 #if __cplusplus < 201703L
-#include <string>
+    #include <string>
 #else
-#include <string_view>
+    #include <string_view>
 #endif
 
 
@@ -18,7 +19,8 @@ namespace lz { namespace detail {
         SubString _substring{};
 
     public:
-        using reference = typename std::conditional<__cplusplus < 201703L, const SubString&, SubString>::type;
+        using reference = typename std::conditional<std::is_same<SubString, std::string>::value,
+                                                    const SubString&, SubString>::type;
         using pointer = const SubString*;
         using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
@@ -62,16 +64,6 @@ namespace lz { namespace detail {
             _iterIndex = _current == std::string::npos ? _string.size() : _iterIndex;
             find();
             return *this;
-        }
-
-        SplitIterator& operator+=(const difference_type offset) {
-            for (difference_type i = 0; i < offset; i++, ++*this) {}
-            return *this;
-        }
-
-        SplitIterator operator+(const difference_type offset) const {
-            auto tmp = *this;
-            return tmp += offset;
         }
     };
 }}

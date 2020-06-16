@@ -41,12 +41,12 @@ namespace lz {
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
         }
 
-        template<typename Alloc>
-        std::vector<value_type> toVector(Alloc&& alloc) const {
-            return to<std::vector>(std::forward<Alloc>(alloc));
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return detail::makeVector<value_type>(begin(), end(), alloc);
         }
 
         template<size_t N>

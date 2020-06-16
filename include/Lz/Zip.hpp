@@ -10,6 +10,8 @@
 namespace lz {
     template<class... Containers>
     class Zip {
+        using RemovedRefValueType = std::tuple<typename std::decay_t<Containers>::value_type...>;
+
     public:
         using value_type = std::tuple<decltype(*std::declval<Containers>().begin())...>;
 
@@ -35,17 +37,22 @@ namespace lz {
         }
 
         template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to() const {
-            return ContainerType<value_type, Args...>(begin(), end());
+        ContainerType<RemovedRefValueType, Args...> to() const {
+            return ContainerType<RemovedRefValueType, Args...>(begin(), end());
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
+        }
+
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return detail::makeVector<value_type>(begin(), end(), alloc);
         }
 
         template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<N>(begin());
+        std::array<RemovedRefValueType, N> toArray() const {
+            return detail::fillArray<RemovedRefValueType, N>(begin());
         }
     };
 

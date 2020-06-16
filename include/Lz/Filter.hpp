@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <vector>
+#include <array>
 
 #include <Lz/detail/LzTools.hpp>
 #include <Lz/detail/FilterIterator.hpp>
@@ -41,12 +42,17 @@ namespace lz {
         }
 
         std::vector<value_type> toVector() const {
-            return to<std::vector>();
+            return toVector<std::allocator<value_type>>();
+        }
+
+        template<typename Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+            return std::vector<value_type, Allocator>(begin(), end(), alloc);
         }
 
         template<size_t N>
         std::array<value_type, N> toArray() const {
-            return detail::fillArray<N>(begin());
+            return detail::fillArray<value_type, N>(begin());
         }
     };
 
