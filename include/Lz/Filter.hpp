@@ -98,6 +98,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
      * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all
      * elements that are not even.
@@ -129,4 +134,9 @@ namespace lz {
     auto filter(Iterable&& iterable, Function predicate) {
         return filterrange(iterable.begin(), iterable.end(), predicate);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

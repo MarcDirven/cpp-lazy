@@ -95,6 +95,12 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief Returns a bidirectional map object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
@@ -126,4 +132,9 @@ namespace lz {
     auto map(Iterable&& iterable, Function function) {
         return maprange(iterable.begin(), iterable.end(), function);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

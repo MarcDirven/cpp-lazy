@@ -10,8 +10,6 @@
 namespace lz {
     template<class... Containers>
     class Zip {
-        //using RemovedRefValueType = std::tuple<typename std::decay_t<Containers>::value_type...>;
-
     public:
         using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
 
@@ -103,6 +101,12 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief This function can be used to iterate over multiple containers. It stops at its smallest container.
      * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
@@ -119,4 +123,9 @@ namespace lz {
     Zip<Iterables...> zip(Iterables&& ... iterables) {
         return Zip<Iterables...>(iterables...);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

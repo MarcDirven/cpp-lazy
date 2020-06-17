@@ -96,6 +96,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief Creates an Enumerate object from two iterators. This can be useful when an index and a value type of a
      * container is needed.
      * @details Creates an Enumerate object. The enumerator consists of a `std::pair<IntType, value_type&>`. The
@@ -131,4 +136,9 @@ namespace lz {
     auto enumerate(Iterable&& iterable, IntType start = 0) {
         return enumeraterange(iterable.begin(), iterable.end(), start);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

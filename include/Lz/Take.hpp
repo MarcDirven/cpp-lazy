@@ -102,6 +102,17 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @defgroup ItFns Iterator free functions.
+     * These are the iterator functions and can all be used to iterate over in a
+     * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`,
+     * `toVector<Allocator>`, `toArray<N>`, `to<container>` (specifying its value type of the container is not
+     *  necessary, so e.g. `to<std::list>()` will do), `begin()`, `end()` methods and `value_type` and `iterator`
+     *  typedefs.
+     * @{
+     */
+
     /**
      * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
      * returns false, the iterator stops. Its `begin()` function returns a random access iterator.
@@ -157,7 +168,7 @@ namespace lz {
      * @param iterable An iterable with method `begin()`.
      * @param amount The amount of elements to take from the beginning of the `iterable`.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::take(...))`.
+     * `for (auto... lz::take(...))`.}@
      */
     template<class Iterable>
     auto take(Iterable&& iterable, const size_t amount) {
@@ -180,4 +191,9 @@ namespace lz {
         auto begin = iterable.begin();
         return takerange(begin + from, begin + to);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

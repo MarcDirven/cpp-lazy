@@ -109,6 +109,12 @@ namespace lz {
 #else
     template<class SubString = std::string_view>
 #endif
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief This is a lazy evaluated string splitter function. If not using C++17 or higher, you can use `std::move`
      * to safely move the substring, that is returned by the
@@ -123,4 +129,9 @@ namespace lz {
     auto split(const std::string& str, std::string delimiter) {
         return StringSplitter<SubString>(str, std::move(delimiter));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

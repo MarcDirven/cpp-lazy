@@ -114,6 +114,12 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief Returns a bidirectional range object with specified [start, end) and a step.
      * @details E.g. `lz::range(3, 20, 2)` will return all values between [3, 20) with a step of 2 when iterating over
@@ -143,4 +149,9 @@ namespace lz {
     Range<Arithmetic> range(const Arithmetic end) {
         return range(0, end, 1);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }
