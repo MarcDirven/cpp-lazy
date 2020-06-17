@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#if __cplusplus < 201703L
+#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
     #include <string>
 #else
     #include <string_view>
@@ -20,9 +20,9 @@ namespace lz { namespace detail {
 
     public:
         using reference = typename std::conditional<std::is_same<SubString, std::string>::value,
-                                                    const SubString&, SubString>::type;
+                                                    SubString&, SubString>::type;
         using pointer = const SubString*;
-        using iterator_category = std::input_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
         using value_type = SubString;
         using difference_type = std::string::const_iterator::difference_type;
 
@@ -44,11 +44,11 @@ namespace lz { namespace detail {
             }
         }
 
-        reference operator*() const {
+        reference operator*() {
             return _substring;
         }
 
-        pointer operator->() const {
+        pointer operator->() {
             return &_substring;
         }
 

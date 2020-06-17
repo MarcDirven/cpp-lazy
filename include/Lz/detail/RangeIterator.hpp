@@ -4,20 +4,20 @@
 
 
 namespace lz { namespace detail {
-    template<class IntType>
-    class ConstRangeIterator {
-        IntType _iterator{};
-        IntType _end{};
-        IntType _step{};
+    template<class Arithmetic>
+    class RangeIterator {
+        Arithmetic _iterator{};
+        Arithmetic _end{};
+        Arithmetic _step{};
 
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = IntType;
-        using difference_type = IntType;
-        using pointer = IntType*;
-        using reference = IntType;
+        using value_type = Arithmetic;
+        using difference_type = Arithmetic;
+        using pointer = const Arithmetic*;
+        using reference = Arithmetic;
 
-        ConstRangeIterator(IntType begin, IntType end, IntType step) :
+        RangeIterator(Arithmetic begin, Arithmetic end, Arithmetic step) :
             _iterator(begin),
             _end(end),
             _step(step) {
@@ -31,37 +31,37 @@ namespace lz { namespace detail {
             return &_iterator;
         }
 
-        ConstRangeIterator& operator++() {
+        RangeIterator& operator++() {
             _iterator += _step;
             return *this;
         }
 
-        ConstRangeIterator& operator--() {
+        RangeIterator& operator--() {
             _iterator -= _step;
             return *this;
         }
 
-        ConstRangeIterator& operator+=(const difference_type offset) {
+        RangeIterator& operator+=(const difference_type offset) {
             _iterator += (offset * _step);
             return *this;
         }
 
-        ConstRangeIterator operator+(const difference_type offset) const {
+        RangeIterator operator+(const difference_type offset) const {
             auto tmp = *this;
             return tmp += offset;
         }
 
-        ConstRangeIterator& operator-=(const difference_type offset) {
+        RangeIterator& operator-=(const difference_type offset) {
             _iterator -= (offset * _step);
             return *this;
         }
 
-        ConstRangeIterator operator-(const difference_type other) const {
+        RangeIterator operator-(const difference_type other) const {
             auto tmp = *this;
             return tmp -= other;
         }
 
-        difference_type operator-(const ConstRangeIterator& other) const {
+        difference_type operator-(const RangeIterator& other) const {
             return other._end - _iterator;
         }
 
@@ -69,30 +69,30 @@ namespace lz { namespace detail {
             return *(*this + offset);
         }
 
-        bool operator!=(const ConstRangeIterator& other) const {
+        bool operator!=(const RangeIterator& other) const {
             if (_step < 0) {
                 return _iterator > other._end;
             }
             return _iterator < other._end;
         }
 
-        bool operator==(const ConstRangeIterator& other) const {
+        bool operator==(const RangeIterator& other) const {
             return !(*this != other);
         }
 
-        bool operator<(const ConstRangeIterator& other) const {
+        bool operator<(const RangeIterator& other) const {
             return _iterator < other._end;
         }
 
-        bool operator>(const ConstRangeIterator& other) const {
+        bool operator>(const RangeIterator& other) const {
             return other < *this;
         }
 
-        bool operator<=(const ConstRangeIterator& other) const {
+        bool operator<=(const RangeIterator& other) const {
             return !(other < *this);
         }
 
-        bool operator>=(const ConstRangeIterator& other) const {
+        bool operator>=(const RangeIterator& other) const {
             return !(*this < other);
         }
     };
