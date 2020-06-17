@@ -22,14 +22,6 @@ namespace lz { namespace detail {
         return array;
     }
 
-    template<class ValueType, class Allocator, class Iterator>
-    std::vector<ValueType, Allocator> makeVector(Iterator begin, Iterator end, const Allocator& allocator) {
-        std::vector<ValueType, Allocator> vector(allocator);
-        vector.reserve(std::distance(begin, end));
-        vector.insert(vector.begin(), begin, end);
-        return vector;
-    }
-
     template<class T>
     class FakePointerProxy {
         T t;
