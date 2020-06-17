@@ -36,7 +36,7 @@ The enumerate iterator `operator*` returns a `std::pair<int, T&>` by value, cont
 ```cpp
 std::array<int, 5> array{};
 // The second argument can be set to start counting from a certain index e.g. lz::enumerate(array, 5)
-for (std::pair<int, int> pair : lz::enumerate(array)) {
+for (std::pair<int, int&> pair : lz::enumerate(array)) {
   pair.second = pair.first;
 }
 ```
