@@ -40,4 +40,6 @@ target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
-add_subdirectory(tests)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    add_subdirectory(tests)
+endif()
