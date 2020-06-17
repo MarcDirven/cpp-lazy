@@ -18,19 +18,19 @@ To illustrate what it does, see the following example:
 ```cpp
 std::array<int, 5> array{};
 // 
-for (std::pair<int, int> pair : lz::enumerate(array)) {
+for (std::pair<int, int&> pair : lz::enumerate(array)) {
   std::cout << pair.first << ' ' << pair.second << '\n';
 }
 ```
 Output:
 ```
-  0 0
-  1 0
-  2 0
-  3 0
-  4 0
+0 0
+1 0
+2 0
+3 0
+4 0
 ```
-The enumerate iterator `operator*` returns a `std::pair<int, T>` by value, containing an index by value and the element in the array by reference, so doing something like this:
+The enumerate iterator `operator*` returns a `std::pair<int, T&>` by value, containing an index by value and the element in the array by reference, so doing something like this:
 ```cpp
 std::array<int, 5> array{};
 // The second argument can be set to start counting from a certain index e.g. lz::enumerate(array, 5)
@@ -45,4 +45,16 @@ The function ```lz::enumeraterange``` will do exactly the same, instead, a `begi
 ```
 std::array<int, 5> array{};
 auto enumerator = lz::enumerate(array.begin(), array.end()); // Also, start index can be specified here, i.e.lz::enumerate(array.begin(), array.end(), 3)
+
+for (std::pair<int, int&> pair : enumerator) {
+  std::cout << pair.first << ' ' << pair.second << '\n';
+}
+```
+Output:
+```
+0 0
+1 0
+2 0
+3 0
+4 0
 ```
