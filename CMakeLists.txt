@@ -36,10 +36,13 @@ target_sources("cpp-lazy" INTERFACE
         ${HEADER_FILES}
         ${DETAIL_HEADER_FILES}
         )
+
 target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
+    add_subdirectory(extern/benchmark)
+    add_subdirectory(bench)
 endif()
