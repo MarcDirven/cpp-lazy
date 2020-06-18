@@ -434,3 +434,6 @@ fabric.properties
 # No docs, users must create it themselves
 docs/*
 !*docs/.gitkeep
+
+# Remove extern bench
+extern/benchmark/
