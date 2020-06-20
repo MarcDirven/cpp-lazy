@@ -3,11 +3,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/TakeIterator.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/it/detail/TakeIterator.hpp>
+#include <Lz/it/detail/LzTools.hpp>
 
 
-namespace lz {
+namespace lz { namespace it {
     template<class Iterator, class Function>
     class Take {
     public:
@@ -29,10 +29,9 @@ namespace lz {
          * @param function Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(Iterator begin, Iterator end, Function function):
+        Take(Iterator begin, Iterator end, Function function) :
             _begin(begin, end, function),
-            _end(begin, end, function)
-        {
+            _end(begin, end, function) {
         }
 
         /**
@@ -75,7 +74,8 @@ namespace lz {
         * `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
+            return toVector < std::allocator<value_type>>
+            ();
         }
 
         /**
@@ -196,4 +196,4 @@ namespace lz {
     /**
      * @}
      */
-}
+}}

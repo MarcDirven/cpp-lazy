@@ -3,11 +3,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/LzTools.hpp>
-#include <Lz/detail/ZipIterator.hpp>
+#include <Lz/it/detail/LzTools.hpp>
+#include <Lz/it/detail/ZipIterator.hpp>
 
 
-namespace lz {
+namespace lz { namespace it {
     template<class... Containers>
     class Zip {
     public:
@@ -76,7 +76,8 @@ namespace lz {
         * @return A `std::vector<std::tuple<T...>>` and a default `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
+            return toVector < std::allocator<value_type>>
+            ();
         }
 
         /**
@@ -128,4 +129,4 @@ namespace lz {
     /**
      * @}
      */
-}
+}}

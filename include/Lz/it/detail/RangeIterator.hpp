@@ -3,7 +3,7 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz {  namespace it { namespace detail {
     template<class Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};
@@ -96,4 +96,4 @@ namespace lz { namespace detail {
             return !(*this < other);
         }
     };
-}}
+}}}

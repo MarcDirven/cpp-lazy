@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Lz/detail/LzTools.hpp>
-#include <Lz/detail/MapIterator.hpp>
+#include <Lz/it/detail/LzTools.hpp>
+#include <Lz/it/detail/MapIterator.hpp>
 
 #include <vector>
 #include <array>
 
 
-namespace lz {
+namespace lz { namespace it {
     template<class Iterator, class Function>
     class Map {
     public:
@@ -70,7 +70,8 @@ namespace lz {
         * @return A `std::vector<FunctionReturnType>` with the mapped elements with default `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
+            return toVector < std::allocator<value_type>>
+            ();
         }
 
         /**
@@ -137,4 +138,4 @@ namespace lz {
     /**
      * @}
      */
-}
+}}

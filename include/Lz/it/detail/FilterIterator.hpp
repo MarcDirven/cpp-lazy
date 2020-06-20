@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-namespace lz { namespace detail {
+namespace lz {  namespace it { namespace detail {
     template<class Iterator, class Function>
     class FilterIterator {
     public:
@@ -50,4 +50,4 @@ namespace lz { namespace detail {
             return !(*this != other);
         }
     };
-}}
+}}}

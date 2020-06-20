@@ -9,11 +9,11 @@
     #include <string_view>
 #endif
 
-#include <Lz/detail/SplitIterator.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/it/detail/SplitIterator.hpp>
+#include <Lz/it/detail/LzTools.hpp>
 
 
-namespace lz {
+namespace lz { namespace it {
     template<class SubString>
     class StringSplitter {
     public:
@@ -24,7 +24,7 @@ namespace lz {
         std::string _delimiter{};
 
     public:
-        using value_type = std::string;
+        using value_type = SubString;
 
         /**
          * @brief Creates a String splitter object. Its `begin()` and `end()` return an forward iterator.
@@ -68,7 +68,7 @@ namespace lz {
          * @return A container of type ContainerType<std::string[,Args...]>.
          */
         template<template<typename, typename...> class Container, typename... Args>
-        Container<value_type, Args...> to(Args&&... args) const {
+        Container<value_type, Args...> to(Args&& ... args) const {
             return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
 
@@ -77,7 +77,8 @@ namespace lz {
         * @return A `std::vector<std::string>` with the with the substrings in it and a default `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
+            return toVector < std::allocator<value_type>>
+            ();
         }
 
         /**
@@ -134,4 +135,4 @@ namespace lz {
     /**
      * @}
      */
-}
+}}

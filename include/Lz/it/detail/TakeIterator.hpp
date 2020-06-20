@@ -3,7 +3,7 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz {  namespace it { namespace detail {
     template<class Iterator, class Function>
     class TakeIterator {
     private:
@@ -102,4 +102,4 @@ namespace lz { namespace detail {
             return !(*this < other);
         }
     };
-}}
+}}}
