@@ -1,14 +1,14 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/Range.hpp>
+#include <Lz/it/Range.hpp>
 
 
 TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]") {
     SECTION("Looping upwards") {
         int expectedCounter = 0;
 
-        for (int i : lz::range(5)) {
+        for (int i : lz::it::range(5)) {
             CHECK(expectedCounter == i);
             expectedCounter++;
         }
@@ -17,7 +17,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping backwards") {
         int expectedCounter = 5;
 
-        for (int i: lz::range(5, 0, -1)) {
+        for (int i: lz::it::range(5, 0, -1)) {
             CHECK(expectedCounter == i);
             expectedCounter--;
         }
@@ -26,7 +26,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping upwards with step") {
         int expectedCounter = 0;
 
-        for (int i: lz::range(0, 5, 2)) {
+        for (int i: lz::it::range(0, 5, 2)) {
             CHECK(expectedCounter == i);
             expectedCounter += 2;
         }
@@ -35,7 +35,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping backwards with step") {
         int expectedCounter = 5;
 
-        for (int i: lz::range(5, 0, -2)) {
+        for (int i: lz::it::range(5, 0, -2)) {
             CHECK(expectedCounter == i);
             expectedCounter -= 2;
         }
@@ -43,7 +43,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
 }
 
 TEST_CASE("Range binary operations", "[Range][Binary ops]") {
-    auto range = lz::range(10);
+    auto range = lz::it::range(10);
     auto it = range.begin();
 
     CHECK(*it == 0);
@@ -83,7 +83,7 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
 
 TEST_CASE("Range to containers", "[Range][To container]") {
     constexpr int size = 10;
-    auto range = lz::range(size);
+    auto range = lz::it::range(size);
 
     SECTION("To array") {
         std::array<int, static_cast<size_t>(size)> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

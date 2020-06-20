@@ -2,7 +2,7 @@
 
 #include <catch.hpp>
 
-#include <Lz/Map.hpp>
+#include <Lz/it/Map.hpp>
 
 
 struct TestStruct {
@@ -20,7 +20,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     };
 
     SECTION("Should map out element") {
-        auto map = lz::map(array, [](const TestStruct& t) {
+        auto map = lz::it::map(array, [](const TestStruct& t) {
             return t.testFieldStr;
         });
 
@@ -32,7 +32,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
     SECTION("Should be by reference") {
         size_t count = 0;
-        auto map = lz::map(array, [&count, &array](TestStruct& t) -> std::string& {
+        auto map = lz::it::map(array, [&count, &array](TestStruct& t) -> std::string& {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         });
@@ -50,7 +50,7 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
         TestStruct{"FieldC", 3}
     };
 
-    auto map = lz::map(array, [](const TestStruct& t) {
+    auto map = lz::it::map(array, [](const TestStruct& t) {
         return t.testFieldStr;
     });
     auto it = map.begin();
@@ -95,7 +95,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
         TestStruct{"FieldB", 2},
         TestStruct{"FieldC", 3}
     };
-    auto map = lz::map(array, [](const TestStruct& t) {
+    auto map = lz::it::map(array, [](const TestStruct& t) {
        return t.testFieldStr;
     });
 
