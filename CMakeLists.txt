@@ -6,28 +6,37 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(HEADERS ${INCLUDE}/Lz)
-set(DETAIL ${INCLUDE}/Lz/detail)
+set(IT_HEADERS ${INCLUDE}/Lz/it)
+set(FT_HEADERS ${INCLUDE}/Lz/ft)
+set(IT_DETAIL_HEADERS ${INCLUDE}/Lz/it/detail)
 
 set(DETAIL_HEADER_FILES
-        ${DETAIL}/EnumerateIterator.hpp
-        ${DETAIL}/FilterIterator.hpp
-        ${DETAIL}/LzTools.hpp
-        ${DETAIL}/MapIterator.hpp
-        ${DETAIL}/RangeIterator.hpp
-        ${DETAIL}/SplitIterator.hpp
-        ${DETAIL}/TakeIterator.hpp
-        ${DETAIL}/ZipIterator.hpp
+        ${IT_DETAIL_HEADERS}/EnumerateIterator.hpp
+        ${IT_DETAIL_HEADERS}/ExceptIterator.hpp
+        ${IT_DETAIL_HEADERS}/FilterIterator.hpp
+        ${IT_DETAIL_HEADERS}/LzTools.hpp
+        ${IT_DETAIL_HEADERS}/MapIterator.hpp
+        ${IT_DETAIL_HEADERS}/RangeIterator.hpp
+        ${IT_DETAIL_HEADERS}/SplitIterator.hpp
+        ${IT_DETAIL_HEADERS}/TakeIterator.hpp
+        ${IT_DETAIL_HEADERS}/ZipIterator.hpp
+        ${IT_DETAIL_HEADERS}/ProductIterator.hpp
         )
 set(HEADER_FILES
-        ${INCLUDE}/Lz.hpp
-        ${HEADERS}/Enumerate.hpp
-        ${HEADERS}/Filter.hpp
-        ${HEADERS}/Map.hpp
-        ${HEADERS}/Range.hpp
-        ${HEADERS}/StringSplitter.hpp
-        ${HEADERS}/Take.hpp
-        ${HEADERS}/Zip.hpp
+        ${INCLUDE}/Lz/Lz.hpp
+
+        ${IT_HEADERS}/It.hpp
+        ${IT_HEADERS}/Enumerate.hpp
+        ${IT_HEADERS}/Except.hpp
+        ${IT_HEADERS}/Filter.hpp
+        ${IT_HEADERS}/Map.hpp
+        ${IT_HEADERS}/Range.hpp
+        ${IT_HEADERS}/StringSplitter.hpp
+        ${IT_HEADERS}/Take.hpp
+        ${IT_HEADERS}/Zip.hpp
+        ${IT_HEADERS}/Product.hpp
+
+        ${FT_HEADERS}/Ft.hpp
         )
 
 add_library("cpp-lazy" INTERFACE)
@@ -43,6 +52,6 @@ target_include_directories("cpp-lazy" INTERFACE
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
-    add_subdirectory(extern/benchmark)
+    #add_subdirectory(extern/benchmark)
     add_subdirectory(bench)
 endif()
