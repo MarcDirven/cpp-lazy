@@ -1,3 +1,5 @@
+<div style="text-align:center"><img src="https://i.imgur.com/Op9r6pd.png" /></div>
+
 # cpp-lazy
 Cpp-lazy is a fast lazy evaluation library for C++14/17/20. It makes extended use of STL iterators. Current supported iterators are:
 - Enumerate
