@@ -147,7 +147,7 @@ namespace lz { namespace it {
      */
     template<class Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic end) {
-        return range(0, end, 1);
+        return range<Arithmetic>(0, end, 1);
     }
 
     // End of group
