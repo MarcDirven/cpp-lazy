@@ -10,5 +10,4 @@ before_script:
   - cmake ..
 
 script:
-  - make
-  - LazyTests.exe
+  - make -j$(nproc) && ./LazyTests
