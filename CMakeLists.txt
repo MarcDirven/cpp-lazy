@@ -44,8 +44,15 @@ target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
+set(INCLUDE_BENCHMARKS FALSE)
+
+
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
-    add_subdirectory(extern/benchmark)
-    add_subdirectory(bench)
+
+    if (${INCLUDE_BENCHMARKS})
+        add_subdirectory(extern/benchmark)
+        add_subdirectory(bench)
+    endif()
+
 endif()
