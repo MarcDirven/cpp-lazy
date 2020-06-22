@@ -5,12 +5,13 @@
 
 
 constexpr static size_t SizePolicy = 32;
+using namespace lz;
 
 static void BM_Enumerate(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
-        auto enumeration = lz::it::enumerate(arr);
+        auto enumeration = it::enumerate(arr);
 
         for (std::pair<int, int> pair : enumeration) {
             benchmark::DoNotOptimize(pair);
@@ -22,7 +23,7 @@ static void BM_Filter(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
-        auto filter = lz::it::filter(arr, [](const int i) { return i != 0; });
+        auto filter = it::filter(arr, [](const int i) { return i != 0; });
 
         for (int filtered : filter) {
             benchmark::DoNotOptimize(filtered);
@@ -34,7 +35,7 @@ static void BM_Map(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
-        auto map = lz::it::map(arr, [](const int i) { return i == 0 ? 10 : 5; });
+        auto map = it::map(arr, [](const int i) { return i == 0 ? 10 : 5; });
 
         for (int mapped : map) {
             benchmark::DoNotOptimize(mapped);
@@ -44,7 +45,7 @@ static void BM_Map(benchmark::State& state) {
 
 static void BM_Range(benchmark::State& state) {
     for (auto _ : state) {
-        auto range = lz::it::range(SizePolicy);
+        auto range = it::range(SizePolicy);
 
         for (int i : range) {
             benchmark::DoNotOptimize(i);
@@ -53,17 +54,10 @@ static void BM_Range(benchmark::State& state) {
 }
 
 static void BM_StringSplitter(benchmark::State& state) {
-    std::string toSplit = "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark "
-                          "Benchmark Benchmark Benchmark Benchmark Benchmark ";
+    std::string toSplit = "hello hello hello hello hello he";
 
     for (auto _ : state) {
-        auto splitter = lz::it::split(toSplit, " ");
+        auto splitter = it::split(toSplit, " ");
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
         // making non const causes: benchmark/benchmark.h:322:48: internal compiler error: in assign_temp,
@@ -80,10 +74,10 @@ static void BM_StringSplitter(benchmark::State& state) {
 }
 
 static void BM_TakeWhile(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy> array = it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        auto takeWhile = lz::it::takewhile(array, [](const int i) { return i != SizePolicy - 1; });
+        auto takeWhile = it::takewhile(array, [](const int i) { return i != SizePolicy - 1; });
 
         for (int taken : takeWhile) {
             benchmark::DoNotOptimize(taken);
@@ -92,10 +86,10 @@ static void BM_TakeWhile(benchmark::State& state) {
 }
 
 static void BM_Take(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy> array = it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        auto taken = lz::it::take(array, 32);
+        auto taken = it::take(array, 32);
 
         for (int i : taken) {
             benchmark::DoNotOptimize(i);
@@ -104,10 +98,10 @@ static void BM_Take(benchmark::State& state) {
 }
 
 static void BM_Slice(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy> array = it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        auto sliced = lz::it::slice(array, 0, 32);
+        auto sliced = it::slice(array, 0, 32);
 
         for (int i : sliced) {
             benchmark::DoNotOptimize(i);
@@ -122,7 +116,7 @@ static void BM_Zip4(benchmark::State& state) {
     std::array<int, SizePolicy> arrayD{};
 
     for (auto _ : state) {
-        auto zipper = lz::it::zip(arrayA, arrayB, arrayC, arrayD);
+        auto zipper = it::zip(arrayA, arrayB, arrayC, arrayD);
 
         for (auto tuple : zipper) {
             benchmark::DoNotOptimize(tuple);
@@ -136,7 +130,7 @@ static void BM_Zip3(benchmark::State& state) {
     std::array<int, SizePolicy> arrayC{};
 
     for (auto _ : state) {
-        auto zipper = lz::it::zip(arrayA, arrayB, arrayC);
+        auto zipper = it::zip(arrayA, arrayB, arrayC);
 
         for (auto tuple : zipper) {
             benchmark::DoNotOptimize(tuple);
@@ -149,7 +143,7 @@ static void BM_Zip2(benchmark::State& state) {
     std::array<int, SizePolicy> arrayB{};
 
     for (auto _ : state) {
-        auto zipper = lz::it::zip(arrayA, arrayB);
+        auto zipper = it::zip(arrayA, arrayB);
 
         for (auto tuple : zipper) {
             benchmark::DoNotOptimize(tuple);
@@ -160,11 +154,11 @@ static void BM_Zip2(benchmark::State& state) {
 static void BM_Except(benchmark::State& state) {
     constexpr size_t s = SizePolicy;
 
-    std::array<int, s> largeArr = lz::it::range(static_cast<int>(s)).toArray<s>();
-    std::array<int, SizePolicy> toLargeExcept = lz::it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, s> largeArr = it::range(static_cast<int>(s)).toArray<s>();
+    std::array<int, SizePolicy> toLargeExcept = it::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        auto ex = lz::it::except(largeArr, toLargeExcept);
+        auto ex = it::except(largeArr, toLargeExcept);
 
         for (auto excepted : ex) {
             benchmark::DoNotOptimize(excepted);
