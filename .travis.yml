@@ -5,6 +5,9 @@ compiler:
   - clang
 
 before_script:
-  - cmake --build CMakeLists.txt
+  - mkdir build
+  - cd build
+  - cmake ..
 
-script: make
+script:
+  - make
