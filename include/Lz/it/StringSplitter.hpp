@@ -77,8 +77,7 @@ namespace lz { namespace it {
         * @return A `std::vector<std::string>` with the with the substrings in it and a default `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector < std::allocator<value_type>>
-            ();
+            return toVector < std::allocator<value_type>>();
         }
 
         /**
