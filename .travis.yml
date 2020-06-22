@@ -1,0 +1,10 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - cmake --build cmake-build-release --target LazyTests -- -j $(nproc)
+
+script: cmake-build-release/tests/LazyTests.exe -r xml -d yes --order lex
