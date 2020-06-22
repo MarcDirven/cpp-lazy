@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-namespace lz {  namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class... Containers>
     class ZipIterator {
     public:
@@ -144,4 +144,4 @@ namespace lz {  namespace it { namespace detail {
             return !(*this < other);
         }
     };
-}}}
+}}

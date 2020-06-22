@@ -155,7 +155,8 @@ static void BM_Except(benchmark::State& state) {
     constexpr size_t s = SizePolicy;
 
     std::array<int, s> largeArr = lz::range(static_cast<int>(s)).toArray<s>();
-    std::array<int, SizePolicy> toLargeExcept = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy / 2> toLargeExcept =
+        lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
 
     for (auto _ : state) {
         auto ex = lz::except(largeArr, toLargeExcept);

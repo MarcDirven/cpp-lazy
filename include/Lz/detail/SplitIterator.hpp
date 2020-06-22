@@ -10,7 +10,7 @@
 #endif
 
 
-namespace lz {  namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class SubString>
     class SplitIterator {
         std::string _delimiter{};
@@ -72,4 +72,4 @@ namespace lz {  namespace it { namespace detail {
             return *this;
         }
     };
-}}}
+}}

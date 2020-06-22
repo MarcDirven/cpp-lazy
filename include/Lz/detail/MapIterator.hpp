@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace lz {  namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class Iterator, class Function>
     class MapIterator {
     private:
@@ -92,4 +92,4 @@ namespace lz {  namespace it { namespace detail {
             return !(*this < other);
         }
     };
-}}}
+}}

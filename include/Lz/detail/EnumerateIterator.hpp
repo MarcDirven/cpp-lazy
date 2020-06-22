@@ -1,10 +1,10 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/it/detail/LzTools.hpp>
+#include <Lz/detail/LzTools.hpp>
 
 
-namespace lz { namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class Iterator, class IntType>
     class EnumerateIterator {
     public:
@@ -99,4 +99,4 @@ namespace lz { namespace it { namespace detail {
             return !(*this < other);
         }
     };
-}}}
+}}

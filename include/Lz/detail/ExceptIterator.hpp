@@ -5,7 +5,7 @@
 #include <functional>
 
 
-namespace lz { namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class Iterator, class IteratorToExcept>
     class ExceptIterator {
     public:
@@ -65,4 +65,4 @@ namespace lz { namespace it { namespace detail {
             return !(*this != other);
         }
     };
-}}}
+}}

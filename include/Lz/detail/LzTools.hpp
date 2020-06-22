@@ -6,7 +6,7 @@
 #include <utility>
 
 
-namespace lz { namespace it { namespace detail {
+namespace lz { namespace detail {
     template<class Container, class Iterator>
     void fillContainer(Iterator first, Container& container) {
         for (size_t i = 0; i < container.size(); i++) {
@@ -36,4 +36,4 @@ namespace lz { namespace it { namespace detail {
             return &t;
         }
     };
-}}}
+}}
