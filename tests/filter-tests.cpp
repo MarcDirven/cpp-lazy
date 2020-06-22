@@ -10,7 +10,7 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
     std::array<int, size> array{1, 2, 3};
 
     SECTION("Should filter out element") {
-        auto filter = lz::it::filter(array, [](int element) { return element != 3; });
+        auto filter = lz::filter(array, [](int element) { return element != 3; });
         auto it = filter.begin();
 
         int expected = array[0];
@@ -25,7 +25,7 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
     }
 
     SECTION("Should be by reference") {
-        auto filter = lz::it::filter(array, [](int element) { return element != 3; });
+        auto filter = lz::filter(array, [](int element) { return element != 3; });
         auto it = filter.begin();
 
         *it = 50;
@@ -39,7 +39,7 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     std::array<int, size> array{1, 2, 3};
 
     SECTION("Operator++") {
-        auto filter = lz::it::filter(array, [](int i) { return i != 1 && i != 2; });
+        auto filter = lz::filter(array, [](int i) { return i != 1 && i != 2; });
         auto it = filter.begin();
 
         CHECK(*it == array[2]);
@@ -53,7 +53,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
 
     SECTION("To array") {
         constexpr size_t filterSize = 2;
-        auto filtered = lz::it::filter(array, [](int i) {
+        auto filtered = lz::filter(array, [](int i) {
             return i != 3;
         }).toArray<filterSize>();
 
@@ -62,7 +62,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     }
 
     SECTION("To vector") {
-        auto filteredVec = lz::it::filter(array, [](int i) {
+        auto filteredVec = lz::filter(array, [](int i) {
             return i != 3;
         }).toVector();
 
@@ -72,7 +72,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto filteredList = lz::it::filter(array, [](int i) {
+        auto filteredList = lz::filter(array, [](int i) {
             return i != 3;
         }).to<std::list>();
 

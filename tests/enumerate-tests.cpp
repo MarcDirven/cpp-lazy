@@ -8,7 +8,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
     std::array<int, size> array = {1, 2};
 
     SECTION("Enumerate should create pair with {idx, elm}") {
-        auto enumerate = lz::it::enumerate(array);
+        auto enumerate = lz::enumerate(array);
         auto element = *enumerate.begin();
 
         CHECK(element.first == 0);  // Idx
@@ -16,7 +16,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
     }
 
     SECTION("Enumerate should create pair with {idx, elm} with offset") {
-        auto enumerate = lz::it::enumerate(array, 2);
+        auto enumerate = lz::enumerate(array, 2);
         auto element = *enumerate.begin();
 
         CHECK(element.first == 2);  // Idx
@@ -24,7 +24,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
     }
 
     SECTION("Enumerate should be by reference") {
-        auto enumerate = lz::it::enumerate(array);
+        auto enumerate = lz::enumerate(array);
         auto element = *enumerate.begin();
         element.second = 500;
 
@@ -36,7 +36,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
 TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     constexpr size_t size = 3;
     std::array<int, size> array = {1, 2, 3};
-    auto enumerate = lz::it::enumerate(array);
+    auto enumerate = lz::enumerate(array);
     auto begin = enumerate.begin();
     ++begin; // Increment by one
 
@@ -82,7 +82,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     std::vector<int> vec = {1, 2, 3};
 
     SECTION("To array") {
-        std::array<std::pair<int, int>, size> actualArray = lz::it::enumerate(array).toArray<size>();
+        std::array<std::pair<int, int>, size> actualArray = lz::enumerate(array).toArray<size>();
         auto expectedPair = std::make_pair(0, 1);
 
         for (auto actualPair : actualArray) {
@@ -92,7 +92,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     }
 
     SECTION("To vector") {
-        std::vector<std::pair<int, int>> actualArray = lz::it::enumerate(vec).toVector();
+        std::vector<std::pair<int, int>> actualArray = lz::enumerate(vec).toVector();
         auto expectedPair = std::make_pair(0, 1);
 
         for (const auto& actualPair : actualArray) {
@@ -102,7 +102,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        std::list<std::pair<int, int>> actualList = lz::it::enumerate(vec).to<std::list>();
+        std::list<std::pair<int, int>> actualList = lz::enumerate(vec).to<std::list>();
         auto expectedPair = std::make_pair(0, 1);
 
         for (const auto& actualPair : actualList) {

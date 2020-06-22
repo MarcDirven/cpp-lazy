@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Benchmark)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Benchmark ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks-iterators.cpp)
 

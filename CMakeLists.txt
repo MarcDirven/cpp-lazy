@@ -21,9 +21,8 @@ set(DETAIL_HEADER_FILES
         ${IT_DETAIL_HEADERS}/ZipIterator.hpp
         )
 set(HEADER_FILES
-        ${INCLUDE}/Lz/Lz.hpp
-
-        ${IT_HEADERS}/It.hpp
+        ${INCLUDE}/Lz.hpp
+        
         ${IT_HEADERS}/Enumerate.hpp
         ${IT_HEADERS}/Except.hpp
         ${IT_HEADERS}/Filter.hpp

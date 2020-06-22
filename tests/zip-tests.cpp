@@ -11,7 +11,7 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
 
     SECTION("Should zip") {
         size_t i = 0;
-        for (auto tup : lz::it::zip(a, b, c)) {
+        for (auto tup : lz::zip(a, b, c)) {
             CHECK(tup == std::make_tuple(a[i], Approx(b[i]), c[i]));
             ++i;
         }
@@ -21,7 +21,7 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
         std::vector<int> smallest = {1, 2};
         size_t counter = 0;
 
-        for (auto tup : lz::it::zip(a, b, smallest)) {
+        for (auto tup : lz::zip(a, b, smallest)) {
             (void) tup;
             counter++;
         }
@@ -31,7 +31,7 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
 
     SECTION("Should be by ref") {
         size_t i = 0;
-        for (auto tup : lz::it::zip(a, b, c)) {
+        for (auto tup : lz::zip(a, b, c)) {
             auto& aElement = std::get<0>(tup);
             auto& bElement = std::get<1>(tup);
             auto& cElement = std::get<2>(tup);
@@ -50,7 +50,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
     std::vector<float> b = {1.f, 2.f, 3.f, 4.f};
     std::array<short, 4> c = {1, 2, 3, 4};
 
-    auto zipper = lz::it::zip(a, b, c);
+    auto zipper = lz::zip(a, b, c);
     auto begin = zipper.begin();
 
     SECTION("Operator++") {
@@ -77,7 +77,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
         CHECK(std::distance(zipper.begin(), zipper.end()) == 4);
 
         std::array<short, 3> shortest = {1, 2, 3};
-        auto zip = lz::it::zip(c, shortest);
+        auto zip = lz::zip(c, shortest);
         CHECK(std::distance(zip.begin(), zip.end()) == 3);
     }
 
@@ -98,7 +98,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     std::array<short, size> c = {1, 2, 3, 4};
 
     SECTION("To array") {
-        auto array = lz::it::zip(a, b, c).toArray<size>();
+        auto array = lz::zip(a, b, c).toArray<size>();
 
         for (size_t i = 0; i < array.size(); i++) {
             auto& aElement = std::get<0>(array[i]);
@@ -112,7 +112,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     }
 
     SECTION("To vector") {
-        auto vector = lz::it::zip(a, b, c).toVector();
+        auto vector = lz::zip(a, b, c).toVector();
 
         for (size_t i = 0; i < vector.size(); i++) {
             auto& aElement = std::get<0>(vector[i]);
@@ -126,7 +126,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto list = lz::it::zip(a, b, c).to<std::list>();
+        auto list = lz::zip(a, b, c).to<std::list>();
         auto listIterator = list.begin();
 
         for (size_t i = 0; i < list.size(); i++) {

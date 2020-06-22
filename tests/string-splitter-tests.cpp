@@ -7,7 +7,7 @@
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {
     std::string toSplit = "Hello world test 123 ";
     std::string delimiter = " ";
-    auto splitter = lz::it::split(toSplit, std::move(delimiter));
+    auto splitter = lz::split(toSplit, std::move(delimiter));
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
@@ -39,7 +39,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") {
     std::string toSplit = "Hello world test 123";
     std::string delimiter = " ";
-    auto splitter = lz::it::split(toSplit, std::move(delimiter));
+    auto splitter = lz::split(toSplit, std::move(delimiter));
     auto it = splitter.begin();
 
     CHECK(*it == "Hello");
@@ -54,7 +54,7 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
 TEST_CASE("String splitter to containers", "[String splitter][To container]") {
     std::string toSplit = "Hello world test 123";
     std::string delimiter = " ";
-    auto splitter = lz::it::split<std::string>(toSplit, std::move(delimiter));
+    auto splitter = lz::split<std::string>(toSplit, std::move(delimiter));
 
     SECTION("To array") {
         std::array<std::string, 4> actual = splitter.toArray<4>();

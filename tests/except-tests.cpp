@@ -10,7 +10,7 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
     std::vector<int> array{1, 2, 3, 4, 5};
     std::vector<int> toExcept{3, 5};
 
-    auto except = lz::it::except(array, toExcept);
+    auto except = lz::except(array, toExcept);
     auto it = except.begin();
     CHECK(*it == 1);
 
@@ -18,10 +18,10 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
         constexpr size_t s = 32;
         constexpr size_t es = 16;
 
-        std::array<int, s> largeArr = lz::it::range((int)s).toArray<s>();
-        std::array<int, es> toLargeExcept = lz::it::range((int)es).toArray<es>();
+        std::array<int, s> largeArr = lz::range((int)s).toArray<s>();
+        std::array<int, es> toLargeExcept = lz::range((int)es).toArray<es>();
 
-        auto ex = lz::it::except(largeArr, toLargeExcept);
+        auto ex = lz::except(largeArr, toLargeExcept);
         for (int _ : ex) {
             static_cast<void>(_);
         }
@@ -41,7 +41,7 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
     std::vector<int> a = {1, 2, 3, 4};
     std::vector<int> b = {2, 3};
 
-    auto except = lz::it::except(a, b);
+    auto except = lz::except(a, b);
     auto it = except.begin();
 
     SECTION("Operator++") {
@@ -54,7 +54,7 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     constexpr size_t size = 4;
     std::vector<int> a = {1, 2, 3, 4};
     std::vector<int> b = {1, 3};
-    auto except = lz::it::except(a, b);
+    auto except = lz::except(a, b);
 
     SECTION("To array") {
         auto excepted = except.toArray<2>();
