@@ -5,7 +5,7 @@
 
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {
-    std::string toSplit = "Hello world test 123";
+    std::string toSplit = "Hello world test 123 ";
     std::string delimiter = " ";
     auto splitter = lz::it::split(toSplit, std::move(delimiter));
     auto it = splitter.begin();
