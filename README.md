@@ -1,4 +1,4 @@
-(vertical axis) Time in nanoseconds
+Time in nanoseconds
 
 <div style="text-align:center"><img src="https://i.imgur.com/i8UNtz8.png" /></div>
 
