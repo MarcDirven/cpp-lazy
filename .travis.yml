@@ -11,4 +11,4 @@ before_script:
 
 script:
   - make
-  - cd build && LazyTests.exe
+  - LazyTests
