@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include <sstream>
+#include <string>
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
     #include <string>
@@ -20,7 +20,7 @@ namespace lz {  namespace it { namespace detail {
         SubString _substring{};
 
     public:
-        using reference = std::conditional_t<std::is_same_v<SubString, std::string>, SubString&, SubString>;
+        using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
         using pointer = const SubString*;
         using iterator_category = std::forward_iterator_tag;
         using value_type = SubString;
@@ -29,18 +29,24 @@ namespace lz {  namespace it { namespace detail {
         SplitIterator(size_t iterIndex, const std::string& string, std::string delimiter) :
             _delimiter(std::move(delimiter)),
             _string(string),
-            _pos(iterIndex){
+            _pos(iterIndex) {
         }
 
         void find() {
             _next = _string.find(_delimiter, _pos);
 
-            if (_next == std::string::npos) {
-                _substring = SubString(&_string[_pos]);
+            if (_next != std::string::npos) {
+                _substring = SubString(&_string[_pos], _next - _pos);
+
+                if (_next == _string.size() - 1) {
+                    _next = std::string::npos;
+                }
+                else {
+                    _pos = _next + _delimiter.length();
+                }
             }
             else {
-                _substring = SubString(&_string[_pos], _next - _pos);
-                _pos = _next + _delimiter.length();
+                _substring = SubString(&_string[_pos]);
             }
         }
 
@@ -53,7 +59,7 @@ namespace lz {  namespace it { namespace detail {
         }
 
         bool operator!=(const SplitIterator& other) const {
-            return _pos != other._pos ;
+            return _pos != other._pos;
         }
 
         bool operator==(const SplitIterator& other) const {
