@@ -1,4 +1,10 @@
-<div style="text-align:center"><img src="https://i.imgur.com/Op9r6pd.png" /></div>
+Time in nanoseconds
+
+<div style="text-align:center"><img src="https://i.imgur.com/i8UNtz8.png" /></div>
+
+<div style="text-align:center"><img src="https://i.imgur.com/tuKCTzM.png" /></div>
+
+<div style="text-align:center"><img src="https://i.imgur.com/NG1gV8h.png" /></div>
 
 # cpp-lazy
 Cpp-lazy is a fast lazy evaluation library for C++14/17/20. It makes extended use of STL iterators. Current supported iterators are:
