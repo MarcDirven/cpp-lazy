@@ -1,7 +1,7 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/it/Take.hpp>
+#include <Lz/Take.hpp>
 
 
 TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") {

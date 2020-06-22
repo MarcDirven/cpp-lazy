@@ -1,5 +1,5 @@
-#include <Lz/it/Except.hpp>
-#include <Lz/it/Range.hpp>
+#include <Lz/Except.hpp>
+#include <Lz/Range.hpp>
 #include <list>
 
 #include <catch.hpp>

@@ -3,11 +3,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/it/detail/TakeIterator.hpp>
-#include <Lz/it/detail/LzTools.hpp>
+#include <Lz/detail/TakeIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Iterator, class Function>
     class Take {
     public:
@@ -196,4 +196,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

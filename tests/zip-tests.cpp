@@ -1,7 +1,7 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/it/Zip.hpp>
+#include <Lz/Zip.hpp>
 
 
 TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {

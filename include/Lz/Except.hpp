@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/ExceptIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/ExceptIterator.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Iterator, class IteratorToExcept>
     class Except {
     public:
@@ -116,4 +116,4 @@ namespace lz { namespace it {
     auto except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptrange(iterable.begin(), iterable.end(), toExcept.begin(), toExcept.end());
     }
-}}
+}

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/MapIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/MapIterator.hpp>
 
 #include <vector>
 #include <array>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Iterator, class Function>
     class Map {
     public:
@@ -138,4 +138,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

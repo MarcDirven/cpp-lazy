@@ -1,7 +1,7 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/it/Enumerate.hpp>
+#include <Lz/Enumerate.hpp>
 
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
     constexpr size_t size = 2;

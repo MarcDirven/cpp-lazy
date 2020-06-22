@@ -1,7 +1,7 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/it/StringSplitter.hpp>
+#include <Lz/StringSplitter.hpp>
 
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {

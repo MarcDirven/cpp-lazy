@@ -2,7 +2,7 @@
 
 #include <catch.hpp>
 
-#include <Lz/it/Filter.hpp>
+#include <Lz/Filter.hpp>
 
 
 TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]") {

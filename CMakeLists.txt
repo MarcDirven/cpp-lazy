@@ -6,9 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(IT_HEADERS ${INCLUDE}/Lz/it)
-set(FT_HEADERS ${INCLUDE}/Lz/ft)
-set(IT_DETAIL_HEADERS ${INCLUDE}/Lz/it/detail)
+set(IT_HEADERS ${INCLUDE}/Lz)
+set(IT_DETAIL_HEADERS ${INCLUDE}/Lz/detail)
 
 set(DETAIL_HEADER_FILES
         ${IT_DETAIL_HEADERS}/EnumerateIterator.hpp
@@ -33,8 +32,6 @@ set(HEADER_FILES
         ${IT_HEADERS}/StringSplitter.hpp
         ${IT_HEADERS}/Take.hpp
         ${IT_HEADERS}/Zip.hpp
-
-        ${FT_HEADERS}/Ft.hpp
         )
 
 add_library("cpp-lazy" INTERFACE)

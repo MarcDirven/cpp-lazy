@@ -1,7 +1,7 @@
 #include <list>
 
 #include <catch.hpp>
-#include <Lz/it/Range.hpp>
+#include <Lz/Range.hpp>
 
 
 TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]") {

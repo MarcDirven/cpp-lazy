@@ -3,11 +3,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/ZipIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/ZipIterator.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class... Containers>
     class Zip {
     public:
@@ -129,4 +129,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

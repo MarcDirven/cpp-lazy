@@ -5,11 +5,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/FilterIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/FilterIterator.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Iterator, class Function>
     class Filter {
     public:
@@ -139,4 +139,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

@@ -4,11 +4,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/EnumerateIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/EnumerateIterator.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Iterator, class IntType>
     class Enumerate {
     public:
@@ -141,4 +141,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

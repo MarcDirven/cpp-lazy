@@ -3,11 +3,11 @@
 #include <vector>
 #include <array>
 
-#include <Lz/it/detail/LzTools.hpp>
-#include <Lz/it/detail/RangeIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/RangeIterator.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class Arithmetic>
     class Range {
         Arithmetic _begin{};
@@ -154,4 +154,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}

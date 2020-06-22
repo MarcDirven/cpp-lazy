@@ -2,7 +2,7 @@
 
 #include <catch.hpp>
 
-#include <Lz/it/Map.hpp>
+#include <Lz/Map.hpp>
 
 
 struct TestStruct {

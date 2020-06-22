@@ -9,11 +9,11 @@
     #include <string_view>
 #endif
 
-#include <Lz/it/detail/SplitIterator.hpp>
-#include <Lz/it/detail/LzTools.hpp>
+#include <Lz/detail/SplitIterator.hpp>
+#include <Lz/detail/LzTools.hpp>
 
 
-namespace lz { namespace it {
+namespace lz {
     template<class SubString>
     class StringSplitter {
     public:
@@ -134,4 +134,4 @@ namespace lz { namespace it {
     /**
      * @}
      */
-}}
+}
