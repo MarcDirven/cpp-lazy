@@ -10,4 +10,5 @@ before_script:
   - cmake ..
 
 script:
-  - make -j$(nproc) && ./LazyTests
+  - make -j$(nproc)
+  - ls -a
