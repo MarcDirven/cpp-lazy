@@ -12,7 +12,7 @@ before_script:
 script:
   - make -j$(nproc)
   - ls -a
-  - cd tests | ls -a
+  - cd tests && ls -a
   - cd ..
   - cd ..
   - ls -a
