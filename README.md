@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 Time in nanoseconds
 
 <div style="text-align:center"><img src="https://i.imgur.com/i8UNtz8.png" /></div>
