@@ -11,5 +11,4 @@ before_script:
 
 script:
   - make -j$(nproc)
-  - ls -a
   - cd tests && ./LazyTests
