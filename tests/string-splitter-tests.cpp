@@ -20,7 +20,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
     SECTION("Should be std::string") {
-        CHECK(std::is_same<decltype(*it), std::string>::value);
+        CHECK(std::is_same<decltype(*it), std::string&>::value);
     }
 #else
     SECTION("Should be std::string_view") {
