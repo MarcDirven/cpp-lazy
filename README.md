@@ -27,7 +27,7 @@ for (auto tup : lz::zip(a, b, c)) {
   std::get<2>(tup) // acces container element c (by reference)
 }
 ```
-All the iterator objects also contain a `toVector()` function to put the containers (in this case) into a tuple of `int, float, double`. For example:
+All the iterator objects also contain a `toVector()` function to put the values of the containers (in this case) into a tuple of `int, float, double`. For example:
 ```cpp
 std::vector<std::tuple<int, float, double>> v = lz::zip(a, b, c).toVector();
 ```
