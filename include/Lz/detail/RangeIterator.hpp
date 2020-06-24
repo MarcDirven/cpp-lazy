@@ -36,6 +36,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        RangeIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         RangeIterator& operator--() {
             _iterator -= _step;
             return *this;
