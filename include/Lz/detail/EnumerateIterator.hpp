@@ -37,6 +37,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        EnumerateIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         EnumerateIterator& operator--() {
             --_index;
             --_iterator;
