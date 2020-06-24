@@ -92,7 +92,7 @@ for (int i : lz::except(v, toExcept) {
 // 9
 ```
 
-Every iterator (except zip) has a `"[iterator-name]range` and `[iterator-name]` equivalent. Example, the `enumerate` and the `enumeraterange` functions. The first funtion takes an iterable/container, the latter takes two iterators (begin and end).
+Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]` equivalent. Example, the `enumerate` and the `enumeraterange` functions. The first funtion takes an iterable/container, the latter takes two iterators (begin and end).
 
 # Current supported iterators
  Current supported iterators are:
