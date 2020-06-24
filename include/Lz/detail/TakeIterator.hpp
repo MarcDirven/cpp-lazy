@@ -39,6 +39,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        TakeIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         TakeIterator& operator--() {
             --_iterator;
             return *this;
