@@ -57,6 +57,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        ExceptIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         bool operator!=(const ExceptIterator& other) const {
             return _iterator != other._end;
         }
