@@ -2,64 +2,54 @@
 
 #include <algorithm>
 #include <string>
+#include <Lz/detail/LzTools.hpp>
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
-    #include <string>
+#include <string>
 #else
-    #include <string_view>
+#include <string_view>
 #endif
 
 
 namespace lz { namespace detail {
     template<class SubString>
+    struct SplitViewIteratorHelper {
+        std::string delimiter{};
+        const std::string& string = std::string();
+    };
+
+    template<class SubString>
     class SplitIterator {
-        std::string _delimiter{};
-        const std::string& _string = std::string();
-        size_t _pos{};
-        size_t _next{};
-        SubString _substring{};
+        const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
+        size_t _startingPosition{};
+        size_t _last{};
 
     public:
-        using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
         using pointer = const SubString*;
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
+        using reference = value_type;
         using difference_type = std::string::const_iterator::difference_type;
 
-        SplitIterator(size_t iterIndex, const std::string& string, std::string delimiter) :
-            _delimiter(std::move(delimiter)),
-            _string(string),
-            _pos(iterIndex) {
+        SplitIterator(size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
+            _splitIteratorHelper(splitIteratorHelper),
+            _startingPosition(startingPosition),
+            _last(splitIteratorHelper->string.find(_splitIteratorHelper->delimiter)) {
         }
 
-        void find() {
-            _next = _string.find(_delimiter, _pos);
-
-            if (_next != std::string::npos) {
-                _substring = SubString(&_string[_pos], _next - _pos);
-
-                if (_next == _string.size() - 1) {
-                    _next = std::string::npos;
-                }
-                else {
-                    _pos = _next + _delimiter.length();
-                }
+        value_type operator*() const {
+            if (_last != _splitIteratorHelper->string.size()) {
+                return _splitIteratorHelper->string.substr(_startingPosition, _last - _startingPosition);;
             }
-            else {
-                _substring = SubString(&_string[_pos]);
-            }
+            return _splitIteratorHelper->string.substr(_startingPosition);
         }
 
-        reference operator*() {
-            return _substring;
+        pointer operator->() const {
+            return FakePointerProxy<decltype(**this)>(**this);
         }
 
-        pointer operator->() {
-            return &_substring;
-        }
-
-        bool operator!=(const SplitIterator& other) const {
-            return _pos != other._pos;
+        bool operator!=(const SplitIterator& /*other*/) const {
+            return _last != _splitIteratorHelper->string.size();
         }
 
         bool operator==(const SplitIterator& other) const {
@@ -67,9 +57,20 @@ namespace lz { namespace detail {
         }
 
         SplitIterator& operator++() {
-            _pos = _next == std::string::npos ? _string.size() : _pos;
-            find();
+            if (_last != std::string::npos) {
+                _startingPosition = _last + _splitIteratorHelper->delimiter.length();
+                _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _startingPosition);
+            }
+            else {
+                _last = _splitIteratorHelper->string.size();
+            }
             return *this;
+        }
+
+        SplitIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
         }
     };
 }}

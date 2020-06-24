@@ -5,8 +5,8 @@
 
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {
-    std::string toSplit = "Hello world test 123 ";
-    std::string delimiter = " ";
+    std::string toSplit = "Hello  world  test  123  ";
+    std::string delimiter = "  ";
     auto splitter = lz::split(toSplit, std::move(delimiter));
     auto it = splitter.begin();
 
@@ -19,8 +19,8 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
     }
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
-    SECTION("Should be const std::string&") {
-        CHECK(std::is_same<decltype(*it), std::string&>::value);
+    SECTION("Should be std::string") {
+        CHECK(std::is_same<decltype(*it), std::string>::value);
     }
 #else
     SECTION("Should be std::string_view") {
