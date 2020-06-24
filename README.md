@@ -104,6 +104,22 @@ Every iterator (except zip) has a `"[iterator-name]range` and `[iterator-name]` 
 - **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
 - **Zip** can be used to iterate over multiple containers and stops and the shortest container length.
 
+# Installation
+Clone the repository and add to `CMakeLists.txt` the following:
+```cmake
+add_subdirectory(cpp-lazy)
+add_executable(EXECUTABLE main.cpp)
+target_link_libraries(PROJECT_NAME cpp-lazy)
+```
+```cpp
+#include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
+
+int main() {
+  // use e.g. lz::filter
+}
+```
+Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
+
 # Benchmarks cpp-lazy
 Time in nanoseconds
 
