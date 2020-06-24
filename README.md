@@ -96,7 +96,7 @@ Every iterator (except zip) has a `"[iterator-name]range` and `[iterator-name]` 
 
 # Current supported iterators
  Current supported iterators are:
-- **Enumerate**, when iterating over this iterator, it returns an std::pair where the `.first` is the index counter and the `.second` the element of the container by reference.
+- **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
 - **Filter** filters out elements given by a function predicate
 - **Map** selects certain values from a type given a function predicate
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
