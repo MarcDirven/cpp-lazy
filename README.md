@@ -62,7 +62,6 @@ for (std::string_view word : lz::split(toSplit, " ")) {
 ```
 In C++14 however, that will be
 ```cpp
-In C++14 that will be:
 std::string toSplit = "Hello world";
 
 for (std::string& word : lz::split(toSplit, " ")) {
