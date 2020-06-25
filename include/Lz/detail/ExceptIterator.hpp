@@ -24,10 +24,14 @@ namespace lz { namespace detail {
         using reference = typename std::iterator_traits<Iterator>::reference;
 
     private:
-        const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper =
-            ExceptIteratorHelper<Iterator, IteratorToExcept>();
+        const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
 
     public:
+        // gcc 5.4.0 crashes with inline declaration
+        ExceptIterator():
+            _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
+        }
+
         explicit ExceptIterator(const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
             _iteratorHelper(iteratorHelper) {
         }
