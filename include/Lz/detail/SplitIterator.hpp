@@ -22,29 +22,46 @@ namespace lz { namespace detail {
     template<class SubString>
     class SplitIterator {
         const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
-        size_t _startingPosition{};
+        size_t _start{};
         size_t _last{};
 
     public:
         using pointer = const SubString*;
         using iterator_category = std::input_iterator_tag;
-        using value_type = SubString;
+        using value_type =  std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
         using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
         using difference_type = std::string::const_iterator::difference_type;
 
         SplitIterator(size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
             _splitIteratorHelper(splitIteratorHelper),
-            _startingPosition(startingPosition),
-            _last(splitIteratorHelper->string.find(_splitIteratorHelper->delimiter)) {
+            _start(startingPosition) {
+            if (startingPosition == splitIteratorHelper->string.size()) {
+                return;
+            }
+            find();
         }
 
-        reference operator*() const {
-            if (_last != _splitIteratorHelper->string.size()) {
-                _splitIteratorHelper->substring =
-                    _splitIteratorHelper->string.substr(_startingPosition, _last - _startingPosition);
-                return _splitIteratorHelper->substring;
+        void find() {
+            _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _start);
+
+            if (_last != std::string::npos) {
+                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_start],
+                                                            _last - _start);
+                // Check if end ends with delimiter
+                if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
+                    _last = std::string::npos;
+                }
+                else {
+                    _start = _last + _splitIteratorHelper->delimiter.size();
+                }
             }
-            _splitIteratorHelper->substring = _splitIteratorHelper->string.substr(_startingPosition);
+            else {
+                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_start]);
+            }
+        }
+
+        // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
+        std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
             return _splitIteratorHelper->substring;
         }
 
@@ -52,8 +69,8 @@ namespace lz { namespace detail {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
-        bool operator!=(const SplitIterator& /*other*/) const {
-            return _last != _splitIteratorHelper->string.size();
+        bool operator!=(const SplitIterator& other) const {
+            return _start != other._start;
         }
 
         bool operator==(const SplitIterator& other) const {
@@ -61,13 +78,8 @@ namespace lz { namespace detail {
         }
 
         SplitIterator& operator++() {
-            if (_last != std::string::npos) {
-                _startingPosition = _last + _splitIteratorHelper->delimiter.length();
-                _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _startingPosition);
-            }
-            else {
-                _last = _splitIteratorHelper->string.size();
-            }
+            _start = _last == std::string::npos ? _splitIteratorHelper->string.size() : _start;
+            find();
             return *this;
         }
 
