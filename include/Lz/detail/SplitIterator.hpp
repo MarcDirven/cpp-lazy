@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <string>
+#include <iostream>
 #include <Lz/detail/LzTools.hpp>
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
@@ -35,10 +36,10 @@ namespace lz { namespace detail {
 
         SplitIterator(size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
             _splitIteratorHelper(splitIteratorHelper) {
-            _splitIteratorHelper->start = startingPosition;
             if (startingPosition == splitIteratorHelper->string.size()) {
                 return;
             }
+            _splitIteratorHelper->start = startingPosition;
             find();
         }
 
