@@ -107,8 +107,8 @@ Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]`
 Clone the repository and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
-add_executable(EXECUTABLE main.cpp)
-target_link_libraries(PROJECT_NAME cpp-lazy)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} cpp-lazy)
 ```
 ```cpp
 #include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
