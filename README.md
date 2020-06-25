@@ -120,10 +120,8 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-Time in nanoseconds
+<div style="text-align:center"><img src="https://i.imgur.com/liueGTO.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/i8UNtz8.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/K1qIVh8.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/tuKCTzM.png" /></div>
-
-<div style="text-align:center"><img src="https://i.imgur.com/NG1gV8h.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/drMNzN7.png" /></div>
