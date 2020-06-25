@@ -33,6 +33,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        MapIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         MapIterator& operator--() {
             --_iterator;
             return *this;

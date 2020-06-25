@@ -85,6 +85,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        ZipIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         ZipIterator& operator--() {
             decrement(std::index_sequence_for<Containers...>{});
             return *this;

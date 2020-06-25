@@ -20,39 +20,34 @@ namespace lz {
         using const_iterator = detail::SplitIterator<SubString>;
 
     private:
-        const std::string& _string = std::string();
-        std::string _delimiter{};
+        detail::SplitViewIteratorHelper<SubString> _splitIteratorHelper;
 
     public:
         using value_type = SubString;
 
         /**
-         * @brief Creates a String splitter object. Its `begin()` and `end()` return an forward iterator.
+         * @brief Creates a String splitter object. Its `begin()` and `end()` return an input iterator.
          * @param str The string to split.
          * @param delimiter The delimiter to split on.
          */
         StringSplitter(const std::string& str, std::string&& delimiter) :
-            _string(str),
-            _delimiter(std::move(delimiter)) {
+            _splitIteratorHelper{std::move(delimiter), str} {
         }
 
         /**
-         * @brief Returns a forward string split iterator to the beginning.
-         * @return A forward string split iterator to the beginning.
+         * @brief Returns a input string split iterator to the beginning.
+         * @return A input string split iterator to the beginning.
          */
         const_iterator begin() const {
-            const_iterator it(0, _string, _delimiter);
-            it.find();
-            return it;
+            return const_iterator(0, &_splitIteratorHelper);
         }
 
         /**
-         * @brief Returns a forward string split iterator to the ending.
-         * @return A forward string split iterator to the ending.
+         * @brief Returns a input string split iterator to the ending.
+         * @return A input string split iterator to the ending.
          */
         const_iterator end() const {
-            const_iterator it(_string.size(), _string, _delimiter);
-            return it;
+            return const_iterator(_splitIteratorHelper.string.size(), &_splitIteratorHelper);
         }
 
         /**
@@ -118,7 +113,7 @@ namespace lz {
     /**
      * @brief This is a lazy evaluated string splitter function. If not using C++17 or higher, you can use `std::move`
      * to safely move the substring, that is returned by the
-     * `StringSplitter<SubString>::const_iterator::operator*`. Its `begin()` and `end()` return an forward iterator.
+     * `StringSplitter<SubString>::const_iterator::operator*`. Its `begin()` and `end()` return an input iterator.
      * @tparam SubString The type that gets returned when the `StringSplitter<SubString>::const_iterator::operator*` is
      * called. Can be specified, but if C++17 or higher is defined, `std::string_view` is used, otherwise `std::string`.
      * @param str The string to split.

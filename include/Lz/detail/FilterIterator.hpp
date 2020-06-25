@@ -42,6 +42,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        FilterIterator operator++(int) {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
+
         bool operator!=(const FilterIterator& other) const {
             return _iterator != other._end;
         }
