@@ -7,51 +7,60 @@
 
 namespace lz { namespace detail {
     template<class Iterator, class IteratorToExcept>
+    struct ExceptIteratorHelper {
+        mutable Iterator iterator{};
+        Iterator end{};
+        IteratorToExcept toExceptBegin{};
+        IteratorToExcept toExceptEnd{};
+    };
+
+    template<class Iterator, class IteratorToExcept>
     class ExceptIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::input_iterator_tag;
         using value_type = typename std::iterator_traits<Iterator>::value_type;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
         using reference = typename std::iterator_traits<Iterator>::reference;
 
     private:
-        Iterator _iterator{};
-        Iterator _end{};
-        IteratorToExcept _toExceptBegin{};
-        IteratorToExcept _toExceptEnd{};
+        const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
 
     public:
-        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd):
-            _iterator(begin),
-            _end(end),
-            _toExceptBegin(toExceptBegin),
-            _toExceptEnd(toExceptEnd) {
+        // gcc 5.4.0 crashes with inline declaration
+        ExceptIterator():
+            _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
+        }
+
+        explicit ExceptIterator(const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
+            _iteratorHelper(iteratorHelper) {
         }
 
         void find() {
-            IteratorToExcept it = std::find(_toExceptBegin, _toExceptEnd, *_iterator);
+            IteratorToExcept it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
+                                            *_iteratorHelper->iterator);
 
-            while (it != _toExceptEnd) {
-                ++_iterator;
-                if (_iterator == _end) {
+            while (it != _iteratorHelper->toExceptEnd) {
+                ++_iteratorHelper->iterator;
+                if (_iteratorHelper->iterator == _iteratorHelper->end) {
                     return;
                 }
-                it = std::find(_toExceptBegin, _toExceptEnd, *_iterator);
+                it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
+                               *_iteratorHelper->iterator);
             }
         }
 
         reference operator*() const {
-            return *_iterator;
+            return *_iteratorHelper->iterator;
         }
 
         pointer operator->() const {
-            return _iterator.operator->();
+            return _iteratorHelper->iterator.operator->();
         }
 
         ExceptIterator& operator++() {
-            ++_iterator;
-            if (_iterator != _end) {
+            ++_iteratorHelper->iterator;
+            if (_iteratorHelper->iterator != _iteratorHelper->end) {
                 find();
             }
             return *this;
@@ -64,7 +73,7 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const ExceptIterator& other) const {
-            return _iterator != other._end;
+            return _iteratorHelper->iterator != other._iteratorHelper->end;
         }
 
         bool operator==(const ExceptIterator& other) const {
