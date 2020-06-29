@@ -132,7 +132,7 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+    auto range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         return Range<Arithmetic>(start, end, step);
     }
@@ -146,7 +146,7 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    Range<Arithmetic> range(const Arithmetic end) {
+    auto range(const Arithmetic end) {
         return range<Arithmetic>(0, end, 1);
     }
 
