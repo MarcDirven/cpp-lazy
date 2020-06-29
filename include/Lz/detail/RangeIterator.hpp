@@ -7,7 +7,6 @@ namespace lz { namespace detail {
     template<class Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};
-        Arithmetic _end{};
         Arithmetic _step{};
 
     public:
@@ -17,9 +16,8 @@ namespace lz { namespace detail {
         using pointer = const Arithmetic*;
         using reference = Arithmetic;
 
-        RangeIterator(Arithmetic begin, Arithmetic end, Arithmetic step) :
-            _iterator(begin),
-            _end(end),
+        RangeIterator(Arithmetic iterator, Arithmetic step) :
+            _iterator(iterator),
             _step(step) {
         }
 
@@ -68,7 +66,7 @@ namespace lz { namespace detail {
         }
 
         difference_type operator-(const RangeIterator& other) const {
-            return other._end - _iterator;
+            return _iterator - other._iterator;
         }
 
         value_type operator[](const difference_type offset) const {
@@ -77,9 +75,9 @@ namespace lz { namespace detail {
 
         bool operator!=(const RangeIterator& other) const {
             if (_step < 0) {
-                return _iterator > other._end;
+                return _iterator > other._iterator;
             }
-            return _iterator < other._end;
+            return _iterator < other._iterator;
         }
 
         bool operator==(const RangeIterator& other) const {
@@ -87,7 +85,7 @@ namespace lz { namespace detail {
         }
 
         bool operator<(const RangeIterator& other) const {
-            return _iterator < other._end;
+            return _iterator < other._iterator;
         }
 
         bool operator>(const RangeIterator& other) const {

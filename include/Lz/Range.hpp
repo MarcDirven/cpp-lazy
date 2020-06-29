@@ -36,7 +36,7 @@ namespace lz {
          * @return The beginning of the random access Range iterator
          */
         iterator begin() const {
-            return iterator(_begin, _end, _step);
+            return iterator(_begin, _step);
         }
 
         /**
@@ -44,7 +44,7 @@ namespace lz {
          * @return The ending of the random access Range iterator
          */
         iterator end() const {
-            return iterator(_begin, _end, _step);
+            return iterator(_end, _step);
         }
 
         /**
