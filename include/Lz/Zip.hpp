@@ -121,7 +121,7 @@ namespace lz {
      * `for (auto tuple :  lz::zip(...))`.
      */
     template<class... Iterables>
-    Zip<Iterables...> zip(Iterables&& ... iterables) {
+    auto zip(Iterables&& ... iterables) {
         return Zip<Iterables...>(iterables...);
     }
 
