@@ -46,9 +46,10 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
 }
 
 TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
+    constexpr size_t size = 4;
     std::vector<int> a = {1, 2, 3, 4};
     std::vector<float> b = {1.f, 2.f, 3.f, 4.f};
-    std::array<short, 4> c = {1, 2, 3, 4};
+    std::array<short, size> c = {1, 2, 3, 4};
 
     auto zipper = lz::zip(a, b, c);
     auto begin = zipper.begin();
@@ -74,7 +75,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(zipper.begin(), zipper.end()) == 4);
+        CHECK((zipper.end() - zipper.begin()) == 4);
 
         std::array<short, 3> shortest = {1, 2, 3};
         auto zip = lz::zip(c, shortest);
@@ -86,8 +87,11 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
         CHECK(zipper.begin()[idx] == std::make_tuple(a[idx], Approx(b[idx]), c[idx]));
     }
 
-    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+    SECTION("Operator<, <, <=, >, >=") {
         CHECK(zipper.begin() < zipper.end());
+        CHECK(zipper.begin() + size + 1 > zipper.end());
+        CHECK(zipper.begin() + size <= zipper.end());
+        CHECK(zipper.begin() + size >= zipper.end());
     }
 }
 
