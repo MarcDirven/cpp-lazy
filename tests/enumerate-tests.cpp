@@ -71,8 +71,11 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
         CHECK(enumerate.begin()[1].second == 2);
     }
 
-    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+    SECTION("Operator<, '<, <=, >, >='") {
         CHECK(enumerate.begin() < enumerate.end());
+        CHECK(enumerate.begin() + size + 1 > enumerate.end());
+        CHECK(enumerate.begin() + size <= enumerate.end());
+        CHECK(enumerate.begin() + size >= enumerate.end());
     }
 }
 
