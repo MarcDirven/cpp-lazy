@@ -16,6 +16,7 @@ set(DETAIL_HEADER_FILES
         ${IT_DETAIL_HEADERS}/LzTools.hpp
         ${IT_DETAIL_HEADERS}/MapIterator.hpp
         ${IT_DETAIL_HEADERS}/RangeIterator.hpp
+        ${IT_DETAIL_HEADERS}/RepeatIterator.hpp
         ${IT_DETAIL_HEADERS}/SplitIterator.hpp
         ${IT_DETAIL_HEADERS}/TakeIterator.hpp
         ${IT_DETAIL_HEADERS}/ZipIterator.hpp
@@ -28,6 +29,7 @@ set(HEADER_FILES
         ${IT_HEADERS}/Filter.hpp
         ${IT_HEADERS}/Map.hpp
         ${IT_HEADERS}/Range.hpp
+        ${IT_HEADERS}/Repeat.hpp
         ${IT_HEADERS}/StringSplitter.hpp
         ${IT_HEADERS}/Take.hpp
         ${IT_HEADERS}/Zip.hpp
