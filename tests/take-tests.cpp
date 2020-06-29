@@ -55,8 +55,8 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     std::array<int, size> array = {
         1, 2, 3
     };
-
-    auto taken = lz::take(array, 2);
+    constexpr size_t takeAmount = 2;
+    auto taken = lz::take(array, takeAmount);
     auto it = taken.begin();
 
     SECTION("Operator++") {
@@ -80,15 +80,18 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(taken.begin(), taken.end()) == 2);
+        CHECK((taken.end() - taken.begin()) == 2);
     }
 
     SECTION("Operator[]()") {
         CHECK(taken.begin()[0] == 1);
     }
 
-    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+    SECTION("Operator<, '<, <=, >, >='") {
         CHECK(taken.begin() < taken.end());
+        CHECK(taken.begin() + takeAmount + 1 > taken.end());
+        CHECK(taken.begin() + takeAmount <= taken.end());
+        CHECK(taken.begin() + takeAmount >= taken.end());
     }
 }
 
