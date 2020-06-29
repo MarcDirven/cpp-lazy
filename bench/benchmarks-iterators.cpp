@@ -152,9 +152,7 @@ static void BM_Zip2(benchmark::State& state) {
 }
 
 static void BM_Except(benchmark::State& state) {
-    constexpr size_t s = SizePolicy;
-
-    std::array<int, s> largeArr = lz::range(static_cast<int>(s)).toArray<s>();
+    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
     std::array<int, SizePolicy / 2> toLargeExcept =
         lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
 
@@ -163,6 +161,16 @@ static void BM_Except(benchmark::State& state) {
 
         for (auto excepted : ex) {
             benchmark::DoNotOptimize(excepted);
+        }
+    }
+}
+
+static void BM_Repeat(benchmark::State& state) {
+    for (auto _ : state) {
+        auto repeater = lz::repeat(0, SizePolicy);
+
+        for (int r : repeater) {
+            benchmark::DoNotOptimize(r);
         }
     }
 }
@@ -180,7 +188,7 @@ BENCHMARK(BM_Slice);
 BENCHMARK(BM_Zip4);
 BENCHMARK(BM_Zip3);
 BENCHMARK(BM_Zip2);
-
+BENCHMARK(BM_Repeat);
 
 
 BENCHMARK_MAIN();
