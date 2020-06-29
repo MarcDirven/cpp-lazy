@@ -31,7 +31,7 @@ namespace lz {
          */
         Take(Iterator begin, Iterator end, Function function) :
             _begin(begin, end, function),
-            _end(begin, end, function) {
+            _end(end, end, function) {
         }
 
         /**
