@@ -131,7 +131,14 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto map(Iterable&& iterable, Function function) {
+#ifdef _MSC_VER
+        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+        // past-the-end and also causing the operator>= never to be used.
+        return maprange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, function);
+#else
         return maprange(iterable.begin(), iterable.end(), function);
+#endif
     }
 
     // End of group

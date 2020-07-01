@@ -34,8 +34,17 @@ namespace lz {
          * @param containers
          */
         explicit Zip(Containers&& ... containers) :
+#ifdef _MSC_VER
+            // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+            // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+            // past-the-end and also causing the operator>= never to be used.
+            _begin(std::make_tuple((&(*containers.begin()))...)),
+            _end(std::make_tuple((&(*(containers.end() - 1)) + 1)...))
+#else
             _begin(std::make_tuple(containers.begin()...)),
-            _end(std::make_tuple(containers.end()...)) {
+            _end(std::make_tuple(containers.end()...))
+#endif
+        {
         }
 
         /**
@@ -76,8 +85,7 @@ namespace lz {
         * @return A `std::vector<std::tuple<T...>>` and a default `std::allocator`.
         */
         std::vector<value_type> toVector() const {
-            return toVector < std::allocator<value_type>>
-            ();
+            return toVector<std::allocator<value_type>>();
         }
 
         /**

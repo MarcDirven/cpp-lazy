@@ -70,7 +70,8 @@ namespace lz {
          * @return A `std::vector<std::pair<IntType, value_type>>` with default `std::allocator`.
          */
         std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
+            return toVector < std::allocator<value_type>>
+            ();
         }
 
         /**
@@ -134,7 +135,14 @@ namespace lz {
      */
     template<class IntType = int, class Iterable>
     auto enumerate(Iterable&& iterable, IntType start = 0) {
+#ifdef _MSC_VER
+        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+        // past-the-end and also causing the operator>= never to be used.
+        return enumeraterange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, start);
+#else
         return enumeraterange(iterable.begin(), iterable.end(), start);
+#endif
     }
 
     // End of group

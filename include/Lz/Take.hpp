@@ -143,7 +143,14 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto takewhile(Iterable&& iterable, Function predicate) {
+#ifdef _MSC_VER
+        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+        // past-the-end and also causing the operator>= never to be used.
+        return takewhilerange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, predicate);
+#else
         return takewhilerange(iterable.begin(), iterable.end(), predicate);
+#endif
     }
 
     /**

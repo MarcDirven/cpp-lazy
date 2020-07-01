@@ -15,7 +15,11 @@ namespace lz { namespace detail {
         using reference = value_type;
 
     private:
+#ifdef _MSC_VER
+        std::tuple<decltype(&(*std::declval<Containers>().begin()))...> _iterators;
+#else
         std::tuple<decltype(std::declval<Containers>().begin())...> _iterators;
+#endif
 
         template<size_t... I>
         value_type dereference(std::index_sequence<I...> /*is*/) const {
