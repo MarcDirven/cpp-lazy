@@ -66,7 +66,8 @@ namespace lz { namespace detail {
         }
 
         difference_type operator-(const RangeIterator& other) const {
-            return _iterator - other._iterator;
+            auto distance = _iterator - other._iterator;
+            return static_cast<difference_type>(distance / _step);
         }
 
         value_type operator[](const difference_type offset) const {
