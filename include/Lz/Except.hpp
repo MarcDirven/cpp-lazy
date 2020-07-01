@@ -104,14 +104,16 @@ namespace lz {
     };
 
     /**
-     *
-     * @tparam Iterator
-     * @tparam IteratorToExcept
-     * @param begin
-     * @param end
-     * @param toExceptBegin
-     * @param toExceptEnd
-     * @return
+     * @brief This function returns a view to the random access ExceptIterator.
+     * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
+     * [`toExceptBegin`, `toExceptEnd).
+     * @tparam Iterator Is automatically deduced.
+     * @tparam IteratorToExcept Is automatically deduced.
+     * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
+     * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
+     * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
+     * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
+     * @return An Except view object.
      */
     template<class Iterator, class IteratorToExcept>
     auto exceptrange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) {
@@ -119,12 +121,13 @@ namespace lz {
     }
 
     /**
-     *
-     * @tparam Iterable
-     * @tparam IterableToExcept
-     * @param iterable
-     * @param toExcept
-     * @return
+     * @brief This function returns a view to the random access ExceptIterator.
+     * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam IteratorToExcept Is automatically deduced.
+     * @param iterable The iterable to except elements from contained by `toExcept`.
+     * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
+     * @return An Except view object.
      */
     template<class Iterable, class IterableToExcept>
     auto except(Iterable&& iterable, IterableToExcept&& toExcept) {
