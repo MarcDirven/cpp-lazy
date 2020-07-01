@@ -104,7 +104,7 @@ Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]`
 - **StringSplitter** Splits a string on a given delimiter.
 - **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
 - **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in `{1, 3, 5}`.
-- **Zip** can be used to iterate over multiple containers and stops and the shortest container length.
+- **Zip** can be used to iterate over multiple containers and stops and the shortest container length. The items contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by reference (`std::tuple<TypeA&, TypeB&[...]>`).
 
 # Installation
 Clone the repository and add to `CMakeLists.txt` the following:
