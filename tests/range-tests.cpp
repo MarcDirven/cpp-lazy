@@ -71,6 +71,11 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
 
     SECTION("Operator-(Iterator)") {
         CHECK((range.end() - range.begin()) == 10);
+
+        auto step = 2;
+        auto otherRange = lz::range(0, size, step);
+        CHECK(std::distance(otherRange.begin(), otherRange.end()) == static_cast<std::ptrdiff_t>(size / step));
+        CHECK(otherRange.end() - otherRange.begin() == static_cast<std::ptrdiff_t>(size / step));
     }
 
     SECTION("Operator[]()") {
