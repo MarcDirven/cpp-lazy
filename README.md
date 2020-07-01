@@ -96,11 +96,14 @@ Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]`
 # Current supported iterators
  Current supported iterators are:
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
+- **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
 - **Filter** filters out elements given by a function predicate
 - **Map** selects certain values from a type given a function predicate
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
+- **Repeat** repeats an element `amount` of times.
 - **StringSplitter** Splits a string on a given delimiter.
 - **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
+- **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in `{1, 3, 5}`.
 - **Zip** can be used to iterate over multiple containers and stops and the shortest container length.
 
 # Installation
