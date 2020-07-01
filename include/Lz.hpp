@@ -8,5 +8,6 @@
 #include <Lz/Repeat.hpp>
 #include <Lz/StringSplitter.hpp>
 #include <Lz/Take.hpp>
+#include <Lz/TakeEvery.hpp>
 #include <Lz/Zip.hpp>
 

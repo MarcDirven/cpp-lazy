@@ -175,6 +175,19 @@ static void BM_Repeat(benchmark::State& state) {
     }
 }
 
+static void BM_TakeEvery(benchmark::State& state) {
+    std::array<int, SizePolicy> array{};
+    constexpr size_t offset = 2;
+
+    for (auto _ : state) {
+        auto takeEvery = lz::takeevery(array, offset);
+
+        for (int taken : takeEvery) {
+            benchmark::DoNotOptimize(taken);
+        }
+    }
+}
+
 
 BENCHMARK(BM_Except);
 BENCHMARK(BM_Enumerate);
@@ -189,5 +202,6 @@ BENCHMARK(BM_Zip4);
 BENCHMARK(BM_Zip3);
 BENCHMARK(BM_Zip2);
 BENCHMARK(BM_Repeat);
+BENCHMARK(BM_TakeEvery);
 
 BENCHMARK_MAIN();
