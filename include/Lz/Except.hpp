@@ -103,11 +103,29 @@ namespace lz {
         }
     };
 
+    /**
+     *
+     * @tparam Iterator
+     * @tparam IteratorToExcept
+     * @param begin
+     * @param end
+     * @param toExceptBegin
+     * @param toExceptEnd
+     * @return
+     */
     template<class Iterator, class IteratorToExcept>
     auto exceptrange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
     }
 
+    /**
+     *
+     * @tparam Iterable
+     * @tparam IterableToExcept
+     * @param iterable
+     * @param toExcept
+     * @return
+     */
     template<class Iterable, class IterableToExcept>
     auto except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptrange(iterable.begin(), iterable.end(), toExcept.begin(), toExcept.end());

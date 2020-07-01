@@ -121,7 +121,7 @@ namespace lz {
      */
 
     /**
-     * @brief Returns a bidirectional range object with specified [start, end) and a step.
+     * @brief Returns a random access range object with specified [start, end) and a step.
      * @details E.g. `lz::range(3, 20, 2)` will return all values between [3, 20) with a step of 2 when iterating over
      * its iterator.
      * @tparam Arithmetic Int is automatically assumed, may be any arithmetic type.
@@ -138,7 +138,7 @@ namespace lz {
     }
 
     /**
-     * @brief Returns a bidirectional range object.
+     * @brief Returns a random access range object.
      * @details E.g. `lz::range(50)` will return all values between [0, 50) when iterating over its iterator.
      * @tparam Arithmetic Int is automatically assumed, may be any arithmetic type.
      * @param end Specifies when to stop iterator after `end` count. It is assumed from [0, end).

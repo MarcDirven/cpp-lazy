@@ -109,7 +109,7 @@ namespace lz {
      * @tparam T Is automatically deduced by the compiler.
      * @param toRepeat The value to repeat `amount` times.
      * @param amount The amount of times to repeat the loop, returning `toRepeat`.
-     * @return A repeat object, containing the iterator.
+     * @return A repeat object, containing the random access iterator.
      */
     template<class T>
     auto repeat(T toRepeat, size_t amount = std::numeric_limits<size_t>::max()) {

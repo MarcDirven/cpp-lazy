@@ -102,8 +102,8 @@ namespace lz {
      */
 
     /**
-     * @brief Creates an Enumerate object from two iterators. This can be useful when an index and a value type of a
-     * container is needed.
+     * @brief Creates an Enumerate (random access) object from two iterators. This can be useful when an index and a
+     * value type of a container is needed.
      * @details Creates an Enumerate object. The enumerator consists of a `std::pair<IntType, value_type&>`. The
      * elements of the enumerate iterator are by reference. The `std:::pair<IntType, value_type&>::first` is the
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
@@ -121,8 +121,9 @@ namespace lz {
     }
 
     /**
-     * @brief Creates an Enumerate object from an iterable. This can be useful when an index and a value type of a
-     * iterable is needed.
+     * @brief Creates an Enumerate (random access) object from an iterable. This can be useful when an index and a value
+     * type of a iterable is needed.  If MSVC and the type is an STL  iterator, pass a pointer iterator, not an actual
+     * iterator object.
      * @details Creates an Enumerate object. The enumerator consists of a `std::pair<IntType, value_type&>`. The
      * elements of the enumerate iterator are by reference. The `std:::pair<IntType, value_type&>::first` is the
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
@@ -139,6 +140,9 @@ namespace lz {
         // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
+        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
+            return enumeraterange(&(*iterable.begin()), &(*iterable.begin()), start);
+        }
         return enumeraterange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, start);
 #else
         return enumeraterange(iterable.begin(), iterable.end(), start);
