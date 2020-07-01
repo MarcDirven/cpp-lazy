@@ -36,7 +36,7 @@ namespace lz {
          * @return The beginning of the random access Range iterator
          */
         iterator begin() const {
-            return iterator(_begin, _end, _step);
+            return iterator(_begin, _step);
         }
 
         /**
@@ -44,7 +44,7 @@ namespace lz {
          * @return The ending of the random access Range iterator
          */
         iterator end() const {
-            return iterator(_begin, _end, _step);
+            return iterator(_end, _step);
         }
 
         /**
@@ -121,7 +121,7 @@ namespace lz {
      */
 
     /**
-     * @brief Returns a bidirectional range object with specified [start, end) and a step.
+     * @brief Returns a random access range object with specified [start, end) and a step.
      * @details E.g. `lz::range(3, 20, 2)` will return all values between [3, 20) with a step of 2 when iterating over
      * its iterator.
      * @tparam Arithmetic Int is automatically assumed, may be any arithmetic type.
@@ -132,13 +132,13 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+    auto range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         return Range<Arithmetic>(start, end, step);
     }
 
     /**
-     * @brief Returns a bidirectional range object.
+     * @brief Returns a random access range object.
      * @details E.g. `lz::range(50)` will return all values between [0, 50) when iterating over its iterator.
      * @tparam Arithmetic Int is automatically assumed, may be any arithmetic type.
      * @param end Specifies when to stop iterator after `end` count. It is assumed from [0, end).
@@ -146,7 +146,7 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    Range<Arithmetic> range(const Arithmetic end) {
+    auto range(const Arithmetic end) {
         return range<Arithmetic>(0, end, 1);
     }
 

@@ -8,7 +8,6 @@ namespace lz { namespace detail {
     class TakeIterator {
     private:
         Iterator _iterator{};
-        Iterator _end{};
         Function _function{};
 
     public:
@@ -21,7 +20,6 @@ namespace lz { namespace detail {
     public:
         TakeIterator(Iterator iterator, Iterator end, Function function) :
             _iterator(iterator),
-            _end(end),
             _function(function) {
             _iterator = !_function(*iterator) ? end : _iterator;
         }
@@ -73,7 +71,7 @@ namespace lz { namespace detail {
         }
 
         difference_type operator-(const TakeIterator& other) const {
-            return _end - other._iterator;
+            return _iterator - other._iterator;
         }
 
         reference operator[](const difference_type offset) {
@@ -81,7 +79,7 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const TakeIterator& other) const {
-            if (_iterator == other._end) {
+            if (_iterator == other._iterator) {
                 return false;
             }
             return _function(*_iterator);
@@ -89,11 +87,11 @@ namespace lz { namespace detail {
 
         bool operator==(const TakeIterator& other) const {
             // Prevent recursion when: TakeWhileIterator<TakeWhileIterator<Iterator, fn>, fn>
-            return &(*_iterator) == &(*other._end);
+            return &(*_iterator) == &(*other._iterator);
         }
 
         bool operator<(const TakeIterator& other) const {
-            return _iterator < other._end;
+            return _iterator < other._iterator;
         }
 
         bool operator>(const TakeIterator& other) const {

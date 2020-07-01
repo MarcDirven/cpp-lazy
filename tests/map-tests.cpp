@@ -76,15 +76,18 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(map.begin(), map.end()) == 3);
+        CHECK((map.end() - map.begin()) == 3);
     }
 
     SECTION("Operator[]()") {
         CHECK(it[1] == "FieldB");
     }
 
-    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+    SECTION("Operator<, <, <=, >, >=") {
         CHECK(map.begin() < map.end());
+        CHECK(map.begin() + size + 1 > map.end());
+        CHECK(map.begin() + size <= map.end());
+        CHECK(map.begin() + size >= map.end());
     }
 }
 

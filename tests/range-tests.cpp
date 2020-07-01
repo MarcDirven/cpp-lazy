@@ -43,7 +43,8 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
 }
 
 TEST_CASE("Range binary operations", "[Range][Binary ops]") {
-    auto range = lz::range(10);
+    constexpr int size = 10;
+    auto range = lz::range(size);
     auto it = range.begin();
 
     CHECK(*it == 0);
@@ -69,15 +70,23 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(range.begin(), range.end()) == 10);
+        CHECK((range.end() - range.begin()) == 10);
+
+        auto step = 2;
+        auto otherRange = lz::range(0, size, step);
+        CHECK(std::distance(otherRange.begin(), otherRange.end()) == static_cast<std::ptrdiff_t>(size / step));
+        CHECK(otherRange.end() - otherRange.begin() == static_cast<std::ptrdiff_t>(size / step));
     }
 
     SECTION("Operator[]()") {
         CHECK(range.begin()[1] == 1);
     }
 
-    SECTION("Operator<, checks all '<, <=, >, >=' operators") {
+    SECTION("Operator<, <, <=, >, >=") {
         CHECK(range.begin() < range.end());
+        CHECK(range.begin() + size + 1 > range.end());
+        CHECK(range.begin() + size <= range.end());
+        CHECK(range.begin() + size >= range.end());
     }
 }
 

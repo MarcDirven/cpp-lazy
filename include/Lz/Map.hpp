@@ -103,7 +103,8 @@ namespace lz {
      */
 
     /**
-     * @brief Returns a bidirectional map object.
+     * @brief Returns a bidirectional map object. If MSVC and the type is an STL iterator, pass a pointer iterator, not
+     * an actual iterator object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
      * will return all pairs first values in the sequence, that is, `1` and `3`.
      * @tparam Iterable Is automatically deduced.
@@ -131,7 +132,17 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto map(Iterable&& iterable, Function function) {
+#ifdef _MSC_VER
+        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+        // past-the-end and also causing the operator>= never to be used.
+        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
+            maprange(&(*iterable.begin()), &(*iterable.begin()), function);
+        }
+        return maprange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, function);
+#else
         return maprange(iterable.begin(), iterable.end(), function);
+#endif
     }
 
     // End of group

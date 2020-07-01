@@ -31,7 +31,7 @@ namespace lz {
          */
         Take(Iterator begin, Iterator end, Function function) :
             _begin(begin, end, function),
-            _end(begin, end, function) {
+            _end(end, end, function) {
         }
 
         /**
@@ -116,6 +116,7 @@ namespace lz {
     /**
      * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
      * returns false, the iterator stops. Its `begin()` function returns a random access iterator.
+     * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
      * @tparam Iterator Is automatically deduced.
      * @tparam Function Is automatically deduced.
      * @param begin The beginning of the iterator.
@@ -143,12 +144,23 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto takewhile(Iterable&& iterable, Function predicate) {
+#ifdef _MSC_VER
+        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
+        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
+        // past-the-end and also causing the operator>= never to be used.
+        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
+            takewhilerange(&(*iterable.begin()), &(*iterable.begin()), predicate);
+        }
+        return takewhilerange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, predicate);
+#else
         return takewhilerange(iterable.begin(), iterable.end(), predicate);
+#endif
     }
 
     /**
      * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a
-     * random access iterator.
+     * random access iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
+     * iterator object.
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the 'view'.
      * @param end The ending of the 'view'.
