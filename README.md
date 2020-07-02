@@ -131,7 +131,7 @@ Because a container size of 32 has been used, one iteration approximately takes:
 
 <div style="text-align:center"><img src="https://i.imgur.com/tGlNgUV.png" /></div>
 
-Therefore, 32 iterations take approximately:
+Therefore, a container size of 32 take approximately:
 
 <div style="text-align:center"><img src="https://i.imgur.com/CVxG50z.png" /></div>
 
