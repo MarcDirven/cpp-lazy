@@ -45,6 +45,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        RangeIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         RangeIterator& operator+=(const difference_type offset) {
             _iterator += (offset * _step);
             return *this;

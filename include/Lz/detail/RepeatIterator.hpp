@@ -54,6 +54,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        RepeatIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         RepeatIterator& operator+=(const difference_type offset) {
             _iterator += offset;
             return *this;

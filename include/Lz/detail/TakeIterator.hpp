@@ -48,6 +48,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        TakeIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         TakeIterator& operator+=(const difference_type offset) {
             _iterator += offset;
             return *this;

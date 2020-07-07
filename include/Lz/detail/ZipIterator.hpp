@@ -100,6 +100,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        ZipIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         ZipIterator& operator+=(const difference_type offset) {
             plusIs(std::index_sequence_for<Containers...>{}, offset);
             return *this;
