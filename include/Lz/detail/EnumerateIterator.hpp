@@ -49,6 +49,12 @@ namespace lz { namespace detail {
             return *this;
         }
 
+        EnumerateIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         EnumerateIterator& operator+=(const difference_type offset) {
             _index += offset;
             _iterator += offset;
