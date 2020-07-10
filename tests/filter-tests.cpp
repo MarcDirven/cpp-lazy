@@ -37,12 +37,19 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
 TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     constexpr size_t size = 3;
     std::array<int, size> array{1, 2, 3};
+    auto filter = lz::filter(array, [](int i) { return i != 3; });
+    auto it = filter.begin();
 
     SECTION("Operator++") {
-        auto filter = lz::filter(array, [](int i) { return i != 1 && i != 2; });
-        auto it = filter.begin();
+        CHECK(*it == array[0]);
+        ++it;
+        CHECK(*it == array[1]);
+    }
 
-        CHECK(*it == array[2]);
+    SECTION("Operator== & operator!=") {
+        CHECK(it != filter.end());
+        it = filter.end();
+        CHECK(it == filter.end());
     }
 }
 

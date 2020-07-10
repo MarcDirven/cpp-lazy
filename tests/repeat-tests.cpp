@@ -42,6 +42,12 @@ TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
         CHECK(std::distance(begin, repeater.end()) == amount);
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(begin != repeater.end());
+        begin = repeater.end();
+        CHECK(begin == repeater.end());
+    }
+
     SECTION("Operator+(int), tests += as well") {
         const int toAdd = 2;
         begin += toAdd;

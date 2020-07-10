@@ -60,6 +60,12 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         CHECK(*it == 0);
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(it != range.end());
+        it = range.end();
+        CHECK(it == range.end());
+    }
+
     SECTION("Operator+(int) offset, tests += as well") {
         CHECK(*(it + 2) == 2);
     }

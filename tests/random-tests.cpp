@@ -40,6 +40,12 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
         CHECK(prev != *it);
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(it != random.end());
+        it = random.end();
+        CHECK(it == random.end());
+    }
+
     SECTION("Operator+(int), tests += as well") {
         size_t offset = 1;
         CHECK(std::distance(it + offset, random.end()) == size - offset);

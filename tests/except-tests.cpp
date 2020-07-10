@@ -48,6 +48,12 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
         ++it;
         CHECK(*it == 4);
     }
+
+    SECTION("Operator== & operator!=") {
+        CHECK(it != except.end());
+        it = except.end();
+        CHECK(it == except.end());
+    }
 }
 
 TEST_CASE("Except to containers", "[Except][To container]") {
