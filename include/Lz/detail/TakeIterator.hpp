@@ -6,16 +6,16 @@
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class TakeIterator {
-    private:
-        Iterator _iterator{};
-        Function _function{};
-
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
         using iterator_category = std::random_access_iterator_tag;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using reference = typename std::iterator_traits<Iterator>::reference;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
+
+    private:
+        Iterator _iterator{};
+        std::function<value_type(value_type)> _function{};
 
     public:
         TakeIterator(Iterator iterator, Iterator end, Function function) :

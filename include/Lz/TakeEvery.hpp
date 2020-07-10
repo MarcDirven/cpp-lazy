@@ -132,7 +132,7 @@ namespace lz {
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
         if (iterable.begin() == iterable.end()) { // Prevent UB when subtracting 1 and dereference it
-            takeeveryrange(&(*iterable.begin(), &(*iterable.begin()), offset, start));
+            return takeeveryrange(&(*iterable.begin(), &(*iterable.begin()), offset, start));
         }
         return takeeveryrange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, offset, start);
 #else

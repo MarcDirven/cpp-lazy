@@ -1,15 +1,18 @@
 #pragma once
 
+#include <functional>
 
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class MapIterator {
     private:
         Iterator _iterator{};
-        Function _function{};
+        using FnParamType = decltype(*_iterator);
+        using FnReturnType = decltype(std::declval<Function>()(*_iterator));
+        std::function<FnReturnType(FnParamType)> _function{};
 
     public:
-        using value_type = decltype(_function(*_iterator));
+        using value_type = FnReturnType;
         using iterator_category = std::random_access_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using reference = value_type;

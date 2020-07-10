@@ -16,18 +16,20 @@ namespace lz {
         using value_type = Arithmetic;
 
     private:
+        size_t _amount{};
         detail::RandomIteratorHelper<Arithmetic, Distribution> _helper;
 
     public:
         Random(Arithmetic min, Arithmetic max, size_t amount) :
+            _amount(amount),
             _helper(min, max, amount) {}
 
         iterator begin() const {
-            return iterator(&_helper);
+            return iterator(0, &_helper);
         }
 
         iterator end() const {
-            return iterator(&_helper);
+            return iterator(_amount, &_helper);
         }
 
         template<template<typename, typename...> class Container, typename... Args>

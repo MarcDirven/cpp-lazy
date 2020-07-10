@@ -15,6 +15,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
+        Iterator _begin;
+        Iterator _end;
         detail::ExceptIteratorHelper<Iterator, IteratorToExcept> _iteratorHelper;
 
     public:
@@ -26,7 +28,9 @@ namespace lz {
          * @param toExceptEnd The ending of the actual elements to except.
          */
         Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd):
-            _iteratorHelper{begin, end, toExceptBegin, toExceptEnd}
+            _begin(begin),
+            _end(end),
+            _iteratorHelper{toExceptBegin, toExceptEnd}
         {}
 
         /**
@@ -34,7 +38,7 @@ namespace lz {
          * @return An iterator to the beginning.
          */
         iterator begin() const {
-            iterator begin(&_iteratorHelper);
+            iterator begin(_begin, _end, &_iteratorHelper);
             begin.find();
             return begin;
         }
@@ -44,8 +48,7 @@ namespace lz {
          * @return An iterator to the ending.
          */
         iterator end() const {
-            iterator end(&_iteratorHelper);
-            return end;
+            return iterator(_end, _end, &_iteratorHelper);
         }
 
         /**

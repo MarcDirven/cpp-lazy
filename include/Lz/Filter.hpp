@@ -21,6 +21,7 @@ namespace lz {
     private:
         iterator _begin{};
         iterator _end{};
+        std::function<bool(value_type)> _function{};
 
     public:
         /**
@@ -31,7 +32,7 @@ namespace lz {
          */
         Filter(Iterator begin, Iterator end, Function function) :
             _begin(begin, end, function),
-            _end(begin, end, function) {
+            _end(end, end, function) {
         }
 
         /**

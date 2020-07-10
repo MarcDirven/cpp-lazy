@@ -12,16 +12,13 @@ namespace lz { namespace detail {
     struct RandomIteratorHelper {
         mutable std::mt19937 randomEngine;
         mutable Distribution distribution{};
-        mutable size_t current{};
-        size_t amount{};
         bool isWhileTrueLoop;
 
         RandomIteratorHelper(Arithmetic min, Arithmetic max, size_t amount) :
             distribution(min, max),
-            amount(amount),
             isWhileTrueLoop(amount == std::numeric_limits<size_t>::max()) {
-            static std::random_device r;
-            std::seed_seq seed{r(), r(), r(), r(), r(), r(), r(), r()};
+            static std::random_device rd;
+            std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
             randomEngine = std::mt19937(seed);
         }
 
@@ -40,11 +37,12 @@ namespace lz { namespace detail {
         using reference = Arithmetic&;
 
     private:
+        size_t _current{};
         const RandomIteratorHelper<Arithmetic, Distribution>* _randomIteratorHelper;
 
-
     public:
-        explicit RandomIterator(const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
+        explicit RandomIterator(size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
+            _current(current),
             _randomIteratorHelper(helper) {}
 
         value_type operator*() const {
@@ -57,7 +55,7 @@ namespace lz { namespace detail {
 
         RandomIterator& operator++() {
             if (!_randomIteratorHelper->isWhileTrueLoop) {
-                ++_randomIteratorHelper->current;
+                ++_current;
             }
             return *this;
         }
@@ -70,7 +68,7 @@ namespace lz { namespace detail {
 
         RandomIterator& operator--() {
             if (!_randomIteratorHelper->isWhileTrueLoop) {
-                --_randomIteratorHelper->current;
+                --_current;
             }
             return *this;
         }
@@ -82,7 +80,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator+=(const difference_type offset) {
-            _randomIteratorHelper->current += offset;
+            _current += offset;
             return *this;
         }
 
@@ -93,7 +91,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator-=(const difference_type offset) {
-            _randomIteratorHelper->current -= offset;
+            _current -= offset;
             return *this;
         }
 
@@ -103,28 +101,28 @@ namespace lz { namespace detail {
             return tmp;
         }
 
-        difference_type operator-(const RandomIterator& /*other*/) const {
-            return _randomIteratorHelper->amount - _randomIteratorHelper->current;
+        difference_type operator-(const RandomIterator& other) const {
+            return _current - other._current;
         }
 
         value_type operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
-        bool operator!=(const RandomIterator& /*other*/) const {
-            return _randomIteratorHelper->current != _randomIteratorHelper->amount;
+        bool operator!=(const RandomIterator& other) const {
+            return _current != other._current;
         }
 
         bool operator==(const RandomIterator& other) const {
             return !(*this != other);
         }
 
-        bool operator<(const RandomIterator& /*other*/) const {
-            return _randomIteratorHelper->current < _randomIteratorHelper->amount;
+        bool operator<(const RandomIterator& other) const {
+            return _current < other._current;
         }
 
         bool operator>(const RandomIterator& other) const {
-            return _randomIteratorHelper->current > _randomIteratorHelper->amount;
+            return other < *this;
         }
 
         bool operator<=(const RandomIterator& other) const {
@@ -134,6 +132,5 @@ namespace lz { namespace detail {
         bool operator>=(const RandomIterator& other) const {
             return !(*this < other);
         }
-
     };
 }}

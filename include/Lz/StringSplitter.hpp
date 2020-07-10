@@ -35,7 +35,7 @@ namespace lz {
         }
 
         /**
-         * @brief Returns a input string split iterator to the beginning.
+         * @brief Returns an input string split iterator to the beginning.
          * @return A input string split iterator to the beginning.
          */
         const_iterator begin() const {
@@ -43,7 +43,7 @@ namespace lz {
         }
 
         /**
-         * @brief Returns a input string split iterator to the ending.
+         * @brief Returns an input string split iterator to the ending.
          * @return A input string split iterator to the ending.
          */
         const_iterator end() const {
