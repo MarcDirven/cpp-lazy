@@ -180,7 +180,7 @@ namespace lz {
      * @param iterable An iterable with method `begin()`.
      * @param amount The amount of elements to take from the beginning of the `iterable`.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::take(...))`.}@
+     * `for (auto... lz::take(...))`.
      */
     template<class Iterable>
     auto take(Iterable&& iterable, const size_t amount) {
