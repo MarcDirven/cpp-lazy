@@ -53,7 +53,7 @@ def make_bar_plot(benchmark_records, unit, cxx_version, caches, n_iterations, ti
     size_factor = 1.8
     plt.gcf().set_size_inches(size_factor * figure_size)
 
-    plt.savefig(f'benchmarks-iterators-{cxx_version}-{title_iterations}.png', dpi=400)
+    plt.savefig(f'benchmarks-iterators-{cxx_version}.png', dpi=400)
     plt.clf()
 
 
@@ -69,7 +69,6 @@ def main():
         iterations = 32
         one = 1
         make_bar_plot(bench_records, unit, cxx_version, caches, iterations, one)
-        make_bar_plot(bench_records, unit, cxx_version, caches, one, iterations)
 
 
 if __name__ == '__main__':
