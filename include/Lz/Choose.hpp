@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Lz/detail/ChooseIterator.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/BasicIteratorView.hpp>
+
 
 namespace lz {
     template<class Iterator, class Function>
-    class Choose {
+    class Choose final
+        : public detail::BasicIteratorView<detail::ChooseIterator<Iterator, Function>> {
     public:
         using IteratorType = typename std::iterator_traits<Iterator>::value_type;
         using iterator = detail::ChooseIterator<Iterator, Function>;
@@ -19,38 +21,33 @@ namespace lz {
         detail::ChooseIteratorHelper<Iterator, Function> _helper;
 
     public:
+        /**
+         * @brief Choose view iterator object constructor.
+         * @param begin The beginning of the sequence.
+         * @param end The ending of the sequence.
+         * @param function A function that returns a std::pair<bool, T> and takes a value type of its corresponding
+         * container as parameter.
+         */
         Choose(Iterator begin, Iterator end, Function function):
             _begin(begin),
             _end(end),
             _helper{function}
         {}
 
-        iterator begin() const {
+        /**
+         * @brief Returns the beginning of the sequence.
+         * @return The beginning of the sequence.
+         */
+        iterator begin() const override {
             return iterator(_begin, _end, &_helper);
         }
 
-        iterator end() const {
+        /**
+         * @brief Returns the ending of the sequence.
+         * @return The ending of the sequence.
+         */
+        iterator end() const override {
             return iterator(_end, _end, &_helper);
-        }
-
-        template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to(Args&& ... args) const {
-            return ContainerType<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
-        }
-
-        std::vector<value_type> toVector() const {
-            return toVector < std::allocator<value_type>>
-            ();
-        }
-
-        template<typename Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
-        }
-
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<value_type, N>(begin());
         }
     };
 

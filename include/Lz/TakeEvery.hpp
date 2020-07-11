@@ -2,12 +2,12 @@
 
 #include <iterator>
 #include <Lz/detail/TakeEveryIterator.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/BasicIteratorView.hpp>
 
 
 namespace lz {
     template<class Iterator>
-    class TakeEvery {
+    class TakeEvery final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator>> {
     public:
         using iterator = detail::TakeEveryIterator<Iterator>;
         using const_iterator = iterator;
@@ -34,7 +34,7 @@ namespace lz {
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -42,57 +42,8 @@ namespace lz {
          * @brief Returns the ending of the iterator.
          * @return The ending of the iterator.
          */
-        iterator end() const {
+        iterator end() const override {
             return _end;
-        }
-
-        /**
-         * @brief Creates a container from this TakeEvery object. The container will consists of i.e.:
-         * `SomeContainer<value_type>` with all elements except the elements skipped by `amount`.
-         * @details There is no need to specify its value type. So e.g. `to<std::list>()` will make a `std::list`
-         * container, containing `value_type`.
-         * @tparam ContainerType The type of the container. The first two parameters of this container must be in
-         * an STL-like fashion e.g. `std::list(InputIterator begin, InputIterator end, args). The args can be `void`,
-         * but can be specified to pass an allocator or other parameters, depending on the signature of the container.
-         * @tparam Args This is automatically deduced.
-         * @param args Additional arguments for the container constructor. Mostly, this will be an allocator.
-         * @return A container of type ContainerType<Arithmetic[,Args...]>.
-         */
-        template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to() const {
-            return ContainerType<value_type, Args...>(begin(), end());
-        }
-
-        /**
-        * @brief Creates a `std::vector<value_type>` with default `std::allocator` with all elements except the elements
-        * skipped by `amount`.
-        * @return A `std::vector<FunctionReturnType>` with all elements except the elements skipped by `amount` and
-        * default `std::allocator`.
-        */
-        std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
-        }
-
-        /**
-         * @brief Creates a `std::vector<value_type>` with all elements except the elements skipped by `amount`.
-         * @tparam Allocator The allocator type, is automatic deduced.
-         * @param alloc An instance of the allocator.
-         * @return A `std::vector<Arithmetic, Allocator>` with a specified Allocator and with all elements except the
-         * elements skipped by `amount`.
-         */
-        template<typename Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
-        }
-
-        /**
-         * @brief Creates a `std::array<value_type, N>` with all elements except the elements skipped by `amount`.
-         * @tparam N The size of the array.
-         * @return A `std::array<value_type, N>` with all elements except the elements skipped by `amount`.
-         */
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<value_type, N>(begin());
         }
     };
 
