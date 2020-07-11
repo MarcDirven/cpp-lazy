@@ -4,6 +4,8 @@
 #include <vector>
 #include <type_traits>
 #include <utility>
+#include <algorithm>
+#include <map>
 
 
 namespace lz { namespace detail {
@@ -20,6 +22,21 @@ namespace lz { namespace detail {
         std::array<ValueType, N> array{};
         fillContainer(first, array);
         return array;
+    }
+
+    template<class Value,
+             class Key,
+             class Compare,
+             class Allocator,
+             class KeySelectorFunc,
+             class Iterator>
+    std::map<Key, Value, Compare, Allocator>
+    toMap(Iterator begin, Iterator end, KeySelectorFunc selector, const Allocator& allocator) {
+        std::map<Key, Value, Compare, Allocator> map(allocator);
+        std::transform(begin, end, std::inserter(map, map.end()), [selector](const Value& value) {
+            return std::make_pair(selector(value), value);
+        });
+        return map;
     }
 
     template<class T>
