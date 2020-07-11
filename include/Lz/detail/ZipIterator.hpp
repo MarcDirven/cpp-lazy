@@ -9,10 +9,10 @@ namespace lz { namespace detail {
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = std::tuple<decltype(*std::declval<Containers>().begin())...>;
+        using value_type = std::tuple<std::decay_t<decltype(*std::declval<Containers>().begin())>...>;
         using difference_type = std::ptrdiff_t;
-        using pointer = value_type;
-        using reference = value_type;
+        using reference = std::tuple<decltype(*std::declval<Containers>().begin())...>;
+        using pointer = FakePointerProxy<reference>;
 
     private:
 #ifdef _MSC_VER
@@ -22,8 +22,8 @@ namespace lz { namespace detail {
 #endif
 
         template<size_t... I>
-        value_type dereference(std::index_sequence<I...> /*is*/) const {
-            return value_type{*std::get<I>(_iterators)...};
+        reference dereference(std::index_sequence<I...> /*is*/) const {
+            return reference{*std::get<I>(_iterators)...};
         }
 
         template<size_t... I>
@@ -80,8 +80,12 @@ namespace lz { namespace detail {
             _iterators(iters) {
         }
 
-        value_type operator*() const {
+        reference operator*() const {
             return dereference(std::index_sequence_for<Containers...>{});
+        }
+
+        pointer operator->() const {
+            return FakePointerProxy<decltype(**this)>(**this);
         }
 
         ZipIterator& operator++() {
