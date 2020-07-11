@@ -55,7 +55,7 @@ namespace lz {
     };
 
     template<class Arithmetic>
-    auto random(Arithmetic min, Arithmetic max, size_t amount = std::numeric_limits<size_t>::max()) {
+    static auto random(Arithmetic min, Arithmetic max, size_t amount = std::numeric_limits<size_t>::max()) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
 
         return Random<Arithmetic, std::uniform_int_distribution<Arithmetic>>(min, max, amount);

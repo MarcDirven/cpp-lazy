@@ -8,24 +8,32 @@
 
 
 namespace lz { namespace detail {
+    static std::seed_seq& getSeed() {
+        static std::random_device rd;
+        static std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
+        return seed;
+    }
+
     template<class Arithmetic, class Distribution>
     struct RandomIteratorHelper {
-        mutable std::mt19937 randomEngine;
+        static std::random_device rd;
+        static std::seed_seq seed;
+        static std::mt19937 randomEngine;
         mutable Distribution distribution{};
         bool isWhileTrueLoop;
 
         RandomIteratorHelper(Arithmetic min, Arithmetic max, size_t amount) :
             distribution(min, max),
             isWhileTrueLoop(amount == std::numeric_limits<size_t>::max()) {
-            static std::random_device rd;
-            std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-            randomEngine = std::mt19937(seed);
         }
 
-        Arithmetic createRandomNumber() const {
+        Arithmetic rand() const {
             return distribution(randomEngine);
         }
     };
+
+    template<class Arithmetic, class Distribution>
+    std::mt19937 RandomIteratorHelper<Arithmetic, Distribution>::randomEngine(getSeed());
 
     template<class Arithmetic, class Distribution>
     class RandomIterator {
@@ -43,10 +51,11 @@ namespace lz { namespace detail {
     public:
         explicit RandomIterator(size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
             _current(current),
-            _randomIteratorHelper(helper) {}
+            _randomIteratorHelper(helper) {
+        }
 
         value_type operator*() const {
-            return _randomIteratorHelper->createRandomNumber();
+            return _randomIteratorHelper->rand();
         }
 
         pointer operator->() const {
