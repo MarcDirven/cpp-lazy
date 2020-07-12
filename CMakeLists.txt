@@ -10,10 +10,12 @@ set(LZ_HEADERS ${INCLUDE}/Lz)
 set(LZ_DETAIL_HEADERS ${INCLUDE}/Lz/detail)
 
 set(DETAIL_HEADER_FILES
+        ${LZ_DETAIL_HEADERS}/BasicIteratorView.hpp
         ${LZ_DETAIL_HEADERS}/ChooseIterator.hpp
         ${LZ_DETAIL_HEADERS}/EnumerateIterator.hpp
         ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
         ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
+        ${LZ_DETAIL_HEADERS}/GenerateIterator.hpp
         ${LZ_DETAIL_HEADERS}/LzTools.hpp
         ${LZ_DETAIL_HEADERS}/MapIterator.hpp
         ${LZ_DETAIL_HEADERS}/RandomIterator.hpp
@@ -31,6 +33,7 @@ set(HEADER_FILES
         ${LZ_HEADERS}/Enumerate.hpp
         ${LZ_HEADERS}/Except.hpp
         ${LZ_HEADERS}/Filter.hpp
+        ${LZ_HEADERS}/Generate.hpp
         ${LZ_HEADERS}/Map.hpp
         ${LZ_HEADERS}/Random.hpp
         ${LZ_HEADERS}/Range.hpp
