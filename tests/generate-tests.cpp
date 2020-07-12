@@ -5,7 +5,6 @@
 #include <catch.hpp>
 
 
-
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
     constexpr size_t amount = 4;
     size_t counter = 0;
@@ -22,7 +21,7 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
 }
 
 
-TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
+TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     constexpr size_t amount = 4;
     size_t counter = 0;
     auto generator = lz::generate([&counter]() {
