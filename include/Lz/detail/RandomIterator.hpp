@@ -14,11 +14,16 @@ namespace lz { namespace detail {
         return seed;
     }
 
+    static std::mt19937& createRandomEngine() {
+        static std::mt19937 instance(getSeed());
+        return instance;
+    }
+
     template<class Arithmetic, class Distribution>
     struct RandomIteratorHelper {
         static std::random_device rd;
         static std::seed_seq seed;
-        static std::mt19937 randomEngine;
+        static std::mt19937& randomEngine;
         mutable Distribution distribution{};
         bool isWhileTrueLoop;
 
@@ -33,7 +38,7 @@ namespace lz { namespace detail {
     };
 
     template<class Arithmetic, class Distribution>
-    std::mt19937 RandomIteratorHelper<Arithmetic, Distribution>::randomEngine(getSeed());
+    std::mt19937& RandomIteratorHelper<Arithmetic, Distribution>::randomEngine = createRandomEngine();
 
     template<class Arithmetic, class Distribution>
     class RandomIterator {
@@ -42,7 +47,7 @@ namespace lz { namespace detail {
         using value_type = Arithmetic;
         using difference_type = size_t;
         using pointer = detail::FakePointerProxy<Arithmetic>;
-        using reference = Arithmetic&;
+        using reference = value_type;
 
     private:
         size_t _current{};
@@ -89,7 +94,9 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator+=(const difference_type offset) {
-            _current += offset;
+            if (!_randomIteratorHelper->isWhileTrueLoop) {
+                _current += offset;
+            }
             return *this;
         }
 
@@ -100,7 +107,9 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator-=(const difference_type offset) {
-            _current -= offset;
+            if (!_randomIteratorHelper->isWhileTrueLoop) {
+                _current -= offset;
+            }
             return *this;
         }
 
