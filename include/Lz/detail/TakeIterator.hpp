@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iterator>
+#include <functional>
 
 
 namespace lz { namespace detail {

@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <functional>
 
 
 namespace lz { namespace detail {
