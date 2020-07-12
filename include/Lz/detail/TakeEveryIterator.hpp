@@ -21,11 +21,11 @@ namespace lz { namespace detail {
             _offset(offset) {
         }
 
-        reference operator*() {
+        reference operator*() const {
             return *_iterator;
         }
 
-        pointer operator->() {
+        pointer operator->() const {
             return _iterator.operator->();
         }
 
