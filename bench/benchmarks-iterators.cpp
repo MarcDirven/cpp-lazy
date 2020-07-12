@@ -210,22 +210,33 @@ static void Choose(benchmark::State& state) {
     }
 }
 
+static void Generate(benchmark::State& state) {
+    size_t cnt = 0;
+    for (auto _ : state) {
+        auto generator = lz::generate([&cnt]() { return cnt++; }, SizePolicy);
 
-BENCHMARK(Except);
+        for (auto i : generator) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+BENCHMARK(Choose);
 BENCHMARK(Enumerate);
+BENCHMARK(Except);
 BENCHMARK(Filter);
+BENCHMARK(Generate);
 BENCHMARK(Map);
 BENCHMARK(Range);
+BENCHMARK(Random);
+BENCHMARK(Repeat);
 BENCHMARK(StringSplitter);
-BENCHMARK(TakeWhile);
 BENCHMARK(Take);
+BENCHMARK(TakeWhile);
+BENCHMARK(TakeEvery);
 BENCHMARK(Slice);
 BENCHMARK(Zip4);
 BENCHMARK(Zip3);
 BENCHMARK(Zip2);
-BENCHMARK(Repeat);
-BENCHMARK(TakeEvery);
-BENCHMARK(Choose);
-BENCHMARK(Random);
 
 BENCHMARK_MAIN();
