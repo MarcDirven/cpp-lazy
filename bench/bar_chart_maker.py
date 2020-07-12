@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import sys
 import csv
 from collections import namedtuple
 
+os.system("")
 plt.rcdefaults()
+filename = 'benchmarks-iterators-{}.png'
 
 
 def get_cpu_caches(bench_file):
@@ -53,13 +54,31 @@ def make_bar_plot(benchmark_records, unit, cxx_version, caches, n_iterations, ti
     size_factor = 1.8
     plt.gcf().set_size_inches(size_factor * figure_size)
 
-    plt.savefig(f'benchmarks-iterators-{cxx_version}.png', dpi=400)
+    plt.savefig(filename.format(cxx_version), dpi=400)
     plt.clf()
+
+
+def get_cmake_cxx_version():
+    cxx_version = "C++"
+    cmake_cxx_string = 'CMAKE_CXX_STANDARD'
+    cmake_file = open('CMakeLists.txt', 'r')
+
+    for idx, line in enumerate(cmake_file):
+        cmake_cxx_string_index = line.find(cmake_cxx_string)
+        if cmake_cxx_string_index == -1:
+            continue
+
+        reading_offset = len(cmake_cxx_string) + cmake_cxx_string_index + 1
+        cxx_number = line[reading_offset: line.index(')', reading_offset)]
+        cxx_version += cxx_number
+        break
+
+    return cxx_version
 
 
 def main():
     benchmark_file_path = os.path.join(os.getcwd(), '..', 'cmake-build-release', 'bench', 'benchmark-iterators.csv')
-    cxx_version = sys.argv[1]
+    cxx_version = get_cmake_cxx_version()
 
     with open(benchmark_file_path) as benchmarks_file:
         benchmark_csv_list = list(csv.reader(benchmarks_file, delimiter=','))
@@ -67,8 +86,11 @@ def main():
         bench_records, unit = get_benchmark_names_and_time(benchmark_csv_list, name_index + 1)
 
         iterations = 32
-        one = 1
-        make_bar_plot(bench_records, unit, cxx_version, caches, iterations, one)
+        title_iterations = 1
+        make_bar_plot(bench_records, unit, cxx_version, caches, iterations, title_iterations)
+
+    green = '\033[32m'
+    print(f'{green}Successfully created {filename.format(cxx_version)}')
 
 
 if __name__ == '__main__':
