@@ -48,6 +48,12 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
         ++it;
         CHECK(*it == "world");
     }
+
+    SECTION("Operator== & Operator!=") {
+        CHECK(it != splitter.end());
+        it = splitter.end();
+        CHECK(it == splitter.end());
+    }
 }
 
 

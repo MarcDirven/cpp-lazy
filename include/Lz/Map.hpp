@@ -1,15 +1,16 @@
 #pragma once
 
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/BasicIteratorView.hpp>
 #include <Lz/detail/MapIterator.hpp>
 
 #include <vector>
 #include <array>
+#include <map>
 
 
 namespace lz {
     template<class Iterator, class Function>
-    class Map {
+    class Map final : public detail::BasicIteratorView<detail::MapIterator<Iterator, Function>> {
     public:
         using iterator = detail::MapIterator<Iterator, Function>;
         using const_iterator = iterator;
@@ -36,7 +37,7 @@ namespace lz {
         * @brief Returns the beginning of the map iterator object.
         * @return A bidirectional iterator MapIterator.
         */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -44,55 +45,8 @@ namespace lz {
         * @brief Returns the ending of the map iterator object.
         * @return A bidirectional iterator MapIterator.
         */
-        iterator end() const {
+        iterator end() const override {
             return _end;
-        }
-
-        /**
-         * @brief Creates a container from this map object. The container will consists of i.e.:
-         * `SomeContainer<FunctionReturnType>`.
-         * @details There is no need to specify its value type. So e.g. `to<std::list>()` will make a `std::list`
-         * container, containing the function return value.
-         * @tparam ContainerType The type of the container. The first two parameters of this container must be in
-         * an STL-like fashion e.g. `std::list(InputIterator begin, InputIterator end, args). The args can be `void`,
-         * but can be specified to pass an allocator or other parameters, depending on the signature of the container.
-         * @tparam Args This is automatically deduced.
-         * @param args Additional arguments for the container constructor. Mostly, this will be an allocator.
-         * @return A container of type `ContainerType<FunctionReturnType [, Args...]>`.
-         */
-        template<template<typename, typename...> class Container, typename... Args>
-        Container<value_type, Args...> to() const {
-            return Container<value_type, Args...>(begin(), end());
-        }
-
-        /**
-        * @brief Creates a `std::vector<FunctionReturnType>` with default `std::allocator` and mapped elements.
-        * @return A `std::vector<FunctionReturnType>` with the mapped elements with default `std::allocator`.
-        */
-        std::vector<value_type> toVector() const {
-            return toVector < std::allocator<value_type>>
-            ();
-        }
-
-        /**
-         * @brief Creates a `std::vector<FunctionReturnType>` with a specified Allocator and filtered elements.
-         * @tparam Allocator The allocator type, is automatic deduced.
-         * @param alloc An instance of the allocator.
-         * @return A `std::vector<FunctionReturnType, Allocator>` with a specified Allocator and mapped elements.
-         */
-        template<typename Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
-        }
-
-        /**
-         * @brief Creates a `std::array<FunctionReturnType, N>` with mapped elements.
-         * @tparam N The size of the array.
-         * @return A `std::array<FunctionReturnType, N>` with mapped elements.
-         */
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<value_type, N>(begin());
         }
     };
 
@@ -103,7 +57,7 @@ namespace lz {
      */
 
     /**
-     * @brief Returns a bidirectional map object. If MSVC and the type is an STL iterator, pass a pointer iterator, not
+     * @brief Returns a random access map object. If MSVC and the type is an STL iterator, pass a pointer iterator, not
      * an actual iterator object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
      * will return all pairs first values in the sequence, that is, `1` and `3`.
@@ -137,7 +91,7 @@ namespace lz {
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
         if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
-            maprange(&(*iterable.begin()), &(*iterable.begin()), function);
+            return maprange(&(*iterable.begin()), &(*iterable.begin()), function);
         }
         return maprange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, function);
 #else

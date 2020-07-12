@@ -6,7 +6,9 @@
 #include <Lz/detail/LzTools.hpp>
 
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
+
 #include <string>
+
 #else
 
 #include <string_view>
@@ -20,11 +22,11 @@ namespace lz { namespace detail {
         std::string delimiter;
         const std::string& string = std::string();
         mutable SubString substring;
-        mutable size_t start{}, last{};
     };
 
     template<class SubString>
     class SplitIterator {
+        mutable size_t _currentPos{}, _last{};
         const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
 
     public:
@@ -35,32 +37,30 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
         SplitIterator(size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
+            _currentPos(startingPosition),
             _splitIteratorHelper(splitIteratorHelper) {
             if (startingPosition == splitIteratorHelper->string.size()) {
                 return;
             }
-            _splitIteratorHelper->start = startingPosition;
             find();
         }
 
         void find() {
-            _splitIteratorHelper->last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter,
-                                                                           _splitIteratorHelper->start);
+            _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
 
-            if (_splitIteratorHelper->last != std::string::npos) {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_splitIteratorHelper->start],
-                                                            _splitIteratorHelper->last - _splitIteratorHelper->start);
+            if (_last != std::string::npos) {
+                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos],
+                                                            _last - _currentPos);
                 // Check if end ends with delimiter
-                if (_splitIteratorHelper->last ==
-                    _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
-                    _splitIteratorHelper->last = std::string::npos;
+                if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
+                    _last = std::string::npos;
                 }
                 else {
-                    _splitIteratorHelper->start = _splitIteratorHelper->last + _splitIteratorHelper->delimiter.size();
+                    _currentPos = _last + _splitIteratorHelper->delimiter.size();
                 }
             }
             else {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_splitIteratorHelper->start]);
+                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos]);
             }
         }
 
@@ -73,9 +73,8 @@ namespace lz { namespace detail {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
-        bool operator!=(const SplitIterator& /*other*/) const {
-            // We do not want to check other, since we have a pointer to the mutual shared struct of begin and end
-            return _splitIteratorHelper->start != _splitIteratorHelper->string.size();
+        bool operator!=(const SplitIterator& other) const {
+            return _currentPos != other._currentPos;
         }
 
         bool operator==(const SplitIterator& other) const {
@@ -83,9 +82,7 @@ namespace lz { namespace detail {
         }
 
         SplitIterator& operator++() {
-            _splitIteratorHelper->start =
-                _splitIteratorHelper->last == std::string::npos ? _splitIteratorHelper->string.size()
-                                                                : _splitIteratorHelper->start;
+            _currentPos = _last == std::string::npos ? _splitIteratorHelper->string.size() : _currentPos;
             find();
             return *this;
         }

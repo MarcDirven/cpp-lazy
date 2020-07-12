@@ -5,13 +5,13 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/BasicIteratorView.hpp>
 #include <Lz/detail/FilterIterator.hpp>
 
 
 namespace lz {
     template<class Iterator, class Function>
-    class Filter {
+    class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, Function>> {
     public:
         using iterator = detail::FilterIterator<Iterator, Function>;
         using const_iterator = iterator;
@@ -21,6 +21,7 @@ namespace lz {
     private:
         iterator _begin{};
         iterator _end{};
+        std::function<bool(value_type)> _function{};
 
     public:
         /**
@@ -31,14 +32,14 @@ namespace lz {
          */
         Filter(Iterator begin, Iterator end, Function function) :
             _begin(begin, end, function),
-            _end(begin, end, function) {
+            _end(end, end, function) {
         }
 
         /**
         * @brief Returns the beginning of the filter iterator object.
         * @return A forward iterator FilterIterator.
         */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -46,54 +47,8 @@ namespace lz {
         * @brief Returns the ending of the filter iterator object.
         * @return A forward iterator FilterIterator.
         */
-        iterator end() const {
+        iterator end() const override {
             return _end;
-        }
-
-        /**
-         * @brief Creates a container from this filter object. The container will consists of i.e.:
-         * `SomeContainer<value_type>` with the filtered elements.
-         * @details There is no need to specify its value type. So e.g. `to<std::list>()` will make a `std::list`
-         * container, containing a `value_type` with the filtered elements.
-         * @tparam ContainerType The type of the container. The first two parameters of this container must be in
-         * an STL-like fashion e.g. `std::list(InputIterator begin, InputIterator end, args). The args can be `void`,
-         * but can be specified to pass an allocator or other parameters, depending on the signature of the container.
-         * @tparam Args This is automatically deduced.
-         * @param args Additional arguments for the container constructor. Mostly, this will be an allocator.
-         * @return A container of type `ContainerType<value_type [, Args...]>`.
-         */
-        template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to() const {
-            return ContainerType<value_type, Args...>(begin(), end());
-        }
-
-        /**
-        * @brief Creates a `std::vector<value_type>` with default `std::allocator` and filtered elements.
-        * @return A `std::vector<value_type>` with the filtered elements with default `std::allocator`.
-        */
-        std::vector<value_type> toVector() const {
-            return toVector<std::allocator<value_type>>();
-        }
-
-        /**
-         * @brief Creates a `std::vector<value_type>` with a specified Allocator and filtered elements.
-         * @tparam Allocator The allocator type, is automatic deduced.
-         * @param alloc An instance of the allocator.
-         * @return A `std::vector<value_type, Allocator>` with a specified Allocator and filtered elements.
-         */
-        template<typename Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
-        }
-
-        /**
-         * @brief Creates a `std::array<value_type, N>` with filtered elements.
-         * @tparam N The size of the array.
-         * @return A `std::array<value_type, N>` with filtered elements.
-         */
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<value_type, N>(begin());
         }
     };
 

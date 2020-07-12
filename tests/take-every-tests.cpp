@@ -56,6 +56,12 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         CHECK(*iterator == 1);
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(iterator != takeEvery.end());
+        iterator = takeEvery.end();
+        CHECK(iterator == takeEvery.end());
+    }
+
     SECTION("Operator+(int), tests += as well") {
         CHECK(*(iterator + 1) == 4);
     }

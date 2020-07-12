@@ -7,7 +7,7 @@
 
 constexpr static size_t SizePolicy = 32;
 
-static void BM_Enumerate(benchmark::State& state) {
+static void Enumerate(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
@@ -19,7 +19,7 @@ static void BM_Enumerate(benchmark::State& state) {
     }
 }
 
-static void BM_Filter(benchmark::State& state) {
+static void Filter(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
@@ -31,7 +31,7 @@ static void BM_Filter(benchmark::State& state) {
     }
 }
 
-static void BM_Map(benchmark::State& state) {
+static void Map(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
 
     for (auto _ : state) {
@@ -43,7 +43,7 @@ static void BM_Map(benchmark::State& state) {
     }
 }
 
-static void BM_Range(benchmark::State& state) {
+static void Range(benchmark::State& state) {
     for (auto _ : state) {
         auto range = lz::range(SizePolicy);
 
@@ -53,7 +53,7 @@ static void BM_Range(benchmark::State& state) {
     }
 }
 
-static void BM_StringSplitter(benchmark::State& state) {
+static void StringSplitter(benchmark::State& state) {
     std::string toSplit = "hello hello hello hello hello he";
 
     for (auto _ : state) {
@@ -73,7 +73,7 @@ static void BM_StringSplitter(benchmark::State& state) {
     }
 }
 
-static void BM_TakeWhile(benchmark::State& state) {
+static void TakeWhile(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
@@ -85,7 +85,7 @@ static void BM_TakeWhile(benchmark::State& state) {
     }
 }
 
-static void BM_Take(benchmark::State& state) {
+static void Take(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
@@ -97,7 +97,7 @@ static void BM_Take(benchmark::State& state) {
     }
 }
 
-static void BM_Slice(benchmark::State& state) {
+static void Slice(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
 
     for (auto _ : state) {
@@ -109,7 +109,7 @@ static void BM_Slice(benchmark::State& state) {
     }
 }
 
-static void BM_Zip4(benchmark::State& state) {
+static void Zip4(benchmark::State& state) {
     std::array<int, SizePolicy> arrayA{};
     std::array<int, SizePolicy> arrayB{};
     std::array<int, SizePolicy> arrayC{};
@@ -124,7 +124,7 @@ static void BM_Zip4(benchmark::State& state) {
     }
 }
 
-static void BM_Zip3(benchmark::State& state) {
+static void Zip3(benchmark::State& state) {
     std::array<int, SizePolicy> arrayA{};
     std::array<int, SizePolicy> arrayB{};
     std::array<int, SizePolicy> arrayC{};
@@ -138,7 +138,7 @@ static void BM_Zip3(benchmark::State& state) {
     }
 }
 
-static void BM_Zip2(benchmark::State& state) {
+static void Zip2(benchmark::State& state) {
     std::array<int, SizePolicy> arrayA{};
     std::array<int, SizePolicy> arrayB{};
 
@@ -151,7 +151,7 @@ static void BM_Zip2(benchmark::State& state) {
     }
 }
 
-static void BM_Except(benchmark::State& state) {
+static void Except(benchmark::State& state) {
     std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
     std::array<int, SizePolicy / 2> toLargeExcept =
         lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
@@ -165,7 +165,7 @@ static void BM_Except(benchmark::State& state) {
     }
 }
 
-static void BM_Repeat(benchmark::State& state) {
+static void Repeat(benchmark::State& state) {
     for (auto _ : state) {
         auto repeater = lz::repeat(0, SizePolicy);
 
@@ -175,7 +175,7 @@ static void BM_Repeat(benchmark::State& state) {
     }
 }
 
-static void BM_TakeEvery(benchmark::State& state) {
+static void TakeEvery(benchmark::State& state) {
     std::array<int, SizePolicy> array{};
     constexpr size_t offset = 2;
 
@@ -188,20 +188,55 @@ static void BM_TakeEvery(benchmark::State& state) {
     }
 }
 
+static void Random(benchmark::State& state) {
+    for (auto _ : state) {
+        auto random = lz::random(0, 32, SizePolicy);
+        for (int i : random) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
 
-BENCHMARK(BM_Except);
-BENCHMARK(BM_Enumerate);
-BENCHMARK(BM_Filter);
-BENCHMARK(BM_Map);
-BENCHMARK(BM_Range);
-BENCHMARK(BM_StringSplitter);
-BENCHMARK(BM_TakeWhile);
-BENCHMARK(BM_Take);
-BENCHMARK(BM_Slice);
-BENCHMARK(BM_Zip4);
-BENCHMARK(BM_Zip3);
-BENCHMARK(BM_Zip2);
-BENCHMARK(BM_Repeat);
-BENCHMARK(BM_TakeEvery);
+static void Choose(benchmark::State& state) {
+    std::string s = "123df574d587f85432df52f4ssf5d222";
+    for (auto _ : state) {
+        auto chooser = lz::choose(s, [](const char c) {
+            return std::make_pair(static_cast<bool>(std::isdigit(c)), static_cast<int>(c - '0'));
+        });
+
+        for (int i : chooser) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+static void Generate(benchmark::State& state) {
+    size_t cnt = 0;
+    for (auto _ : state) {
+        auto generator = lz::generate([&cnt]() { return cnt++; }, SizePolicy);
+
+        for (auto i : generator) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+BENCHMARK(Choose);
+BENCHMARK(Enumerate);
+BENCHMARK(Except);
+BENCHMARK(Filter);
+BENCHMARK(Generate);
+BENCHMARK(Map);
+BENCHMARK(Range);
+BENCHMARK(Random);
+BENCHMARK(Repeat);
+BENCHMARK(StringSplitter);
+BENCHMARK(Take);
+BENCHMARK(TakeWhile);
+BENCHMARK(TakeEvery);
+BENCHMARK(Slice);
+BENCHMARK(Zip4);
+BENCHMARK(Zip3);
+BENCHMARK(Zip2);
 
 BENCHMARK_MAIN();

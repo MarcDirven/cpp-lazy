@@ -70,6 +70,12 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
         CHECK(*it == 1);
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(it != taken.end());
+        it = taken.end();
+        CHECK(it == taken.end());
+    }
+
     SECTION("Operator+(int) offset, tests += as well") {
         CHECK(*(it + 1) == 2);
     }
@@ -88,10 +94,10 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(taken.begin() < taken.end());
-        CHECK(taken.begin() + takeAmount + 1 > taken.end());
-        CHECK(taken.begin() + takeAmount <= taken.end());
-        CHECK(taken.begin() + takeAmount >= taken.end());
+        CHECK(it < taken.end());
+        CHECK(it + takeAmount + 1 > taken.end());
+        CHECK(it + takeAmount <= taken.end());
+        CHECK(it + takeAmount >= taken.end());
     }
 }
 

@@ -50,17 +50,29 @@ namespace lz { namespace detail {
         }
 
         RepeatIterator& operator--() {
-            --_iterator;
+            if (!_iterHelper->isWhileTrueLoop) {
+                --_iterator;
+            }
             return *this;
         }
 
+        RepeatIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
+        }
+
         RepeatIterator& operator+=(const difference_type offset) {
-            _iterator += offset;
+            if (!_iterHelper->isWhileTrueLoop) {
+                _iterator += offset;
+            }
             return *this;
         }
 
         RepeatIterator& operator-=(const difference_type offset) {
-            _iterator -= offset;
+            if (!_iterHelper->isWhileTrueLoop) {
+                _iterator -= offset;
+            }
             return *this;
         }
 
@@ -85,7 +97,7 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const RepeatIterator& other) const {
-            return _iterHelper->isWhileTrueLoop ? true : _iterator != other._iterator;
+            return _iterator != other._iterator;
         }
 
         bool operator==(const RepeatIterator& other) const {

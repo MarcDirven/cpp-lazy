@@ -65,6 +65,12 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
         CHECK(*begin == std::make_tuple(a[0], Approx(b[0]), c[0]));
     }
 
+    SECTION("Operator== & Operator!=") {
+        CHECK(begin != zipper.end());
+        begin = zipper.end();
+        CHECK(begin == zipper.end());
+    }
+
     SECTION("Operator+(int) offset, tests += as well") {
         CHECK(*(begin + 2) == std::make_tuple(a[2], Approx(b[2]), c[2]));
     }

@@ -66,6 +66,12 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
         CHECK(*it == array[0].testFieldStr);
     }
 
+    SECTION("Operator== & operator!=") {
+        CHECK(it != map.end());
+        it = map.end();
+        CHECK(it == map.end());
+    }
+
     SECTION("Operator+(int) offset, tests += as well") {
         CHECK(*(it + 1) == array[1].testFieldStr);
     }

@@ -4,12 +4,12 @@
 #include <array>
 
 #include <Lz/detail/TakeIterator.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/BasicIteratorView.hpp>
 
 
 namespace lz {
     template<class Iterator, class Function>
-    class Take {
+    class Take final : public detail::BasicIteratorView<detail::TakeIterator<Iterator, Function>> {
     public:
         using iterator = detail::TakeIterator<Iterator, Function>;
         using const_iterator = iterator;
@@ -38,7 +38,7 @@ namespace lz {
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -46,59 +46,8 @@ namespace lz {
          * @brief Returns the ending of the iterator.
          * @return The ending of the iterator.
          */
-        iterator end() const {
+        iterator end() const override {
             return _end;
-        }
-
-        /**
-         * @brief Creates a container from this take object. The container will consists of i.e.:
-         * `SomeContainer<value_type>` with the values while the function returns true.
-         * @details There is no need to specify its value type. So e.g. `to<std::list>()` will make a `std::list`
-         * container, containing the `value_type`.
-         * @tparam ContainerType The type of the container. The first two parameters of this container must be in
-         * an STL-like fashion e.g. `std::list(InputIterator begin, InputIterator end, args). The args can be `void`,
-         * but can be specified to pass an allocator or other parameters, depending on the signature of the container.
-         * @tparam Args This is automatically deduced.
-         * @param args Additional arguments for the container constructor. Mostly, this will be an allocator.
-         * @return A container of type ContainerType<value_type[,Args...]>.
-         */
-        template<template<class, class...> class ContainerType, class... Args>
-        ContainerType<value_type, Args...> to() const {
-            return ContainerType<value_type, Args...>(begin(), end());
-        }
-
-        /**
-        * @brief Creates a `std::vector<value_type>` with default `std::allocator` with the values while the function
-        * returns true.
-        * @return A `std::vector<value_type>` with the values while the function returns true and a default
-        * `std::allocator`.
-        */
-        std::vector<value_type> toVector() const {
-            return toVector < std::allocator<value_type>>
-            ();
-        }
-
-        /**
-         * @brief Creates a `std::vector<value_type, Allocator>` with a specified Allocator, with the values while the
-         * function returns true.
-         * @tparam Allocator The allocator type, is automatic deduced.
-         * @param alloc An instance of the allocator.
-         * @return A `std::vector<value_type, Allocator>` with a specified Allocator and with the values while the
-         * function returns true and a specified Allocator.
-         */
-        template<typename Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
-        }
-
-        /**
-         * @brief Creates a `std::array<value_type, N>` with the values while the function returns true.
-         * @tparam N The size of the array.
-         * @return A `std::array<value_type, N>`  with the values while the function returns true.
-         */
-        template<size_t N>
-        std::array<value_type, N> toArray() const {
-            return detail::fillArray<value_type, N>(begin());
         }
     };
 
@@ -149,7 +98,7 @@ namespace lz {
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
         if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
-            takewhilerange(&(*iterable.begin()), &(*iterable.begin()), predicate);
+            return takewhilerange(&(*iterable.begin()), &(*iterable.begin()), predicate);
         }
         return takewhilerange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, predicate);
 #else
@@ -180,7 +129,7 @@ namespace lz {
      * @param iterable An iterable with method `begin()`.
      * @param amount The amount of elements to take from the beginning of the `iterable`.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::take(...))`.}@
+     * `for (auto... lz::take(...))`.
      */
     template<class Iterable>
     auto take(Iterable&& iterable, const size_t amount) {

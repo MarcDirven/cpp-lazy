@@ -21,11 +21,11 @@ namespace lz { namespace detail {
             _offset(offset) {
         }
 
-        reference operator*() {
+        reference operator*() const {
             return *_iterator;
         }
 
-        pointer operator->() {
+        pointer operator->() const {
             return _iterator.operator->();
         }
 
@@ -43,6 +43,12 @@ namespace lz { namespace detail {
         TakeEveryIterator& operator--() {
             _iterator -= _offset;
             return *this;
+        }
+
+        TakeEveryIterator operator--(int) {
+            auto tmp(*this);
+            --*this;
+            return tmp;
         }
 
         TakeEveryIterator& operator+=(const difference_type offset) {

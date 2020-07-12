@@ -17,7 +17,7 @@ namespace lz { namespace detail {
     private:
         Iterator _iterator{};
         Iterator _end{};
-        Function _function{};
+        std::function<bool(value_type)> _function{};
 
     public:
         FilterIterator(Iterator begin, Iterator end, Function function) :

@@ -52,6 +52,12 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
         CHECK(begin->second == 1); // element
     }
 
+    SECTION("Operator== & operator!=") {
+        CHECK(begin != enumerate.end());
+        begin = enumerate.end();
+        CHECK(begin == enumerate.end());
+    }
+
     SECTION("Operator+(int), tests += as well") {
         CHECK((begin + 1)->first == 2); // Index
         CHECK((begin + 1)->second == 3); // element
