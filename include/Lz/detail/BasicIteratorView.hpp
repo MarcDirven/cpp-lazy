@@ -89,7 +89,7 @@ namespace lz { namespace detail {
          * @tparam Key Is automatically deduced.
          * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
          * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
-         * @param selector The function that returns the key for the dictionary, and takes a `value_type` as parameter.
+         * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
          * @param allocator Optional, can be used for using a custom allocator.
          * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
          */
@@ -97,9 +97,9 @@ namespace lz { namespace detail {
             class Key = std::decay_t<decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()))>,
             class Compare = std::less<Key>,
             class Allocator = std::allocator<std::pair<const Key, value_type>>>
-        std::map<Key, value_type, Compare, Allocator> toMap(KeySelectorFunc selector,
+        std::map<Key, value_type, Compare, Allocator> toMap(KeySelectorFunc keyGen,
                                                             const Allocator& allocator = Allocator()) {
-            return detail::toMap<Key, value_type, Compare>(begin(), end(), selector, allocator);
+            return detail::toMap<Key, value_type, Compare>(begin(), end(), keyGen, allocator);
         }
     };
 }}
