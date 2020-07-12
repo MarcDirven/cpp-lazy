@@ -99,7 +99,7 @@ namespace lz { namespace detail {
             class Allocator = std::allocator<std::pair<const Key, value_type>>>
         std::map<Key, value_type, Compare, Allocator> toMap(KeySelectorFunc keyGen,
                                                             const Allocator& allocator = Allocator()) {
-            return detail::toMap<Key, value_type, Compare>(begin(), end(), keyGen, allocator);
+            return detail::toMap<value_type, Key, Compare>(begin(), end(), keyGen, allocator);
         }
     };
 }}
