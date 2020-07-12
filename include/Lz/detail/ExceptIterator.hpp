@@ -15,7 +15,7 @@ namespace lz { namespace detail {
     template<class Iterator, class IteratorToExcept>
     class ExceptIterator {
     public:
-        using iterator_category = std::input_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
         using value_type = typename std::iterator_traits<Iterator>::value_type;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
