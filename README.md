@@ -95,10 +95,20 @@ Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]`
 
 # Current supported iterators
  Current supported iterators are:
+- **Choose**, where you can iterate over a sequence and return a new type from the function entered. Example:
+```cpp
+std::string s = "1q9";
+auto vector = lz::choose(s, [](const char s) {
+    return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
+}).toVector();
+// vector yields (int) {1, 2}
+```
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
 - **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
 - **Filter** filters out elements given by a function predicate
+- **Generate** returns the value of a given function `amount` of times.
 - **Map** selects certain values from a type given a function predicate
+- **Random** returns a random number `amount` of times.
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
 - **Repeat** repeats an element `amount` of times.
 - **StringSplitter** Splits a string on a given delimiter.
@@ -123,18 +133,9 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-Because a container size of 32 has been used, one iteration approximately takes:
 
-<div style="text-align:center"><img src="https://i.imgur.com/lo8Tv5X.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/vLpNBJM.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/igG5r0m.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/MgYcz6W.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/tGlNgUV.png" /></div>
-
-Therefore, a container size of 32 take approximately:
-
-<div style="text-align:center"><img src="https://i.imgur.com/CVxG50z.png" /></div>
-
-<div style="text-align:center"><img src="https://i.imgur.com/yKkS4uf.png" /></div>
-
-<div style="text-align:center"><img src="https://i.imgur.com/qfcX6jI.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/uGffUjM.png" /></div>
