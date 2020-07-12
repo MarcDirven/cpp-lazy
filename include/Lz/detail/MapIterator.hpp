@@ -23,7 +23,7 @@ namespace lz { namespace detail {
             _function(function) {
         }
 
-        reference operator*() const {
+        value_type operator*() const {
             return _function(*_iterator);
         }
 
