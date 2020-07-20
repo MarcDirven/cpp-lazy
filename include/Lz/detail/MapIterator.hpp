@@ -13,7 +13,7 @@ namespace lz { namespace detail {
 
     public:
         using value_type = FnReturnType;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using difference_type = std::ptrdiff_t;
         using reference = value_type;
         using pointer = FakePointerProxy<reference>;
