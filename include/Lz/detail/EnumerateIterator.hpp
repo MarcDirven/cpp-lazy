@@ -12,7 +12,7 @@ namespace lz { namespace detail {
         Iterator _iterator;
 
     public:
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
