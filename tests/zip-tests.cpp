@@ -95,7 +95,9 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
 
     SECTION("Operator<, <, <=, >, >=") {
         CHECK(zipper.begin() < zipper.end());
+#if !(defined(_MSC_VER))
         CHECK(zipper.begin() + size + 1 > zipper.end());
+#endif
         CHECK(zipper.begin() + size <= zipper.end());
         CHECK(zipper.begin() + size >= zipper.end());
     }
