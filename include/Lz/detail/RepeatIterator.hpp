@@ -33,7 +33,7 @@ namespace lz { namespace detail {
         }
 
         pointer operator->() const {
-            return _iterHelper->toRepeat.operator->();
+            return &_iterHelper->toRepeat;
         }
 
         RepeatIterator& operator++() {
