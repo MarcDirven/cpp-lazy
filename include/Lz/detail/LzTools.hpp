@@ -24,33 +24,46 @@ namespace lz { namespace detail {
         return array;
     }
 
-    template<class Value,
-             class Key,
-             class Compare,
-             class Allocator,
-             class KeySelectorFunc,
-             class Iterator>
-    std::map<Key, Value, Compare, Allocator>
-    toMap(Iterator begin, Iterator end, KeySelectorFunc selector, const Allocator& allocator) {
-        std::map<Key, Value, Compare, Allocator> map(allocator);
-        std::transform(begin, end, std::inserter(map, map.end()), [selector](const Value& value) {
-            return std::make_pair(selector(value), value);
-        });
-        return map;
-    }
-
     template<class T>
     class FakePointerProxy {
         T t;
 
     public:
-        explicit FakePointerProxy(const T& t):
-            t(t)
-        {
+        explicit FakePointerProxy(const T& t) :
+            t(t) {
         }
 
         T* operator->() {
             return &t;
         }
+    };
+
+    template<typename T>
+    struct IsContiguousContainer {
+    private:
+#if !(__cplusplus > 202002L || (defined(_MSVC_LANG) && _MSVC_LANG > 202002L))
+        typedef std::true_type Yes;
+        typedef std::false_type No;
+
+        template<typename U>
+        static auto test(int) -> decltype(std::declval<U>().data(), Yes()) {
+            return {};
+        };
+
+        template<typename>
+        static No test(...) {
+            return {};
+        }
+#endif
+
+    public:
+#if __cplusplus > 202002L || (defined(_MSVC_LANG) && _MSVC_LANG > 202002L)
+        static constexpr bool value =
+            std::is_same<
+                std::iterator_traits<std::begin(std::declval<T>())>,
+                std::contiguous_iterator_tag>::value
+#else
+        static constexpr bool value = std::is_same<decltype(test<T>(0)), Yes>::value;
+#endif
     };
 }}
