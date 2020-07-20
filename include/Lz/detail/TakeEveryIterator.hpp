@@ -11,7 +11,7 @@ namespace lz { namespace detail {
 
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using reference = typename std::iterator_traits<Iterator>::reference;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
@@ -30,7 +30,7 @@ namespace lz { namespace detail {
         }
 
         TakeEveryIterator& operator++() {
-            _iterator += _offset;
+            _iterator = std::next(_iterator, _offset);
             return *this;
         }
 
@@ -41,7 +41,7 @@ namespace lz { namespace detail {
         }
 
         TakeEveryIterator& operator--() {
-            _iterator -= _offset;
+            _iterator = std::prev(_iterator, _offset);
             return *this;
         }
 
@@ -52,12 +52,12 @@ namespace lz { namespace detail {
         }
 
         TakeEveryIterator& operator+=(const difference_type offset) {
-            _iterator += (_offset * offset);
+            _iterator = std::next(_iterator, _offset * offset);
             return *this;
         }
 
         TakeEveryIterator& operator-=(const difference_type offset) {
-            _iterator -= (_offset * offset);
+            _iterator = std::prev(_iterator, _offset * offset);
             return *this;
         }
 

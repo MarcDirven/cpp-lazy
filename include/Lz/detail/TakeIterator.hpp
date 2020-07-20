@@ -9,7 +9,7 @@ namespace lz { namespace detail {
     class TakeIterator {
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using reference = typename std::iterator_traits<Iterator>::reference;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
