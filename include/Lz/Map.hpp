@@ -85,19 +85,43 @@ namespace lz {
      * `for (auto... lz::map(...))`.
      */
     template<class Iterable, class Function>
-    auto map(Iterable&& iterable, Function function) {
+#ifdef _MSC_VER
+    typename std::enable_if<detail::IsContiguousContainer<Iterable>::value,
+        decltype(maprange(&*std::begin(std::declval<Iterable>()),
+                          &*std::begin(std::declval<Iterable>()),
+                          std::declval<Function>()))>::type
+#else
+    auto
+#endif
+    map(Iterable&& iterable, Function function) {
 #ifdef _MSC_VER
         // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
-        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
-            return maprange(&(*iterable.begin()), &(*iterable.begin()), function);
+        auto begin = std::begin(iterable);
+        auto end = std::end(iterable);
+
+        if (begin == end) {  // Prevent UB when subtracting 1 and dereference it
+            return maprange(&(*begin), &(*end), function);
         }
-        return maprange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, function);
+
+        --end;
+        return maprange(&(*begin), &(*end) + 1, function);
 #else
-        return maprange(iterable.begin(), iterable.end(), function);
+        return maprange(std::begin(iterable), std::end(iterable), function);
 #endif
     }
+
+#ifdef _MSC_VER
+    template<class Iterable, class Function>
+    typename std::enable_if<!detail::IsContiguousContainer<Iterable>::value,
+        decltype(enumeraterange(std::begin(std::declval<Iterable>()),
+                                std::begin(std::declval<Iterable>()),
+                                std::declval<Function>()))>::type
+    map(Iterable&& iterable, Function function) {
+        return maprange(std::begin(iterable), std::end(iterable), start);
+    }
+#endif
 
     // End of group
     /**

@@ -15,11 +15,7 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
     private:
-#ifdef _MSC_VER
-        std::tuple<decltype(&(*std::declval<Containers>().begin()))...> _iterators;
-#else
         std::tuple<decltype(std::declval<Containers>().begin())...> _iterators;
-#endif
 
         template<size_t... I>
         reference dereference(std::index_sequence<I...> /*is*/) const {
@@ -40,19 +36,19 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         void plusIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            auto expand = {(std::get<I>(_iterators) += differenceType, 0)...};
+            auto expand = {(std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
             (void) expand;
         }
 
         template<size_t... I>
         void minIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            auto expand = {(std::get<I>(_iterators) -= differenceType, 0)...};
+            auto expand = {(std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
             (void) expand;
         }
 
         template<size_t... I>
         difference_type iteratorMin(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            return std::min({(std::get<I>(_iterators) - std::get<I>(other._iterators))...});
+            return std::min({(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...});
         }
 
         bool evaluateBooleanArray(const std::initializer_list<bool> booleans, const ZipIterator& other) const {

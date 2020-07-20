@@ -88,20 +88,45 @@ namespace lz {
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<class IntType = int, class Iterable>
-    auto enumerate(Iterable&& iterable, IntType start = 0) {
+#ifdef _MSC_VER
+    typename std::enable_if<
+        detail::IsContiguousContainer<Iterable>::value,
+        decltype(enumeraterange(&*std::begin(std::declval<Iterable>()),
+                                &*std::begin(std::declval<Iterable>()), 0))>::type
+#else
+    auto
+#endif
+    enumerate(Iterable&& iterable, IntType start = 0) {
 #ifdef _MSC_VER
         // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
         // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
         // past-the-end and also causing the operator>= never to be used.
-        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
-            return enumeraterange(&(*iterable.begin()), &(*iterable.begin()), start);
+        auto begin = std::begin(iterable);
+        auto end = std::end(iterable);
+
+        if (begin == end) {  // Prevent UB when subtracting 1 and dereference it
+            return enumeraterange(&*begin, &*end, start);
         }
-        return enumeraterange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, start);
+
+        --end;
+        return enumeraterange(&*begin, &(*end) + 1, start);
 #else
-        return enumeraterange(iterable.begin(), iterable.end(), start);
+        return enumeraterange(std::begin(iterable), std::end(iterable), start);
 #endif
     }
 
+#ifdef _MSC_VER
+
+    template<class IntType = int, class Iterable>
+    typename std::enable_if<!detail::IsContiguousContainer<Iterable>::value,
+        decltype(enumeraterange(std::begin(std::declval<Iterable>()),
+                                std::begin(std::declval<Iterable>()),
+                                0))>::type
+    enumerate(Iterable&& iterable, IntType start = 0) {
+        return enumeraterange(std::begin(iterable), std::end(iterable), start);
+    }
+
+#endif
     // End of group
     /**
      * @}
