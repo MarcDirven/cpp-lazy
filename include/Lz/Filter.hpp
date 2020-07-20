@@ -88,7 +88,7 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto filter(Iterable&& iterable, Function predicate) {
-        return filterrange(iterable.begin(), iterable.end(), predicate);
+        return filterrange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     // End of group

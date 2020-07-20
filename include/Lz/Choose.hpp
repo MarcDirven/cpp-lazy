@@ -122,6 +122,6 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto choose(Iterable&& iterable, Function function) {
-        return chooserange(iterable.begin(), iterable.end(), function);
+        return chooserange(std::begin(iterable), std::end(iterable), function);
     }
 }
