@@ -38,7 +38,7 @@ namespace lz { namespace detail {
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(_iterator + 1, _end, _function);
+                _iterator = std::find_if(std::next(_iterator), _end, _function);
             }
             return *this;
         }

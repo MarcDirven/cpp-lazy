@@ -32,7 +32,7 @@ namespace lz { namespace detail {
     private:
         void findNext(const size_t offset = 0) {
             _iterator = std::find_if(
-                _iterator + offset, _end, [this](const auto& value) {
+                std::next(_iterator, offset), _end, [this](const auto& value) {
                     auto result = _iterHelper->function(value);
                     if (result.first) {
                         _iterHelper->current = std::move(result.second);
