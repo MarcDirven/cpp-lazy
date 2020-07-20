@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <map>
+#include <unordered_map>
 
 #include <Lz/detail/LzTools.hpp>
 
@@ -11,6 +12,15 @@
 namespace lz { namespace detail {
     template<class Iterator>
     class BasicIteratorView {
+        template<class MapType, class Allocator, class KeySelectorFunc>
+        MapType createMap(KeySelectorFunc keyGen, const Allocator& allocator) {
+            MapType map(allocator);
+            std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
+                return std::make_pair(keyGen(value), value);
+            });
+            return map;
+        }
+
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
@@ -99,7 +109,43 @@ namespace lz { namespace detail {
             class Allocator = std::allocator<std::pair<const Key, value_type>>>
         std::map<Key, value_type, Compare, Allocator> toMap(KeySelectorFunc keyGen,
                                                             const Allocator& allocator = Allocator()) {
-            return detail::toMap<value_type, Key, Compare>(begin(), end(), keyGen, allocator);
+            using Map = std::map<Key, value_type, Compare, Allocator>;
+            return createMap<Map>(keyGen, allocator);
         }
+
+        /**
+         * @brief Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`.
+         * @details Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`. Example:
+         * ```cpp
+         * std::vector<std::string> sequence = { "abc", "def", "ghi" };
+         * auto someLazyViewIterator = lz::SomeLazyViewIterator(sequence); // value_type = std::string
+         * std::unordered_map<char, std::string> uMap = someLazyViewIterator.toMap([](const std::string& s) {
+         *      return s[0]; // Return the dict key, first char of the string
+         * });
+         * // uMap yields:
+         * // 'a' : "abc"
+         * // 'd' : "def"
+         * // 'g' : "ghi"
+         * ```
+         * @tparam KeySelectorFunc Is automatically deduced.
+         * @tparam Key Is automatically deduced.
+         * @tparam Hasher The hash function, `std::hash<Key>` is used by default
+         * @tparam KeyEquality Key equality checker. `std::equal_to<Key>` is used by default.
+         * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
+         * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
+         * @param allocator Optional, can be used for using a custom allocator.
+         * @return A `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`
+         */
+        template<class KeySelectorFunc,
+            class Key = std::decay_t<decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()))>,
+            class Hasher = std::hash<Key>,
+            class KeyEquality = std::equal_to<Key>,
+            class Allocator = std::allocator<std::pair<const Key, value_type>>>
+        std::unordered_map<Key, value_type, Hasher, KeyEquality, Allocator>
+        toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+            using UnorderedMap = std::unordered_map<Key, value_type, Hasher, KeyEquality>;
+            return createMap<UnorderedMap>(keyGen, allocator);
+        }
+
     };
 }}
