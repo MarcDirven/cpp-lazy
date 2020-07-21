@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <algorithm>
+#include <iostream>
 
 
 namespace lz { namespace detail {
@@ -9,13 +10,16 @@ namespace lz { namespace detail {
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = std::tuple<std::decay_t<decltype(*std::declval<Containers>().begin())>...>;
+        using value_type =
+            std::tuple<typename std::iterator_traits<decltype(std::declval<Containers>().begin())>::value_type...>;
         using difference_type = std::ptrdiff_t;
-        using reference = std::tuple<decltype(*std::declval<Containers>().begin())...>;
+        using reference =
+            std::tuple<typename std::iterator_traits<decltype(std::declval<Containers>().begin())>::reference...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
-        std::tuple<decltype(std::declval<Containers>().begin())...> _iterators;
+        using Iterators = std::tuple<decltype(std::declval<Containers>().begin())...>;
+        Iterators _iterators;
 
         template<size_t... I>
         reference dereference(std::index_sequence<I...> /*is*/) const {
@@ -51,28 +55,24 @@ namespace lz { namespace detail {
             return std::min({(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...});
         }
 
-        bool evaluateBooleanArray(const std::initializer_list<bool> booleans, const ZipIterator& other) const {
-            auto end = booleans.end();
-            // Check if false not in boolValues
-            return std::find(booleans.begin(), end, false) == end;
-        }
-
         template<size_t... I>
         bool lessThan(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto boolValues = {(std::get<I>(_iterators) < std::get<I>(other._iterators))...};
-            // Check if false not in boolValues
-            return evaluateBooleanArray(boolValues, other);
+            auto distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
+            return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
+                return diff > 0;
+            }) != distances.end();
         }
 
         template<size_t... I>
         bool notEqual(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
             auto boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
+            auto end = boolValues.end();
             // Check if false not in boolValues
-            return evaluateBooleanArray(boolValues, other);
+            return std::find(boolValues.begin(), end, false) == end;
         }
 
     public:
-        explicit ZipIterator(decltype(_iterators) iters) :
+        explicit ZipIterator(Iterators iters) :
             _iterators(iters) {
         }
 
