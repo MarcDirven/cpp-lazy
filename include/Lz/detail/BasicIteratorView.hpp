@@ -24,6 +24,12 @@ namespace lz { namespace detail {
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
+    private:
+        template<typename KeySelectorFunc>
+        using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
+
+    public:
+
         virtual Iterator begin() const = 0;
         virtual Iterator end() const = 0;
 
@@ -104,12 +110,11 @@ namespace lz { namespace detail {
          * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
          */
         template<class KeySelectorFunc,
-            class Key = std::decay_t<decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()))>,
-            class Compare = std::less<Key>,
-            class Allocator = std::allocator<std::pair<const Key, value_type>>>
-        std::map<Key, value_type, Compare, Allocator> toMap(KeySelectorFunc keyGen,
-                                                            const Allocator& allocator = Allocator()) {
-            using Map = std::map<Key, value_type, Compare, Allocator>;
+            class Compare = std::less<KeyType<KeySelectorFunc>>,
+            class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
+        std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+        toMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+            using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
         }
 
@@ -137,15 +142,13 @@ namespace lz { namespace detail {
          * @return A `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`
          */
         template<class KeySelectorFunc,
-            class Key = std::decay_t<decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()))>,
-            class Hasher = std::hash<Key>,
-            class KeyEquality = std::equal_to<Key>,
-            class Allocator = std::allocator<std::pair<const Key, value_type>>>
-        std::unordered_map<Key, value_type, Hasher, KeyEquality, Allocator>
+            class Hasher = std::hash<KeyType<KeySelectorFunc>>,
+            class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
+            class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
+        std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
         toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
-            using UnorderedMap = std::unordered_map<Key, value_type, Hasher, KeyEquality>;
+            using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
         }
-
     };
 }}
