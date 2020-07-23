@@ -94,10 +94,14 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(it < taken.end());
-        CHECK(it + takeAmount + 1 > taken.end());
-        CHECK(it + takeAmount <= taken.end());
-        CHECK(it + takeAmount >= taken.end());
+        auto b = taken.begin();
+        auto end = taken.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 

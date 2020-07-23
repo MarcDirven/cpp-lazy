@@ -16,7 +16,7 @@ namespace lz { namespace detail {
         using pointer = const Arithmetic*;
         using reference = Arithmetic;
 
-        RangeIterator(Arithmetic iterator, Arithmetic step) :
+        RangeIterator(const Arithmetic iterator, const Arithmetic step) :
             _iterator(iterator),
             _step(step) {
         }

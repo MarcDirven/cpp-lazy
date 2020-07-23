@@ -90,10 +90,14 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     }
 
     SECTION("Operator<, <, <=, >, >=") {
-        CHECK(map.begin() < map.end());
-        CHECK(map.begin() + size + 1 > map.end());
-        CHECK(map.begin() + size <= map.end());
-        CHECK(map.begin() + size >= map.end());
+        auto b = map.begin();
+        auto end = map.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 

@@ -3,11 +3,14 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+
 #include <Lz/detail/LzTools.hpp>
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
+
+#ifdef CXX_LT_17
 
 #include <string>
+
 
 #else
 
@@ -36,7 +39,7 @@ namespace lz { namespace detail {
         using difference_type = std::string::const_iterator::difference_type;
         using pointer = FakePointerProxy<reference>;
 
-        SplitIterator(size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
+        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
             _currentPos(startingPosition),
             _splitIteratorHelper(splitIteratorHelper) {
             if (startingPosition == splitIteratorHelper->string.size()) {
