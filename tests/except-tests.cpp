@@ -43,6 +43,7 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
 
     auto except = lz::except(a, b);
     auto it = except.begin();
+    CHECK(*it == 1);
 
     SECTION("Operator++") {
         ++it;
