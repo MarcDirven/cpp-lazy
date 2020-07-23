@@ -2,11 +2,12 @@
 
 #include <catch.hpp>
 #include <Lz/Enumerate.hpp>
-
+#include <Lz.hpp>
 
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
     constexpr size_t size = 2;
     std::array<int, size> array = {1, 2};
+
 
     SECTION("Enumerate should create pair with {idx, elm}") {
         auto enumerate = lz::enumerate(array);
@@ -79,10 +80,14 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(enumerate.begin() < enumerate.end());
-        CHECK(enumerate.begin() + size + 1 > enumerate.end());
-        CHECK(enumerate.begin() + size <= enumerate.end());
-        CHECK(enumerate.begin() + size >= enumerate.end());
+        const auto b = enumerate.begin();
+        const auto end = enumerate.end();
+        const auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 

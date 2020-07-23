@@ -80,12 +80,13 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        size_t offset = 2;
-        auto evenTaken = lz::takeevery(array, offset);
-        CHECK(evenTaken.begin() < evenTaken.end());
-        CHECK(evenTaken.begin() + 3 > evenTaken.end());
-        CHECK(evenTaken.begin() + offset <= evenTaken.end());
-        CHECK(evenTaken.begin() + offset >= evenTaken.end());
+        auto b = takeEvery.begin();
+        auto end = takeEvery.end();
+
+        CHECK(b < end);
+        CHECK(b + 1 > end - 1);
+        CHECK(b + 1 <= end);
+        CHECK(b + 1  >= end - 1);
     }
 }
 
