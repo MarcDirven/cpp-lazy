@@ -22,7 +22,9 @@ namespace lz { namespace detail {
         TakeIterator(Iterator iterator, Iterator end, Function function) :
             _iterator(iterator),
             _function(function) {
-            _iterator = !_function(*iterator) ? end : _iterator;
+            if (iterator != end) {
+                _iterator = !_function(*iterator) ? end : _iterator;
+            }
         }
 
         reference operator*() const {
