@@ -4,9 +4,6 @@ project(LazyTests)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# Add catch
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../extern)
-
 add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/choose-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/enumerate-tests.cpp
@@ -24,4 +21,6 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/zip-tests.cpp
         )
 
+# Add catch
+target_include_directories(LazyTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../extern)
 target_link_libraries(LazyTests cpp-lazy)
