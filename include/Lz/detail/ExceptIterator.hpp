@@ -41,7 +41,8 @@ namespace lz {
                     if (_iterator == _end) {
                         return;
                     }
-                    it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, *_iterator);
+                    it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
+                                   *_iterator);
                 }
             }
 
@@ -67,7 +68,10 @@ namespace lz {
             }
 
             ExceptIterator& operator++() {
-                find();
+                ++_iterator;
+                if (_iterator != _end) {
+                    find();
+                }
                 return *this;
             }
 
