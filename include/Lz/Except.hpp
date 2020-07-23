@@ -7,7 +7,7 @@
 
 namespace lz {
     template<class Iterator, class IteratorToExcept>
-    class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept>>{
+    class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept>> {
     public:
         using iterator = detail::ExceptIterator<Iterator, IteratorToExcept>;
         using const_iterator = iterator;
@@ -27,11 +27,11 @@ namespace lz {
          * @param toExceptBegin The beginning of the actual elements to except.
          * @param toExceptEnd The ending of the actual elements to except.
          */
-        Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd):
+        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+               const IteratorToExcept toExceptEnd) :
             _begin(begin),
             _end(end),
-            _iteratorHelper{toExceptBegin, toExceptEnd}
-        {}
+            _iteratorHelper{toExceptBegin, toExceptEnd} {}
 
         /**
          * Returns an iterator to the beginning.
@@ -65,7 +65,8 @@ namespace lz {
      * @return An Except view object.
      */
     template<class Iterator, class IteratorToExcept>
-    auto exceptrange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) {
+    auto exceptrange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+                     const IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
     }
 

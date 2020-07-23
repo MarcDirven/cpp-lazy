@@ -31,7 +31,7 @@ namespace lz { namespace detail {
             _iterHelper(GenerateIteratorHelper<GeneratorFunc, value_type>{}){
         }
 
-        GenerateIterator(size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
+        GenerateIterator(const size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
             _current(start),
             _iterHelper(helper)
         {}

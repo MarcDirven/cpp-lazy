@@ -72,7 +72,7 @@ namespace lz { namespace detail {
         }
 
     public:
-        explicit ZipIterator(Iterators iters) :
+        explicit ZipIterator(const Iterators iters) :
             _iterators(iters) {
         }
 

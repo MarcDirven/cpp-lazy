@@ -32,7 +32,7 @@ namespace lz { namespace detail {
             _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
         }
 
-        explicit ExceptIterator(Iterator begin, Iterator end,
+        explicit ExceptIterator(const Iterator begin, const Iterator end,
                                 const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
             _iterator(begin),
             _end(end),

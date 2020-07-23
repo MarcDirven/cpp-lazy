@@ -54,7 +54,7 @@ namespace lz { namespace detail {
         const RandomIteratorHelper<Arithmetic, Distribution>* _randomIteratorHelper;
 
     public:
-        explicit RandomIterator(size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
+        explicit RandomIterator(const size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
             _current(current),
             _randomIteratorHelper(helper) {
         }

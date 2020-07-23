@@ -18,7 +18,7 @@ namespace lz { namespace detail {
         using reference = value_type;
         using pointer = FakePointerProxy<reference>;
 
-        MapIterator(Iterator iterator, Function function) :
+        MapIterator(const Iterator iterator, const Function function) :
             _iterator(iterator),
             _function(function) {
         }

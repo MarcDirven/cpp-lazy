@@ -23,7 +23,7 @@ namespace lz { namespace detail {
         using pointer = T*;
         using reference = T&;
 
-        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, size_t start) :
+        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const size_t start) :
             _iterHelper{iteratorHelper},
             _iterator(start) {
         }

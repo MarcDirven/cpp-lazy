@@ -28,7 +28,7 @@ namespace lz {
          * @param amount The amount of random numbers to generate. If `std::numeric_limits<size_t>::max()` it is
          * interpreted as a `while-true` loop.
          */
-        Random(Arithmetic min, Arithmetic max, size_t amount) :
+        Random(const Arithmetic min, const Arithmetic max, const size_t amount) :
             _amount(amount),
             _helper(min, max, amount) {
         }
@@ -62,7 +62,8 @@ namespace lz {
      * @return A random view object that generates a sequence of random numbers
      */
     template<class Arithmetic>
-    static auto random(Arithmetic min, Arithmetic max, size_t amount = std::numeric_limits<size_t>::max()) {
+    static auto
+    random(const Arithmetic min, const Arithmetic max, const size_t amount = std::numeric_limits<size_t>::max()) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
 
         return Random<Arithmetic, std::uniform_int_distribution<Arithmetic>>(min, max, amount);
@@ -80,7 +81,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random floats.
      */
     template<>
-    auto random(float min, float max, size_t amount) {
+    auto random(const float min, const float max, const size_t amount) {
         return Random<float, std::uniform_real_distribution<float>>(min, max, amount);
     }
 
@@ -96,7 +97,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random doubles.
      */
     template<>
-    auto random(double min, double max, size_t amount) {
+    auto random(const double min, const double max, const size_t amount) {
         return Random<double, std::uniform_real_distribution<double>>(min, max, amount);
     }
 
@@ -113,7 +114,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random long doubles.
      */
     template<>
-    auto random(long double min, long double max, size_t amount) {
+    auto random(const long double min, const long double max, const size_t amount) {
         return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount);
     }
 }
