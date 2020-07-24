@@ -8,21 +8,15 @@
 
 
 namespace lz { namespace detail {
-    static std::seed_seq& getSeed() {
-        static std::random_device rd;
-        static std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-        return seed;
-    }
-
     static std::mt19937& createRandomEngine() {
-        static std::mt19937 instance(getSeed());
+        std::random_device rd;
+        static std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
+        static std::mt19937 instance(seed);
         return instance;
     }
 
     template<class Arithmetic, class Distribution>
     struct RandomIteratorHelper {
-        static std::random_device rd;
-        static std::seed_seq seed;
         static std::mt19937& randomEngine;
         mutable Distribution distribution{};
         bool isWhileTrueLoop;
