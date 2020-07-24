@@ -103,4 +103,26 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
         }
         CHECK(lst.size() == times);
     }
+
+    SECTION("To map") {
+        std::map<int, int> actual = repeater.toMap([](const int i) { return i; });
+        std::map<int, int> expected;
+
+        for (int i = 0; i < times; i++) {
+            expected.insert(std::make_pair(20, 20));
+        }
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> expected;
+
+        for (int i = 0; i < times; i++) {
+            expected.insert(std::make_pair(20, 20));
+        }
+
+        CHECK(actual == expected);
+    }
 }

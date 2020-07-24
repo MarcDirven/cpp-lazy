@@ -134,4 +134,24 @@ TEST_CASE("Take to containers", "[Take][To container]") {
 
         CHECK(expected == actual);
     }
+
+    SECTION("To map") {
+        constexpr size_t newSize = 2;
+        std::map<int, int> actual = lz::take(array, newSize).toMap([](const int i) { return i; });
+        std::map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+        CHECK(actual == expected);
+    }
+
+    SECTION("To map") {
+        constexpr size_t newSize = 2;
+        std::unordered_map<int, int> actual = lz::take(array, newSize).toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+        CHECK(actual == expected);
+    }
 }

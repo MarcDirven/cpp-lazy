@@ -118,4 +118,19 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
 
         CHECK(map == expected);
     }
+
+    SECTION("To unordered map") {
+        std::unordered_map<size_t, size_t> map = generator.toUnorderedMap([](const size_t elm) {
+            return elm * 10;
+        });
+
+        std::unordered_map<size_t, size_t> expected = {
+            {0, 0},
+            {10, 1},
+            {20, 2},
+            {30, 3}
+        };
+
+        CHECK(map == expected);
+    }
 }

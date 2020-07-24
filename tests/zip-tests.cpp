@@ -153,4 +153,37 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
             ++listIterator;
         }
     }
+
+    SECTION("To map") {
+        std::map<int, std::tuple<int, float, short>> actual = lz::zip(a, b, c).toMap(
+            [](const auto& tup) {
+                return std::get<0>(tup);
+            });
+        std::map<int, std::tuple<int, float, short>> expected = {
+            std::make_pair(1, std::make_tuple(1, 1.f, 1)),
+            std::make_pair(2, std::make_tuple(2, 2.f, 2)),
+            std::make_pair(3, std::make_tuple(3, 3.f, 3)),
+            std::make_pair(4, std::make_tuple(4, 4.f, 4))
+
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To map") {
+        std::unordered_map<int, std::tuple<int, float, short>> actual = lz::zip(a, b, c).toUnorderedMap(
+            [](const auto& tup) {
+                return std::get<0>(tup);
+            });
+
+        std::unordered_map<int, std::tuple<int, float, short>> expected = {
+            std::make_pair(1, std::make_tuple(1, 1.f, 1)),
+            std::make_pair(2, std::make_tuple(2, 2.f, 2)),
+            std::make_pair(3, std::make_tuple(3, 3.f, 3)),
+            std::make_pair(4, std::make_tuple(4, 4.f, 4))
+
+        };
+
+        CHECK(actual == expected);
+    }
 }

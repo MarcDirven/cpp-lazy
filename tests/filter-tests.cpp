@@ -91,4 +91,34 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
             ++counter;
         }
     }
+
+    SECTION("To map") {
+        auto filtered = lz::filter(array, [](const int i) { return i != 3; });
+
+        std::map<int, int> actual = filtered.toMap([](const int i) {
+            return i;
+        });
+
+        std::map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+
+        CHECK(expected == actual);
+    }
+
+    SECTION("To unordered map") {
+        auto filtered = lz::filter(array, [](const int i) { return i != 3; });
+
+        std::unordered_map<int, int> actual = filtered.toUnorderedMap([](const int i) {
+            return i;
+        });
+
+        std::unordered_map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+
+        CHECK(expected == actual);
+    }
 }

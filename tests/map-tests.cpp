@@ -136,4 +136,32 @@ TEST_CASE("Map to containers", "[Map][To container]") {
             CHECK(*listIterator == array[i].testFieldStr);
         }
     }
+
+    SECTION("To map") {
+        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) {
+            return s;
+        });
+
+        std::map<std::string, std::string> expected = {
+            std::make_pair("FieldA", "FieldA"),
+            std::make_pair("FieldB", "FieldB"),
+            std::make_pair("FieldC", "FieldC"),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<std::string, std::string> actual = map.toUnorderedMap([](const std::string& s) {
+            return s;
+        });
+
+        std::unordered_map<std::string, std::string> expected = {
+            std::make_pair("FieldA", "FieldA"),
+            std::make_pair("FieldB", "FieldB"),
+            std::make_pair("FieldC", "FieldC"),
+        };
+
+        CHECK(actual == expected);
+    }
 }

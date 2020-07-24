@@ -4,6 +4,7 @@
 #include <Lz/Enumerate.hpp>
 #include <Lz.hpp>
 
+
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
     constexpr size_t size = 2;
     std::array<int, size> array = {1, 2};
@@ -124,5 +125,36 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
             CHECK(actualPair == expectedPair);
             expectedPair = std::make_pair(++expectedPair.first, ++expectedPair.second);
         }
+    }
+
+    SECTION("To map") {
+        auto enumerator = lz::enumerate(array);
+        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) {
+            return pair.second;
+        });
+
+        std::map<int, std::pair<int, int>> expected = {
+            std::make_pair(1, std::make_pair(0, 1)),
+            std::make_pair(2, std::make_pair(1, 2)),
+            std::make_pair(3, std::make_pair(2, 3)),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        auto enumerator = lz::enumerate(array);
+        std::unordered_map<int, std::pair<int, int>> actual = enumerator.toUnorderedMap(
+            [](const std::pair<int, int> pair) {
+                return pair.second;
+            });
+
+        std::unordered_map<int, std::pair<int, int>> expected = {
+            std::make_pair(1, std::make_pair(0, 1)),
+            std::make_pair(2, std::make_pair(1, 2)),
+            std::make_pair(3, std::make_pair(2, 3)),
+        };
+
+        CHECK(actual == expected);
     }
 }
