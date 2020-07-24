@@ -10,8 +10,7 @@
 
 namespace lz {
     template<class Arithmetic, class Distribution>
-    class Random final
-        : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution>> {
+    class Random final : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution>> {
     public:
         using iterator = detail::RandomIterator<Arithmetic, Distribution>;
         using const_iterator = iterator;
