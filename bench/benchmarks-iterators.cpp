@@ -59,7 +59,7 @@ static void StringSplitter(benchmark::State& state) {
     for (auto _ : state) {
         auto splitter = lz::split(toSplit, " ");
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
+#ifdef CXX_LT_17
         // making non const causes: benchmark/benchmark.h:322:48: internal compiler error: in assign_temp,
         // at function.c:977
         using StringType = const std::string&;
@@ -221,7 +221,21 @@ static void Generate(benchmark::State& state) {
     }
 }
 
+static void Concatenate(benchmark::State& state) {
+    std::string a(static_cast<size_t>(SizePolicy / 2), '0');
+    std::string b(static_cast<size_t>(SizePolicy / 2), '1');
+
+    for (auto _ : state) {
+        auto concat = lz::concat(a, b);
+
+        for (char c : concat) {
+            benchmark::DoNotOptimize(c);
+        }
+    }
+}
+
 BENCHMARK(Choose);
+BENCHMARK(Concatenate);
 BENCHMARK(Enumerate);
 BENCHMARK(Except);
 BENCHMARK(Filter);

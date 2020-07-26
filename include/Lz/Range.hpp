@@ -26,7 +26,7 @@ namespace lz {
          * @param end The end of the counting.
          * @param step The step that gets added every iteration.
          */
-        Range(Arithmetic start, Arithmetic end, Arithmetic step) :
+        Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) :
             _begin(start),
             _end(end),
             _step(step) {
@@ -64,6 +64,8 @@ namespace lz {
             return reverse_iterator(end());
         }
     };
+
+    template class Range<int>;
 
     // Start of group
     /**

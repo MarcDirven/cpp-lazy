@@ -71,10 +71,28 @@ TEST_CASE("Choose to container", "[Choose][To container]") {
     SECTION("To map") {
         int x = 0;
         std::map<int, int> actual = chooser.toMap([&x](const char s) {
+            static_cast<void>(s);
            return x++;
         });
 
         std::map<int, int> expected = {
+            std::make_pair(0, 1),
+            std::make_pair(1, 2),
+            std::make_pair(2, 4),
+            std::make_pair(3, 5)
+        };
+
+        CHECK(expected == actual);
+    }
+
+    SECTION("To unordered map") {
+        int x = 0;
+        std::unordered_map<int, int> actual = chooser.toUnorderedMap([&x](const char s) {
+            static_cast<void>(s);
+            return x++;
+        });
+
+        std::unordered_map<int, int> expected = {
             std::make_pair(0, 1),
             std::make_pair(1, 2),
             std::make_pair(2, 4),

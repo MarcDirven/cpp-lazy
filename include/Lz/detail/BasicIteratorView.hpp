@@ -31,6 +31,7 @@ namespace lz { namespace detail {
     public:
 
         virtual Iterator begin() const = 0;
+
         virtual Iterator end() const = 0;
 
         /**
@@ -79,11 +80,17 @@ namespace lz { namespace detail {
          * @brief Creates a new `std::vector<value_type, N>`.
          * @tparam N The size of the array.
          * @return A new `std::array<value_type, N>`.
+         * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<size_t N>
         std::array<value_type, N> toArray() const {
+            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
+            if (std::distance(begin(), end()) > size) {
+                throw std::out_of_range("the iterator size is too large and/or array size is too small");
+            }
+
             std::array<value_type, N> container;
-            detail::fillContainer(begin(), container);
+            std::copy(begin(), end(), std::begin(container));
             return container;
         }
 

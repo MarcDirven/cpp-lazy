@@ -34,8 +34,8 @@ namespace lz {
          * @param containers
          */
         explicit Zip(Containers&& ... containers) :
-            _begin(std::make_tuple(containers.begin()...)),
-            _end(std::make_tuple(containers.end()...))
+            _begin(std::make_tuple(std::begin(containers)...)),
+            _end(std::make_tuple(std::end(containers)...))
         {
         }
 

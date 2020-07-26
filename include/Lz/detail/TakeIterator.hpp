@@ -22,7 +22,9 @@ namespace lz { namespace detail {
         TakeIterator(Iterator iterator, Iterator end, Function function) :
             _iterator(iterator),
             _function(function) {
-            _iterator = !_function(*iterator) ? end : _iterator;
+            if (iterator != end) {
+                _iterator = !_function(*iterator) ? end : _iterator;
+            }
         }
 
         reference operator*() const {
@@ -65,13 +67,13 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        TakeIterator operator+(const difference_type offset) {
+        TakeIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        TakeIterator operator-(const difference_type offset) {
+        TakeIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -81,7 +83,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
@@ -93,8 +95,7 @@ namespace lz { namespace detail {
         }
 
         bool operator==(const TakeIterator& other) const {
-            // Prevent recursion when: TakeWhileIterator<TakeWhileIterator<Iterator, fn>, fn>
-            return &(*_iterator) == &(*other._iterator);
+            return _iterator == other._iterator;
         }
 
         bool operator<(const TakeIterator& other) const {

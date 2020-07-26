@@ -8,6 +8,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
     constexpr size_t size = 2;
     std::array<int, size> array = {1, 2};
 
+
     SECTION("Enumerate should create pair with {idx, elm}") {
         auto enumerate = lz::enumerate(array);
         auto element = *enumerate.begin();
@@ -79,10 +80,14 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(enumerate.begin() < enumerate.end());
-        CHECK(enumerate.begin() + size + 1 > enumerate.end());
-        CHECK(enumerate.begin() + size <= enumerate.end());
-        CHECK(enumerate.begin() + size >= enumerate.end());
+        const auto b = enumerate.begin();
+        const auto end = enumerate.end();
+        const auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 
@@ -119,5 +124,36 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
             CHECK(actualPair == expectedPair);
             expectedPair = std::make_pair(++expectedPair.first, ++expectedPair.second);
         }
+    }
+
+    SECTION("To map") {
+        auto enumerator = lz::enumerate(array);
+        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) {
+            return pair.second;
+        });
+
+        std::map<int, std::pair<int, int>> expected = {
+            std::make_pair(1, std::make_pair(0, 1)),
+            std::make_pair(2, std::make_pair(1, 2)),
+            std::make_pair(3, std::make_pair(2, 3)),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        auto enumerator = lz::enumerate(array);
+        std::unordered_map<int, std::pair<int, int>> actual = enumerator.toUnorderedMap(
+            [](const std::pair<int, int> pair) {
+                return pair.second;
+            });
+
+        std::unordered_map<int, std::pair<int, int>> expected = {
+            std::make_pair(1, std::make_pair(0, 1)),
+            std::make_pair(2, std::make_pair(1, 2)),
+            std::make_pair(3, std::make_pair(2, 3)),
+        };
+
+        CHECK(actual == expected);
     }
 }

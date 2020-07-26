@@ -15,8 +15,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin;
-        iterator _end;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -26,8 +26,8 @@ namespace lz {
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          */
         TakeEvery(Iterator begin, Iterator end, const size_t offset) :
-            _begin(begin, offset),
-            _end(end, offset) {
+            _begin(begin, end, offset, std::distance(begin, end)),
+            _end(end, end, offset, _begin._distance) {
         }
 
         /**
@@ -77,41 +77,8 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterable>
-#ifdef _MSC_VER
-    typename std::enable_if<detail::IsContiguousContainer<Iterable>::value,
-        decltype(takeeveryrange(&*std::begin(std::declval<Iterable>()),
-                                &*std::begin(std::declval<Iterable>()),
-                                0))>::type
-#else
-    auto
-#endif
-    takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
-#ifdef _MSC_VER
-        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
-        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
-        // past-the-end and also causing the operator>= never to be used.
-        auto begin = std::begin(iterable);
-        auto end = std::end(iterable);
-
-        if (begin == end) {  // Prevent UB when subtracting 1 and dereference it
-            return takeeveryrange(&(*begin), &(*end), offset, start);
-        }
-
-        --end;
-        return takeeveryrange(&(*begin), &(*end) + 1, offset, start);
-#else
-        return takeeveryrange(iterable.begin(), iterable.end(), offset, start);
-#endif
+    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
+        return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
 
-#ifdef _MSC_VER
-    template<class Iterable>
-    typename std::enable_if<!detail::IsContiguousContainer<Iterable>::value,
-        decltype(takeeveryrange(std::begin(std::declval<Iterable>()),
-                                std::begin(std::declval<Iterable>()),
-                                0))>::type
-    takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
-        return takeevery(std::begin(iterable), std::end(iterable), offset, start);
-    }
-#endif
 }

@@ -92,43 +92,9 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-#ifdef _MSC_VER
-    typename std::enable_if<detail::IsContiguousContainer<Iterable>::value,
-        decltype(takewhilerange(&*std::begin(std::declval<Iterable>()),
-                                &*std::begin(std::declval<Iterable>()),
-                                std::declval<Function>()))>::type
-#else
-    auto
-#endif
-    takewhile(Iterable&& iterable, Function predicate) {
-#ifdef _MSC_VER
-        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
-        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
-        // past-the-end and also causing the operator>= never to be used.
-        auto begin = std::begin(iterable);
-        auto end = std::end(iterable);
-
-        if (begin == end) {  // Prevent UB when subtracting 1 and dereference it
-            return takewhilerange(&(*begin), &(*end), predicate);
-        }
-
-        --end;
-        return takewhilerange(&(*begin), &(*end) + 1, predicate);
-#else
-        return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
-#endif
-    }
-
-#ifdef _MSC_VER
-    template<class Iterable, class Function>
-    typename std::enable_if<!detail::IsContiguousContainer<Iterable>::value,
-        decltype(takewhilerange(std::declval<Iterable>().begin(),
-                                std::declval<Iterable>().begin(),
-                                std::declval<Function>()))>::type
-    takewhile(Iterable&& iterable, Function predicate) {
+    auto takewhile(Iterable&& iterable, Function predicate) {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
-#endif
 
     /**
      * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a

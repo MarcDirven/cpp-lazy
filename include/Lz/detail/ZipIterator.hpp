@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <algorithm>
+#include <iostream>
 
 
 namespace lz { namespace detail {
@@ -9,13 +10,16 @@ namespace lz { namespace detail {
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = std::tuple<std::decay_t<decltype(*std::declval<Containers>().begin())>...>;
+        using value_type =
+        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::value_type...>;
         using difference_type = std::ptrdiff_t;
-        using reference = std::tuple<decltype(*std::declval<Containers>().begin())...>;
+        using reference =
+        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::reference...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
-        std::tuple<decltype(std::declval<Containers>().begin())...> _iterators;
+        using Iterators = std::tuple<decltype(std::begin(std::declval<Containers>()))...>;
+        Iterators _iterators;
 
         template<size_t... I>
         reference dereference(std::index_sequence<I...> /*is*/) const {
@@ -48,31 +52,28 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         difference_type iteratorMin(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            return std::min({(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...});
-        }
-
-        bool evaluateBooleanArray(const std::initializer_list<bool> booleans, const ZipIterator& other) const {
-            auto end = booleans.end();
-            // Check if false not in boolValues
-            return std::find(booleans.begin(), end, false) == end;
+            return static_cast<difference_type>(std::min(
+                {(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...}));
         }
 
         template<size_t... I>
         bool lessThan(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto boolValues = {(std::get<I>(_iterators) < std::get<I>(other._iterators))...};
-            // Check if false not in boolValues
-            return evaluateBooleanArray(boolValues, other);
+            auto distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
+            return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
+                return diff > 0;
+            }) != distances.end();
         }
 
         template<size_t... I>
         bool notEqual(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
             auto boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
+            auto end = boolValues.end();
             // Check if false not in boolValues
-            return evaluateBooleanArray(boolValues, other);
+            return std::find(boolValues.begin(), end, false) == end;
         }
 
     public:
-        explicit ZipIterator(decltype(_iterators) iters) :
+        explicit ZipIterator(const Iterators iters) :
             _iterators(iters) {
         }
 
@@ -111,7 +112,7 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        ZipIterator operator+(const difference_type offset) {
+        ZipIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
@@ -122,7 +123,7 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        ZipIterator operator-(const difference_type offset) {
+        ZipIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -132,7 +133,7 @@ namespace lz { namespace detail {
             return iteratorMin(std::index_sequence_for<Containers...>{}, other);
         }
 
-        value_type operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

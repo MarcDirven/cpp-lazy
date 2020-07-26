@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Lz/Choose.hpp>
+#include <Lz/Concatenate.hpp>
 #include <Lz/Enumerate.hpp>
 #include <Lz/Except.hpp>
 #include <Lz/Filter.hpp>

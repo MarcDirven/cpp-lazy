@@ -18,7 +18,7 @@ namespace lz { namespace detail {
         using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
         using pointer = FakePointerProxy<reference>;
 
-        EnumerateIterator(IntType start, Iterator iterator) :
+        EnumerateIterator(const IntType start, const Iterator iterator) :
             _index(start),
             _iterator(iterator) {
         }
@@ -83,7 +83,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

@@ -36,8 +36,6 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         });
-
-        for (std::string& s : map) {}
     }
 }
 
@@ -90,10 +88,14 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     }
 
     SECTION("Operator<, <, <=, >, >=") {
-        CHECK(map.begin() < map.end());
-        CHECK(map.begin() + size + 1 > map.end());
-        CHECK(map.begin() + size <= map.end());
-        CHECK(map.begin() + size >= map.end());
+        auto b = map.begin();
+        auto end = map.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 
@@ -131,5 +133,33 @@ TEST_CASE("Map to containers", "[Map][To container]") {
         for (size_t i = 0; i < array.size(); i++, ++listIterator) {
             CHECK(*listIterator == array[i].testFieldStr);
         }
+    }
+
+    SECTION("To map") {
+        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) {
+            return s;
+        });
+
+        std::map<std::string, std::string> expected = {
+            std::make_pair("FieldA", "FieldA"),
+            std::make_pair("FieldB", "FieldB"),
+            std::make_pair("FieldC", "FieldC"),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<std::string, std::string> actual = map.toUnorderedMap([](const std::string& s) {
+            return s;
+        });
+
+        std::unordered_map<std::string, std::string> expected = {
+            std::make_pair("FieldA", "FieldA"),
+            std::make_pair("FieldB", "FieldB"),
+            std::make_pair("FieldC", "FieldC"),
+        };
+
+        CHECK(actual == expected);
     }
 }

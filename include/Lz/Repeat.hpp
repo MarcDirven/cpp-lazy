@@ -22,7 +22,7 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        Repeat(T&& toRepeat, size_t amount):
+        Repeat(T&& toRepeat, const size_t amount):
             _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
             _amount(amount){
         }
@@ -59,7 +59,7 @@ namespace lz {
      * @return A repeat object, containing the random access iterator.
      */
     template<class T>
-    auto repeat(T toRepeat, size_t amount = std::numeric_limits<size_t>::max()) {
+    auto repeat(T toRepeat, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Repeat<T>(std::move(toRepeat), amount);
     }
 

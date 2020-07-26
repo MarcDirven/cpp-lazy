@@ -23,7 +23,7 @@ namespace lz { namespace detail {
         using pointer = T*;
         using reference = T&;
 
-        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, size_t start) :
+        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const size_t start) :
             _iterHelper{iteratorHelper},
             _iterator(start) {
         }
@@ -76,13 +76,13 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        RepeatIterator operator+(const difference_type offset) {
+        RepeatIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        RepeatIterator operator-(const difference_type offset) {
+        RepeatIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -92,7 +92,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

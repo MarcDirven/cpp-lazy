@@ -80,12 +80,13 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        size_t offset = 2;
-        auto evenTaken = lz::takeevery(array, offset);
-        CHECK(evenTaken.begin() < evenTaken.end());
-        CHECK(evenTaken.begin() + 3 > evenTaken.end());
-        CHECK(evenTaken.begin() + offset <= evenTaken.end());
-        CHECK(evenTaken.begin() + offset >= evenTaken.end());
+        auto b = takeEvery.begin();
+        auto end = takeEvery.end();
+
+        CHECK(b < end);
+        CHECK(b + 1 > end - 1);
+        CHECK(b + 1 <= end);
+        CHECK(b + 1  >= end - 1);
     }
 }
 
@@ -109,4 +110,23 @@ TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {
         std::list<int> actual = takeEvery.to<std::list>();
         CHECK(actual == std::list<int>{1, 3});
     }
+
+    SECTION("To map") {
+        std::map<int, int> actual = takeEvery.toMap([](const int i) { return i; });
+        std::map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(3, 3)
+        };
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<int, int> actual = takeEvery.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(3, 3)
+        };
+        CHECK(actual == expected);
+    }
+
 }

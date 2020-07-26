@@ -27,7 +27,7 @@ namespace lz {
          * @param end Ending of the iterator.
          * @param start The start of the counting index. 0 is assumed by default.
          */
-        Enumerate(Iterator begin, Iterator end, IntType start = 0) :
+        Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
             _end(start, end) {
         }
@@ -69,7 +69,7 @@ namespace lz {
      * @return Enumerate iterator object from [begin, end).
      */
     template<class IntType = int, class Iterator>
-    auto enumeraterange(Iterator begin, Iterator end, IntType start = 0) {
+    auto enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 
@@ -88,45 +88,10 @@ namespace lz {
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<class IntType = int, class Iterable>
-#ifdef _MSC_VER
-    typename std::enable_if<
-        detail::IsContiguousContainer<Iterable>::value,
-        decltype(enumeraterange(&*std::begin(std::declval<Iterable>()),
-                                &*std::begin(std::declval<Iterable>()), 0))>::type
-#else
-    auto
-#endif
-    enumerate(Iterable&& iterable, IntType start = 0) {
-#ifdef _MSC_VER
-        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
-        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
-        // past-the-end and also causing the operator>= never to be used.
-        auto begin = std::begin(iterable);
-        auto end = std::end(iterable);
-
-        if (begin == end) {  // Prevent UB when subtracting 1 and dereference it
-            return enumeraterange(&*begin, &*end, start);
-        }
-
-        --end;
-        return enumeraterange(&*begin, &(*end) + 1, start);
-#else
-        return enumeraterange(std::begin(iterable), std::end(iterable), start);
-#endif
-    }
-
-#ifdef _MSC_VER
-
-    template<class IntType = int, class Iterable>
-    typename std::enable_if<!detail::IsContiguousContainer<Iterable>::value,
-        decltype(enumeraterange(std::begin(std::declval<Iterable>()),
-                                std::begin(std::declval<Iterable>()),
-                                0))>::type
-    enumerate(Iterable&& iterable, IntType start = 0) {
+    auto enumerate(Iterable&& iterable, const  IntType start = 0) {
         return enumeraterange(std::begin(iterable), std::end(iterable), start);
     }
 
-#endif
     // End of group
     /**
      * @}

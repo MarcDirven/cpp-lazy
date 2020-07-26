@@ -6,7 +6,6 @@
 
 
 TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functionality]") {
-    constexpr size_t size = 5;
     std::vector<int> array{1, 2, 3, 4, 5};
     std::vector<int> toExcept{3, 5};
 
@@ -18,8 +17,8 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
         constexpr size_t s = 32;
         constexpr size_t es = 16;
 
-        std::array<int, s> largeArr = lz::range((int)s).toArray<s>();
-        std::array<int, es> toLargeExcept = lz::range((int)es).toArray<es>();
+        std::array<int, s> largeArr = lz::range((int) s).toArray<s>();
+        std::array<int, es> toLargeExcept = lz::range((int) es).toArray<es>();
 
         auto ex = lz::except(largeArr, toLargeExcept);
         for (int _ : ex) {
@@ -43,6 +42,7 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
 
     auto except = lz::except(a, b);
     auto it = except.begin();
+    CHECK(*it == 1);
 
     SECTION("Operator++") {
         ++it;
@@ -57,7 +57,6 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
 }
 
 TEST_CASE("Except to containers", "[Except][To container]") {
-    constexpr size_t size = 4;
     std::vector<int> a = {1, 2, 3, 4};
     std::vector<int> b = {1, 3};
     auto except = lz::except(a, b);
@@ -75,5 +74,31 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     SECTION("To other container using to<>()") {
         auto excepted = except.to<std::list>();
         CHECK(excepted == std::list<int>{2, 4});
+    }
+
+    SECTION("To map") {
+        std::map<int, int> actual = except.toMap([](const int i) {
+            return i;
+        });
+
+        std::map<int, int> expected = {
+            std::make_pair(2, 2),
+            std::make_pair(4, 4),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<int, int> actual = except.toUnorderedMap([](const int i) {
+            return i;
+        });
+
+        std::unordered_map<int, int> expected = {
+            std::make_pair(2, 2),
+            std::make_pair(4, 4),
+        };
+
+        CHECK(actual == expected);
     }
 }
