@@ -83,7 +83,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

@@ -91,13 +91,13 @@ namespace lz {
             return *this;
         }
 
-        TakeEveryIterator operator+(const difference_type offset) {
+        TakeEveryIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        TakeEveryIterator operator-(const difference_type offset) {
+        TakeEveryIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -109,7 +109,7 @@ namespace lz {
             return _offset % 2 == 0 ? diffOffset : diffOffset + 1;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

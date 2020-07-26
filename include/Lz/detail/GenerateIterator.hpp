@@ -40,7 +40,7 @@ namespace lz { namespace detail {
             return _iterHelper->generator();
         }
 
-        pointer operator->() {
+        pointer operator->() const {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
@@ -84,13 +84,13 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        GenerateIterator operator+(const difference_type offset) {
+        GenerateIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        GenerateIterator operator-(const difference_type offset) {
+        GenerateIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -100,7 +100,7 @@ namespace lz { namespace detail {
             return _current - other._current;
         }
 
-        reference operator[](const difference_type offset) {
+        value_type operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

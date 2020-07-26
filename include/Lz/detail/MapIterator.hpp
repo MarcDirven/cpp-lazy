@@ -63,13 +63,13 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        MapIterator operator+(const difference_type offset) {
+        MapIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        MapIterator operator-(const difference_type offset) {
+        MapIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -79,7 +79,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
