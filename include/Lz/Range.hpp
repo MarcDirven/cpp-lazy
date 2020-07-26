@@ -65,6 +65,8 @@ namespace lz {
         }
     };
 
+    template class Range<int>;
+
     // Start of group
     /**
      * @addtogroup ItFns

@@ -49,6 +49,9 @@ namespace lz {
         }
     };
 
+    template class Random<int, std::uniform_int_distribution<int>>;
+    template class Random<double, std::uniform_real_distribution<double>>;
+
     /**
      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
      * @details This random access iterator view object can be used to generate a sequence of random numbers between
@@ -104,8 +107,7 @@ namespace lz {
      * @brief Returns a random access view object that generates a sequence of random long doubles, using a uniform
      * distribution.
      * @details This random access iterator view object can be used to generate a sequence of random long doubles
-     * between [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device`
-     * as seed.
+     * between [`min, max`]. It uses the std::mt19937 random engine and a seed of (8x) `std::random_device`.
      * @param min The minimum value, included.
      * @param max The maximum value, included.
      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<size_t>::max()`

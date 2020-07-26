@@ -59,9 +59,10 @@ namespace lz {
     };
 
 #ifdef CXX_LT_17
-
+    template class StringSplitter<std::string>;
     template<class SubString = std::string>
 #else
+    template class StringSplitter<std::string_view>;
     template<class SubString = std::string_view>
 #endif
     // Start of group
