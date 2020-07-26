@@ -36,8 +36,6 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         });
-
-        for (std::string& s : map) {}
     }
 }
 
