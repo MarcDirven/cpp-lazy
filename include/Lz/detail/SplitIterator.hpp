@@ -22,9 +22,9 @@
 namespace lz { namespace detail {
     template<class SubString>
     struct SplitViewIteratorHelper {
-        std::string delimiter;
+        std::string delimiter{};
         const std::string& string = std::string();
-        mutable SubString substring;
+        mutable SubString substring{};
     };
 
     template<class SubString>
