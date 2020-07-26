@@ -103,6 +103,7 @@ auto vector = lz::choose(s, [](const char s) {
 }).toVector();
 // vector yields (int) {1, 2}
 ```
+- **Concatenate**, this iterator can be used to merge two containers together.
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
 - **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
 - **Filter** filters out elements given by a function predicate
@@ -134,8 +135,8 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 
 # Benchmarks cpp-lazy
 
-<div style="text-align:center"><img src="https://i.imgur.com/vLpNBJM.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/O0Co84X.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/MgYcz6W.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/HUfmgvY.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/uGffUjM.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/b6DVCuv.png" /></div>
