@@ -6,10 +6,8 @@
 
 namespace lz {
     template<class Iterator, class Function>
-    class Choose final
-        : public detail::BasicIteratorView<detail::ChooseIterator<Iterator, Function>> {
+    class Choose final : public detail::BasicIteratorView<detail::ChooseIterator<Iterator, Function>> {
     public:
-        using IteratorType = typename std::iterator_traits<Iterator>::value_type;
         using iterator = detail::ChooseIterator<Iterator, Function>;
         using const_iterator = iterator;
 
@@ -28,11 +26,10 @@ namespace lz {
          * @param function A function that returns a std::pair<bool, T> and takes a value type of its corresponding
          * container as parameter.
          */
-        Choose(const Iterator begin, const Iterator end, const Function function):
+        Choose(const Iterator begin, const Iterator end, const Function function) :
             _begin(begin),
             _end(end),
-            _helper{function}
-        {}
+            _helper{function} {}
 
         /**
          * @brief Returns the beginning of the sequence.

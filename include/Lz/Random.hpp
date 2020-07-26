@@ -49,9 +49,6 @@ namespace lz {
         }
     };
 
-    template class Random<int, std::uniform_int_distribution<int>>;
-    template class Random<double, std::uniform_real_distribution<double>>;
-
     /**
      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
      * @details This random access iterator view object can be used to generate a sequence of random numbers between
