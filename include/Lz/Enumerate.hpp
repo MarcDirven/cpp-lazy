@@ -29,7 +29,7 @@ namespace lz {
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
-            _end(end, end) {
+            _end(std::distance(begin, end), end) {
         }
 
         /**
