@@ -27,9 +27,9 @@ namespace lz {
          * @param end Ending of the iterator.
          * @param start The start of the counting index. 0 is assumed by default.
          */
-        Enumerate(Iterator begin, Iterator end, IntType start = 0) :
+        Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
-            _end(start, end) {
+            _end(std::distance(begin, end), end) {
         }
 
         /**
@@ -69,7 +69,7 @@ namespace lz {
      * @return Enumerate iterator object from [begin, end).
      */
     template<class IntType = int, class Iterator>
-    auto enumeraterange(Iterator begin, Iterator end, IntType start = 0) {
+    auto enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 
@@ -88,18 +88,8 @@ namespace lz {
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<class IntType = int, class Iterable>
-    auto enumerate(Iterable&& iterable, IntType start = 0) {
-#ifdef _MSC_VER
-        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
-        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
-        // past-the-end and also causing the operator>= never to be used.
-        if (iterable.begin() == iterable.end()) {  // Prevent UB when subtracting 1 and dereference it
-            return enumeraterange(&(*iterable.begin()), &(*iterable.begin()), start);
-        }
-        return enumeraterange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, start);
-#else
-        return enumeraterange(iterable.begin(), iterable.end(), start);
-#endif
+    auto enumerate(Iterable&& iterable, const  IntType start = 0) {
+        return enumeraterange(std::begin(iterable), std::end(iterable), start);
     }
 
     // End of group

@@ -12,6 +12,7 @@ set(LZ_DETAIL_HEADERS ${INCLUDE}/Lz/detail)
 set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/BasicIteratorView.hpp
         ${LZ_DETAIL_HEADERS}/ChooseIterator.hpp
+        ${LZ_DETAIL_HEADERS}/ConcatenateIterator.hpp
         ${LZ_DETAIL_HEADERS}/EnumerateIterator.hpp
         ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
         ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
@@ -26,10 +27,12 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/TakeEveryIterator.hpp
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
         )
+
 set(HEADER_FILES
         ${INCLUDE}/Lz.hpp
 
         ${LZ_HEADERS}/Choose.hpp
+        ${LZ_HEADERS}/Concatenate.hpp
         ${LZ_HEADERS}/Enumerate.hpp
         ${LZ_HEADERS}/Except.hpp
         ${LZ_HEADERS}/Filter.hpp
@@ -58,8 +61,9 @@ target_include_directories("cpp-lazy" INTERFACE
 set(INCLUDE_BENCHMARKS FALSE)
 
 
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
+    add_subdirectory(examples)
 
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)

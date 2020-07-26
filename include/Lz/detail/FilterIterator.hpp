@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <functional>
 
 
 namespace lz { namespace detail {
@@ -20,7 +21,7 @@ namespace lz { namespace detail {
         std::function<bool(value_type)> _function{};
 
     public:
-        FilterIterator(Iterator begin, Iterator end, Function function) :
+        FilterIterator(const Iterator begin, const Iterator end, const Function function) :
             _iterator(begin),
             _end(end),
             _function(function) {
@@ -37,7 +38,7 @@ namespace lz { namespace detail {
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(_iterator + 1, _end, _function);
+                _iterator = std::find_if(std::next(_iterator), _end, _function);
             }
             return *this;
         }

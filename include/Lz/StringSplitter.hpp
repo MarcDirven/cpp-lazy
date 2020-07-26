@@ -1,16 +1,22 @@
 #pragma once
 
 
-#include <array>
-#include <vector>
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L) // < C++17
-    #include <string>
-#else
-    #include <string_view>
-#endif
-
 #include <Lz/detail/SplitIterator.hpp>
 #include <Lz/detail/BasicIteratorView.hpp>
+
+
+#include <array>
+#include <vector>
+
+
+#ifdef CXX_LT_17
+
+#include <string>
+
+
+#else
+#include <string_view>
+#endif
 
 
 namespace lz {
@@ -52,9 +58,11 @@ namespace lz {
         }
     };
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L) // < C++17
+#ifdef CXX_LT_17
+    template class StringSplitter<std::string>;
     template<class SubString = std::string>
 #else
+    template class StringSplitter<std::string_view>;
     template<class SubString = std::string_view>
 #endif
     // Start of group

@@ -10,7 +10,7 @@ namespace lz { namespace detail {
     struct ChooseIteratorHelper {
         using FunctionParamType = decltype(*std::declval<Iterator>());
         using FunctionReturnValuePairSecond = decltype(
-            std::declval<Function>()(std::declval<FunctionParamType>()).second);
+        std::declval<Function>()(std::declval<FunctionParamType>()).second);
 
         Function function{};
         mutable FunctionReturnValuePairSecond current{};
@@ -32,7 +32,7 @@ namespace lz { namespace detail {
     private:
         void findNext(const size_t offset = 0) {
             _iterator = std::find_if(
-                _iterator + offset, _end, [this](const auto& value) {
+                std::next(_iterator, offset), _end, [this](const auto& value) {
                     auto result = _iterHelper->function(value);
                     if (result.first) {
                         _iterHelper->current = std::move(result.second);
@@ -47,7 +47,8 @@ namespace lz { namespace detail {
         ChooseIterator() :
             _iterHelper(ChooseIteratorHelper<Iterator, Function>{}) {}
 
-        explicit ChooseIterator(Iterator begin, Iterator end, const ChooseIteratorHelper<Iterator, Function>* helper) :
+        explicit ChooseIterator(const Iterator begin, const Iterator end,
+                                const ChooseIteratorHelper<Iterator, Function>* helper) :
             _iterator(begin),
             _end(end),
             _iterHelper(helper) {

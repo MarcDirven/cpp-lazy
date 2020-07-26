@@ -13,12 +13,12 @@ namespace lz { namespace detail {
 
     public:
         using value_type = FnReturnType;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using difference_type = std::ptrdiff_t;
         using reference = value_type;
         using pointer = FakePointerProxy<reference>;
 
-        MapIterator(Iterator iterator, Function function) :
+        MapIterator(const Iterator iterator, const Function function) :
             _iterator(iterator),
             _function(function) {
         }
@@ -63,13 +63,13 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        MapIterator operator+(const difference_type offset) {
+        MapIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
         }
 
-        MapIterator operator-(const difference_type offset) {
+        MapIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -79,7 +79,7 @@ namespace lz { namespace detail {
             return _iterator - other._iterator;
         }
 
-        reference operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 

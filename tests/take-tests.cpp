@@ -94,10 +94,14 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(it < taken.end());
-        CHECK(it + takeAmount + 1 > taken.end());
-        CHECK(it + takeAmount <= taken.end());
-        CHECK(it + takeAmount >= taken.end());
+        auto b = taken.begin();
+        auto end = taken.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
     }
 }
 
@@ -129,5 +133,25 @@ TEST_CASE("Take to containers", "[Take][To container]") {
         std::list<int> expected = {1, 2};
 
         CHECK(expected == actual);
+    }
+
+    SECTION("To map") {
+        constexpr size_t newSize = 2;
+        std::map<int, int> actual = lz::take(array, newSize).toMap([](const int i) { return i; });
+        std::map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+        CHECK(actual == expected);
+    }
+
+    SECTION("To map") {
+        constexpr size_t newSize = 2;
+        std::unordered_map<int, int> actual = lz::take(array, newSize).toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> expected = {
+            std::make_pair(1, 1),
+            std::make_pair(2, 2)
+        };
+        CHECK(actual == expected);
     }
 }

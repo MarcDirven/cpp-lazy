@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <array>
 
@@ -21,7 +22,6 @@ namespace lz {
     private:
         iterator _begin{};
         iterator _end{};
-        std::function<bool(value_type)> _function{};
 
     public:
         /**
@@ -30,7 +30,7 @@ namespace lz {
          * @param end End of the iterator.
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
-        Filter(Iterator begin, Iterator end, Function function) :
+        Filter(const Iterator begin, const Iterator end, const Function function) :
             _begin(begin, end, function),
             _end(end, end, function) {
         }
@@ -70,7 +70,7 @@ namespace lz {
      * over.
      */
     template<class Iterator, class Function>
-    auto filterrange(Iterator begin, Iterator end, Function predicate) {
+    auto filterrange(const Iterator begin, const Iterator end, const Function predicate) {
         return Filter<Iterator, Function>(begin, end, predicate);
     }
 
@@ -86,8 +86,8 @@ namespace lz {
      * over using `for (auto... lz::filter(...))`.
      */
     template<class Iterable, class Function>
-    auto filter(Iterable&& iterable, Function predicate) {
-        return filterrange(iterable.begin(), iterable.end(), predicate);
+    auto filter(Iterable&& iterable, const Function predicate) {
+        return filterrange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     // End of group

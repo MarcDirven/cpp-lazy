@@ -15,8 +15,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin;
-        iterator _end;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -25,9 +25,9 @@ namespace lz {
          * @param end The ending of the sequence.
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          */
-        TakeEvery(Iterator begin, Iterator end, const size_t offset):
-            _begin(begin, offset),
-            _end(end, offset){
+        TakeEvery(Iterator begin, Iterator end, const size_t offset) :
+            _begin(begin, end, offset, std::distance(begin, end)),
+            _end(end, end, offset, _begin._distance) {
         }
 
         /**
@@ -61,8 +61,8 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterator>
-    TakeEvery<Iterator> takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
-        return TakeEvery<Iterator>(begin + start, end, offset);
+    auto takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
+        return TakeEvery<Iterator>(std::next(begin, start), end, offset);
     }
 
     /**
@@ -78,16 +78,7 @@ namespace lz {
      */
     template<class Iterable>
     auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
-#ifdef _MSC_VER
-        // If MSVC Compiler is the defined, the operator + of an arbitrary STL container contains a
-        // _Verify_Offset(size_t) method which causes the program to crash if the amount added to the iterator is
-        // past-the-end and also causing the operator>= never to be used.
-        if (iterable.begin() == iterable.end()) { // Prevent UB when subtracting 1 and dereference it
-            return takeeveryrange(&(*iterable.begin(), &(*iterable.begin()), offset, start));
-        }
-        return takeeveryrange(&(*iterable.begin()), &(*(iterable.end() - 1)) + 1, offset, start);
-#else
-        return takeeveryrange(iterable.begin(), iterable.end(), offset, start);
-#endif
+        return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
+
 }

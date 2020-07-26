@@ -18,7 +18,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
         }
     }
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
+#ifdef CXX_LT_17
     SECTION("Should be std::string") {
         CHECK(std::is_same<decltype(*it), std::string&>::value);
     }
@@ -79,6 +79,31 @@ TEST_CASE("String splitter to containers", "[String splitter][To container]") {
     SECTION("To other container using to<>()") {
         std::list<std::string> actual = splitter.to<std::list>();
         std::list<std::string> expected = {"Hello", "world", "test", "123"};
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To map") {
+        std::map<std::string, std::string> actual = splitter.toMap([](const std::string& s) { return s; });
+        std::map<std::string, std::string> expected = {
+            std::make_pair(std::string("Hello"), std::string("Hello")),
+            std::make_pair(std::string("world"), std::string("world")),
+            std::make_pair(std::string("test"), std::string("test")),
+            std::make_pair(std::string("123"), std::string("123")),
+        };
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("To unordered map") {
+        std::unordered_map<std::string, std::string> actual = splitter.toUnorderedMap(
+            [](const std::string& s) { return s; });
+        std::unordered_map<std::string, std::string> expected = {
+            std::make_pair(std::string("Hello"), std::string("Hello")),
+            std::make_pair(std::string("world"), std::string("world")),
+            std::make_pair(std::string("test"), std::string("test")),
+            std::make_pair(std::string("123"), std::string("123")),
+        };
 
         CHECK(actual == expected);
     }

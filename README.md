@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # cpp-lazy
-Cpp-lazy is a fast lazy evaluation library for C++14/17/20. It makes extended use of STL iterators and contains a set of iterators that allocate 0 bytes of memory on the heap (if >= C++17, else `lz::split` does allocate substrings), making it a very cheap and fast operation. Another reason the iterators are fast is because the iterators are random acces iterators where possible. This makes operations such as `std::distance` an O(1) operation. 
+Cpp-lazy is a fast lazy evaluation library for C++14/17/20. The library is tested and compiled with the GCC flags `-Wpedantic -Wextra -Wall -Wno-unused-function`. It makes extended use of STL iterators and contains a set of iterators that allocate 0 bytes of memory on the heap (if >= C++17, else `lz::split` does allocate substrings), making it a very cheap and fast operation. Another reason the iterators are fast is because the iterators are random acces iterators where possible. This makes operations such as `std::distance` an O(1) operation. 
 
 An example: if you want to iterate over multiple containers at the same time, you can use the `lz::zip` function to do this.
 For C++17, [structured bindings](https://www.google.com/search?client=firefox-b-d&q=structured+bindings+c%2B%2B) can be used to acces the elements.
@@ -95,13 +95,27 @@ Every iterator (except zip) has a `"[iterator-name]"range` and `[iterator-name]`
 
 # Current supported iterators
  Current supported iterators are:
+- **Choose**, where you can iterate over a sequence and return a new type from the function entered. Example:
+```cpp
+std::string s = "1q9";
+auto vector = lz::choose(s, [](const char s) {
+    return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
+}).toVector();
+// vector yields (int) {1, 2}
+```
+- **Concatenate**, this iterator can be used to merge two containers together.
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
+- **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
 - **Filter** filters out elements given by a function predicate
+- **Generate** returns the value of a given function `amount` of times.
 - **Map** selects certain values from a type given a function predicate
+- **Random** returns a random number `amount` of times.
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
+- **Repeat** repeats an element `amount` of times.
 - **StringSplitter** Splits a string on a given delimiter.
 - **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
-- **Zip** can be used to iterate over multiple containers and stops and the shortest container length.
+- **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in `{1, 3, 5}`.
+- **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by reference (`std::tuple<TypeA&, TypeB&[...]>`).
 
 # Installation
 Clone the repository and add to `CMakeLists.txt` the following:
@@ -120,8 +134,9 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-<div style="text-align:center"><img src="https://i.imgur.com/E0qouf1.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/324Y5W1.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/O0Co84X.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/cWV98cc.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/HUfmgvY.png" /></div>
+
+<div style="text-align:center"><img src="https://i.imgur.com/b6DVCuv.png" /></div>
