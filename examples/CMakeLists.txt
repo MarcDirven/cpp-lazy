@@ -10,6 +10,7 @@ endfunction()
 
 
 create_example_project(Choose)
+create_example_project(Concatenate)
 create_example_project(Enumerate)
 create_example_project(Except)
 create_example_project(Filter)
