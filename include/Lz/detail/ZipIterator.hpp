@@ -11,14 +11,14 @@ namespace lz { namespace detail {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type =
-            std::tuple<typename std::iterator_traits<decltype(std::declval<Containers>().begin())>::value_type...>;
+        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::value_type...>;
         using difference_type = std::ptrdiff_t;
         using reference =
-            std::tuple<typename std::iterator_traits<decltype(std::declval<Containers>().begin())>::reference...>;
+        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::reference...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
-        using Iterators = std::tuple<decltype(std::declval<Containers>().begin())...>;
+        using Iterators = std::tuple<decltype(std::begin(std::declval<Containers>()))...>;
         Iterators _iterators;
 
         template<size_t... I>
@@ -52,7 +52,8 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         difference_type iteratorMin(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            return std::min({(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...});
+            return static_cast<difference_type>(std::min(
+                {(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...}));
         }
 
         template<size_t... I>
@@ -111,7 +112,7 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        ZipIterator operator+(const difference_type offset) {
+        ZipIterator operator+(const difference_type offset) const {
             auto tmp(*this);
             tmp += offset;
             return tmp;
@@ -122,7 +123,7 @@ namespace lz { namespace detail {
             return *this;
         }
 
-        ZipIterator operator-(const difference_type offset) {
+        ZipIterator operator-(const difference_type offset) const {
             auto tmp(*this);
             tmp -= offset;
             return tmp;
@@ -132,7 +133,7 @@ namespace lz { namespace detail {
             return iteratorMin(std::index_sequence_for<Containers...>{}, other);
         }
 
-        value_type operator[](const difference_type offset) {
+        reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
