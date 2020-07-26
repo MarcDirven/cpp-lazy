@@ -15,7 +15,7 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
     SECTION("Should be 0, 1, 2, 3") {
         size_t expected = 0;
         for (int i : generator) {
-            CHECK(i == expected++);
+            CHECK((size_t)i == expected++);
         }
     }
 }
