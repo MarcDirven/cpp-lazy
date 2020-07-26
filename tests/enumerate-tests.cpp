@@ -2,7 +2,6 @@
 
 #include <catch.hpp>
 #include <Lz/Enumerate.hpp>
-#include <Lz.hpp>
 
 
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {

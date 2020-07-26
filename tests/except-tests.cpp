@@ -6,7 +6,6 @@
 
 
 TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functionality]") {
-    constexpr size_t size = 5;
     std::vector<int> array{1, 2, 3, 4, 5};
     std::vector<int> toExcept{3, 5};
 

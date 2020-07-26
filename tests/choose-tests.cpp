@@ -71,6 +71,7 @@ TEST_CASE("Choose to container", "[Choose][To container]") {
     SECTION("To map") {
         int x = 0;
         std::map<int, int> actual = chooser.toMap([&x](const char s) {
+            static_cast<void>(s);
            return x++;
         });
 
@@ -86,7 +87,8 @@ TEST_CASE("Choose to container", "[Choose][To container]") {
 
     SECTION("To unordered map") {
         int x = 0;
-        std::unordered_map<int, int> actual = chooser.toUnorderedMap([&x] (const char s) {
+        std::unordered_map<int, int> actual = chooser.toUnorderedMap([&x](const char s) {
+            static_cast<void>(s);
             return x++;
         });
 
