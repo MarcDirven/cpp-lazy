@@ -221,7 +221,21 @@ static void Generate(benchmark::State& state) {
     }
 }
 
+static void Concatenate(benchmark::State& state) {
+    std::string a(static_cast<size_t>(SizePolicy / 2), '0');
+    std::string b(static_cast<size_t>(SizePolicy / 2), '1');
+
+    for (auto _ : state) {
+        auto concat = lz::concat(a, b);
+
+        for (char c : concat) {
+            benchmark::DoNotOptimize(c);
+        }
+    }
+}
+
 BENCHMARK(Choose);
+BENCHMARK(Concatenate);
 BENCHMARK(Enumerate);
 BENCHMARK(Except);
 BENCHMARK(Filter);
