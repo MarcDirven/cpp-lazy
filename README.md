@@ -12,8 +12,8 @@ auto someView = lz::view(..., [](const int i) { return i; });
 // someView = lz::view(..., [](const int i) { return i; });
 
 // Ok:
-auto someView = lz::view(..., static_cast<std::function<int(int)>([](const int i) { return i; }));
-someView = lz::view(..., static_cast<std::function<int(int)>([](const int i) { return i; }));
+auto someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
+someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
 
 // Or ofcourse...
 std::function<int(int)> func = [](const int i) { return i; };
