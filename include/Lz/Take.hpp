@@ -29,7 +29,7 @@ namespace lz {
          * @param function Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(Iterator begin, Iterator end, Function function) :
+        Take(const Iterator begin, const Iterator end, const Function& function) :
             _begin(begin, end, function),
             _end(end, end, function) {
         }
@@ -76,7 +76,7 @@ namespace lz {
      * `for (auto... lz::takewhilerange(...))`.
      */
     template<class Iterator, class Function>
-    auto takewhilerange(Iterator begin, Iterator end, Function predicate) {
+    auto takewhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
         return Take<Iterator, Function>(begin, end, predicate);
     }
 
@@ -92,7 +92,7 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, Function predicate) {
+    auto takewhile(Iterable&& iterable, const Function& predicate) {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -107,8 +107,10 @@ namespace lz {
      * `for (auto... lz::takerange(...))`.
      */
     template<class Iterator>
-    auto takerange(Iterator begin, Iterator end) {
-        return takewhilerange(begin, end, [](const auto&) { return true; });
+    auto takerange(const Iterator begin, const Iterator end) {
+        using ValueType = typename std::iterator_traits<Iterator>::value_type;
+        return takewhilerange(begin, end, static_cast<std::function<ValueType(ValueType)>>(
+            [](const ValueType&) { return true; }));
     }
 
     /**

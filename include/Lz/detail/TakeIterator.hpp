@@ -19,7 +19,7 @@ namespace lz { namespace detail {
         std::function<value_type(value_type)> _function{};
 
     public:
-        TakeIterator(Iterator iterator, Iterator end, Function function) :
+        TakeIterator(const Iterator iterator, const Iterator end, const Function& function) :
             _iterator(iterator),
             _function(function) {
             if (iterator != end) {

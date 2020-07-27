@@ -28,7 +28,7 @@ namespace lz {
          * @param end End of the iterator.
          * @param function A function with parameter the value type. It may return anything.
          */
-        Map(Iterator begin, Iterator end, Function function) :
+        Map(const Iterator begin, const Iterator end, const Function& function) :
             _begin(begin, function),
             _end(end, function) {
         }
@@ -69,7 +69,7 @@ namespace lz {
      * using `for (auto... lz::map(...))`.
      */
     template<class Iterator, class Function>
-    auto maprange(Iterator begin, Iterator end, Function function) {
+    auto maprange(const Iterator begin, const Iterator end, const Function& function) {
         return Map<Iterator, Function>(begin, end, function);
     }
 
@@ -85,7 +85,7 @@ namespace lz {
      * `for (auto... lz::map(...))`.
      */
     template<class Iterable, class Function>
-    auto map(Iterable&& iterable, Function function) {
+    auto map(Iterable&& iterable, const Function& function) {
         return maprange(std::begin(iterable), std::end(iterable), function);
     }
 

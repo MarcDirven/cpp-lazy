@@ -21,7 +21,7 @@ namespace lz { namespace detail {
         std::function<bool(value_type)> _function{};
 
     public:
-        FilterIterator(const Iterator begin, const Iterator end, const Function function) :
+        FilterIterator(const Iterator begin, const Iterator end, const Function& function) :
             _iterator(begin),
             _end(end),
             _function(function) {

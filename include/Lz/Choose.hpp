@@ -26,7 +26,7 @@ namespace lz {
          * @param function A function that returns a std::pair<bool, T> and takes a value type of its corresponding
          * container as parameter.
          */
-        Choose(const Iterator begin, const Iterator end, const Function function) :
+        Choose(const Iterator begin, const Iterator end, const Function& function) :
             _begin(begin),
             _end(end),
             _helper{function} {}
@@ -80,7 +80,7 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterator, class Function>
-    auto chooserange(const Iterator begin, const Iterator end, const Function function) {
+    auto chooserange(const Iterator begin, const Iterator end, const Function& function) {
         using First = decltype(function(*begin).first);
         static_assert(std::is_same<First, bool>::value, "the function must return a std::pair<bool, T>");
 
@@ -118,7 +118,7 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterable, class Function>
-    auto choose(Iterable&& iterable, const Function function) {
+    auto choose(Iterable&& iterable, const Function& function) {
         return chooserange(std::begin(iterable), std::end(iterable), function);
     }
 }

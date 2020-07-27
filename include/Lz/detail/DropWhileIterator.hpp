@@ -15,7 +15,7 @@ namespace lz { namespace detail {
         Iterator _iterator{};
 
     public:
-        DropWhileIterator(const Iterator begin, const Iterator end, const Function function) :
+        DropWhileIterator(const Iterator begin, const Iterator end, const Function& function) :
             _iterator(begin != end ? std::find_if(begin, end, [function](const value_type& value) {
                 return !function(value);
             }) : end) {}
