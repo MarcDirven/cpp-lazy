@@ -7,7 +7,7 @@
 
 namespace lz {
     template<class Iterator1, class Iterator2>
-    class Concatenate : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterator1, Iterator2>> {
+    class Concatenate final : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterator1, Iterator2>> {
     public:
         using iterator = detail::ConcatenateIterator<Iterator1, Iterator2>;
         using const_iterator = iterator;
