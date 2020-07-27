@@ -213,6 +213,10 @@ std::vector<int> b = {1, 2, 3};
 for (std::tuple<int&, int&> tup : lz::zip(a, b)) {
     std::cout << std::get<0>(tup) << ' ' << std::get<1>(tup) << '\n';
 }
+// or... if C++17 or higher:
+for (auto [first, second] : lz::zip(a, b)) {
+    std::cout << first << ' ' << second << '\n';
+}
 // Yields (by reference if '& is used):
 // 1 1
 // 2 2
