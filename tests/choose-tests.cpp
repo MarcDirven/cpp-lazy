@@ -5,7 +5,6 @@
 #include <cctype>
 #include <iostream>
 #include <list>
-#include <set>
 
 
 TEST_CASE("Choose changing and creating elements", "[Choose][Basic functionality]") {
