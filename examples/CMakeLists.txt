@@ -8,7 +8,7 @@ function(create_example_project name)
     set_property(TARGET IteratorExample${name} PROPERTY CXX_STANDARD 14)
 endfunction()
 
-
+create_example_project(Affirm)
 create_example_project(Choose)
 create_example_project(Concatenate)
 create_example_project(Enumerate)

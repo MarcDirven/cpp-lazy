@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Lz/Affirm.hpp>
 #include <Lz/Choose.hpp>
 #include <Lz/Concatenate.hpp>
 #include <Lz/DropWhile.hpp>

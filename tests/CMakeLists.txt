@@ -5,6 +5,7 @@ project(LazyTests)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(LazyTests
+        ${CMAKE_CURRENT_SOURCE_DIR}/affirm-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/choose-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concatenate-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/drop-while-tests.cpp
