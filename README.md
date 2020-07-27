@@ -101,7 +101,7 @@ std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {
     return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
 }).toVector();
-// vector yields (int) {1, 2}
+// vector yields (int) {1, 9}
 ```
 - **Concatenate**, this iterator can be used to merge two containers together.
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
