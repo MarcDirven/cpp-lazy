@@ -25,7 +25,7 @@ namespace lz {
          * @param end The ending of the sequence.
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          */
-        TakeEvery(Iterator begin, Iterator end, const size_t offset) :
+        TakeEvery(const Iterator begin, const Iterator end, const size_t offset) :
             _begin(begin, end, offset, std::distance(begin, end)),
             _end(end, end, offset, _begin._distance) {
         }
