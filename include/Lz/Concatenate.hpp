@@ -60,17 +60,6 @@ namespace lz {
      */
     template<class Iterator1, class Iterator2>
     auto concatrange(Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Iterator2 end2) {
-        using ValueType1 = typename std::iterator_traits<Iterator1>::value_type;
-        using ValueType2 = typename std::iterator_traits<Iterator2>::value_type;
-        using Pointer1 = typename std::iterator_traits<Iterator1>::pointer;
-        using Pointer2 = typename std::iterator_traits<Iterator2>::pointer;
-        using Reference1 = typename std::iterator_traits<Iterator1>::reference;
-        using Reference2 = typename std::iterator_traits<Iterator2>::reference;
-
-        static_assert(std::is_same<ValueType1, ValueType2>::value, "value types of the iterators do not match");
-        static_assert(std::is_same<Pointer1, Pointer2>::value, "pointer types of the iterators do not match");
-        static_assert(std::is_same<Reference1, Reference2>::value, "reference types of the iterators do not match");
-
         return Concatenate<Iterator1, Iterator2>(begin1, end1, begin2, end2);
     }
 
