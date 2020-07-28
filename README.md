@@ -1,26 +1,7 @@
 [![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # cpp-lazy
-Cpp-lazy is a fast lazy evaluation library for C++14/17/20. The library is tested and compiled with the GCC flags `-Wpedantic -Wextra -Wall -Wno-unused-function`. It makes extended use of STL iterators and contains a set of iterators that allocate 0 bytes of memory on the heap (if >= C++17, else `lz::split` does allocate substrings), making it a very cheap and fast operation. Another reason the iterators are fast is because the iterators are random acces iterators where possible. This makes operations such as `std::distance` an O(1) operation.
-
-# Small side note...
-If using a iterator view object that requests a function, and you would like to re-overwrite the same variable, a `std::function` is required, instead of an inline lambda. Example:
-```cpp
-// Wrong:
-auto someView = lz::view(..., [](const int i) { return i; });
-// Error, no operator= for lambda
-// someView = lz::view(..., [](const int i) { return i; });
-
-// Ok:
-auto someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-
-// Or ofcourse...
-std::function<int(int)> func = [](const int i) { return i; };
-auto anotherView = lz::view(..., func);
-anotherView = lz::view(..., func);
-
-```
+Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. It makes extended use of STL iterators and contains iterators that allocate 0 bytes of memory on the heap (if >= C++17, else `lz::split` does allocate substrings), making it a very cheap and fast operation. Another reason the iterators are fast is because the iterators are random acces where possible. This makes operations such as `std::distance` an O(1) operation.
 
 # Current supported iterators & examples
  Current supported iterators are:
@@ -325,3 +306,23 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 <div style="text-align:center"><img src="https://i.imgur.com/HUfmgvY.png" /></div>
 
 <div style="text-align:center"><img src="https://i.imgur.com/b6DVCuv.png" /></div>
+
+
+# Small side note...
+If using a iterator view object that requests a function, and you would like to re-overwrite the same variable, a `std::function` is required, instead of an inline lambda. Example:
+```cpp
+// Wrong:
+auto someView = lz::view(..., [](const int i) { return i; });
+// Error, no operator= for lambda
+// someView = lz::view(..., [](const int i) { return i; });
+
+// Ok:
+auto someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
+someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
+
+// Or ofcourse...
+std::function<int(int)> func = [](const int i) { return i; };
+auto anotherView = lz::view(..., func);
+anotherView = lz::view(..., func);
+
+```
