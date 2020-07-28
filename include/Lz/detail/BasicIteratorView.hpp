@@ -25,7 +25,7 @@ namespace lz { namespace detail {
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
     private:
-        template<typename KeySelectorFunc>
+        template<class KeySelectorFunc>
         using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
 
     public:
@@ -33,6 +33,8 @@ namespace lz { namespace detail {
         virtual Iterator begin() const = 0;
 
         virtual Iterator end() const = 0;
+
+        virtual ~BasicIteratorView() = default;
 
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
