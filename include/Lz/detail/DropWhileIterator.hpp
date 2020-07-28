@@ -11,6 +11,8 @@ namespace lz { namespace detail {
         using reference = typename std::iterator_traits<Iterator>::reference;
         using pointer = typename std::iterator_traits<Iterator>::pointer;
 
+        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
+                      "the function predicate must return a bool");
     private:
         Iterator _iterator{};
 

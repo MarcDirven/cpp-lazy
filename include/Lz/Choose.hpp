@@ -81,9 +81,6 @@ namespace lz {
      */
     template<class Iterator, class Function>
     auto chooserange(const Iterator begin, const Iterator end, const Function& function) {
-        using First = decltype(function(*begin).first);
-        static_assert(std::is_same<First, bool>::value, "the function must return a std::pair<bool, T>");
-
         return Choose<Iterator, Function>(begin, end, function);
     }
 

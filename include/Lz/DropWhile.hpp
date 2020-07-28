@@ -34,9 +34,6 @@ namespace lz {
 
     template<class Iterator, class Function>
     auto dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
-        using ValueType = typename std::iterator_traits<Iterator>::value_type;
-        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<ValueType>())), bool>::value,
-                      "the function predicate must return a bool");
         return DropWhile<Iterator, Function>(begin, end, predicate);
     }
 

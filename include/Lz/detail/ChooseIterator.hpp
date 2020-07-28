@@ -12,6 +12,9 @@ namespace lz { namespace detail {
         using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
         using FunctionReturnValuePairSecond = typename Pair::second_type;
 
+        static_assert(std::is_same<decltype(std::declval<Pair>().first), bool>::value,
+            "the function must return a std::pair<bool, T>");
+
         std::function<Pair(FunctionParamType)> function{};
         mutable FunctionReturnValuePairSecond current{};
     };

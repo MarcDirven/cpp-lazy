@@ -7,6 +7,11 @@
 namespace lz { namespace detail {
     template<class Iterator1, class Iterator2>
     class ConcatenateIterator {
+    private:
+        using ValueType2 = typename std::iterator_traits<Iterator2>::value_type;
+        using Pointer2 = typename std::iterator_traits<Iterator2>::pointer;
+        using Reference2 = typename std::iterator_traits<Iterator2>::reference;
+
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = typename std::iterator_traits<Iterator1>::value_type;
@@ -14,6 +19,9 @@ namespace lz { namespace detail {
         using reference = typename std::iterator_traits<Iterator1>::reference;
         using pointer = typename std::iterator_traits<Iterator1>::pointer;
 
+        static_assert(std::is_same<value_type, ValueType2>::value, "value types of the iterators do not match");
+        static_assert(std::is_same<pointer, Pointer2>::value, "pointer types of the iterators do not match");
+        static_assert(std::is_same<reference, Reference2>::value, "reference types of the iterators do not match");
     private:
         Iterator1 _iterator1{}, _end1{};
         Iterator2 _iterator2{}, _begin2{}, _end2{};
