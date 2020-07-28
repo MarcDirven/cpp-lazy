@@ -29,7 +29,7 @@ namespace lz { namespace detail {
 
     template<class SubString>
     class SplitIterator {
-        mutable size_t _currentPos{}, _last{};
+        size_t _currentPos{}, _last{};
         const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
 
     public:
