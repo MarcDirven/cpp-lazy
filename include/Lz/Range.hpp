@@ -20,6 +20,7 @@ namespace lz {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;
 
+        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         /**
          * @brief Range iterator constructor from [start, end) with step.
          * @param start The start of the counting.
@@ -84,7 +85,6 @@ namespace lz {
      */
     template<class Arithmetic = int>
     auto range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
-        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         return Range<Arithmetic>(start, end, step);
     }
 

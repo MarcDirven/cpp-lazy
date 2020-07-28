@@ -22,6 +22,8 @@ namespace lz {
         iterator _end{};
 
     public:
+        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
+
         /**
          * @param begin Beginning of the iterator.
          * @param end Ending of the iterator.
@@ -61,7 +63,7 @@ namespace lz {
      * elements of the enumerate iterator are by reference. The `std:::pair<IntType, value_type&>::first` is the
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
      * Furthermore, the `operator*` of this iterator returns an std::pair by value.
-     * @tparam IntType The type of the iterator integer. By default, `int` is assumed.
+     * @tparam IntType The type of the iterator integer. By default, `int` is assumed. Can be any arithmetic type.
      * @tparam Iterator The type of the iterator. Is automatically deduced by default.
      * @param begin Beginning of the iterator.
      * @param end Ending of the iterator.
@@ -81,7 +83,7 @@ namespace lz {
      * elements of the enumerate iterator are by reference. The `std:::pair<IntType, value_type&>::first` is the
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
      * Furthermore, the `operator*` of this iterator returns an std::pair by value.
-     * @tparam IntType The type of the iterator integer. By default, `int` is assumed.
+     * @tparam IntType The type of the iterator integer. By default, `int` is assumed. Can be any arithmetic type.
      * @tparam Iterable The type of the Iterable. Is automatically deduced by default.
      * @param iterable An iterable, e.g. a container / object with `begin()` and `end()` methods.
      * @param start The start of the counting index. 0 is assumed by default.
