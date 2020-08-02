@@ -42,6 +42,10 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
         ++begin;
         --begin;
         CHECK(*begin == 'h');
+        ++begin, ++begin, ++begin, ++begin, ++begin, ++begin;
+
+        --begin;
+        CHECK(*begin == ' ');
     }
 
     SECTION("Operator== & operator!=") {
