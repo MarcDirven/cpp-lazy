@@ -36,7 +36,7 @@ namespace lz { namespace detail {
         using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
         using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
-        using difference_type = std::string::const_iterator::difference_type;
+        using difference_type = typename SubString::const_iterator::difference_type;
         using pointer = FakePointerProxy<reference>;
 
         SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
