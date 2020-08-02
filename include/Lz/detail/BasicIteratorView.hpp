@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <map>
+#include <stdexcept>
 #include <unordered_map>
 
 #include <Lz/detail/LzTools.hpp>

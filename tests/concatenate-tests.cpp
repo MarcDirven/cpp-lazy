@@ -17,7 +17,8 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
 
     SECTION("Should concat") {
         constexpr const char* expected = "hello world";
-        CHECK(concat.to<std::basic_string>() == expected);
+        auto str = concat.to<std::basic_string>();
+        CHECK(str == expected);
     }
 
     SECTION("Length should be correct") {
