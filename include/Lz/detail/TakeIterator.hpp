@@ -7,12 +7,14 @@
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class TakeIterator {
+        using IterTraits = std::iterator_traits<Iterator>;
+
     public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using value_type = typename IterTraits::value_type;
+        using iterator_category = typename IterTraits::iterator_category;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = typename IterTraits::reference;
+        using pointer = typename IterTraits::pointer;
 
     private:
         Iterator _iterator{};

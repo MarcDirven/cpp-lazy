@@ -4,12 +4,14 @@
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class DropWhileIterator {
+        using IterTraits = std::iterator_traits<Iterator>;
+
     public:
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using iterator_category = typename IterTraits::iterator_category;
+        using value_type = typename IterTraits::value_type;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = typename IterTraits::reference;
+        using pointer = typename IterTraits::pointer;
 
         static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
                       "the function predicate must return a bool");

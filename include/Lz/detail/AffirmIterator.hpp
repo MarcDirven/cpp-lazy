@@ -13,12 +13,14 @@ namespace lz { namespace detail {
 
     template<class Exception, class Iterator, class Function>
     class AffirmIterator {
+        using IteratorTraits = std::iterator_traits<Iterator>;
+
     public:
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using iterator_category = typename IteratorTraits::iterator_category;
+        using value_type = typename IteratorTraits::value_type;
+        using difference_type = typename IteratorTraits::difference_type;
+        using reference = typename IteratorTraits::reference;
+        using pointer = typename IteratorTraits::pointer;
 
     private:
         Iterator _iterator{};

@@ -7,15 +7,16 @@
 namespace lz { namespace detail {
     template<class Iterator, class IntType>
     class EnumerateIterator {
-    public:
+    private:
         IntType _index;
         Iterator _iterator;
 
+        using IterTraits = std::iterator_traits<Iterator>;
     public:
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
+        using iterator_category = typename IterTraits::iterator_category;
+        using value_type = std::pair<IntType, typename IterTraits::value_type>;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = std::pair<IntType, typename IterTraits::reference>;
         using pointer = FakePointerProxy<reference>;
 
         EnumerateIterator(const IntType start, const Iterator iterator) :
