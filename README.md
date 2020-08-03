@@ -5,7 +5,7 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. It makes ex
 
 # Current supported iterators & examples
  Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type from the function entered. Example:
+- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. Example:
 ```cpp
 std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {
