@@ -6,20 +6,17 @@
 
 
 namespace lz { namespace detail {
-    template<class... Containers>
+    template<class... Iterators>
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type =
-        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::value_type...>;
+        using value_type = std::tuple<typename std::iterator_traits<Iterators>::value_type...>;
         using difference_type = std::ptrdiff_t;
-        using reference =
-        std::tuple<typename std::iterator_traits<decltype(std::begin(std::declval<Containers>()))>::reference...>;
+        using reference = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
-        using Iterators = std::tuple<decltype(std::begin(std::declval<Containers>()))...>;
-        Iterators _iterators;
+        std::tuple<Iterators...> _iterators{};
 
         template<size_t... I>
         reference dereference(std::index_sequence<I...> /*is*/) const {
@@ -58,7 +55,7 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         bool lessThan(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
+            std::initializer_list<difference_type> distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
             return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
                 return diff > 0;
             }) != distances.end();
@@ -66,19 +63,19 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         bool notEqual(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
+            std::initializer_list<bool> boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
             auto end = boolValues.end();
             // Check if false not in boolValues
             return std::find(boolValues.begin(), end, false) == end;
         }
 
     public:
-        explicit ZipIterator(const Iterators iters) :
-            _iterators(iters) {
+        explicit ZipIterator(const std::tuple<Iterators...>& iterators) :
+            _iterators(iterators) {
         }
 
         reference operator*() const {
-            return dereference(std::index_sequence_for<Containers...>{});
+            return dereference(std::index_sequence_for<Iterators...>{});
         }
 
         pointer operator->() const {
@@ -86,18 +83,18 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator++() {
-            increment(std::index_sequence_for<Containers...>{});
+            increment(std::index_sequence_for<Iterators...>{});
             return *this;
         }
 
         ZipIterator operator++(int) {
-            auto tmp = *this;
+            ZipIterator tmp(*this);
             ++*this;
             return tmp;
         }
 
         ZipIterator& operator--() {
-            decrement(std::index_sequence_for<Containers...>{});
+            decrement(std::index_sequence_for<Iterators...>{});
             return *this;
         }
 
@@ -108,29 +105,29 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator+=(const difference_type offset) {
-            plusIs(std::index_sequence_for<Containers...>{}, offset);
+            plusIs(std::index_sequence_for<Iterators...>{}, offset);
             return *this;
         }
 
         ZipIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            ZipIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         ZipIterator& operator-=(const difference_type offset) {
-            minIs(std::index_sequence_for<Containers...>{}, offset);
+            minIs(std::index_sequence_for<Iterators...>{}, offset);
             return *this;
         }
 
         ZipIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            ZipIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
 
         difference_type operator-(const ZipIterator& other) const {
-            return iteratorMin(std::index_sequence_for<Containers...>{}, other);
+            return iteratorMin(std::index_sequence_for<Iterators...>{}, other);
         }
 
         reference operator[](const difference_type offset) const {
@@ -142,11 +139,11 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const ZipIterator& other) const {
-            return notEqual(std::index_sequence_for<Containers...>{}, other);
+            return notEqual(std::index_sequence_for<Iterators...>{}, other);
         }
 
         bool operator<(const ZipIterator& other) const {
-            return lessThan(std::index_sequence_for<Containers...>{}, other);
+            return lessThan(std::index_sequence_for<Iterators...>{}, other);
         }
 
         bool operator>(const ZipIterator& other) const {

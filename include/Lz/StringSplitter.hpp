@@ -82,7 +82,7 @@ namespace lz {
      * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::split(...))`.
      */
-    auto split(const std::string& str, std::string delimiter) {
+    StringSplitter<SubString> split(const std::string& str, std::string delimiter) {
         return StringSplitter<SubString>(str, std::move(delimiter));
     }
 

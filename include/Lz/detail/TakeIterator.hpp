@@ -7,23 +7,25 @@
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class TakeIterator {
+        using IterTraits = std::iterator_traits<Iterator>;
+
     public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using value_type = typename IterTraits::value_type;
+        using iterator_category = typename IterTraits::iterator_category;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = typename IterTraits::reference;
+        using pointer = typename IterTraits::pointer;
 
     private:
         Iterator _iterator{};
-        std::function<value_type(value_type)> _function{};
+        const std::function<value_type(value_type)>* _function{};
 
     public:
-        TakeIterator(Iterator iterator, Iterator end, Function function) :
+        TakeIterator(const Iterator iterator, const Iterator end, const std::function<value_type(value_type)>* function) :
             _iterator(iterator),
             _function(function) {
             if (iterator != end) {
-                _iterator = !_function(*iterator) ? end : _iterator;
+                _iterator = !(*_function)(*iterator) ? end : _iterator;
             }
         }
 
@@ -41,7 +43,7 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator++(int) {
-            auto tmp = *this;
+            TakeIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -52,7 +54,7 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator--(int) {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -68,13 +70,13 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         TakeIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
@@ -91,7 +93,7 @@ namespace lz { namespace detail {
             if (_iterator == other._iterator) {
                 return false;
             }
-            return _function(*_iterator);
+            return (*_function)(*_iterator);
         }
 
         bool operator==(const TakeIterator& other) const {

@@ -69,7 +69,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator operator++(int) {
-            auto tmp = *this;
+            RandomIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -82,7 +82,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator operator--(int) {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -95,7 +95,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
@@ -108,7 +108,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

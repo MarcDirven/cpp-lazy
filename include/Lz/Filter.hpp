@@ -20,19 +20,23 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
+        std::function<bool(value_type)> _predicate{};
         iterator _begin{};
         iterator _end{};
 
     public:
+        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
+            "function must return bool");
         /**
          * @brief The filter constructor.
          * @param begin Beginning of the iterator.
          * @param end End of the iterator.
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
-        Filter(const Iterator begin, const Iterator end, const Function function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+        Filter(const Iterator begin, const Iterator end, const Function& function) :
+            _predicate{function},
+            _begin(begin, end, &_predicate),
+            _end(end, end, &_predicate) {
         }
 
         /**
@@ -70,7 +74,7 @@ namespace lz {
      * over.
      */
     template<class Iterator, class Function>
-    auto filterrange(const Iterator begin, const Iterator end, const Function predicate) {
+    Filter<Iterator, Function> filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
         return Filter<Iterator, Function>(begin, end, predicate);
     }
 
@@ -86,7 +90,7 @@ namespace lz {
      * over using `for (auto... lz::filter(...))`.
      */
     template<class Iterable, class Function>
-    auto filter(Iterable&& iterable, const Function predicate) {
+    auto filter(Iterable&& iterable, const Function& predicate) -> Filter<decltype(std::begin(iterable)), Function> {
         return filterrange(std::begin(iterable), std::end(iterable), predicate);
     }
 

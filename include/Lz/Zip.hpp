@@ -8,17 +8,17 @@
 
 
 namespace lz {
-    template<class... Containers>
-    class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Containers...>> {
+    template<class... Iterators>
+    class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Iterators...>> {
     public:
-        using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
-
-        using iterator = detail::ZipIterator<Containers...>;
+        using iterator = detail::ZipIterator<Iterators...>;
         using const_iterator = iterator;
 
+        using value_type = typename iterator::value_type;
+
     private:
-        iterator _begin;
-        iterator _end;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -33,9 +33,9 @@ namespace lz {
          * making it a const reference.
          * @param containers
          */
-        explicit Zip(Containers&& ... containers) :
-            _begin(std::make_tuple(std::begin(containers)...)),
-            _end(std::make_tuple(std::end(containers)...))
+        explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+            _begin(begin),
+            _end(end)
         {
         }
 
@@ -62,6 +62,11 @@ namespace lz {
      * @{
      */
 
+    template<class... Iterators>
+    Zip<Iterators...> ziprange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+        return Zip<Iterators...>(begin, end);
+    }
+
     /**
      * @brief This function can be used to iterate over multiple containers. It stops at its smallest container.
      * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
@@ -75,8 +80,8 @@ namespace lz {
      * `for (auto tuple :  lz::zip(...))`.
      */
     template<class... Iterables>
-    auto zip(Iterables&& ... iterables) {
-        return Zip<Iterables...>(iterables...);
+    auto zip(Iterables&& ... iterables) -> Zip<decltype(std::begin(iterables))...> {
+        return ziprange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     // End of group

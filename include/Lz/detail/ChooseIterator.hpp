@@ -9,10 +9,13 @@ namespace lz { namespace detail {
     template<class Iterator, class Function>
     struct ChooseIteratorHelper {
         using FunctionParamType = decltype(*std::declval<Iterator>());
-        using FunctionReturnValuePairSecond = decltype(
-        std::declval<Function>()(std::declval<FunctionParamType>()).second);
+        using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
+        using FunctionReturnValuePairSecond = typename Pair::second_type;
 
-        Function function{};
+        static_assert(std::is_same<decltype(std::declval<Pair>().first), bool>::value,
+            "the function must return a std::pair<bool, T>");
+
+        std::function<Pair(FunctionParamType)> function{};
         mutable FunctionReturnValuePairSecond current{};
     };
 
@@ -32,7 +35,8 @@ namespace lz { namespace detail {
     private:
         void findNext(const size_t offset = 0) {
             _iterator = std::find_if(
-                std::next(_iterator, offset), _end, [this](const auto& value) {
+                std::next(_iterator, offset), _end,
+                [this](typename ChooseIteratorHelper<Iterator, Function>::FunctionParamType value) {
                     auto result = _iterHelper->function(value);
                     if (result.first) {
                         _iterHelper->current = std::move(result.second);
@@ -69,7 +73,7 @@ namespace lz { namespace detail {
         }
 
         ChooseIterator operator++(int) {
-            auto tmp(*this);
+            ChooseIterator tmp(*this);
             ++*this;
             return tmp;
         }

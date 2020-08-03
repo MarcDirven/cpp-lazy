@@ -13,7 +13,7 @@ auto vector = lz::choose(s, [](const char s) {
 }).toVector();
 // vector yields (int) {1, 9}
 ```
-- **Concatenate**, this iterator can be used to merge two containers together.
+- **Concatenate**, this iterator can be used to merge two or more containers together.
 ```cpp
 std::array<int, 4> a{1, 2, 3, 4};
 std::array<int, 4> b{5, 6, 7, 8};
@@ -31,6 +31,33 @@ for (int i : lz::concat(a, b)) {
 // 6
 // 7
 // 8
+
+std::cout << '\n';
+
+std::array<int, 4> c{9, 10, 11, 12};
+std::array<int, 4> d{13, 14, 15, 16};
+
+for (int i : lz::concat(a, b, c, d)) {
+    std::cout << i << '\n';
+}
+
+// Output:
+// 1
+// 2
+// 3
+// 4
+// 5
+// 6
+// 7
+// 8
+// 9
+// 10
+// 11
+// 12
+// 13
+// 14
+// 15
+// 16
 ```
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
 ```cpp

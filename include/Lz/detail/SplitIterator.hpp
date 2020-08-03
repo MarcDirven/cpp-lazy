@@ -29,14 +29,14 @@ namespace lz { namespace detail {
 
     template<class SubString>
     class SplitIterator {
-        mutable size_t _currentPos{}, _last{};
+        size_t _currentPos{}, _last{};
         const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
 
     public:
         using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
         using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
-        using difference_type = std::string::const_iterator::difference_type;
+        using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 
         SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
@@ -91,7 +91,7 @@ namespace lz { namespace detail {
         }
 
         SplitIterator operator++(int) {
-            auto tmp = *this;
+            SplitIterator tmp(*this);
             ++*this;
             return tmp;
         }

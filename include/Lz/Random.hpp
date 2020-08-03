@@ -20,6 +20,7 @@ namespace lz {
         detail::RandomIteratorHelper<Arithmetic, Distribution> _helper;
 
     public:
+        static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
         /**
          * @brief Random view object constructor, from [`min, max`].
          * @param min The minimum value of the random number (included).
@@ -49,9 +50,6 @@ namespace lz {
         }
     };
 
-    template class Random<int, std::uniform_int_distribution<int>>;
-    template class Random<double, std::uniform_real_distribution<double>>;
-
     /**
      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
      * @details This random access iterator view object can be used to generate a sequence of random numbers between
@@ -66,8 +64,6 @@ namespace lz {
     template<class Arithmetic>
     static auto
     random(const Arithmetic min, const Arithmetic max, const size_t amount = std::numeric_limits<size_t>::max()) {
-        static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
-
         return Random<Arithmetic, std::uniform_int_distribution<Arithmetic>>(min, max, amount);
     }
 

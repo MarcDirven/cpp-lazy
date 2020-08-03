@@ -65,7 +65,7 @@ namespace lz {
      * @return An Except view object.
      */
     template<class Iterator, class IteratorToExcept>
-    auto exceptrange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+    Except<Iterator, IteratorToExcept> exceptrange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
                      const IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
     }
@@ -80,7 +80,8 @@ namespace lz {
      * @return An Except view object.
      */
     template<class Iterable, class IterableToExcept>
-    auto except(Iterable&& iterable, IterableToExcept&& toExcept) {
+    auto except(Iterable&& iterable, IterableToExcept&& toExcept) ->
+    Except<decltype(std::begin(iterable)), decltype(std::begin(toExcept))> {
         return exceptrange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
 }

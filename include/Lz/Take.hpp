@@ -17,6 +17,7 @@ namespace lz {
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
     private:
+        std::function<value_type(value_type)> _predicate{};
         iterator _begin{};
         iterator _end{};
 
@@ -26,12 +27,13 @@ namespace lz {
          * returns false, the iterator stops.
          * @param begin The beginning of the iterator.
          * @param end The ending of the iterator.
-         * @param function Function that must contain a the value type in its arguments and must return a bool. If the
+         * @param predicate Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(Iterator begin, Iterator end, Function function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+        Take(const Iterator begin, const Iterator end, const Function& predicate) :
+            _predicate(predicate),
+            _begin(begin, end, &_predicate),
+            _end(end, end, &_predicate) {
         }
 
         /**
@@ -76,7 +78,7 @@ namespace lz {
      * `for (auto... lz::takewhilerange(...))`.
      */
     template<class Iterator, class Function>
-    auto takewhilerange(Iterator begin, Iterator end, Function predicate) {
+    Take<Iterator, Function> takewhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
         return Take<Iterator, Function>(begin, end, predicate);
     }
 
@@ -92,7 +94,7 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, Function predicate) {
+    auto takewhile(Iterable&& iterable, const Function& predicate) -> Take<decltype(std::begin(iterable)), Function> {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -106,9 +108,9 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::takerange(...))`.
      */
-    template<class Iterator>
-    auto takerange(Iterator begin, Iterator end) {
-        return takewhilerange(begin, end, [](const auto&) { return true; });
+    template<class Iterator, class ValueType = typename std::iterator_traits<Iterator>::value_type>
+    auto takerange(const Iterator begin, const Iterator end) {
+        return takewhilerange(begin, end, [](const ValueType&) { return true; });
     }
 
     /**
@@ -122,7 +124,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<class Iterable>
-    auto take(Iterable&& iterable, const size_t amount) {
+    auto take(Iterable&& iterable, const size_t amount) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
         auto begin = std::begin(iterable);
         return takerange(begin, std::next(begin, amount));
     }
@@ -138,7 +140,7 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<class Iterable>
-    auto slice(Iterable&& iterable, const size_t from, const size_t to) {
+    auto slice(Iterable&& iterable, const size_t from, const size_t to) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
         auto begin = std::begin(iterable);
         return takerange(std::next(begin, from), std::next(begin, to));
     }

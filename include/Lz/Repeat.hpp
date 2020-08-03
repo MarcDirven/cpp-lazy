@@ -59,7 +59,7 @@ namespace lz {
      * @return A repeat object, containing the random access iterator.
      */
     template<class T>
-    auto repeat(T toRepeat, const size_t amount = std::numeric_limits<size_t>::max()) {
+    Repeat<T> repeat(T toRepeat, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Repeat<T>(std::move(toRepeat), amount);
     }
 

@@ -25,7 +25,7 @@ namespace lz {
          * @param end The ending of the sequence.
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          */
-        TakeEvery(Iterator begin, Iterator end, const size_t offset) :
+        TakeEvery(const Iterator begin, const Iterator end, const size_t offset) :
             _begin(begin, end, offset, std::distance(begin, end)),
             _end(end, end, offset, _begin._distance) {
         }
@@ -61,7 +61,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterator>
-    auto takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
+    TakeEvery<Iterator> takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset);
     }
 
@@ -77,7 +77,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterable>
-    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
+    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) -> TakeEvery<decltype(std::begin(iterable))> {
         return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
 
