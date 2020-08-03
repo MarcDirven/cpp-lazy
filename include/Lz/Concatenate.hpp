@@ -46,12 +46,28 @@ namespace lz {
         }
     };
 
-
+    /**
+     * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater than
+     * or equal to 2.
+     * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
+     * @tparam Iterators Is automatically deduced.
+     * @param begin A tuple of iterators pointing to the beginning.
+     * @param end A tuple of iterators pointing to the ending.
+     * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+     */
     template<class... Iterators>
     Concatenate<Iterators...> concatrange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         return Concatenate<Iterators...>(begin, end);
     }
 
+    /**
+     * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the parameter pack must be
+     * greater than or equal to 2.
+     * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
+     * @tparam Iterables Is automatically deduced.
+     * @param iterables A parameter pack of containers/iterables.
+     * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+     */
     template<class... Iterables>
     auto concat(Iterables&& ... iterables) -> Concatenate<decltype(std::begin(iterables))...> {
         return concatrange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));

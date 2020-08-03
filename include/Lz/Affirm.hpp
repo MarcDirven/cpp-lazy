@@ -18,15 +18,31 @@ namespace lz {
         iterator _end{};
 
     public:
+        /**
+         * @brief Creates an affirm view object of the iterator.
+         * @param begin The beginning of the sequence.
+         * @param end The ending of the sequence.
+         * @param exception The exception or value to throw when predicate returns false.
+         * @param predicate The function that checks whether the iterator has met the condition(s). If false is returned, the exception
+         * `exception` is thrown.
+         */
         Affirm(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) :
             _helper{predicate, std::forward<Exception>(exception)},
             _begin(begin, &_helper),
             _end(end, &_helper) {}
 
+        /**
+         * @brief Returns the beginning of the sequence.
+         * @return The beginning of the sequence.
+         */
         iterator begin() const {
             return _begin;
         }
 
+        /**
+         * @brief Returns the ending of the sequence.
+         * @return The ending of the sequence.
+         */
         iterator end() const {
             return _end;
         }
