@@ -32,8 +32,6 @@ for (int i : lz::concat(a, b)) {
 // 7
 // 8
 
-std::array<int, 4> a{1, 2, 3, 4};
-std::array<int, 4> b{5, 6, 7, 8};
 std::array<int, 4> c{9, 10, 11, 12};
 std::array<int, 4> d{13, 14, 15, 16};
 
