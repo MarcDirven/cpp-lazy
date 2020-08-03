@@ -39,6 +39,8 @@ for (int i : lz::concat(a, b, c, d)) {
     std::cout << i << '\n';
 }
 
+std::cout << '\n';
+
 // Output:
 // 1
 // 2
