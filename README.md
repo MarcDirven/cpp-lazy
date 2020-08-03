@@ -13,7 +13,7 @@ auto vector = lz::choose(s, [](const char s) {
 }).toVector();
 // vector yields (int) {1, 9}
 ```
-- **Concatenate**, this iterator can be used to merge two or more containers together.
+- **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 here, but they can be all have different sizes.
 ```cpp
 std::array<int, 4> a{1, 2, 3, 4};
 std::array<int, 4> b{5, 6, 7, 8};
