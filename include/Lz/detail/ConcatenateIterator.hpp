@@ -32,7 +32,7 @@ namespace lz { namespace detail {
 
     template<class Tuple, size_t I>
     struct PlusPlus<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value>::type> {
-        void operator()(const Tuple& iterators, const Tuple& end) const {
+        void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
         }
     };
 
@@ -69,7 +69,7 @@ namespace lz { namespace detail {
 
     template<class Tuple, size_t I>
     struct Deref<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>::type> {
-        auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
+        auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
             return *std::get<I>(iterators);
         }
     };
@@ -157,7 +157,7 @@ namespace lz { namespace detail {
     template<class Tuple, size_t I>
     struct PlusIs<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value>::type> {
         template<class DifferenceType>
-        void operator()(Tuple&, const Tuple&, const DifferenceType) const {
+        void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
         }
     };
 
