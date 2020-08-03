@@ -3,7 +3,6 @@
 #include <catch.hpp>
 
 #include <cctype>
-#include <iostream>
 #include <list>
 
 
