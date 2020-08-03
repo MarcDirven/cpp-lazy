@@ -26,9 +26,8 @@ namespace lz {
          * @param endIterator2 The ending of the second iterator.
          */
         Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
-            _begin(begin, end),
-            _end(end, end)
-        {}
+            _begin(begin, begin, end),
+            _end(end, begin, end) {}
 
         /**
          * @brief Returns the beginning of the iterator.
@@ -49,14 +48,12 @@ namespace lz {
 
 
     template<class... Iterators>
-    Concatenate<Iterators...> concatrange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end)
-    {
+    Concatenate<Iterators...> concatrange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         return Concatenate<Iterators...>(begin, end);
     }
 
     template<class... Iterables>
-    auto concat(Iterables&&... iterables) -> Concatenate<decltype(std::begin(iterables))...>
-    {
+    auto concat(Iterables&& ... iterables) -> Concatenate<decltype(std::begin(iterables))...> {
         return concatrange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 }

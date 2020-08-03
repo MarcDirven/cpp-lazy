@@ -17,8 +17,7 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
 
     SECTION("Should concat") {
         constexpr const char* expected = "hello world";
-        auto str = concat.to<std::basic_string>();
-        CHECK(str == expected);
+        CHECK(concat.to<std::basic_string>() == expected);
     }
 
     SECTION("Length should be correct") {
@@ -74,13 +73,16 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
-        const auto end = concat.end();
-        const auto distance = std::distance(begin, end);
+        auto end = concat.end();
+        const auto distance = std::distance(begin, end) - 1;
 
         CHECK(begin < end);
-        CHECK(begin + distance - 1 > end - distance);
-        CHECK(begin + distance - 1 <= end);
-        CHECK(begin + 11 >= end - 1);
+        begin += distance;
+        CHECK(begin <= end);
+        end -= distance;
+
+        CHECK(begin > end);
+        CHECK(begin >= end);
     }
 }
 
