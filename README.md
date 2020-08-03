@@ -328,11 +328,11 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 
 # Benchmarks cpp-lazy
 
-<div style="text-align:center"><img src="https://i.imgur.com/O0Co84X.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/HUfmgvY.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/cj3wcWq.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/b6DVCuv.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/QXTMkcf.png" /></div>
 
 
 # Small side note...
