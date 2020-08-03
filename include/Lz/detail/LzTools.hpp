@@ -30,9 +30,4 @@ namespace lz { namespace detail {
             return &t;
         }
     };
-
-    template<class It1, class It2>
-    struct LowestIteratorType {
-        using IteratorCategory = void;
-    };
 }}
