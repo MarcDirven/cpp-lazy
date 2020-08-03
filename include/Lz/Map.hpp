@@ -14,10 +14,13 @@ namespace lz {
     public:
         using iterator = detail::MapIterator<Iterator, Function>;
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
+        using FnParamType = typename detail::MapIterator<Iterator, Function>::FnParamType;
+        using FnReturnType = typename detail::MapIterator<Iterator, Function>::FnReturnType;
+
+        std::function<FnReturnType(FnParamType)> _function{};
         iterator _begin{};
         iterator _end{};
 
@@ -29,8 +32,9 @@ namespace lz {
          * @param function A function with parameter the value type. It may return anything.
          */
         Map(const Iterator begin, const Iterator end, const Function& function) :
-            _begin(begin, function),
-            _end(end, function) {
+            _function(function),
+            _begin(begin, &_function),
+            _end(end, &_function) {
         }
 
         /**

@@ -18,14 +18,14 @@ namespace lz { namespace detail {
 
     private:
         Iterator _iterator{};
-        std::function<value_type(value_type)> _function{};
+        const std::function<value_type(value_type)>* _function{};
 
     public:
-        TakeIterator(const Iterator iterator, const Iterator end, const Function& function) :
+        TakeIterator(const Iterator iterator, const Iterator end, const std::function<value_type(value_type)>* function) :
             _iterator(iterator),
             _function(function) {
             if (iterator != end) {
-                _iterator = !_function(*iterator) ? end : _iterator;
+                _iterator = !(*_function)(*iterator) ? end : _iterator;
             }
         }
 
@@ -93,7 +93,7 @@ namespace lz { namespace detail {
             if (_iterator == other._iterator) {
                 return false;
             }
-            return _function(*_iterator);
+            return (*_function)(*_iterator);
         }
 
         bool operator==(const TakeIterator& other) const {

@@ -20,6 +20,7 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
+        std::function<bool(value_type)> _predicate{};
         iterator _begin{};
         iterator _end{};
 
@@ -33,8 +34,9 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
         Filter(const Iterator begin, const Iterator end, const Function& function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+            _predicate{function},
+            _begin(begin, end, &_predicate),
+            _end(end, end, &_predicate) {
         }
 
         /**

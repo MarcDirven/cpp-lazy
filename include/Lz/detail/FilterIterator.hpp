@@ -20,14 +20,14 @@ namespace lz { namespace detail {
     private:
         Iterator _iterator{};
         Iterator _end{};
-        std::function<bool(value_type)> _function{};
+        const std::function<bool(value_type)>* _predicate{};
 
     public:
-        FilterIterator(const Iterator begin, const Iterator end, const Function& function) :
+        FilterIterator(const Iterator begin, const Iterator end, const std::function<bool(value_type)>* function) :
             _iterator(begin),
             _end(end),
-            _function(function) {
-            _iterator = std::find_if(_iterator, _end, _function);
+            _predicate(function) {
+            _iterator = std::find_if(_iterator, _end, *_predicate);
         }
 
         reference operator*() const {
@@ -40,7 +40,7 @@ namespace lz { namespace detail {
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(std::next(_iterator), _end, _function);
+                _iterator = std::find_if(std::next(_iterator), _end, *_predicate);
             }
             return *this;
         }

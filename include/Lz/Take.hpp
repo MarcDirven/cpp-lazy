@@ -17,6 +17,7 @@ namespace lz {
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
     private:
+        std::function<value_type(value_type)> _predicate{};
         iterator _begin{};
         iterator _end{};
 
@@ -26,12 +27,13 @@ namespace lz {
          * returns false, the iterator stops.
          * @param begin The beginning of the iterator.
          * @param end The ending of the iterator.
-         * @param function Function that must contain a the value type in its arguments and must return a bool. If the
+         * @param predicate Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(const Iterator begin, const Iterator end, const Function& function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+        Take(const Iterator begin, const Iterator end, const Function& predicate) :
+            _predicate(predicate),
+            _begin(begin, end, &_predicate),
+            _end(end, end, &_predicate) {
         }
 
         /**
@@ -92,8 +94,7 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, const Function& predicate) ->
-    Take<decltype(std::begin(iterable)), Function> {
+    auto takewhile(Iterable&& iterable, const Function& predicate) -> Take<decltype(std::begin(iterable)), Function> {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -108,10 +109,8 @@ namespace lz {
      * `for (auto... lz::takerange(...))`.
      */
     template<class Iterator, class ValueType = typename std::iterator_traits<Iterator>::value_type>
-    auto takerange(const Iterator begin, const Iterator end) ->
-    Take<typename std::remove_const<decltype(begin)>::type, std::function<bool(ValueType)>> {
-        return takewhilerange(begin, end, static_cast<std::function<bool(ValueType)>>(
-            [](const ValueType&) { return true; }));
+    auto takerange(const Iterator begin, const Iterator end) {
+        return takewhilerange(begin, end, [](const ValueType&) { return true; });
     }
 
     /**
