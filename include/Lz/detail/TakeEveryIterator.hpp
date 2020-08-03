@@ -50,7 +50,7 @@ namespace lz {
         }
 
         TakeEveryIterator operator++(int) {
-            auto tmp = *this;
+            TakeEveryIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -67,7 +67,7 @@ namespace lz {
         }
 
         TakeEveryIterator& operator+=(const difference_type offset) {
-            auto total = _offset * offset;
+            auto total = static_cast<size_t>(_offset * offset);
 
             if (_current + total >= _distance) {
                 _iterator = _end;
@@ -93,19 +93,19 @@ namespace lz {
         }
 
         TakeEveryIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            TakeEveryIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         TakeEveryIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            TakeEveryIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
 
         difference_type operator-(const TakeEveryIterator& other) const {
-            auto distance = std::distance(other._iterator, _iterator);
+            difference_type distance = std::distance(other._iterator, _iterator);
             auto diffOffset = static_cast<difference_type>(distance / _offset);
             return _offset % 2 == 0 ? diffOffset : diffOffset + 1;
         }

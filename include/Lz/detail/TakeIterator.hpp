@@ -43,7 +43,7 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator++(int) {
-            auto tmp = *this;
+            TakeIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -54,7 +54,7 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator--(int) {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -70,13 +70,13 @@ namespace lz { namespace detail {
         }
 
         TakeIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         TakeIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            TakeIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

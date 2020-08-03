@@ -44,7 +44,7 @@ namespace lz { namespace detail {
         }
 
         RepeatIterator operator++(int) {
-            auto tmp = *this;
+            RepeatIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -57,7 +57,7 @@ namespace lz { namespace detail {
         }
 
         RepeatIterator operator--(int) {
-            auto tmp(*this);
+            RepeatIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -77,13 +77,13 @@ namespace lz { namespace detail {
         }
 
         RepeatIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            RepeatIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         RepeatIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            RepeatIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

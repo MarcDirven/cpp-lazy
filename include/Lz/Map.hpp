@@ -69,7 +69,7 @@ namespace lz {
      * using `for (auto... lz::map(...))`.
      */
     template<class Iterator, class Function>
-    auto maprange(const Iterator begin, const Iterator end, const Function& function) {
+    Map<Iterator, Function> maprange(const Iterator begin, const Iterator end, const Function& function) {
         return Map<Iterator, Function>(begin, end, function);
     }
 
@@ -85,7 +85,7 @@ namespace lz {
      * `for (auto... lz::map(...))`.
      */
     template<class Iterable, class Function>
-    auto map(Iterable&& iterable, const Function& function) {
+    auto map(Iterable&& iterable, const Function& function) -> Map<decltype(std::begin(iterable)), Function> {
         return maprange(std::begin(iterable), std::end(iterable), function);
     }
 

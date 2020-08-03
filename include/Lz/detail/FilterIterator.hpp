@@ -46,7 +46,7 @@ namespace lz { namespace detail {
         }
 
         FilterIterator operator++(int) {
-            auto tmp = *this;
+            FilterIterator tmp(*this);
             ++*this;
             return tmp;
         }

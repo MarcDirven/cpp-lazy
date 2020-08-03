@@ -61,7 +61,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterator>
-    auto takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
+    TakeEvery<Iterator> takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset);
     }
 
@@ -77,7 +77,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterable>
-    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
+    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) -> TakeEvery<decltype(std::begin(iterable))> {
         return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
 

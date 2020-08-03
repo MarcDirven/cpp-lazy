@@ -33,12 +33,12 @@ namespace lz {
     };
 
     template<class Iterator, class Function>
-    auto dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
+    DropWhile<Iterator, Function> dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
         return DropWhile<Iterator, Function>(begin, end, predicate);
     }
 
     template<class Iterable, class Function>
-    auto dropwhile(Iterable&& iterable, const Function& predicate) {
+    auto dropwhile(Iterable&& iterable, const Function& predicate) -> DropWhile<decltype(std::begin(iterable)), Function> {
         return dropwhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 }

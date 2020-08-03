@@ -73,7 +73,7 @@ namespace lz { namespace detail {
         }
 
         ChooseIterator operator++(int) {
-            auto tmp(*this);
+            ChooseIterator tmp(*this);
             ++*this;
             return tmp;
         }

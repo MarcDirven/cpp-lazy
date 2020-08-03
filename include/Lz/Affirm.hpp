@@ -60,7 +60,8 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterator, class Function>
-    auto affirmrange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
+    Affirm<Exception, Iterator, Function>
+    affirmrange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
         using FunctionReturnType = decltype(std::declval<Function>()(*begin));
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
@@ -95,7 +96,8 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterable, class Function>
-    auto affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
+    auto affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) ->
+    Affirm<Exception, decltype(std::begin(iterable)), Function> {
         return affirmrange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
 }

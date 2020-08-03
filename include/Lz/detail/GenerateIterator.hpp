@@ -52,7 +52,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator operator++(int) {
-            auto tmp = *this;
+            GenerateIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -65,7 +65,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator operator--(int) {
-            auto tmp(*this);
+            GenerateIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -85,13 +85,13 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            GenerateIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         GenerateIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            GenerateIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

@@ -71,7 +71,7 @@ namespace lz {
      * @return Enumerate iterator object from [begin, end).
      */
     template<class IntType = int, class Iterator>
-    auto enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
+    Enumerate<Iterator, IntType> enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 
@@ -90,7 +90,7 @@ namespace lz {
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<class IntType = int, class Iterable>
-    auto enumerate(Iterable&& iterable, const  IntType start = 0) {
+    auto enumerate(Iterable&& iterable, const  IntType start = 0) -> Enumerate<decltype(std::begin(iterable)), IntType> {
         return enumeraterange(std::begin(iterable), std::end(iterable), start);
     }
 

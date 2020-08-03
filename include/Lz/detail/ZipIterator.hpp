@@ -55,7 +55,7 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         bool lessThan(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
+            std::initializer_list<difference_type> distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
             return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
                 return diff > 0;
             }) != distances.end();
@@ -63,7 +63,7 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         bool notEqual(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            auto boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
+            std::initializer_list<bool> boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
             auto end = boolValues.end();
             // Check if false not in boolValues
             return std::find(boolValues.begin(), end, false) == end;
@@ -88,7 +88,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator operator++(int) {
-            auto tmp = *this;
+            ZipIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -110,7 +110,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            ZipIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
@@ -121,7 +121,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            ZipIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

@@ -91,7 +91,7 @@ namespace lz { namespace detail {
         }
 
         SplitIterator operator++(int) {
-            auto tmp = *this;
+            SplitIterator tmp(*this);
             ++*this;
             return tmp;
         }

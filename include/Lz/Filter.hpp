@@ -72,7 +72,7 @@ namespace lz {
      * over.
      */
     template<class Iterator, class Function>
-    auto filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
+    Filter<Iterator, Function> filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
         return Filter<Iterator, Function>(begin, end, predicate);
     }
 
@@ -88,7 +88,7 @@ namespace lz {
      * over using `for (auto... lz::filter(...))`.
      */
     template<class Iterable, class Function>
-    auto filter(Iterable&& iterable, const Function& predicate) {
+    auto filter(Iterable&& iterable, const Function& predicate) -> Filter<decltype(std::begin(iterable)), Function> {
         return filterrange(std::begin(iterable), std::end(iterable), predicate);
     }
 

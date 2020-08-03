@@ -76,7 +76,7 @@ namespace lz {
      * `for (auto... lz::takewhilerange(...))`.
      */
     template<class Iterator, class Function>
-    auto takewhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
+    Take<Iterator, Function> takewhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
         return Take<Iterator, Function>(begin, end, predicate);
     }
 
@@ -92,7 +92,8 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, const Function& predicate) {
+    auto takewhile(Iterable&& iterable, const Function& predicate) ->
+    Take<decltype(std::begin(iterable)), Function> {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -106,10 +107,10 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::takerange(...))`.
      */
-    template<class Iterator>
-    auto takerange(const Iterator begin, const Iterator end) {
-        using ValueType = typename std::iterator_traits<Iterator>::value_type;
-        return takewhilerange(begin, end, static_cast<std::function<ValueType(ValueType)>>(
+    template<class Iterator, class ValueType = typename std::iterator_traits<Iterator>::value_type>
+    auto takerange(const Iterator begin, const Iterator end) ->
+    Take<typename std::remove_const<decltype(begin)>::type, std::function<bool(ValueType)>> {
+        return takewhilerange(begin, end, static_cast<std::function<bool(ValueType)>>(
             [](const ValueType&) { return true; }));
     }
 
@@ -124,7 +125,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<class Iterable>
-    auto take(Iterable&& iterable, const size_t amount) {
+    auto take(Iterable&& iterable, const size_t amount) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
         auto begin = std::begin(iterable);
         return takerange(begin, std::next(begin, amount));
     }
@@ -140,7 +141,7 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<class Iterable>
-    auto slice(Iterable&& iterable, const size_t from, const size_t to) {
+    auto slice(Iterable&& iterable, const size_t from, const size_t to) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
         auto begin = std::begin(iterable);
         return takerange(std::next(begin, from), std::next(begin, to));
     }

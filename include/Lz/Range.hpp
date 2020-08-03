@@ -84,7 +84,7 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    auto range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+    Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
         return Range<Arithmetic>(start, end, step);
     }
 
@@ -97,7 +97,7 @@ namespace lz {
      * `for (auto... lz::range(...))`.
      */
     template<class Arithmetic = int>
-    auto range(const Arithmetic end) {
+    Range<Arithmetic> range(const Arithmetic end) {
         return range<Arithmetic>(0, end, 1);
     }
 

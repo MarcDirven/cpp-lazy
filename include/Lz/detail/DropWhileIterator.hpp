@@ -38,7 +38,7 @@ namespace lz { namespace detail {
         }
 
         DropWhileIterator operator++(int) {
-            auto tmp = *this;
+            DropWhileIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -49,7 +49,7 @@ namespace lz { namespace detail {
         }
 
         DropWhileIterator operator--(int) {
-            auto tmp(*this);
+            DropWhileIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -73,7 +73,7 @@ namespace lz { namespace detail {
         }
 
         DropWhileIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            DropWhileIterator tmp(*this);
             tmp += offset;
             return tmp;
         }

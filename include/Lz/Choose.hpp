@@ -80,7 +80,7 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterator, class Function>
-    auto chooserange(const Iterator begin, const Iterator end, const Function& function) {
+    Choose<Iterator, Function> chooserange(const Iterator begin, const Iterator end, const Function& function) {
         return Choose<Iterator, Function>(begin, end, function);
     }
 
@@ -115,7 +115,7 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterable, class Function>
-    auto choose(Iterable&& iterable, const Function& function) {
+    auto choose(Iterable&& iterable, const Function& function) -> Choose<decltype(std::begin(iterable)), Function> {
         return chooserange(std::begin(iterable), std::end(iterable), function);
     }
 }

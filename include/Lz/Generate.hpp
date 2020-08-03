@@ -66,7 +66,7 @@ namespace lz {
      * @return A generator random access iterator view object.
      */
     template<class GeneratorFunc>
-    auto generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
+    Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }
 }

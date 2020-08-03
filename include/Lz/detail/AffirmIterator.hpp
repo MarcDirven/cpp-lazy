@@ -52,7 +52,7 @@ namespace lz { namespace detail {
         }
 
         AffirmIterator operator++(int) {
-            auto tmp = *this;
+            AffirmIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -63,7 +63,7 @@ namespace lz { namespace detail {
         }
 
         AffirmIterator operator--(int) {
-            auto tmp = *this;
+            AffirmIterator tmp = *this;
             --*this;
             return tmp;
         }
@@ -79,13 +79,13 @@ namespace lz { namespace detail {
         }
 
         AffirmIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            AffirmIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         AffirmIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            AffirmIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

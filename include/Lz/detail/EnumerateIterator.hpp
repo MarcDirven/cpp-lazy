@@ -39,7 +39,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator operator++(int) {
-            auto tmp = *this;
+            EnumerateIterator tmp = *this;
             ++*this;
             return tmp;
         }
@@ -51,7 +51,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator operator--(int) {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -63,7 +63,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
@@ -75,7 +75,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }

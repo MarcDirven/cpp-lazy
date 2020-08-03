@@ -77,7 +77,7 @@ namespace lz {
             }
 
             ExceptIterator operator++(int) {
-                auto tmp = *this;
+                ExceptIterator tmp(*this);
                 ++*this;
                 return tmp;
             }
