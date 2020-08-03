@@ -32,14 +32,14 @@ for (int i : lz::concat(a, b)) {
 // 7
 // 8
 
+std::cout << '\n';
+
 std::array<int, 4> c{9, 10, 11, 12};
 std::array<int, 4> d{13, 14, 15, 16};
 
 for (int i : lz::concat(a, b, c, d)) {
     std::cout << i << '\n';
 }
-
-std::cout << '\n';
 
 // Output:
 // 1
