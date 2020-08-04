@@ -327,6 +327,7 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
+These benchmarks include the creation of the view object + 1 iteration.
 
 <div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
 
