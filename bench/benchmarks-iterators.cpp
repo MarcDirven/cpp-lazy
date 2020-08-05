@@ -151,10 +151,23 @@ static void Zip2(benchmark::State& state) {
     }
 }
 
-static void Except(benchmark::State& state) {
+static void ExceptSorted(benchmark::State& state) {
     std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
     std::array<int, SizePolicy / 2> toLargeExcept =
         lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
+
+    for (auto _ : state) {
+        auto ex = lz::except(largeArr, toLargeExcept);
+
+        for (auto excepted : ex) {
+            benchmark::DoNotOptimize(excepted);
+        }
+    }
+}
+
+static void ExceptUnsorted(benchmark::State& state) {
+    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy / 2> toLargeExcept = {3, 2, 5, 2, 5, 6, 1, 3, 2, 5, 6, 3, 2, 1, 5, 6};
 
     for (auto _ : state) {
         auto ex = lz::except(largeArr, toLargeExcept);
@@ -237,7 +250,8 @@ static void Concatenate(benchmark::State& state) {
 BENCHMARK(Choose);
 BENCHMARK(Concatenate);
 BENCHMARK(Enumerate);
-BENCHMARK(Except);
+BENCHMARK(ExceptSorted);
+BENCHMARK(ExceptUnsorted);
 BENCHMARK(Filter);
 BENCHMARK(Generate);
 BENCHMARK(Map);

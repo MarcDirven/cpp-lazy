@@ -14,6 +14,7 @@ namespace lz {
         struct ExceptIteratorHelper {
             IteratorToExcept toExceptBegin{};
             IteratorToExcept toExceptEnd{};
+            bool isSortedAndHasLessThanOperator{};
         };
 
         template<class Iterator, class IteratorToExcept>
@@ -34,16 +35,16 @@ namespace lz {
             friend class Except<Iterator, IteratorToExcept>;
 
             void find() {
-                IteratorToExcept it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                                *_iterator);
-
-                while (it != _iteratorHelper->toExceptEnd) {
-                    ++_iterator;
-                    if (_iterator == _end) {
-                        return;
-                    }
-                    it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                   *_iterator);
+                if (_iteratorHelper->isSortedAndHasLessThanOperator) {
+                    _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                    });
+                }
+                else {
+                    _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                        return
+                        std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
+                    });
                 }
             }
 
@@ -58,6 +59,9 @@ namespace lz {
                 _iterator(begin),
                 _end(end),
                 _iteratorHelper(iteratorHelper) {
+                if (begin != end) {
+                    find();
+                }
             }
 
             reference operator*() const {

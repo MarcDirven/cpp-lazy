@@ -30,4 +30,15 @@ namespace lz { namespace detail {
             return &t;
         }
     };
+
+    struct No {};
+    template<typename T, typename Arg>
+    constexpr No operator<(const T&, const Arg&);
+
+    template<typename T, typename Arg = T>
+    struct HasSmallerThanOperator
+    {
+        enum { value = !std::is_same<decltype(std::declval<T>() < std::declval<Arg>()), No>::value };
+    };
+
 }}
