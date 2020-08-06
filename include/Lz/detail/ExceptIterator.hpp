@@ -14,6 +14,7 @@ namespace lz {
         struct ExceptIteratorHelper {
             IteratorToExcept toExceptBegin{};
             IteratorToExcept toExceptEnd{};
+            Iterator end{};
             bool isSortedAndHasLessThanOperator{};
         };
 
@@ -29,19 +30,18 @@ namespace lz {
 
         private:
             Iterator _iterator{};
-            Iterator _end{};
             const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
 
             friend class Except<Iterator, IteratorToExcept>;
 
             void find() {
                 if (_iteratorHelper->isSortedAndHasLessThanOperator) {
-                    _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
                         return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
                     });
                 }
                 else {
-                    _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
                         return
                         std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
                     });
@@ -57,7 +57,6 @@ namespace lz {
             explicit ExceptIterator(const Iterator begin, const Iterator end,
                                     const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
                 _iterator(begin),
-                _end(end),
                 _iteratorHelper(iteratorHelper) {
                 if (begin != end) {
                     find();
@@ -74,7 +73,7 @@ namespace lz {
 
             ExceptIterator& operator++() {
                 ++_iterator;
-                if (_iterator != _end) {
+                if (_iterator != _iteratorHelper->end) {
                     find();
                 }
                 return *this;
@@ -87,7 +86,7 @@ namespace lz {
             }
 
             bool operator!=(const ExceptIterator& other) const {
-                return _iterator != other._end;
+                return _iterator != other._iteratorHelper->end;
             }
 
             bool operator==(const ExceptIterator& other) const {

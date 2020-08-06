@@ -28,7 +28,7 @@ namespace lz {
          * @param toExceptEnd The ending of the actual elements to except.
          */
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
-            _iteratorHelper{toExceptBegin, toExceptEnd, false},
+            _iteratorHelper{toExceptBegin, toExceptEnd, end, false},
             _begin(begin, end, &_iteratorHelper),
             _end(end, end, &_iteratorHelper)
         {}
