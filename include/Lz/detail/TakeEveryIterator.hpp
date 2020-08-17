@@ -41,7 +41,7 @@ namespace lz {
         }
 
         pointer operator->() const {
-            return _iterator.operator->();
+            return &*_iterator;
         }
 
         TakeEveryIterator& operator++() {

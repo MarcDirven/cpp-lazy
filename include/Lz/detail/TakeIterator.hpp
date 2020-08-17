@@ -34,7 +34,7 @@ namespace lz { namespace detail {
         }
 
         pointer operator->() const {
-            return &_iterator;
+            return &*_iterator;
         }
 
         TakeIterator& operator++() {

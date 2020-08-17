@@ -20,7 +20,7 @@ namespace lz { namespace detail {
 
     public:
         DropWhileIterator(const Iterator begin, const Iterator end, const Function& function) :
-            _iterator(begin != end ? std::find_if(begin, end, [function](const value_type& value) {
+            _iterator(begin != end ? std::find_if(begin, end, [&function](const value_type& value) {
                 return !function(value);
             }) : end) {}
 
@@ -29,7 +29,7 @@ namespace lz { namespace detail {
         }
 
         pointer operator->() const {
-            return _iterator.operator->();
+            return &*_iterator;
         }
 
         DropWhileIterator& operator++() {
