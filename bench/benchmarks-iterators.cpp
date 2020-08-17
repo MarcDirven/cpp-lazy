@@ -210,6 +210,27 @@ static void Random(benchmark::State& state) {
     }
 }
 
+static void DropWhile(benchmark::State& state) {
+    int cnt = 0;
+    std::array<int, SizePolicy> array = lz::generate([&cnt]() {
+        if (cnt++ == SizePolicy / 2) {
+            return *lz::random(0, 10, 1).begin();
+        }
+        return 1;
+    }, SizePolicy).toArray<SizePolicy>();
+
+
+    for (auto _ : state) {
+        auto random = lz::dropwhile(array, [](const int i) {
+            return i == 1;
+        });
+
+        for (int i : random) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
 static void Choose(benchmark::State& state) {
     std::string s = "123df574d587f85432df52f4ssf5d222";
     for (auto _ : state) {
@@ -249,6 +270,7 @@ static void Concatenate(benchmark::State& state) {
 
 BENCHMARK(Choose);
 BENCHMARK(Concatenate);
+BENCHMARK(DropWhile);
 BENCHMARK(Enumerate);
 BENCHMARK(ExceptSorted);
 BENCHMARK(ExceptUnsorted);
