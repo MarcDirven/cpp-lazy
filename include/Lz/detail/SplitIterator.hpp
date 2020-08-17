@@ -24,12 +24,12 @@ namespace lz { namespace detail {
     struct SplitViewIteratorHelper {
         std::string delimiter{};
         const std::string& string = std::string();
-        mutable SubString substring{};
     };
 
     template<class SubString>
     class SplitIterator {
         size_t _currentPos{}, _last{};
+        mutable SubString _substring{};
         const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
 
     public:
@@ -52,7 +52,7 @@ namespace lz { namespace detail {
             _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
 
             if (_last != std::string::npos) {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos],
+                _substring = SubString(&_splitIteratorHelper->string[_currentPos],
                                                             _last - _currentPos);
                 // Check if end ends with delimiter
                 if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
@@ -63,13 +63,13 @@ namespace lz { namespace detail {
                 }
             }
             else {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos]);
+                _substring = SubString(&_splitIteratorHelper->string[_currentPos]);
             }
         }
 
         // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
         std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
-            return _splitIteratorHelper->substring;
+            return _substring;
         }
 
         pointer operator->() const {
