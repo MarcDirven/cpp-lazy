@@ -88,12 +88,16 @@ namespace lz { namespace detail {
         template<size_t N>
         std::array<value_type, N> toArray() const {
             constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            if (std::distance(begin(), end()) > size) {
-                throw std::out_of_range("the iterator size is too large and/or array size is too small");
+            Iterator b = begin();
+            Iterator e = end();
+
+            if (std::distance(b, e) > size) {
+                throw std::out_of_range("line " + std::to_string(__LINE__) + ": " + __FILE__ +
+                                        " the iterator size is too large and/or array size is too small");
             }
 
             std::array<value_type, N> container;
-            std::copy(begin(), end(), std::begin(container));
+            std::copy(b, e, std::begin(container));
             return container;
         }
 
