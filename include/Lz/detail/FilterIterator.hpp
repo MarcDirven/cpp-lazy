@@ -35,12 +35,12 @@ namespace lz { namespace detail {
         }
 
         pointer operator->() const {
-            return _iterator.operator->();
+            return &*_iterator;
         }
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(std::next(_iterator), _end, *_predicate);
+                _iterator = std::find_if(++_iterator, _end, *_predicate);
             }
             return *this;
         }
