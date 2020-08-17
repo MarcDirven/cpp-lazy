@@ -16,8 +16,8 @@ namespace lz {
 
     private:
         mutable detail::ExceptIteratorHelper<Iterator, IteratorToExcept> _iteratorHelper;
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
 
     public:
         /**
@@ -29,8 +29,8 @@ namespace lz {
          */
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
             _iteratorHelper{toExceptBegin, toExceptEnd, end, false},
-            _begin(begin, end, &_iteratorHelper),
-            _end(end, end, &_iteratorHelper)
+            _begin(begin),
+            _end(end)
         {}
 
         /**
@@ -38,9 +38,8 @@ namespace lz {
          * @return An iterator to the beginning.
          */
         iterator begin() const override {
-            _iteratorHelper.isSortedAndHasLessThanOperator = std::is_sorted(_iteratorHelper.toExceptBegin, _iteratorHelper.toExceptEnd) &&
-                detail::HasSmallerThanOperator<value_type>::value;
-            return _begin;
+            _iteratorHelper.isSorted = std::is_sorted(_iteratorHelper.toExceptBegin, _iteratorHelper.toExceptEnd);
+            return iterator(_begin, _end, &_iteratorHelper);
         }
 
         /**
@@ -48,7 +47,7 @@ namespace lz {
          * @return An iterator to the ending.
          */
         iterator end() const override {
-            return _end;
+            return iterator(_end, _end, &_iteratorHelper);
         }
     };
 

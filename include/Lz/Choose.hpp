@@ -14,9 +14,17 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
+        using FunctionParamType = decltype(*std::declval<Iterator>());
+        using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
+        using FunctionReturnValuePairSecond = typename Pair::second_type;
+        using ChooseFunction = std::function<Pair(FunctionParamType)>;
+
+        static_assert(std::is_same<std::pair<bool, FunctionReturnValuePairSecond>, Pair>::value,
+            "function must return type std::pair<bool T>");
+
+        ChooseFunction _func{};
         Iterator _begin;
         Iterator _end;
-        detail::ChooseIteratorHelper<Iterator, Function> _helper;
 
     public:
         /**
@@ -27,16 +35,17 @@ namespace lz {
          * container as parameter.
          */
         Choose(const Iterator begin, const Iterator end, const Function& function) :
+            _func(function),
             _begin(begin),
-            _end(end),
-            _helper{function} {}
+            _end(end) {
+        }
 
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(_begin, _end, &_helper);
+            return iterator(_begin, _end, &_func);
         }
 
         /**
@@ -44,7 +53,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(_end, _end, &_helper);
+            return iterator(_end, _end, &_func);
         }
     };
 
