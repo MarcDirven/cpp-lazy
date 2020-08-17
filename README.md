@@ -5,7 +5,7 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. It makes ex
 
 # Current supported iterators & examples
  Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type from the function entered. Example:
+- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. Example:
 ```cpp
 std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {
@@ -13,7 +13,7 @@ auto vector = lz::choose(s, [](const char s) {
 }).toVector();
 // vector yields (int) {1, 9}
 ```
-- **Concatenate**, this iterator can be used to merge two or more containers together.
+- **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 here, but they can be all have different sizes.
 ```cpp
 std::array<int, 4> a{1, 2, 3, 4};
 std::array<int, 4> b{5, 6, 7, 8};
@@ -327,12 +327,13 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
+These benchmarks include the creation of the view object + 1 iteration. All the container sizes were 32, except the iterable to except in `lz::except` function. The 'main' container had a size of 32, the container to except had a size of 16.
 
-<div style="text-align:center"><img src="https://i.imgur.com/O0Co84X.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/HUfmgvY.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/cj3wcWq.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/b6DVCuv.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/QXTMkcf.png" /></div>
 
 
 # Small side note...
