@@ -14,6 +14,7 @@ namespace lz {
     public:
         using iterator = detail::RandomIterator<Arithmetic, Distribution>;
         using const_iterator = iterator;
+        using value_type = typename iterator::value_type;
 
     private:
         size_t _amount{};
