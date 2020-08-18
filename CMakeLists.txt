@@ -27,6 +27,7 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/SplitIterator.hpp
         ${LZ_DETAIL_HEADERS}/TakeIterator.hpp
         ${LZ_DETAIL_HEADERS}/TakeEveryIterator.hpp
+        ${LZ_DETAIL_HEADERS}/UniqueIterator.hpp
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
         )
 
@@ -48,6 +49,7 @@ set(HEADER_FILES
         ${LZ_HEADERS}/StringSplitter.hpp
         ${LZ_HEADERS}/Take.hpp
         ${LZ_HEADERS}/TakeEvery.hpp
+        ${LZ_HEADERS}/Unique.hpp
         ${LZ_HEADERS}/Zip.hpp
         )
 
@@ -62,7 +64,7 @@ target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
-set(INCLUDE_BENCHMARKS FALSE)
+set(INCLUDE_BENCHMARKS TRUE)
 
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)

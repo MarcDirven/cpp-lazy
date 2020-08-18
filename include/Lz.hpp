@@ -15,4 +15,5 @@
 #include <Lz/StringSplitter.hpp>
 #include <Lz/Take.hpp>
 #include <Lz/TakeEvery.hpp>
+#include <Lz/Unique.hpp>
 #include <Lz/Zip.hpp>
