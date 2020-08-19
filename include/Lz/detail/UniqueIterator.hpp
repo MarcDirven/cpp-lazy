@@ -27,6 +27,10 @@ namespace lz { namespace detail {
                 return;
             }
 
+            if (std::is_sorted(begin, end)) {
+                return;
+            }
+
             std::sort(begin, end);
         }
 
