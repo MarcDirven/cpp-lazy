@@ -21,6 +21,7 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/take-every-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/take-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/test-main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/unique-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/zip-tests.cpp
         )
 
