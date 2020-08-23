@@ -19,6 +19,7 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
         ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
         ${LZ_DETAIL_HEADERS}/GenerateIterator.hpp
+        ${LZ_DETAIL_HEADERS}/JoinIterator.hpp
         ${LZ_DETAIL_HEADERS}/LzTools.hpp
         ${LZ_DETAIL_HEADERS}/MapIterator.hpp
         ${LZ_DETAIL_HEADERS}/RandomIterator.hpp
@@ -42,6 +43,7 @@ set(HEADER_FILES
         ${LZ_HEADERS}/Except.hpp
         ${LZ_HEADERS}/Filter.hpp
         ${LZ_HEADERS}/Generate.hpp
+        ${LZ_HEADERS}/Join.hpp
         ${LZ_HEADERS}/Map.hpp
         ${LZ_HEADERS}/Random.hpp
         ${LZ_HEADERS}/Range.hpp
@@ -64,7 +66,11 @@ target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
-set(INCLUDE_BENCHMARKS FALSE)
+set(INCLUDE_BENCHMARKS TRUE)
+
+# Add fmt
+add_subdirectory(extern/fmt)
+target_link_libraries("cpp-lazy" INTERFACE fmt::fmt-header-only)
 
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
