@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. It uses one dipendency library `fmt`, which is automatically configured by CMake. The library is tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` causing 0 warning messages.
+Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. It uses one dependency library `fmt`, which is automatically configured by CMake. The library is tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` causing 0 warning messages.
 
 # Current supported iterators & examples
  Current supported iterators are:
