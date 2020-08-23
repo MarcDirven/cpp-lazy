@@ -27,7 +27,7 @@ namespace lz { namespace detail {
     };
 
     template<class Arithmetic>
-    __forceinline bool isEven(const Arithmetic value) {
+    inline bool isEven(const Arithmetic value) {
         return (value & 1) == 0;
     }
 
