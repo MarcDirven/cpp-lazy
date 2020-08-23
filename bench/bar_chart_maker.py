@@ -28,33 +28,51 @@ def get_benchmark_names_and_time(bench_file, name_idx):
 
     BenchmarkRecord = namedtuple('BenchmarkRecord', 'name real_time')
     for row in bench_file[name_idx:]:
-        records.append(BenchmarkRecord(row[0], row[2]))
+        records.append(BenchmarkRecord(row[0], float(row[2])))
     return records, bench_unit
 
 
-def make_bar_plot(benchmark_records, unit, cxx_version, caches, n_iterations, title_iterations):
-    x_limit_offset = 15
-    y_pos = np.arange(len(benchmark_records))
-    performance = list(map(lambda record: float(record.real_time) / n_iterations, benchmark_records))
-    names = list(map(lambda record: record.name, benchmark_records))
+def make_table(benchmark_records, unit, cxx_version, caches, n_iterations, title_iterations):
+    title = f'{cxx_version}\n{caches}'
+    fig_border = 'steelblue'
 
-    figure, ax = plt.subplots()
-    ax.barh(y_pos, performance, align='center', alpha=0.5)
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(names, minor=False)
+    benchmark_records = sorted(benchmark_records, key=lambda e: e.real_time)
+    fastest = benchmark_records[0].real_time
+    data = [[record.name, record.real_time, round(record.real_time / fastest, 2)] for record in benchmark_records]
+    column_headers = ["Time", "Relative speed"]
+    row_headers = [x.pop(0) for x in data]
 
-    for i, v in enumerate(performance):
-        ax.text(v + .3, i - .1, str(round(v, 2)))
+    cell_text = []
+    for row in data:
+        cell_text.append([f'{round(row[0] / n_iterations, 2)} ns', f'{row[1]} x'])
 
-    plt.xlim(right=max(performance) + x_limit_offset)
-    plt.xlabel(f'Time in {unit}')
-    plt.title(f'Benchmarks for {cxx_version} (iterations = {title_iterations})\n{caches}')
+    row_colors = plt.cm.BuPu(np.full(len(row_headers), 0.1))
+    col_colors = plt.cm.BuPu(np.full(len(column_headers), 0.1))
 
-    figure_size = plt.gcf().get_size_inches()
-    size_factor = 1.8
-    plt.gcf().set_size_inches(size_factor * figure_size)
+    plt.figure(linewidth=2,
+               edgecolor=fig_border)
 
-    plt.savefig(filename.format(cxx_version), dpi=400)
+    the_table = plt.table(cellText=cell_text,
+                          rowLabels=row_headers,
+                          rowColours=row_colors,
+                          colColours=col_colors,
+                          cellLoc='center',
+                          colLabels=column_headers,
+                          loc='center')
+    the_table.scale(1.5, 1.5)
+
+    ax = plt.gca()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+    plt.box(on=None)
+    plt.figtext(.90, 0.05, None, horizontalalignment='center', size=8, weight='light')
+    fig = plt.gcf()
+    plt.savefig(f'benchmarks-iterators-{cxx_version}.png',
+                bbox_inches='tight',
+                edgecolor=fig.get_edgecolor(),
+                facecolor=fig.get_facecolor(),
+                dpi=200)
     plt.clf()
 
 
@@ -87,7 +105,7 @@ def main():
 
         iterations = 32
         title_iterations = 1
-        make_bar_plot(bench_records, unit, cxx_version, caches, iterations, title_iterations)
+        make_table(bench_records, unit, cxx_version, caches, iterations, title_iterations)
 
     green = '\033[32m'
     print(f'{green}Successfully created {filename.format(cxx_version)}')
