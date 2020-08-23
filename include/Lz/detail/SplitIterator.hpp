@@ -8,14 +8,9 @@
 
 
 #ifdef CXX_LT_17
-
-#include <string>
-
-
+  #include <string>
 #else
-
-#include <string_view>
-
+  #include <string_view>
 #endif
 
 
@@ -25,6 +20,7 @@ namespace lz { namespace detail {
         std::string delimiter{};
         const std::string& string = std::string();
     };
+
 
     template<class SubString>
     class SplitIterator {
@@ -53,7 +49,7 @@ namespace lz { namespace detail {
 
             if (_last != std::string::npos) {
                 _substring = SubString(&_splitIteratorHelper->string[_currentPos],
-                                                            _last - _currentPos);
+                                       _last - _currentPos);
                 // Check if end ends with delimiter
                 if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
                     _last = std::string::npos;
