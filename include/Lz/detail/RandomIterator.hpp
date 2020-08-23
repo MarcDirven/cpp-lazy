@@ -5,35 +5,10 @@
 #include <limits>
 
 #include <Lz/detail/LzTools.hpp>
-
+#include <chrono>
+#include <iostream>
 
 namespace lz { namespace detail {
-    static std::mt19937& createRandomEngine() {
-        std::random_device rd;
-        static std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-        static std::mt19937 instance(seed);
-        return instance;
-    }
-
-    template<class Arithmetic, class Distribution>
-    struct RandomIteratorHelper {
-        static std::mt19937& randomEngine;
-        mutable Distribution distribution{};
-        bool isWhileTrueLoop;
-
-        RandomIteratorHelper(Arithmetic min, Arithmetic max, size_t amount) :
-            distribution(min, max),
-            isWhileTrueLoop(amount == std::numeric_limits<size_t>::max()) {
-        }
-
-        Arithmetic rand() const {
-            return distribution(randomEngine);
-        }
-    };
-
-    template<class Arithmetic, class Distribution>
-    std::mt19937& RandomIteratorHelper<Arithmetic, Distribution>::randomEngine = createRandomEngine();
-
     template<class Arithmetic, class Distribution>
     class RandomIterator {
     public:
@@ -45,16 +20,22 @@ namespace lz { namespace detail {
 
     private:
         size_t _current{};
-        const RandomIteratorHelper<Arithmetic, Distribution>* _randomIteratorHelper;
+        Arithmetic _min{}, _max{};
+        bool _isWhileTrueLoop{};
 
     public:
-        explicit RandomIterator(const size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
+        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const size_t current, const bool isWhileTrueLoop) :
             _current(current),
-            _randomIteratorHelper(helper) {
+            _min(min),
+            _max(max),
+            _isWhileTrueLoop(isWhileTrueLoop) {
         }
 
         value_type operator*() const {
-            return _randomIteratorHelper->rand();
+            static std::random_device randomEngine;
+            static std::mt19937 generator(randomEngine());
+            Distribution randomNumber(_min, _max);
+            return randomNumber(generator);
         }
 
         pointer operator->() const {
@@ -62,7 +43,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator++() {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 ++_current;
             }
             return *this;
@@ -75,7 +56,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator--() {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 --_current;
             }
             return *this;
@@ -88,7 +69,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator+=(const difference_type offset) {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current += offset;
             }
             return *this;
@@ -101,7 +82,7 @@ namespace lz { namespace detail {
         }
 
         RandomIterator& operator-=(const difference_type offset) {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current -= offset;
             }
             return *this;

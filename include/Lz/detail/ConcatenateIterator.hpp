@@ -212,6 +212,10 @@ namespace lz { namespace detail {
             return Deref<IterTuple, 0>()(_iterators, _end);
         }
 
+        pointer operator->() const {
+            return &*this;
+        }
+
         ConcatenateIterator& operator++() {
             PlusPlus<IterTuple, 0>()(_iterators, _end);
             return *this;

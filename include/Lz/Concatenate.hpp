@@ -14,8 +14,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
+        std::tuple<Iterators...> _begin{};
+        std::tuple<Iterators...> _end{};
 
     public:
         /**
@@ -26,15 +26,15 @@ namespace lz {
          * @param endIterator2 The ending of the second iterator.
          */
         Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
-            _begin(begin, begin, end),
-            _end(end, begin, end) {}
+            _begin(begin),
+            _end(end) {}
 
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin, _begin, _end);
         }
 
         /**
@@ -42,7 +42,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return _end;
+            return iterator(_end, _begin, _end);
         }
     };
 

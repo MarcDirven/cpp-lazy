@@ -14,8 +14,11 @@ namespace lz {
 
     private:
         detail::AffirmIteratorHelper<Iterator, Exception, value_type> _helper{};
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
+
+        using FunctionReturnType = decltype(std::declval<Function>()(*std::declval<Iterator>()));
+        static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
     public:
         /**
@@ -28,15 +31,15 @@ namespace lz {
          */
         Affirm(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) :
             _helper{predicate, std::forward<Exception>(exception)},
-            _begin(begin, &_helper),
-            _end(end, &_helper) {}
+            _begin(begin),
+            _end(end) {}
 
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
         iterator begin() const {
-            return _begin;
+            return iterator(_begin, &_helper);
         }
 
         /**
@@ -44,7 +47,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const {
-            return _end;
+            return iterator(_end, &_helper);
         }
     };
 
@@ -78,9 +81,6 @@ namespace lz {
     template<class Exception, class Iterator, class Function>
     Affirm<Exception, Iterator, Function>
     affirmrange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
-        using FunctionReturnType = decltype(std::declval<Function>()(*begin));
-        static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
-
         return Affirm<Exception, Iterator, Function>(begin, end, std::forward<Exception>(exception), predicate);
     }
 

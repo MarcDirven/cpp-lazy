@@ -18,8 +18,8 @@ namespace lz {
 
     private:
         std::function<value_type(value_type)> _predicate{};
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
 
     public:
         /**
@@ -32,8 +32,8 @@ namespace lz {
          */
         Take(const Iterator begin, const Iterator end, const Function& predicate) :
             _predicate(predicate),
-            _begin(begin, end, &_predicate),
-            _end(end, end, &_predicate) {
+            _begin(begin),
+            _end(end) {
         }
 
         /**
@@ -41,7 +41,7 @@ namespace lz {
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin, _end, &_predicate);
         }
 
         /**
@@ -49,7 +49,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return _end;
+            return iterator(_end, _end, &_predicate);
         }
     };
 

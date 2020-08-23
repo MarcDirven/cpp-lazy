@@ -11,13 +11,12 @@ namespace lz {
     public:
         using iterator = detail::ExceptIterator<Iterator, IteratorToExcept>;
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
-        Iterator _begin;
-        Iterator _end;
-        detail::ExceptIteratorHelper<Iterator, IteratorToExcept> _iteratorHelper;
+        mutable detail::ExceptIteratorHelper<Iterator, IteratorToExcept> _iteratorHelper;
+        Iterator _begin{};
+        Iterator _end{};
 
     public:
         /**
@@ -27,20 +26,18 @@ namespace lz {
          * @param toExceptBegin The beginning of the actual elements to except.
          * @param toExceptEnd The ending of the actual elements to except.
          */
-        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-               const IteratorToExcept toExceptEnd) :
+        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
+            _iteratorHelper{toExceptBegin, toExceptEnd, end, false},
             _begin(begin),
-            _end(end),
-            _iteratorHelper{toExceptBegin, toExceptEnd} {}
+            _end(end) {}
 
         /**
          * Returns an iterator to the beginning.
          * @return An iterator to the beginning.
          */
         iterator begin() const override {
-            iterator begin(_begin, _end, &_iteratorHelper);
-            begin.find();
-            return begin;
+            _iteratorHelper.isSorted = std::is_sorted(_iteratorHelper.toExceptBegin, _iteratorHelper.toExceptEnd);
+            return iterator(_begin, _end, &_iteratorHelper);
         }
 
         /**
@@ -66,15 +63,16 @@ namespace lz {
      */
     template<class Iterator, class IteratorToExcept>
     Except<Iterator, IteratorToExcept> exceptrange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-                     const IteratorToExcept toExceptEnd) {
+                                                   const IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
     }
 
     /**
      * @brief This function returns a view to the random access ExceptIterator.
-     * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`.
-     * @tparam Iterator Is automatically deduced.
-     * @tparam IteratorToExcept Is automatically deduced.
+     * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
+     * and has an `operator<`
+     * @tparam Iterable Is automatically deduced.
+     * @tparam IterableToExcept Is automatically deduced.
      * @param iterable The iterable to except elements from contained by `toExcept`.
      * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
      * @return An Except view object.

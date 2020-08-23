@@ -14,11 +14,14 @@ namespace lz {
         struct ExceptIteratorHelper {
             IteratorToExcept toExceptBegin{};
             IteratorToExcept toExceptEnd{};
+            Iterator end{};
+            bool isSorted{};
         };
 
         template<class Iterator, class IteratorToExcept>
         class ExceptIterator {
             using IterTraits = std::iterator_traits<Iterator>;
+            using ValueTypeToExcept = typename std::iterator_traits<IteratorToExcept>::value_type;
         public:
             using iterator_category = std::forward_iterator_tag;
             using value_type = typename IterTraits::value_type;
@@ -28,22 +31,21 @@ namespace lz {
 
         private:
             Iterator _iterator{};
-            Iterator _end{};
             const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
 
             friend class Except<Iterator, IteratorToExcept>;
 
             void find() {
-                IteratorToExcept it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                                *_iterator);
-
-                while (it != _iteratorHelper->toExceptEnd) {
-                    ++_iterator;
-                    if (_iterator == _end) {
-                        return;
-                    }
-                    it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                   *_iterator);
+                if (_iteratorHelper->isSorted) {
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
+                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                    });
+                }
+                else {
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
+                        return
+                            std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
+                    });
                 }
             }
 
@@ -56,8 +58,13 @@ namespace lz {
             explicit ExceptIterator(const Iterator begin, const Iterator end,
                                     const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
                 _iterator(begin),
-                _end(end),
                 _iteratorHelper(iteratorHelper) {
+                if (begin != end) {
+                    if (!_iteratorHelper->isSorted) {
+                        std::sort(begin, end);
+                    }
+                    find();
+                }
             }
 
             reference operator*() const {
@@ -65,12 +72,12 @@ namespace lz {
             }
 
             pointer operator->() const {
-                return _iterator.operator->();
+                return &*_iterator;
             }
 
             ExceptIterator& operator++() {
                 ++_iterator;
-                if (_iterator != _end) {
+                if (_iterator != _iteratorHelper->end) {
                     find();
                 }
                 return *this;
@@ -83,7 +90,7 @@ namespace lz {
             }
 
             bool operator!=(const ExceptIterator& other) const {
-                return _iterator != other._end;
+                return _iterator != other._iteratorHelper->end;
             }
 
             bool operator==(const ExceptIterator& other) const {

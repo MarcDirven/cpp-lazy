@@ -21,8 +21,8 @@ namespace lz {
         using FnReturnType = typename detail::MapIterator<Iterator, Function>::FnReturnType;
 
         std::function<FnReturnType(FnParamType)> _function{};
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
 
     public:
         /**
@@ -33,8 +33,8 @@ namespace lz {
          */
         Map(const Iterator begin, const Iterator end, const Function& function) :
             _function(function),
-            _begin(begin, &_function),
-            _end(end, &_function) {
+            _begin(begin),
+            _end(end) {
         }
 
         /**
@@ -42,7 +42,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin, &_function);
         }
 
         /**
@@ -50,7 +50,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator end() const override {
-            return _end;
+            return iterator(_end, &_function);
         }
     };
 

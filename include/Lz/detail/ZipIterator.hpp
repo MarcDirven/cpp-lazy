@@ -26,25 +26,25 @@ namespace lz { namespace detail {
         template<size_t... I>
         void increment(std::index_sequence<I...> /*is*/) {
             auto expand = {(++std::get<I>(_iterators), 0)...};
-            (void) expand;
+            static_cast<void>(expand);
         }
 
         template<size_t... I>
         void decrement(std::index_sequence<I...> /*is*/) {
             auto expand = {(--std::get<I>(_iterators), 0)...};
-            (void) expand;
+            static_cast<void>(expand);
         }
 
         template<size_t... I>
         void plusIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
             auto expand = {(std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
-            (void) expand;
+            static_cast<void>(expand);
         }
 
         template<size_t... I>
         void minIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
             auto expand = {(std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
-            (void) expand;
+            static_cast<void>(expand);
         }
 
         template<size_t... I>

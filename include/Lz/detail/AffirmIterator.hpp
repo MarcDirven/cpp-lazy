@@ -43,7 +43,7 @@ namespace lz { namespace detail {
             if (!_helper->_predicate(*_iterator)) {
                 throw _helper->_exception;
             }
-            return _iterator.operator->();
+            return &*_iterator;
         }
 
         AffirmIterator& operator++() {

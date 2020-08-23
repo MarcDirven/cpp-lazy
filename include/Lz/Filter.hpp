@@ -21,8 +21,8 @@ namespace lz {
 
     private:
         std::function<bool(value_type)> _predicate{};
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
 
     public:
         static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
@@ -35,8 +35,8 @@ namespace lz {
          */
         Filter(const Iterator begin, const Iterator end, const Function& function) :
             _predicate{function},
-            _begin(begin, end, &_predicate),
-            _end(end, end, &_predicate) {
+            _begin(begin),
+            _end(end) {
         }
 
         /**
@@ -44,7 +44,7 @@ namespace lz {
         * @return A forward iterator FilterIterator.
         */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin, _end, &_predicate);
         }
 
         /**
@@ -52,7 +52,7 @@ namespace lz {
         * @return A forward iterator FilterIterator.
         */
         iterator end() const override {
-            return _end;
+            return iterator(_end, _end, &_predicate);;
         }
     };
 

@@ -15,8 +15,10 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
+        Iterator _begin{};
+        Iterator _end{};
+        size_t _offset{};
+        size_t _distance{};
 
     public:
         /**
@@ -26,8 +28,10 @@ namespace lz {
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          */
         TakeEvery(const Iterator begin, const Iterator end, const size_t offset) :
-            _begin(begin, end, offset, std::distance(begin, end)),
-            _end(end, end, offset, _begin._distance) {
+            _begin(begin),
+            _end(end),
+            _offset(offset),
+            _distance(std::distance(begin, end)) {
         }
 
         /**
@@ -35,7 +39,7 @@ namespace lz {
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin, _end, _offset, _distance);
         }
 
         /**
@@ -43,7 +47,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return _end;
+            return iterator(_end, _end, _offset, _distance);
         }
     };
 

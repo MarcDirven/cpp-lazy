@@ -8,29 +8,24 @@
 
 
 #ifdef CXX_LT_17
-
-#include <string>
-
-
+  #include <string>
 #else
-
-#include <string_view>
-
+  #include <string_view>
 #endif
 
 
 namespace lz { namespace detail {
-    template<class SubString>
     struct SplitViewIteratorHelper {
         std::string delimiter{};
         const std::string& string = std::string();
-        mutable SubString substring{};
     };
+
 
     template<class SubString>
     class SplitIterator {
         size_t _currentPos{}, _last{};
-        const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
+        mutable SubString _substring{};
+        const SplitViewIteratorHelper* _splitIteratorHelper{};
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -39,7 +34,7 @@ namespace lz { namespace detail {
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 
-        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
+        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper* splitIteratorHelper) :
             _currentPos(startingPosition),
             _splitIteratorHelper(splitIteratorHelper) {
             if (startingPosition == splitIteratorHelper->string.size()) {
@@ -52,8 +47,8 @@ namespace lz { namespace detail {
             _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
 
             if (_last != std::string::npos) {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos],
-                                                            _last - _currentPos);
+                _substring = SubString(&_splitIteratorHelper->string[_currentPos],
+                                       _last - _currentPos);
                 // Check if end ends with delimiter
                 if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
                     _last = std::string::npos;
@@ -63,13 +58,13 @@ namespace lz { namespace detail {
                 }
             }
             else {
-                _splitIteratorHelper->substring = SubString(&_splitIteratorHelper->string[_currentPos]);
+                _substring = SubString(&_splitIteratorHelper->string[_currentPos]);
             }
         }
 
         // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
         std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
-            return _splitIteratorHelper->substring;
+            return _substring;
         }
 
         pointer operator->() const {

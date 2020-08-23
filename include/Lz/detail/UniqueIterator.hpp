@@ -1,14 +1,17 @@
 #pragma once
 
-#include <type_traits>
+#include <iterator>
 #include <algorithm>
-#include <functional>
 
 
 namespace lz { namespace detail {
-    template<class Iterator, class Function>
-    class FilterIterator {
+    template<class Iterator>
+    class UniqueIterator {
+    private:
         using IterTraits = std::iterator_traits<Iterator>;
+
+        Iterator _iterator{};
+        Iterator _end{};
 
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -17,17 +20,18 @@ namespace lz { namespace detail {
         using pointer = typename IterTraits::pointer;
         using reference = typename IterTraits::reference;
 
-    private:
-        Iterator _iterator{};
-        Iterator _end{};
-        const std::function<bool(value_type)>* _predicate{};
-
-    public:
-        FilterIterator(const Iterator begin, const Iterator end, const std::function<bool(value_type)>* function) :
+        UniqueIterator(const Iterator begin, const Iterator end):
             _iterator(begin),
-            _end(end),
-            _predicate(function) {
-            _iterator = std::find_if(_iterator, _end, *_predicate);
+            _end(end) {
+            if (begin == end) {
+                return;
+            }
+
+            if (std::is_sorted(begin, end)) {
+                return;
+            }
+
+            std::sort(begin, end);
         }
 
         reference operator*() const {
@@ -38,24 +42,25 @@ namespace lz { namespace detail {
             return &*_iterator;
         }
 
-        FilterIterator& operator++() {
+        UniqueIterator& operator++() {
+            _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
             if (_iterator != _end) {
-                _iterator = std::find_if(++_iterator, _end, *_predicate);
+                ++_iterator;
             }
             return *this;
         }
 
-        FilterIterator operator++(int) {
-            FilterIterator tmp(*this);
+        UniqueIterator operator++(int) {
+            UniqueIterator tmp(*this);
             ++*this;
             return tmp;
         }
 
-        bool operator!=(const FilterIterator& other) const {
-            return _iterator != other._end;
+        bool operator!=(const UniqueIterator& other) const {
+            return _iterator != other._iterator;
         }
 
-        bool operator==(const FilterIterator& other) const {
+        bool operator==(const UniqueIterator& other) const {
             return !(*this != other);
         }
     };

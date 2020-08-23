@@ -17,8 +17,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
+        std::tuple<Iterators...> _begin{};
+        std::tuple<Iterators...> _end{};
 
     public:
         /**
@@ -44,7 +44,7 @@ namespace lz {
          * @return The beginning of the zip iterator.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(_begin);
         }
 
         /**
@@ -52,7 +52,7 @@ namespace lz {
          * @return The ending of the zip iterator.
          */
         iterator end() const override {
-            return _end;
+            return iterator(_end);
         }
     };
 

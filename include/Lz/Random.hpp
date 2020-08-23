@@ -14,10 +14,11 @@ namespace lz {
     public:
         using iterator = detail::RandomIterator<Arithmetic, Distribution>;
         using const_iterator = iterator;
+        using value_type = typename iterator::value_type;
 
     private:
         size_t _amount{};
-        detail::RandomIteratorHelper<Arithmetic, Distribution> _helper;
+        Arithmetic _min{}, _max{};
 
     public:
         static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
@@ -30,7 +31,8 @@ namespace lz {
          */
         Random(const Arithmetic min, const Arithmetic max, const size_t amount) :
             _amount(amount),
-            _helper(min, max, amount) {
+            _min(min),
+            _max(max) {
         }
 
         /**
@@ -38,7 +40,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(0, &_helper);
+            return iterator(_min, _max, 0, _amount == std::numeric_limits<size_t>::max());
         }
 
         /**
@@ -46,7 +48,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(_amount, &_helper);
+            return iterator(_min, _max, _amount, _amount == std::numeric_limits<size_t>::max());
         }
     };
 
