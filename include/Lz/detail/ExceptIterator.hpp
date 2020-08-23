@@ -21,6 +21,7 @@ namespace lz {
         template<class Iterator, class IteratorToExcept>
         class ExceptIterator {
             using IterTraits = std::iterator_traits<Iterator>;
+            using ValueTypeToExcept = typename std::iterator_traits<IteratorToExcept>::value_type;
         public:
             using iterator_category = std::forward_iterator_tag;
             using value_type = typename IterTraits::value_type;
@@ -43,7 +44,7 @@ namespace lz {
                 else {
                     _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
                         return
-                        std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
+                            std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
                     });
                 }
             }
@@ -59,6 +60,9 @@ namespace lz {
                 _iterator(begin),
                 _iteratorHelper(iteratorHelper) {
                 if (begin != end) {
+                    if (!_iteratorHelper->isSorted) {
+                        std::sort(begin, end);
+                    }
                     find();
                 }
             }

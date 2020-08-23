@@ -30,9 +30,7 @@ namespace lz { namespace detail {
         using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
 
     public:
-
         virtual Iterator begin() const = 0;
-
         virtual Iterator end() const = 0;
 
         virtual ~BasicIteratorView() = default;

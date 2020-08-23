@@ -11,7 +11,6 @@ namespace lz {
     public:
         using iterator = detail::ExceptIterator<Iterator, IteratorToExcept>;
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
@@ -30,8 +29,7 @@ namespace lz {
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
             _iteratorHelper{toExceptBegin, toExceptEnd, end, false},
             _begin(begin),
-            _end(end)
-        {}
+            _end(end) {}
 
         /**
          * Returns an iterator to the beginning.
@@ -65,7 +63,7 @@ namespace lz {
      */
     template<class Iterator, class IteratorToExcept>
     Except<Iterator, IteratorToExcept> exceptrange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-                     const IteratorToExcept toExceptEnd) {
+                                                   const IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
     }
 
