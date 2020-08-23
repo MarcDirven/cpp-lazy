@@ -116,6 +116,24 @@ for (int incrementer : lz::generate(generator, amount)) {
 // 2
 // 3
 ```
+- **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise they are accessed by value.
+```
+std::vector<std::string> strings = {"hello", "world"};
+auto join = lz::join(strings, ", ");
+// if the container type is std::string, a std::string by reference is returned
+for (std::string& s : strings) {
+    std::cout << s;
+}
+// prints: hello, world
+
+std::vector<int> ints = {1, 2, 3};
+auto intJoin = lz::join(ints, ", ");
+// if the container type is not std::string, a std::string by value is returned
+for (std::string s : intJoin) {
+    std::cout << s;
+}
+// prints 1, 2, 3
+```
 - **Map** selects certain values from a type given a function predicate
 ```cpp
 struct SomeStruct {
@@ -232,6 +250,26 @@ for (int i : lz::takeevery(sequence, 2)) {
 // 3
 // 5
 ```
+- **Unique** can be used to only get the unique values in a sequence.
+```
+std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
+// Operator== and operator< are required
+auto unique = lz::unique(vector);
+ 
+for (int i : vector) {
+    std::cout << i << '\n';
+}
+// prints
+// 1
+// 2
+// 3
+// 4
+// 5
+// 6
+// 12
+// 42
+// 56
+```
 - **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by reference (`std::tuple<TypeA&, TypeB&[...]>`).
 ```cpp
 std::vector<int> a = {1, 2, 3, 4};
@@ -311,7 +349,7 @@ for (std::pair<char, char> pair : map) {
 
 
 # Installation
-Clone the repository and add to `CMakeLists.txt` the following:
+Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or `git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
 add_executable(${PROJECT_NAME} main.cpp)
