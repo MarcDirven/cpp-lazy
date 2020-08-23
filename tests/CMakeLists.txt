@@ -13,6 +13,7 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/except-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/filter-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/generate-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/join-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/map-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/random-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/range-tests.cpp
@@ -26,6 +27,7 @@ add_executable(LazyTests
         )
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
+
 
 # Add catch
 target_include_directories(LazyTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../extern)

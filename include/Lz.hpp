@@ -8,6 +8,7 @@
 #include <Lz/Except.hpp>
 #include <Lz/Filter.hpp>
 #include <Lz/Generate.hpp>
+#include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <Lz/Random.hpp>
 #include <Lz/Range.hpp>
