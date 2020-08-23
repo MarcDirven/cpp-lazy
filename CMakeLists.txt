@@ -66,7 +66,7 @@ target_include_directories("cpp-lazy" INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
-set(INCLUDE_BENCHMARKS TRUE)
+set(INCLUDE_BENCHMARKS FALSE)
 
 # Add fmt
 add_subdirectory(extern/fmt)
