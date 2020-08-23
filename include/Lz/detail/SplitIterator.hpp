@@ -15,7 +15,6 @@
 
 
 namespace lz { namespace detail {
-    template<class SubString>
     struct SplitViewIteratorHelper {
         std::string delimiter{};
         const std::string& string = std::string();
@@ -26,7 +25,7 @@ namespace lz { namespace detail {
     class SplitIterator {
         size_t _currentPos{}, _last{};
         mutable SubString _substring{};
-        const SplitViewIteratorHelper<SubString>* _splitIteratorHelper = SplitViewIteratorHelper<SubString>();
+        const SplitViewIteratorHelper* _splitIteratorHelper{};
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -35,7 +34,7 @@ namespace lz { namespace detail {
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 
-        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<SubString>* splitIteratorHelper) :
+        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper* splitIteratorHelper) :
             _currentPos(startingPosition),
             _splitIteratorHelper(splitIteratorHelper) {
             if (startingPosition == splitIteratorHelper->string.size()) {

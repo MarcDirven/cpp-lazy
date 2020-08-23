@@ -10,12 +10,9 @@
 
 
 #ifdef CXX_LT_17
-
-#include <string>
-
-
+  #include <string>
 #else
-#include <string_view>
+  #include <string_view>
 #endif
 
 
@@ -27,7 +24,7 @@ namespace lz {
         using iterator = const_iterator;
 
     private:
-        detail::SplitViewIteratorHelper<SubString> _splitIteratorHelper;
+        detail::SplitViewIteratorHelper _splitIteratorHelper;
 
     public:
         using value_type = SubString;
