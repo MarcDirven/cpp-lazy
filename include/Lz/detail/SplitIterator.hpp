@@ -81,8 +81,8 @@ namespace lz {
                 if (_last == std::string::npos) {
                     _currentPos = stringLen;
                 }
-                // Check if ends with delimiter
                 else if (_last == stringLen - delimLen) {
+                    // Check if ends with delimiter
                     _last = std::string::npos;
                     _currentPos = _splitIteratorHelper->string.length();
                 }
