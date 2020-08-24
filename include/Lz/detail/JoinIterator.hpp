@@ -13,17 +13,16 @@
 
 namespace lz { namespace detail {
     template<class T>
-    struct IsFmtIntCompatible :
-        std::integral_constant<bool, std::is_integral<T>::value &&
-                                     !std::is_same<T, bool>::value &&
-                                     !std::is_same<T, char>::value &&
-                                     !std::is_same<T, unsigned char>::value &&
-                                     !std::is_same<T, wchar_t>::value &&
-                                     #ifdef HAS_CXX_20
-                                     !std::is_same<T, char8_t> &&
-                                     #endif
-                                     !std::is_same<T, char16_t>::value &&
-                                     !std::is_same<T, char32_t>::value> {
+    struct IsFmtIntCompatible : std::integral_constant<bool, std::is_integral<T>::value &&
+                                                             !std::is_same<T, bool>::value &&
+                                                             !std::is_same<T, char>::value &&
+                                                             !std::is_same<T, unsigned char>::value &&
+                                                             !std::is_same<T, wchar_t>::value &&
+#ifdef HAS_CXX_20
+                                                             !std::is_same<T, char8_t> &&
+#endif
+                                                             !std::is_same<T, char16_t>::value &&
+                                                             !std::is_same<T, char32_t>::value> {
     };
 
     template<class Arithmetic>

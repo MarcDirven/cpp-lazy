@@ -29,9 +29,9 @@ namespace lz { namespace detail {
     private:
         void findNext(const size_t offset = 0) {
             _iterator = std::find_if(std::next(_iterator, offset), _end, [this](const FunctionParamType value) {
-                Pair result = (*_func)(value);
+                std::pair<bool, value_type> result = (*_func)(value);
                 if (result.first) {
-                    _current = std::move(result.second);
+                    _current = result.second;
                     return true;
                 }
                 return false;

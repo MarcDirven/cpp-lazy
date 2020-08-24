@@ -43,7 +43,9 @@ namespace lz {
          * @return A input string split iterator to the beginning.
          */
         const_iterator begin() const override {
-            return const_iterator(0, &_splitIteratorHelper);
+            const_iterator it(0, &_splitIteratorHelper);
+            // ++it;
+            return it;
         }
 
         /**

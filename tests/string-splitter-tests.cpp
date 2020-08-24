@@ -8,6 +8,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
     std::string toSplit = "Hello  world  test  123  ";
     std::string delimiter = "  ";
     auto splitter = lz::split(toSplit, std::move(delimiter));
+
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
@@ -43,6 +44,18 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
     auto it = splitter.begin();
 
     CHECK(*it == "Hello");
+
+    auto test = splitter.begin();
+    CHECK(*test == "Hello");
+    ++test;
+    CHECK(*test == "world");
+    ++test;
+    CHECK(*test == "test");
+    ++test;
+    CHECK(*test == "123");
+    ++test;
+    CHECK(test == splitter.end());
+
 
     SECTION("Operator++") {
         ++it;

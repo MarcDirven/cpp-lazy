@@ -208,7 +208,7 @@ static void DropWhile(benchmark::State& state) {
 static void Choose(benchmark::State& state) {
     std::string s = "123df574d587f85432df52f4ssf5d222";
     auto chooser = lz::choose(s, [](const char c) {
-        return std::make_pair(static_cast<bool>(std::isdigit(c)), static_cast<int>(c - '0'));
+        return std::make_pair(c == '1', 1);
     });
 
     for (auto _ : state) {
