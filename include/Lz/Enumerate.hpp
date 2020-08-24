@@ -31,7 +31,7 @@ namespace lz {
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
-            _end(std::distance(begin, end), end) {
+            _end(static_cast<IntType>(std::distance(begin, end)), end) {
         }
 
         /**

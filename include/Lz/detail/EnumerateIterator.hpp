@@ -57,7 +57,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator& operator+=(const difference_type offset) {
-            _index += offset;
+            _index += static_cast<IntType>(offset);
             _iterator += offset;
             return *this;
         }
@@ -69,7 +69,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator& operator-=(const difference_type offset) {
-            _index -= offset;
+            _index -= static_cast<IntType>(offset);
             _iterator -= offset;
             return *this;
         }

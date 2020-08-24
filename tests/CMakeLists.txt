@@ -26,7 +26,10 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/zip-tests.cpp
         )
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+else ()
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
+endif()
 
 
 # Add catch
