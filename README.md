@@ -125,7 +125,7 @@ for (int incrementer : lz::generate(generator, amount)) {
 // 3
 ```
 - **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise they are accessed by value.
-```
+```cpp
 std::vector<std::string> strings = {"hello", "world"};
 auto join = lz::join(strings, ", ");
 // if the container type is std::string, a std::string by reference is returned
@@ -259,7 +259,7 @@ for (int i : lz::takeevery(sequence, 2)) {
 // 5
 ```
 - **Unique** can be used to only get the unique values in a sequence.
-```
+```cpp
 std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
 // Operator== and operator< are required
 auto unique = lz::unique(vector);
