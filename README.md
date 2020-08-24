@@ -373,11 +373,17 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-These benchmarks include the creation of the view object + 1 iteration. All the container sizes were 32, except the iterable to except in `lz::except` function. The 'main' container had a size of 32, the container to except had a size of 16.
+The time is equal to one iteration.
 
-<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png /></div>
+C++14
+
+<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png" /></div>
+
+C++17
 
 <div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
+
+C++20
 
 <div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
 
