@@ -8,6 +8,8 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 - Compatible with old(er) compiler versions
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function`
 - One dependency (`fmt`) which is automatically configured
+- Includes library [`fmt`](https://github.com/fmtlib/fmt)
+- STL compatible
 
 # Current supported iterators & examples
  Current supported iterators are:
@@ -373,11 +375,11 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 # Benchmarks cpp-lazy
 These benchmarks include the creation of the view object + 1 iteration. All the container sizes were 32, except the iterable to except in `lz::except` function. The 'main' container had a size of 32, the container to except had a size of 16.
 
-<div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/cj3wcWq.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/QXTMkcf.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
 
 
 # Small side note...
