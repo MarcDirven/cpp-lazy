@@ -8,6 +8,8 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 - Compatible with old(er) compiler versions
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function`
 - One dependency (`fmt`) which is automatically configured
+- Includes library [`fmt`](https://github.com/fmtlib/fmt)
+- STL compatible
 
 # Current supported iterators & examples
  Current supported iterators are:
@@ -123,7 +125,7 @@ for (int incrementer : lz::generate(generator, amount)) {
 // 3
 ```
 - **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise they are accessed by value.
-```
+```cpp
 std::vector<std::string> strings = {"hello", "world"};
 auto join = lz::join(strings, ", ");
 // if the container type is std::string, a std::string by reference is returned
@@ -257,7 +259,7 @@ for (int i : lz::takeevery(sequence, 2)) {
 // 5
 ```
 - **Unique** can be used to only get the unique values in a sequence.
-```
+```cpp
 std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
 // Operator== and operator< are required
 auto unique = lz::unique(vector);
@@ -371,13 +373,19 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-These benchmarks include the creation of the view object + 1 iteration. All the container sizes were 32, except the iterable to except in `lz::except` function. The 'main' container had a size of 32, the container to except had a size of 16.
+The time is equal to one iteration.
 
-<div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
+C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/cj3wcWq.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/QXTMkcf.png" /></div>
+C++17
+
+<div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
+
+C++20
+
+<div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
 
 
 # Small side note...
