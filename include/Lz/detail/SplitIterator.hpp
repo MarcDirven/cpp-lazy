@@ -14,81 +14,92 @@
 #endif
 
 
-namespace lz { namespace detail {
-    struct SplitViewIteratorHelper {
-        std::string delimiter{};
-        const std::string& string = std::string();
-    };
+namespace lz {
+    template<class>
+    class StringSplitter;
+
+    namespace detail {
+        struct SplitViewIteratorHelper {
+            std::string delimiter{};
+            const std::string& string = std::string();
+        };
 
 
-    template<class SubString>
-    class SplitIterator {
-        size_t _currentPos{}, _last{};
-        mutable SubString _substring{};
-        const SplitViewIteratorHelper* _splitIteratorHelper{};
+        template<class SubString>
+        class SplitIterator {
+            size_t _currentPos{}, _last{};
+            mutable SubString _substring{};
+            const SplitViewIteratorHelper* _splitIteratorHelper{};
 
-    public:
-        using iterator_category = std::input_iterator_tag;
-        using value_type = SubString;
-        using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
-        using difference_type = std::ptrdiff_t;
-        using pointer = FakePointerProxy<reference>;
 
-        SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper* splitIteratorHelper) :
-            _currentPos(startingPosition),
-            _splitIteratorHelper(splitIteratorHelper) {
-            if (startingPosition == splitIteratorHelper->string.size()) {
-                return;
+            friend class StringSplitter<SubString>;
+
+
+        public:
+            using iterator_category = std::input_iterator_tag;
+            using value_type = SubString;
+            using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
+            using difference_type = std::ptrdiff_t;
+            using pointer = FakePointerProxy<reference>;
+
+            SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper* splitIteratorHelper) :
+                _currentPos(startingPosition),
+                _splitIteratorHelper(splitIteratorHelper) {
+                // Micro optimization, check if object is created from begin(), only then we want to search
+                if (startingPosition == 0) {
+                    _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
+                }
             }
-            find();
-        }
 
-        void find() {
-            _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
-
-            if (_last != std::string::npos) {
-                _substring = SubString(&_splitIteratorHelper->string[_currentPos],
-                                       _last - _currentPos);
-                // Check if end ends with delimiter
-                if (_last == _splitIteratorHelper->string.size() - _splitIteratorHelper->delimiter.size()) {
-                    _last = std::string::npos;
+            // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
+            std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
+                if (_last != std::string::npos) {
+                    _substring = SubString(&_splitIteratorHelper->string[_currentPos], _last - _currentPos);
                 }
                 else {
-                    _currentPos = _last + _splitIteratorHelper->delimiter.size();
+                    _substring = SubString(&_splitIteratorHelper->string[_currentPos]);
                 }
+                return _substring;
             }
-            else {
-                _substring = SubString(&_splitIteratorHelper->string[_currentPos]);
+
+            pointer operator->() const {
+                return FakePointerProxy<decltype(**this)>(**this);
             }
-        }
 
-        // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
-        std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
-            return _substring;
-        }
+            bool operator!=(const SplitIterator& other) const {
+                return _currentPos != other._currentPos;
+            }
 
-        pointer operator->() const {
-            return FakePointerProxy<decltype(**this)>(**this);
-        }
+            bool operator==(const SplitIterator& other) const {
+                return !(*this != other);
+            }
 
-        bool operator!=(const SplitIterator& other) const {
-            return _currentPos != other._currentPos;
-        }
+            SplitIterator& operator++() {
+                const size_t delimLen = _splitIteratorHelper->delimiter.length();
+                const size_t stringLen = _splitIteratorHelper->string.length();
 
-        bool operator==(const SplitIterator& other) const {
-            return !(*this != other);
-        }
+                if (_last == std::string::npos) {
+                    _currentPos = stringLen;
+                }
+                else {
+                    // Check if ends with delimiter
+                    if (_last == stringLen - delimLen) {
+                        _last = std::string::npos;
+                        _currentPos = _splitIteratorHelper->string.length();
+                    }
+                    else {
+                        _currentPos = _last + delimLen;
+                        _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
+                    }
+                }
+                return *this;
+            }
 
-        SplitIterator& operator++() {
-            _currentPos = _last == std::string::npos ? _splitIteratorHelper->string.size() : _currentPos;
-            find();
-            return *this;
-        }
-
-        SplitIterator operator++(int) {
-            SplitIterator tmp(*this);
-            ++*this;
-            return tmp;
-        }
-    };
-}}
+            SplitIterator operator++(int) {
+                SplitIterator tmp(*this);
+                ++*this;
+                return tmp;
+            }
+        };
+    }
+}
