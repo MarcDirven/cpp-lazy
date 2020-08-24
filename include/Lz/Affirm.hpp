@@ -50,6 +50,10 @@ namespace lz {
             return iterator(_end, &_helper);
         }
     };
+    /**
+    * @addtogroup ItFns
+    * @{
+    */
 
     /**
      * @brief Returns an Affirm view object, that can be iterated over.
@@ -116,4 +120,9 @@ namespace lz {
     Affirm<Exception, decltype(std::begin(iterable)), Function> {
         return affirmrange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

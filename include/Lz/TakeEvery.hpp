@@ -51,6 +51,12 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief This random access iterator can be used to select elements with `offset` amount. If MSVC and the type is
      * an STL iterator, pass a pointer iterator, not an actual iterator object.
@@ -85,4 +91,8 @@ namespace lz {
         return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
 
+    // End of group
+    /**
+     * @}
+     */
 }

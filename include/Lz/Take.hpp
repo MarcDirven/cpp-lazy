@@ -58,7 +58,7 @@ namespace lz {
      * @defgroup ItFns Iterator free functions.
      * These are the iterator functions and can all be used to iterate over in a
      * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`,
-     * `toVector<Allocator>`, `toArray<N>`, `to<container>` (specifying its value type of the container is not
+     * `toVector<Allocator>`, `toArray<N>`, `to<container>. toMap, toUnorderedMap` (specifying its value type of the container is not
      *  necessary, so e.g. `to<std::list>()` will do), `begin()`, `end()` methods and `value_type` and `iterator`
      *  typedefs.
      * @{

@@ -58,6 +58,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief Returns a forward iterator view object.
      * @details This forward iterator view object applies a function over every item in the iterator. The function
      * must return a std::pair<bool, T>, where T may be anything. If the bool is `true` the value T in the pair
@@ -127,4 +132,9 @@ namespace lz {
     auto choose(Iterable&& iterable, const Function& function) -> Choose<decltype(std::begin(iterable)), Function> {
         return chooserange(std::begin(iterable), std::end(iterable), function);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

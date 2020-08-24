@@ -47,6 +47,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater than
      * or equal to 2.
      * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
@@ -72,4 +77,9 @@ namespace lz {
     auto concat(Iterables&& ... iterables) -> Concatenate<decltype(std::begin(iterables))...> {
         return concatrange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

@@ -47,6 +47,12 @@ namespace lz {
         }
     };
 
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
+
     /**
      * @brief Returns an Unique iterator view object.
      * @details Use this iterator view to eventually get an iterator of unique values. The operator< and operator== must be implemented.
@@ -71,4 +77,9 @@ namespace lz {
     auto unique(Iterable&& iterable) -> Unique<decltype(std::begin(iterable))> {
         return uniquerange(std::begin(iterable), std::end(iterable));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

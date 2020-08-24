@@ -50,6 +50,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd).
@@ -82,4 +87,9 @@ namespace lz {
     Except<decltype(std::begin(iterable)), decltype(std::begin(toExcept))> {
         return exceptrange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

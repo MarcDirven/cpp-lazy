@@ -52,6 +52,11 @@ namespace lz {
     };
 
     /**
+     * @addtogroup ItFns
+     * @{
+     */
+
+    /**
      * @brief Creates a Join object.
      * @details Combines the iterator values followed by the delimiter. It is evaluated in a
      * `"[value][delimiter][value][delimiter]..."`-like fashion.
@@ -79,4 +84,9 @@ namespace lz {
     auto join(Iterable&& iterable, std::string delimiter) {
         return joinrange(std::begin(iterable), std::end(iterable), std::move(delimiter));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

@@ -51,6 +51,10 @@ namespace lz {
             return iterator(_min, _max, _amount, _amount == std::numeric_limits<size_t>::max());
         }
     };
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
@@ -116,4 +120,9 @@ namespace lz {
     auto random(const long double min, const long double max, const size_t amount) {
         return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }
