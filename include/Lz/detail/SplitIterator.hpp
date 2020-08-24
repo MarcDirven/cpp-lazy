@@ -81,17 +81,16 @@ namespace lz {
                 if (_last == std::string::npos) {
                     _currentPos = stringLen;
                 }
-                else {
-                    // Check if ends with delimiter
-                    if (_last == stringLen - delimLen) {
-                        _last = std::string::npos;
-                        _currentPos = _splitIteratorHelper->string.length();
-                    }
-                    else {
-                        _currentPos = _last + delimLen;
-                        _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
-                    }
+                // Check if ends with delimiter
+                else if (_last == stringLen - delimLen) {
+                    _last = std::string::npos;
+                    _currentPos = _splitIteratorHelper->string.length();
                 }
+                else {
+                    _currentPos = _last + delimLen;
+                    _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
+                }
+
                 return *this;
             }
 
