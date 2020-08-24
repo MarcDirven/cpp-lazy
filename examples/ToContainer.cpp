@@ -13,8 +13,8 @@ int main() {
 
     // To vector:
     auto vec = generator.toVector();
-    for (char c : vec) {
-        std::cout << c << '\n';
+    for (char val : vec) {
+        std::cout << val << '\n';
     }
     // Yields:
     // a
@@ -26,8 +26,8 @@ int main() {
 
     // To set
     auto set = generator.to<std::set>();
-    for (char c : set) {
-        std::cout << c << '\n';
+    for (char val : set) {
+        std::cout << val << '\n';
     }
     // Yields:
     // a
@@ -39,8 +39,8 @@ int main() {
 
     // To list
     auto list = generator.to<std::list>();
-    for (char c : set) {
-        std::cout << c << '\n';
+    for (char val : set) {
+        std::cout << val << '\n';
     }
     // Yields:
     // a
