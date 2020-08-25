@@ -6,9 +6,8 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 # Features
 - C++14/17/20
 - Compatible with old(er) compiler versions
-- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function`
-- One dependency (`fmt`) which is automatically configured
-- Includes library [`fmt`](https://github.com/fmtlib/fmt)
+- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
+- One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 
 # Current supported iterators & examples
