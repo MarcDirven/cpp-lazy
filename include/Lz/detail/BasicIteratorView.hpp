@@ -87,8 +87,8 @@ namespace lz { namespace detail {
         template<size_t N>
         std::array<value_type, N> toArray() const {
             constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            Iterator b = begin();
-            Iterator e = end();
+            const Iterator b = begin();
+            const Iterator e = end();
 
             if (std::distance(b, e) > size) {
                 throw std::out_of_range("line " + std::to_string(__LINE__) + ": " + __FILE__ +
