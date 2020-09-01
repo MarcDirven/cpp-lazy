@@ -17,7 +17,7 @@ namespace lz { namespace detail {
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = decltype(std::declval<GeneratorFunc>()());
+        using value_type = detail::FunctionReturnType<GeneratorFunc>;
         using difference_type = size_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;

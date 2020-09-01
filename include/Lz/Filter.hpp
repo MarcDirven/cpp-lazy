@@ -25,7 +25,7 @@ namespace lz {
         Iterator _end{};
 
     public:
-        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
+        static_assert(std::is_same<detail::FunctionReturnType<Function, value_type>, bool>::value,
             "function must return bool");
         /**
          * @brief The filter constructor.

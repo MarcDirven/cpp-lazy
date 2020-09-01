@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Lz/detail/LzTools.hpp>
 
 namespace lz { namespace detail {
     template<class Iterator, class Function>
@@ -13,8 +14,7 @@ namespace lz { namespace detail {
         using reference = typename IterTraits::reference;
         using pointer = typename IterTraits::pointer;
 
-        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
-                      "the function predicate must return a bool");
+        static_assert(std::is_same<FunctionReturnType<Function, value_type>, bool>::value, "the function predicate must return a bool");
     private:
         Iterator _iterator{};
 

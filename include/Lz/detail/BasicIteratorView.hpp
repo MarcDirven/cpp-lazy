@@ -6,6 +6,7 @@
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
+#include <algorithm>
 
 #include <Lz/detail/LzTools.hpp>
 
@@ -27,7 +28,7 @@ namespace lz { namespace detail {
 
     private:
         template<class KeySelectorFunc>
-        using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
+        using KeyType = detail::FunctionReturnType<KeySelectorFunc, value_type>;
 
     public:
         virtual Iterator begin() const = 0;

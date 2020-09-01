@@ -2,6 +2,7 @@
 
 #include <Lz/detail/ChooseIterator.hpp>
 #include <Lz/detail/BasicIteratorView.hpp>
+#include <Lz/detail/LzTools.hpp>
 
 
 namespace lz {
@@ -15,12 +16,12 @@ namespace lz {
 
     private:
         using FunctionParamType = decltype(*std::declval<Iterator>());
-        using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
+        using Pair = detail::FunctionReturnType<Function, FunctionParamType>;
         using FunctionReturnValuePairSecond = typename Pair::second_type;
         using ChooseFunction = std::function<Pair(FunctionParamType)>;
 
         static_assert(std::is_same<std::pair<bool, FunctionReturnValuePairSecond>, Pair>::value,
-            "function must return type std::pair<bool T>");
+                      "function must return type std::pair<bool T>");
 
         ChooseFunction _func{};
         Iterator _begin;

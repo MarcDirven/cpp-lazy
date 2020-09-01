@@ -14,7 +14,7 @@ namespace lz {
         private:
             Iterator _iterator{};
             using FnParamType = decltype(*_iterator);
-            using FnReturnType = decltype(std::declval<Function>()(*_iterator));
+            using FnReturnType = detail::FunctionReturnType<Function, FnParamType>;
             const std::function<FnReturnType(FnParamType)>* _function{};
 
             friend class Map<Iterator, Function>;

@@ -2,6 +2,7 @@
 
 #include <Lz/detail/AffirmIterator.hpp>
 #include <Lz/detail/BasicIteratorView.hpp>
+#include <Lz/detail/LzTools.hpp>
 
 
 namespace lz {
@@ -17,7 +18,7 @@ namespace lz {
         Iterator _begin{};
         Iterator _end{};
 
-        using FunctionReturnType = decltype(std::declval<Function>()(*std::declval<Iterator>()));
+        using FunctionReturnType = detail::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
     public:
