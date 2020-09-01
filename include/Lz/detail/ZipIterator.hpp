@@ -25,32 +25,33 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         void increment(std::index_sequence<I...> /*is*/) {
-            auto expand = {(++std::get<I>(_iterators), 0)...};
+            std::initializer_list<int> expand = {(++std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<size_t... I>
         void decrement(std::index_sequence<I...> /*is*/) {
-            auto expand = {(--std::get<I>(_iterators), 0)...};
+            std::initializer_list<int> expand = {(--std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<size_t... I>
         void plusIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            auto expand = {(std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
+            std::initializer_list<int> expand = {(std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<size_t... I>
         void minIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            auto expand = {(std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
+            std::initializer_list<int> expand = {(std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<size_t... I>
         difference_type iteratorMin(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            return static_cast<difference_type>(std::min(
-                {(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...}));
+            std::initializer_list<difference_type> diff =
+                {static_cast<difference_type>((std::distance(std::get<I>(other._iterators), std::get<I>(_iterators))))...};
+            return static_cast<difference_type>(std::min(diff));
         }
 
         template<size_t... I>
