@@ -30,4 +30,9 @@ namespace lz { namespace detail {
 
     template<class Function, class... Args>
     using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+
+    template<class Arithmetic>
+    inline bool isEven(const Arithmetic value) {
+        return (value & 1) == 0;
+    }
 }}
