@@ -128,7 +128,7 @@ namespace lz { namespace detail {
 
             // first iterator is at position begin, and distance bigger than 0
             if (current == currentBegin && distance > 0) {
-                //throw std::out_of_range("cannot access elements before begin");
+                throw std::out_of_range("cannot access elements before begin");
             }
             else {
                 current = std::prev(current, offset);
@@ -170,7 +170,7 @@ namespace lz { namespace detail {
         IterTuple _begin{};
         IterTuple _end{};
 
-        using FirstTupleIterator = std::iterator_traits<std::decay_t<decltype(std::get<0>(_iterators))>>;
+        using FirstTupleIterator = std::iterator_traits<std::decay_t<decltype(std::get<0>(std::declval<IterTuple>()))>>;
 
     public:
         using value_type = typename FirstTupleIterator::value_type;
