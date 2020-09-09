@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {

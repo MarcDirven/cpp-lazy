@@ -2,8 +2,8 @@
 
 
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/GenerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/GenerateIterator.hpp"
 
 
 namespace lz {

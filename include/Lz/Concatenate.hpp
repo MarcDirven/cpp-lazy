@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/ConcatenateIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/ConcatenateIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {

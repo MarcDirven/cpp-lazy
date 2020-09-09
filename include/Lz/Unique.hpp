@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/UniqueIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/UniqueIterator.hpp"
 
 
 namespace lz {

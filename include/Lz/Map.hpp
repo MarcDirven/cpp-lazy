@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/MapIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/MapIterator.hpp"
 
 #include <vector>
 #include <array>

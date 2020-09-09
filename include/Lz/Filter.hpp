@@ -6,8 +6,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/FilterIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/FilterIterator.hpp"
 
 
 namespace lz {

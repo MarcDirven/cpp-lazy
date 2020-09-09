@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Lz/detail/DropWhileIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/DropWhileIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {

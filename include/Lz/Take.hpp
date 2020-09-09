@@ -3,8 +3,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/TakeIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/TakeIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {

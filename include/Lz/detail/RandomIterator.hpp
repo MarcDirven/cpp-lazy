@@ -4,7 +4,7 @@
 #include <random>
 #include <limits>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 #include <chrono>
 #include <iostream>
 

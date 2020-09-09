@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/RepeatIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/RepeatIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {

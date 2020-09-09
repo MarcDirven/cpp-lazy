@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/SplitIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/SplitIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 #include <array>

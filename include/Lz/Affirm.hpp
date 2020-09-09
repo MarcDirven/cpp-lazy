@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Lz/detail/AffirmIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/LzTools.hpp>
+#include "detail/AffirmIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/LzTools.hpp"
 
 
 namespace lz {

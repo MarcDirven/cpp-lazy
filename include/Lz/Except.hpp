@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/ExceptIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ExceptIterator.hpp"
 
 
 namespace lz {

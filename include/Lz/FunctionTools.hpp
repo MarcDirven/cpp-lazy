@@ -2,9 +2,9 @@
 
 #include <numeric>
 #include <iterator>
+#include <algorithm>
 
-#include <Lz/detail/LzTools.hpp>
-#include <Lz/Map.hpp>
+#include "detail/LzTools.hpp"
 
 
 #if __has_include(<execution>)

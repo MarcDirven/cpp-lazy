@@ -4,7 +4,7 @@
 #include <functional>
 #include <algorithm>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {

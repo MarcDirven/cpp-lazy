@@ -4,8 +4,8 @@
 #include <limits>
 #include <cstddef>
 
-#include <Lz/detail/RandomIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/RandomIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {

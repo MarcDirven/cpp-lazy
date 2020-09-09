@@ -3,8 +3,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/ZipIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ZipIterator.hpp"
 
 
 namespace lz {

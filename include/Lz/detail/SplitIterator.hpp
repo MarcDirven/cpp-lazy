@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 #ifdef CXX_LT_17

@@ -3,12 +3,15 @@
 
 #include <vector>
 #include <array>
+#include <string>
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
 #include <algorithm>
+#include <ostream>
 
-#include <Lz/detail/LzTools.hpp>
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
@@ -162,6 +165,11 @@ namespace lz { namespace detail {
         toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
+        }
+
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+            std::for_each(it.begin(), it.end(), [&o](const auto& value) { o << ' ' << value; });
+            return o;
         }
     };
 }}

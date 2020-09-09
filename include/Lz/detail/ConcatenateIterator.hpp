@@ -1,9 +1,10 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
 #include <numeric>
 #include <iostream>
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {

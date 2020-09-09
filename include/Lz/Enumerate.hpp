@@ -4,8 +4,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/EnumerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/EnumerateIterator.hpp"
 
 
 namespace lz {

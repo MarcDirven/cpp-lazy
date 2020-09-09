@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 #include <iterator>
 #include <functional>
