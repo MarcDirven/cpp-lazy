@@ -168,7 +168,7 @@ namespace lz { namespace detail {
         }
 
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
-            std::for_each(it.begin(), it.end(), [&o](const auto& value) { o << ' ' << value; });
+            std::for_each(it.begin(), it.end(), [&o](const value_type& value) { o << ' ' << value; });
             return o;
         }
     };
