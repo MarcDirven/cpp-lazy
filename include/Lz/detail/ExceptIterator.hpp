@@ -36,17 +36,9 @@ namespace lz {
             friend class Except<Iterator, IteratorToExcept>;
 
             void find() {
-                if (_iteratorHelper->isSorted) {
-                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
-                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
-                    });
-                }
-                else {
-                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
-                        return
-                            std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
-                    });
-                }
+                _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
+                    return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                });
             }
 
         public:

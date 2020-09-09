@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 #if __has_include(<format>)
@@ -25,11 +25,6 @@ namespace lz { namespace detail {
                                                              !std::is_same<T, char32_t>::value> {
     };
 
-    template<class Arithmetic>
-    inline bool isEven(const Arithmetic value) {
-        return (value & 1) == 0;
-    }
-
 
     template<class Iterator>
     class JoinIterator {
@@ -43,11 +38,15 @@ namespace lz { namespace detail {
         using reference = typename std::conditional<std::is_same<std::string, ContainerType>::value, std::string&, std::string>::type;
         using pointer = FakePointerProxy<reference>;
 
-        inline std::string getFormatted(std::true_type /* isIntFormattable */) const {
+        template<class Val = ContainerType>
+        inline typename std::enable_if<IsFmtIntCompatible<Val>::value, std::string>::type
+        getFormatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
-        inline std::string getFormatted(std::false_type /* isIntFormattable */) const {
+        template<class Val = ContainerType>
+        inline typename std::enable_if<!IsFmtIntCompatible<Val>::value, std::string>::type
+        getFormatted() const {
             return fmt::format("{}", *_iterator);
         }
 
@@ -70,7 +69,7 @@ namespace lz { namespace detail {
 #if __has_include(<format>)
                 return std::format("{}", *_iterator);
 #else
-                return getFormatted(IsFmtIntCompatible<ContainerType>());
+                return getFormatted();
 #endif
             }
             return _delimiter;

@@ -12,6 +12,7 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/enumerate-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/except-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/filter-tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/function-tools-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/generate-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/join-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/map-tests.cpp
