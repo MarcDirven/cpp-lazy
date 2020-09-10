@@ -7,9 +7,10 @@
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
+#include <numeric>
 #include <algorithm>
-#include <ostream>
 
+#include "fmt/format.h"
 
 #include "LzTools.hpp"
 
@@ -54,7 +55,7 @@ namespace lz { namespace detail {
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
          */
-        template<template<typename, typename...> class Container, typename... Args>
+        template<template<class, class...> class Container, class... Args>
         Container<value_type, Args...> to(Args&& ... args) const {
             return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
@@ -76,7 +77,7 @@ namespace lz { namespace detail {
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
-        template<typename Allocator>
+        template<class Allocator>
         std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
             return std::vector<value_type, Allocator>(begin(), end(), alloc);
         }
@@ -167,9 +168,41 @@ namespace lz { namespace detail {
             return createMap<UnorderedMap>(keyGen, allocator);
         }
 
+        /**
+         * Function to stream the iterator to an output stream e.g. `std::cout`.
+         * @param o The stream object.
+         * @param it The iterator to print.
+         * @return The stream object by reference.
+         */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
             std::for_each(it.begin(), it.end(), [&o](const value_type& value) { o << ' ' << value; });
             return o;
+        }
+
+        template<class ValueType = value_type>
+        typename std::enable_if<std::is_same<std::string, ValueType>::value
+#ifndef CXX_LT_17
+            || std::is_same<std::string_view, ValueType>::value
+#endif
+            , std::string>::type
+        toString() const {
+            return std::accumulate(begin(), end(), std::string());
+        }
+
+        template<class ValueType = value_type>
+        typename std::enable_if<!std::is_same<std::string, ValueType>::value
+#ifndef CXX_LT_17
+            && !std::is_same<std::string_view, ValueType>::value
+#endif
+            , std::string>::type
+        toString() const {
+            return std::accumulate(begin(), end(), std::string(), [](const value_type& value) {
+#if __has_include(<format>)
+                return std::format("{}", value);
+#else
+                return fmt::format("{}", value);
+#endif
+            });
         }
     };
 }}
