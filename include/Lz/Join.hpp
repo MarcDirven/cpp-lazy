@@ -1,11 +1,12 @@
 #pragma once
 
 #include "detail/JoinIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
  namespace lz {
      template<class Iterator>
-     class Join {
+class Join : public detail::BasicIteratorView<detail::JoinIterator<Iterator>>{
      public:
          using iterator = detail::JoinIterator<Iterator>;
          using const_iterator = iterator;
