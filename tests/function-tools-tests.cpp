@@ -35,13 +35,4 @@ TEST_CASE("Function tools") {
         auto lines = lz::lines(string).toVector();
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
-
-    SECTION("Shuffle") {
-        constexpr size_t size = 64;
-        std::array<int, size> toShuffle = lz::range<int>(size).toArray<size>();
-        std::array<int, size> checker = toShuffle;
-        lz::shuffle(toShuffle);
-
-        CHECK(toShuffle != checker);
-    }
 }
