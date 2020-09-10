@@ -96,21 +96,4 @@ namespace lz {
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
     }
-
-    template<class Iterable>
-    void shuffle(Iterable& iterable) {
-        constexpr size_t min = 0;
-        const auto max = static_cast<size_t>(std::distance(std::begin(iterable), std::end(iterable)));
-        auto indexes = random(min, max, max);
-
-#ifdef CXX_LT_17
-        for (std::pair<size_t, size_t> idxRandomIdx : enumerate(indexes)) {
-            std::swap(iterable[idxRandomIdx.first], iterable[idxRandomIdx.second]);
-        }
-#else
-        for (auto [idx, randomIdx] : enumerated) {
-            std::swap(iterable[idx], iterable[randomIdx]);
-        }
-#endif
-    }
 }
