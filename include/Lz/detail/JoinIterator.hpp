@@ -174,7 +174,6 @@
 
          bool operator==(const JoinIterator& other) const {
              const bool end = _iterator == other._iterator;
-             _isIteratorTurn = !end;
              return end;
          }
 
