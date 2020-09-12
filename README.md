@@ -354,6 +354,62 @@ for (std::pair<char, char> pair : map) {
 // e d
 ```
 
+# What is lazy and why would I use it?
+Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this library, all the iterators are lazy evaluated. Suppose you want to have a sequence of `n` random numbers. You could write a for loop:
+
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+
+for (int i = 0; i < n; i++) {
+ std::cout << dist(gen); // prints a random number n times, between [0, 32]
+}
+```
+
+This is actually exactly the same as:
+```cpp
+for (int i : lz::random(0, 32, n)) {
+ std::cout << i;  // prints a random number n times, between [0, 32]
+}
+```
+Both methods do not allocate anything but the second example is a much more convenient way of writing the same thing. Now what if we wanted to do eager evaluation? Well then you could do this:
+
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+std::vector<int> randomNumbers;
+std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
+```
+
+Well, that certainly took alot amount of typing. Instead, try this for change:
+```cpp
+std::vector<int> randomNumbers = lz::random(0, 32 n).toVector();
+```
+But wait... I want to search if the sequence of random numbers contain 6! Well, in 'regular' C++ code that would be:
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+
+for (int i = 0; i < n; i++) {
+ if (gen(dist)) == 6) {
+  // do something
+ }
+}
+```
+In C++ using this library and because all iterators in this library are STL compatible, we could simply use `std::find`:
+```cpp
+auto random = lz::random(0, 32, n);
+if (std::find(random.begin(), random.end(), 6) != random.end()) {
+ // do something
+}
+```
+So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate any memory and has very little overhead.
+
+# But I like writing loops myself
+Well, I understand where you're comming from. You may think it's more readable. But the chances of getting bugs are bigger because you will have to write the whole loop yourself. On average [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
 # Installation
 Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or `git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
