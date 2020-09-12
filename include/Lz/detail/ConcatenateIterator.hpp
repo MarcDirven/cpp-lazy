@@ -9,17 +9,6 @@
 
 
 namespace lz { namespace detail {
-#ifdef CXX_LT_17
-    template<typename Same, typename First, typename... More>
-    struct IsAllSame {
-        static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
-    };
-
-    template<typename Same, typename First>
-    struct IsAllSame<Same, First> : std::is_same<Same, First> {
-    };
-#endif
-
     template<class Tuple, size_t I, class = void>
     struct PlusPlus {
         void operator()(Tuple& iterators, const Tuple& end) const {

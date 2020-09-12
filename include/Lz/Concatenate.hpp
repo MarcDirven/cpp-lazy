@@ -6,6 +6,17 @@
 
 
 namespace lz {
+    namespace detail {
+        template<typename Same, typename First, typename... More>
+        struct IsAllSame {
+            static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
+        };
+
+        template<typename Same, typename First>
+        struct IsAllSame<Same, First> : std::is_same<Same, First> {
+        };
+    }
+
     template<class... Iterators>
     class Concatenate final : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterators...>> {
     public:
@@ -63,21 +74,13 @@ namespace lz {
     template<class... Iterators>
     Concatenate<Iterators...> concatrange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
-#ifdef CXX_LT_17
         static_assert(detail::IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
                       "value types of iterators do not match");
         static_assert(detail::IsAllSame<typename std::iterator_traits<Iterators>::pointer...>::value,
                       "pointer types of iterators do not match");
         static_assert(detail::IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value,
                       "reference types of iterators do not match");
-#else
-        static_assert(std::conjunction<std::is_same<value_type,
-            typename std::iterator_traits<Iterators>::value_type>...>::value, "value types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<pointer,
-            typename std::iterator_traits<Iterators>::pointer>...>::value, "pointer types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<reference ,
-            typename std::iterator_traits<Iterators>::reference>...>::value, "reference types of iterators do not match");
-#endif
+
         return Concatenate<Iterators...>(begin, end);
     }
 
