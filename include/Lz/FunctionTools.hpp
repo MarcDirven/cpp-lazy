@@ -88,9 +88,9 @@ namespace lz {
     template<class Strings>
     auto unlines(Strings&& strings) -> Join<std::decay_t<decltype(std::begin(strings))>> {
         static_assert(std::is_same<std::string, typename std::decay_t<Strings>::value_type>::value
-                      #ifndef CXX_LT_17
+#ifndef CXX_LT_17
                       || std::is_same<std::string_view, typename std::decay_t<Strings>::value_type>::value
-  #endif
+#endif
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
     }
