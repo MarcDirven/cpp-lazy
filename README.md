@@ -106,7 +106,7 @@ for (int i : filter) {
 // 4
 // 6
 ```
-- **Generate** returns the value of a given function `amount` of times.
+- **Generate** returns the value of a given function `amount` of times. This is essentially the same as `yield` in Python or `yield return` in C#.
 ```cpp
 int myIncreasingCounter = 0;
 constexpr int amount = 4;
