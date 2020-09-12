@@ -14,7 +14,6 @@ namespace lz { namespace detail {
         using reference = typename IterTraits::reference;
         using pointer = typename IterTraits::pointer;
 
-        static_assert(std::is_same<FunctionReturnType<Function, value_type>, bool>::value, "the function predicate must return a bool");
     private:
         Iterator _iterator{};
 

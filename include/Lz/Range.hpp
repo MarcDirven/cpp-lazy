@@ -20,7 +20,6 @@ namespace lz {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;
 
-        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         /**
          * @brief Range iterator constructor from [start, end) with step.
          * @param start The start of the counting.
@@ -85,6 +84,21 @@ namespace lz {
      */
     template<class Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+        if (step == 0) {
+            throw std::range_error(fmt::format("line {}: file: {}: with a step size of 0, the sequence can never end",
+                                               __LINE__, __FILE__));
+        }
+        if (start > end && step >= 1) {
+            throw std::range_error(
+                fmt::format("line {}: file: {}: with a step of 1 or bigger and begin greater than end, the sequence can never end",
+                            __LINE__, __FILE__));
+        }
+        else if (end > start && step < 0) {
+            throw std::range_error(
+                fmt::format("line {}: file: {}: with a negative step size and begin start smaller than end, the sequence can never end",
+                            __LINE__, __FILE__));
+        }
+        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         return Range<Arithmetic>(start, end, step);
     }
 

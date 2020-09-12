@@ -108,8 +108,9 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::takerange(...))`.
      */
-    template<class Iterator, class ValueType = typename std::iterator_traits<Iterator>::value_type>
+    template<class Iterator>
     auto takerange(const Iterator begin, const Iterator end) {
+        using ValueType = typename std::iterator_traits<Iterator>::value_type;
         return takewhilerange(begin, end, [](const ValueType&) { return true; });
     }
 

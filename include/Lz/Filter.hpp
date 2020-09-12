@@ -25,8 +25,6 @@ namespace lz {
         Iterator _end{};
 
     public:
-        static_assert(std::is_same<detail::FunctionReturnType<Function, value_type>, bool>::value,
-            "function must return bool");
         /**
          * @brief The filter constructor.
          * @param begin Beginning of the iterator.
@@ -75,6 +73,8 @@ namespace lz {
      */
     template<class Iterator, class Function>
     Filter<Iterator, Function> filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
+        static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+                      "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
     }
 

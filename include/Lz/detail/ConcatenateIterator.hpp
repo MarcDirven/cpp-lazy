@@ -180,21 +180,6 @@ namespace lz { namespace detail {
         using pointer = typename FirstTupleIterator::pointer;
         using iterator_category = std::random_access_iterator_tag;
 
-        static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
-
-#ifdef CXX_LT_17
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
-                      "value types of iterators do not match");
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::pointer...>::value, "pointer types of iterators do not match");
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value, "reference types of iterators do not match");
-#else
-        static_assert(std::conjunction<std::is_same<value_type,
-            typename std::iterator_traits<Iterators>::value_type>...>::value, "value types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<pointer,
-            typename std::iterator_traits<Iterators>::pointer>...>::value, "pointer types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<reference ,
-            typename std::iterator_traits<Iterators>::reference>...>::value, "reference types of iterators do not match");
-#endif
     private:
         template<size_t... I>
         difference_type minus(std::index_sequence<I...>, const ConcatenateIterator& other) const {

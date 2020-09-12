@@ -22,7 +22,6 @@ namespace lz {
         iterator _end{};
 
     public:
-        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
 
         /**
          * @param begin Beginning of the iterator.
@@ -72,6 +71,7 @@ namespace lz {
      */
     template<class IntType = int, class Iterator>
     Enumerate<Iterator, IntType> enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
+        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 

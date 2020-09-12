@@ -66,6 +66,8 @@ namespace lz {
      */
     template<class Iterator, class Function>
     DropWhile<Iterator, Function> dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
+        static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+                      "the function predicate must return a bool");
         return DropWhile<Iterator, Function>(begin, end, predicate);
     }
 

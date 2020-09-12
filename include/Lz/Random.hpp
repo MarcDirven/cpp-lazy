@@ -21,7 +21,6 @@ namespace lz {
         Arithmetic _min{}, _max{};
 
     public:
-        static_assert(std::is_arithmetic<Arithmetic>::value, "template parameter is not arithmetic");
         /**
          * @brief Random view object constructor, from [`min, max`].
          * @param min The minimum value of the random number (included).
@@ -60,17 +59,18 @@ namespace lz {
      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
      * @details This random access iterator view object can be used to generate a sequence of random numbers between
      * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device` as seed.
-     * @tparam Arithmetic Is automatically deduced. Must be arithmetic type.
+     * @tparam Integral Is automatically deduced. Must be arithmetic type.
      * @param min The minimum value , included.
      * @param max The maximum value, included.
      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<size_t>::max()`
      * it is interpreted as a `while-true` loop.
      * @return A random view object that generates a sequence of random numbers
      */
-    template<class Arithmetic>
+    template<class Integral>
     static auto
-    random(const Arithmetic min, const Arithmetic max, const size_t amount = std::numeric_limits<size_t>::max()) {
-        return Random<Arithmetic, std::uniform_int_distribution<Arithmetic>>(min, max, amount);
+    random(const Integral min, const Integral max, const size_t amount = std::numeric_limits<size_t>::max()) {
+        static_assert(std::is_integral<Integral>::value, "template parameter is not arithmetic");
+        return Random<Integral, std::uniform_int_distribution<Integral>>(min, max, amount);
     }
 
     /**
