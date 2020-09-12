@@ -175,34 +175,27 @@ namespace lz { namespace detail {
          * @return The stream object by reference.
          */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
-            std::for_each(it.begin(), it.end(), [&o](const value_type& value) { o << ' ' << value; });
-            return o;
+            return o << it.toString(" ");
         }
 
-        template<class ValueType = value_type>
-        typename std::enable_if<std::is_same<std::string, ValueType>::value
-#ifndef CXX_LT_17
-            || std::is_same<std::string_view, ValueType>::value
-#endif
-            , std::string>::type
-        toString() const {
-            return std::accumulate(begin(), end(), std::string());
-        }
+        /**
+         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+         * lz::range(4).toString(" ") yields 0 1 2 3 4.
+         * @param delimiter The delimiter between the previous value and the next.
+         * @return The converted iterator in string format.
+         */
+        std::string toString(const char* delimiter = "") const {
+            std::string string;
+            for (const value_type& v : *this) {
+                string += fmt::format("{}{}", v, delimiter);
+            }
 
-        template<class ValueType = value_type>
-        typename std::enable_if<!std::is_same<std::string, ValueType>::value
-#ifndef CXX_LT_17
-            && !std::is_same<std::string_view, ValueType>::value
-#endif
-            , std::string>::type
-        toString() const {
-            return std::accumulate(begin(), end(), std::string(), [](const value_type& value) {
-#if __has_include(<format>)
-                return std::format("{}", value);
-#else
-                return fmt::format("{}", value);
-#endif
-            });
+            const size_t delimiterLength = std::strlen(delimiter);
+            if (!string.empty() && delimiterLength >= 1) {
+                string.erase(string.end() - delimiterLength);
+            }
+
+            return string;
         }
     };
 }}
