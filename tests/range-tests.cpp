@@ -40,6 +40,15 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
             expectedCounter -= 2;
         }
     }
+
+    SECTION("Exceptions") {
+        CHECK_THROWS(lz::range(0, 10, -1));
+        CHECK_THROWS(lz::range(-10, -20, 1));
+        CHECK_THROWS(lz::range(10, 20, 0));
+
+        CHECK_NOTHROW(lz::range(-10, -20, -1));
+        CHECK_NOTHROW(lz::range(50, 0, -1));
+    }
 }
 
 TEST_CASE("Range binary operations", "[Range][Binary ops]") {
