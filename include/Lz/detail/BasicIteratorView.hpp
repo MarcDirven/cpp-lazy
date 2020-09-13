@@ -10,7 +10,7 @@
 #include <numeric>
 #include <algorithm>
 
-#include "fmt/format.h"
+#include "fmt/ostream.h"
 
 #include "LzTools.hpp"
 
@@ -36,6 +36,7 @@ namespace lz { namespace detail {
 
     public:
         virtual Iterator begin() const = 0;
+
         virtual Iterator end() const = 0;
 
         virtual ~BasicIteratorView() = default;
@@ -187,7 +188,11 @@ namespace lz { namespace detail {
         std::string toString(const char* delimiter = "") const {
             std::string string;
             for (const value_type& v : *this) {
+#if __has_include(<format>)
+                string += std::format("{}{}", v, delimiter);
+#else
                 string += fmt::format("{}{}", v, delimiter);
+#endif
             }
 
             const size_t delimiterLength = std::strlen(delimiter);
@@ -198,4 +203,5 @@ namespace lz { namespace detail {
             return string;
         }
     };
+
 }}
