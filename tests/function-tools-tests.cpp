@@ -35,4 +35,12 @@ TEST_CASE("Function tools") {
         auto lines = lz::lines(string).toVector();
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
+
+    SECTION("Transform accumulate") {
+        std::vector<std::string> s = {"hello", "world", "!"};
+        size_t totalSize = lz::transaccumulate(s, 0, [](const std::string& s) {
+           return s.size();
+        }, std::plus<>());
+        CHECK(totalSize == 11);
+    }
 }
