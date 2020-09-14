@@ -38,6 +38,8 @@ namespace lz {
             _splitIteratorHelper{std::move(delimiter), std::forward<String>(str)} {
         }
 
+        StringSplitter() = default;
+
         /**
          * @brief Returns an input string split iterator to the beginning.
          * @return A input string split iterator to the beginning.

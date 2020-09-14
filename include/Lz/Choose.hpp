@@ -41,6 +41,8 @@ namespace lz {
             _end(end) {
         }
 
+        Choose() = default;
+
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.

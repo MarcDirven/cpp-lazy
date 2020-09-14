@@ -184,6 +184,8 @@ namespace lz { namespace detail {
             _end(end) {
         }
 
+        ConcatenateIterator() = default;
+
         reference operator*() const {
             return Deref<IterTuple, 0>()(_iterators, _end);
         }

@@ -31,6 +31,8 @@ namespace lz {
             _begin(begin),
             _end(end) {}
 
+        Except() = default;
+
         /**
          * Returns an iterator to the beginning.
          * @return An iterator to the beginning.

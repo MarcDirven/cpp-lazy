@@ -75,6 +75,8 @@
              return _delimiter;
          }
 
+         JoinIterator() = default;
+
          template<class Val = ContainerType, class = typename std::enable_if<std::is_same<std::string, Val>::value>::type>
          std::string& operator*() const {
              if (_isIteratorTurn) {

@@ -23,6 +23,8 @@ namespace lz { namespace detail {
                 return !function(value);
             }) : end) {}
 
+        DropWhileIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }

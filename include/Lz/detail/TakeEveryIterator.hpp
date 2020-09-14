@@ -36,6 +36,8 @@ namespace lz {
             _distance(distance) {
         }
 
+        TakeEveryIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }

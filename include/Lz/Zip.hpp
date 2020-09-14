@@ -39,6 +39,8 @@ namespace lz {
         {
         }
 
+        Zip() = default;
+
         /**
          * @brief Returns the beginning of the zip iterator.
          * @return The beginning of the zip iterator.

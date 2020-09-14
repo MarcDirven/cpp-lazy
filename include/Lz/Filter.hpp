@@ -37,6 +37,8 @@ namespace lz {
             _end(end) {
         }
 
+        Filter() = default;
+
         /**
         * @brief Returns the beginning of the filter iterator object.
         * @return A forward iterator FilterIterator.

@@ -30,6 +30,8 @@ namespace lz {
                 _function(function) {
             }
 
+            MapIterator() = default;
+
             value_type operator*() const {
                 return (*_function)(*_iterator);
             }

@@ -40,6 +40,8 @@ namespace lz {
             _begin(begin),
             _end(end) {}
 
+        Concatenate() = default;
+
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.

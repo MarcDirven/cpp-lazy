@@ -29,6 +29,8 @@ namespace lz { namespace detail {
             }
         }
 
+        TakeIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }

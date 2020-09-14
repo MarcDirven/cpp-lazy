@@ -33,6 +33,8 @@ namespace lz {
             _end(static_cast<IntType>(std::distance(begin, end)), end) {
         }
 
+        Enumerate() = default;
+
         /**
          * @brief Returns the beginning of the enumerate iterator object.
          * @return A random access EnumerateIterator.

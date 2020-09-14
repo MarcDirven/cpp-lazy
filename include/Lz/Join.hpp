@@ -35,6 +35,8 @@ class Join : public detail::BasicIteratorView<detail::JoinIterator<Iterator>>{
          {
          }
 
+         Join() = default;
+
          /**
           * @brief Returns the ending of the sequence.
           * @return The ending of the sequence.

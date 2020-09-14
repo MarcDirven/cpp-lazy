@@ -34,6 +34,8 @@ namespace lz { namespace detail {
             std::sort(begin, end);
         }
 
+        UniqueIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }

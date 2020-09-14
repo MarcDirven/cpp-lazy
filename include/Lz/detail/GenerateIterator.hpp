@@ -24,12 +24,10 @@ namespace lz { namespace detail {
 
     private:
         size_t _current{};
-        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper;
+        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper{};
 
     public:
-        GenerateIterator():
-            _iterHelper(GenerateIteratorHelper<GeneratorFunc, value_type>{}){
-        }
+        GenerateIterator() = default;
 
         GenerateIterator(const size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
             _current(start),

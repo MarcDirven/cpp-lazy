@@ -34,6 +34,8 @@ namespace lz {
             _distance(std::distance(begin, end)) {
         }
 
+        TakeEvery() = default;
+
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.

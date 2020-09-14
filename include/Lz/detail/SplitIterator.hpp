@@ -52,6 +52,8 @@ namespace lz {
                 }
             }
 
+            SplitIterator() = default;
+
             // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
             std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
                 if (_last != std::string::npos) {

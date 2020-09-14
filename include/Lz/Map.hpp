@@ -37,6 +37,8 @@ namespace lz {
             _end(end) {
         }
 
+        Map() = default;
+
         /**
         * @brief Returns the beginning of the map iterator object.
         * @return A bidirectional iterator MapIterator.

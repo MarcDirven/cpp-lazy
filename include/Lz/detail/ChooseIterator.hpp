@@ -41,8 +41,7 @@ namespace lz { namespace detail {
         }
 
     public:
-        ChooseIterator() :
-            _func(ChooseFunction()) {}
+        ChooseIterator() = default;
 
         explicit ChooseIterator(const Iterator begin, const Iterator end, const ChooseFunction* func) :
             _iterator(begin),

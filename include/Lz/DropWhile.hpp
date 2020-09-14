@@ -31,6 +31,8 @@ namespace lz {
             _end(end, end, predicate) {
         }
 
+        DropWhile() = default;
+
         /**
          * @brief Returns the beginning of the enumerate iterator object.
          * @return A random access DropWhile.

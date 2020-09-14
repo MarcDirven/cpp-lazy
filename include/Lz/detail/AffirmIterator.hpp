@@ -32,6 +32,8 @@ namespace lz { namespace detail {
             _helper(helper) {
         }
 
+        AffirmIterator() = default;
+
         reference operator*() const {
             if (!_helper->_predicate(*_iterator)) {
                 throw _helper->_exception;

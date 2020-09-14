@@ -35,6 +35,8 @@ namespace lz {
             _begin(begin),
             _end(end) {}
 
+        Affirm() = default;
+
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.

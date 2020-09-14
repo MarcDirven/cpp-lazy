@@ -36,6 +36,8 @@ namespace lz {
             _end(end) {
         }
 
+        Take() = default;
+
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.

@@ -30,6 +30,8 @@ namespace lz { namespace detail {
             _iterator = std::find_if(_iterator, _end, *_predicate);
         }
 
+        FilterIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }

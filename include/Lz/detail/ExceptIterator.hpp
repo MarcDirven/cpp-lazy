@@ -31,7 +31,7 @@ namespace lz {
 
         private:
             Iterator _iterator{};
-            const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
+            const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper{};
 
             friend class Except<Iterator, IteratorToExcept>;
 
@@ -42,10 +42,7 @@ namespace lz {
             }
 
         public:
-            // gcc 5.4.0 crashes with inline declaration
-            ExceptIterator() :
-                _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
-            }
+            ExceptIterator() = default;
 
             explicit ExceptIterator(const Iterator begin, const Iterator end,
                                     const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :

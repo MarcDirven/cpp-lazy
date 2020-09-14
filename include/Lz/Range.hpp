@@ -32,6 +32,8 @@ namespace lz {
             _step(step) {
         }
 
+        Range() = default;
+
         /**
          * @brief Returns the beginning of the random access Range iterator
          * @return The beginning of the random access Range iterator

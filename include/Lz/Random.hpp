@@ -34,6 +34,8 @@ namespace lz {
             _max(max) {
         }
 
+        Random() = default;
+
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.

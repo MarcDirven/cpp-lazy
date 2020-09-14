@@ -31,6 +31,8 @@ namespace lz { namespace detail {
             _isWhileTrueLoop(isWhileTrueLoop) {
         }
 
+        RandomIterator() = default;
+
         value_type operator*() const {
             static std::random_device randomEngine;
             static std::mt19937 generator(randomEngine());

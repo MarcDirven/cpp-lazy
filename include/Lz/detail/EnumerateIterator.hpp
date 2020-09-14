@@ -24,6 +24,8 @@ namespace lz { namespace detail {
             _iterator(iterator) {
         }
 
+        EnumerateIterator() = default;
+
         reference operator*() const {
             return reference(_index, *_iterator);
         }

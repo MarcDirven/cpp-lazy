@@ -75,6 +75,8 @@ namespace lz { namespace detail {
             _iterators(iterators) {
         }
 
+        ZipIterator() = default;
+
         reference operator*() const {
             return dereference(std::index_sequence_for<Iterators...>{});
         }
