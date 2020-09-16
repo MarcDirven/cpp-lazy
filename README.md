@@ -309,9 +309,9 @@ std::string string = "aa\nbb\nbb";
 auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
 std::vector<std::string> s = {"hello", "world", "!"};
-size_t totalSize = lz::transaccumulate(s, 0, [](const std::string& s) {
-    return s.size();
-}, std::plus<>()); // totalSize == 11
+size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+    return i + s.size();
+}); // totalSize == 11
 ```
 
 # To containers, easy!
@@ -428,7 +428,7 @@ if (std::find(random.begin(), random.end(), 6) != random.end()) {
 So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate any memory and has very little overhead.
 
 ## But I like writing loops myself
-Well, I understand where you're comming from. You may think it's more readable. But the chances of getting bugs are bigger because you will have to write the whole loop yourself. On average [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
+Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are bigger because you will have to write the whole loop yourself. On average [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
 ## What about `ranges::v3`?
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). However, both libraries will have its advantages and disadvantages.

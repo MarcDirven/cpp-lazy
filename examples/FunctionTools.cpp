@@ -13,7 +13,7 @@ int main() {
     auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
     std::vector<std::string> s = {"hello", "world", "!"};
-    size_t totalSize = lz::transaccumulate(s, 0, [](const std::string& s) {
-        return s.size();
-    }, std::plus<>()); // totalSize == 11
+    size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+        return i + s.size();
+    }); // totalSize == 11
 }
