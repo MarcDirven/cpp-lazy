@@ -64,7 +64,8 @@ namespace lz {
     double median(const Iterator begin, const Iterator end, const Compare compare) {
         const detail::DifferenceType<Iterator> len = std::distance(begin, end);
         if (len == 0) {
-            throw std::invalid_argument("the length of the sequence cannot be 0");
+            throw std::invalid_argument(fmt::format("line {}: file: {}: the length of the sequence cannot be 0",
+                                                    __LINE__, __FILE__));
         }
 
         const detail::DifferenceType<Iterator> mid = len >> 1;
@@ -159,7 +160,7 @@ namespace lz {
     template<class Strings>
     auto unlines(Strings&& strings) -> Join<std::decay_t<decltype(std::begin(strings))>> {
         static_assert(std::is_same<std::string, typename std::decay_t<Strings>::value_type>::value
-                      #ifndef CXX_LT_17
+#ifndef CXX_LT_17
                       || std::is_same<std::string_view, typename std::decay_t<Strings>::value_type>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
@@ -186,35 +187,12 @@ namespace lz {
      * @param binaryOp A binary operation for e.g. `std::plus<[TYPE]>()`.
      * @return The result of the transfold operation.
      */
-    template<class Iterator, class Init, class SelectorFunc, class BinaryOp>
-    Init transfold(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc, const BinaryOp binaryOp) {
+    template<class Iterator, class Init, class SelectorFunc>
+    Init transaccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
         for (; begin != end; ++begin) {
-            init = binaryOp(std::move(init), selectorFunc(*begin));
+            init = selectorFunc(init, *begin);
         }
         return init;
-    }
-
-    /**
-     * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
-     * to sum all string sizes in a container, use:
-     * ```cpp
-     * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s.begin(), s.end(), 0, [](const std::string& rhs) {
-     *      return rhs.size();
-     * }); // totalSize = 11
-     * ```
-     * @tparam Iterator Is automatically deduced.
-     * @tparam Init Is automatically deduced.
-     * @tparam SelectorFunc Is automatically deduced.
-     * @param begin The beginning of the sequence
-     * @param end The ending of the sequence
-     * @param init The starting value.
-     * @param selectorFunc Function that specifies what to add to `init`.
-     * @return The result of the transfold operation.
-     */
-    template<class Iterator, class Init, class SelectorFunc>
-    Init transaccumulate(const Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
-        return transfold(begin, end, init, selectorFunc, std::plus<Init>());
     }
 
     /**
@@ -236,31 +214,6 @@ namespace lz {
      */
     template<class Iterable, class Init, class SelectorFunc>
     Init transaccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
-        return transfold(std::begin(it), std::end(it), init, selectorFunc,
-                         std::plus<Init>());
-    }
-
-    /**
-     * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
-     * to sum all string sizes in a container, use:
-     * ```cpp
-     * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s, 0, [](const std::string& rhs) {
-     *      return rhs.size();
-     * }, std::plus<size_t>()); // totalSize = 11
-     * ```
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Init Is automatically deduced.
-     * @tparam SelectorFunc  Is automatically deduced.
-     * @tparam BinaryOp Is automatically deduced.
-     * @param it The container to iterate over.
-     * @param init The starting value.
-     * @param selectorFunc Function that specifies what to add to `init`.
-     * @param binaryOp A binary operation for e.g. `std::plus<[TYPE]>()`.
-     * @return The result of the transfold operation.
-     */
-    template<class Iterable, class Init, class SelectorFunc, class BinaryOp>
-    Init transaccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc, const BinaryOp binaryOp) {
-        return transfold(std::begin(it), std::end(it), init, selectorFunc, binaryOp);
+        return transaccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
     }
 }
