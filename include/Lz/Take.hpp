@@ -32,7 +32,6 @@ namespace lz {
             if (_begin != _end) {
                 _begin = !predicate(*_begin) ? end : _begin;
             }
-
         }
 
         Take() = default;
