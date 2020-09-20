@@ -4,14 +4,9 @@
 #include "detail/SplitIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
+#include <string>
 
-#include <array>
-#include <vector>
-
-
-#ifdef CXX_LT_17
-  #include <string>
-#else
+#ifndef CXX_LT_17
   #include <string_view>
 #endif
 

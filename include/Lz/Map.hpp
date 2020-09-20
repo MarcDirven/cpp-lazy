@@ -3,10 +3,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/MapIterator.hpp"
 
-#include <vector>
-#include <array>
-#include <map>
-
 
 namespace lz {
     template<class Iterator, class Function>

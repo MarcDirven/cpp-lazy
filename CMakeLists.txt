@@ -26,7 +26,6 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/RangeIterator.hpp
         ${LZ_DETAIL_HEADERS}/RepeatIterator.hpp
         ${LZ_DETAIL_HEADERS}/SplitIterator.hpp
-        ${LZ_DETAIL_HEADERS}/TakeIterator.hpp
         ${LZ_DETAIL_HEADERS}/TakeEveryIterator.hpp
         ${LZ_DETAIL_HEADERS}/UniqueIterator.hpp
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp

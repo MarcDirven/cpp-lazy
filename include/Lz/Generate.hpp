@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 #include "detail/BasicIteratorView.hpp"
 #include "detail/GenerateIterator.hpp"
 

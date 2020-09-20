@@ -1,25 +1,20 @@
 #pragma once
 
-#include <vector>
-#include <array>
-
-#include "detail/TakeIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
-    template<class Iterator, class Function>
-    class Take final : public detail::BasicIteratorView<detail::TakeIterator<Iterator, Function>> {
+    template<class Iterator>
+    class Take final : public detail::BasicIteratorView<Iterator> {
     public:
-        using iterator = detail::TakeIterator<Iterator, Function>;
-        using const_iterator = iterator;
+        using iterator = Iterator;
+        using const_iterator = Iterator;
 
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
     private:
-        std::function<value_type(value_type)> _predicate{};
-        Iterator _begin{};
-        Iterator _end{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -30,10 +25,14 @@ namespace lz {
          * @param predicate Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(const Iterator begin, const Iterator end, const Function& predicate) :
-            _predicate(predicate),
+        template<class Function>
+        Take(const Iterator begin, const Iterator end, const Function predicate) :
             _begin(begin),
             _end(end) {
+            if (_begin != _end) {
+                _begin = !predicate(*_begin) ? end : _begin;
+            }
+
         }
 
         Take() = default;
@@ -43,7 +42,7 @@ namespace lz {
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return iterator(_begin, _end, &_predicate);
+            return _begin;
         }
 
         /**
@@ -51,7 +50,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return iterator(_end, _end, &_predicate);
+            return _end;
         }
     };
 
@@ -80,8 +79,8 @@ namespace lz {
      * `for (auto... lz::takewhilerange(...))`.
      */
     template<class Iterator, class Function>
-    Take<Iterator, Function> takewhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
-        return Take<Iterator, Function>(begin, end, predicate);
+    Take<Iterator> takewhilerange(const Iterator begin, const Iterator end, const Function predicate) {
+        return Take<Iterator>(begin, end, predicate);
     }
 
     /**
@@ -96,7 +95,7 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, const Function& predicate) -> Take<decltype(std::begin(iterable)), Function> {
+    auto takewhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
         return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -111,9 +110,9 @@ namespace lz {
      * `for (auto... lz::takerange(...))`.
      */
     template<class Iterator>
-    auto takerange(const Iterator begin, const Iterator end) {
+    Take<Iterator> takerange(const Iterator begin, const Iterator end) {
         using ValueType = typename std::iterator_traits<Iterator>::value_type;
-        return takewhilerange(begin, end, [](const ValueType&) { return true; });
+        return takewhilerange(begin, end, [](const ValueType& /*value*/) { return true; });
     }
 
     /**
@@ -127,7 +126,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<class Iterable>
-    auto take(Iterable&& iterable, const size_t amount) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
+    auto take(Iterable&& iterable, const size_t amount) -> Take<decltype(std::begin(iterable))> {
         auto begin = std::begin(iterable);
         return takerange(begin, std::next(begin, amount));
     }
@@ -143,7 +142,7 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<class Iterable>
-    auto slice(Iterable&& iterable, const size_t from, const size_t to) -> decltype(takerange(std::begin(iterable), std::begin(iterable))) {
+    auto slice(Iterable&& iterable, const size_t from, const size_t to) -> Take<decltype(std::begin(iterable))> {
         auto begin = std::begin(iterable);
         return takerange(std::next(begin, from), std::next(begin, to));
     }

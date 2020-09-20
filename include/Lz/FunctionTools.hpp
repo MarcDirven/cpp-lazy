@@ -6,10 +6,16 @@
 
 #include "StringSplitter.hpp"
 #include "Join.hpp"
+#include "Zip.hpp"
+#include "Map.hpp"
+#include "Generate.hpp"
 
 
 namespace lz {
     namespace detail {
+        template<class Iterable>
+        using IterType = std::decay_t<decltype(std::begin(std::declval<Iterable>()))>;
+
         template<class Iterator>
         using ValueType = typename std::iterator_traits<Iterator>::value_type;
 
@@ -17,13 +23,7 @@ namespace lz {
         using DifferenceType = typename std::iterator_traits<Iterator>::difference_type;
 
         template<class Iterable>
-        using ValueTypeIterable = typename std::iterator_traits<decltype(std::begin(std::declval<Iterable>()))>::value_type;
-
-
-        template<class Container>
-        struct IterTupleCreator {
-
-        };
+        using ValueTypeIterable = typename std::iterator_traits<IterType<Iterable>>::value_type;
     }
 
     /**
@@ -94,19 +94,6 @@ namespace lz {
 
     /**
      * Gets the median of a sequence.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Compare Is automatically deduced.
-     * @param iterable The container/sequence by r-value reference.
-     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
-     * @return The median of the sequence.
-     */
-    template<class Iterable, class Compare>
-    double median(Iterable&& iterable, const Compare compare) {
-        return median(std::begin(iterable), std::end(iterable), compare);
-    }
-
-    /**
-     * Gets the median of a sequence.
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence
      * @param end The ending of the sequence
@@ -129,17 +116,6 @@ namespace lz {
     }
 
     /**
-     * Gets the median of a sequence.
-     * @tparam Iterable Is automatically deduced.
-     * @param iterable The container/sequence by r-value reference.
-     * @return The median of the sequence.
-     */
-    template<class Iterable>
-    double median(Iterable&& iterable) {
-        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
-    }
-
-    /**
      * Returns a StringSplitter iterator, that splits the string on `'\n'`.
      * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
      * @tparam String The string type. `std::string` is assumed but can be specified.
@@ -157,11 +133,11 @@ namespace lz {
      * @param strings The container of `std::string` or `std::string_view`.
      * @return A Join iterator that joins the strings in the container on `'\n'`.
      */
-    template<class Strings>
-    auto unlines(Strings&& strings) -> Join<std::decay_t<decltype(std::begin(strings))>> {
-        static_assert(std::is_same<std::string, typename std::decay_t<Strings>::value_type>::value
+    template<class Strings, class Iterator = detail::IterType<Strings>>
+    auto unlines(Strings&& strings) -> Join<Iterator> {
+        static_assert(std::is_same<std::string, detail::ValueType<Iterator>>::value
 #ifndef CXX_LT_17
-                      || std::is_same<std::string_view, typename std::decay_t<Strings>::value_type>::value
+                      || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
@@ -172,25 +148,23 @@ namespace lz {
      * to sum all string sizes in a container, use:
      * ```cpp
      * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s.begin(), s.end(), 0, [](const std::string& rhs) {
-     *      return rhs.size();
-     * }, std::plus<size_t>()); // totalSize = 11
+     * size_t totalSize = lz::transaccumulate(s.begin(), s.end(), 0, [](size_t i, const std::string& rhs) {
+     *      return i + rhs.size();
+     * }); // totalSize = 11
      * ```
      * @tparam Iterator Is automatically deduced.
      * @tparam Init Is automatically deduced.
      * @tparam SelectorFunc Is automatically deduced.
-     * @tparam BinaryOp Is automatically deduced.
      * @param begin The beginning of the sequence
      * @param end The ending of the sequence
      * @param init The starting value.
      * @param selectorFunc Function that specifies what to add to `init`.
-     * @param binaryOp A binary operation for e.g. `std::plus<[TYPE]>()`.
      * @return The result of the transfold operation.
      */
     template<class Iterator, class Init, class SelectorFunc>
     Init transaccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
         for (; begin != end; ++begin) {
-            init = selectorFunc(init, *begin);
+            init = selectorFunc(std::move(init), *begin);
         }
         return init;
     }
@@ -200,8 +174,8 @@ namespace lz {
      * to sum all string sizes in a container, use:
      * ```cpp
      * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s, 0, [](const std::string& rhs) {
-     *      return rhs.size();
+     * size_t totalSize = lz::transaccumulate(s, 0, [](size_t i, const std::string& rhs) {
+     *      return i + rhs.size();
      * }); // totalSize = 11
      * ```
      * @tparam Iterable Is automatically deduced.
@@ -215,5 +189,61 @@ namespace lz {
     template<class Iterable, class Init, class SelectorFunc>
     Init transaccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
         return transaccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
+    }
+
+    /**
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
+     * @tparam Iterator Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return A zip iterator that accesses two adjacent elements of one container.
+     */
+    template<class Iterator>
+    auto pairwise(const Iterator begin, const Iterator end) -> Zip<Iterator, Iterator> {
+        Iterator next = begin;
+        if (begin != end) {
+            next = std::next(begin);
+        }
+        return ziprange(std::make_tuple(begin, next), std::make_tuple(end, end));
+    }
+
+    /**
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
+     * @tparam Iterable Is automatically deduced.
+     * @param iterable A container/iterable.
+     * @return A zip iterator that accesses two adjacent elements of one container.
+     */
+    template<class Iterable, class Iterator = detail::IterType<Iterable>>
+    auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
+        return pairwise(std::begin(iterable), std::end(iterable));
+    }
+
+    /**
+     * Returns an iterator that constructs type T from the given container. E.g. `lz::as<floats>(...begin(), ...end())` constructs
+     * floating points from the given values in the container.
+     * @tparam T The type to construct from the elements in the given container
+     * @tparam Iterator Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return A map iterator that constructs T from each of the elements in the given container.
+     */
+    template<class T, class Iterator, class ValueType = detail::ValueType<Iterator>>
+    auto as(const Iterator begin, const Iterator end) -> Map<Iterator, std::function<T(ValueType)>> {
+        static_assert(std::is_convertible<ValueType, T>::value, "the value type of the container is not convertible to T");
+        return maprange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
+            return static_cast<T>(v);
+        }));
+    }
+
+    /**
+     * Returns an iterator that constructs type T from the given container. E.g. `lz::as<floats>(container)` constructs
+     * floating points from the given values in the container.
+     * @tparam T The type to construct from the elements in the given container
+     * @tparam Iterable A container/iterable.
+     * @return A map iterator that constructs T from each of the elements in the given container.
+     */
+    template<class T, class Iterable, class Iterator = detail::IterType<Iterable>>
+    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(typename detail::ValueType<Iterator>)>> {
+        return as<T>(std::begin(iterable), std::end(iterable));
     }
 }

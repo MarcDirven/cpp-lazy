@@ -13,10 +13,7 @@ TEST_CASE("Function tools") {
     }
 
     SECTION("Median") {
-        double median = lz::median(std::vector<int>(ints));
-        CHECK(median == Approx((2 + 3) / 2.));
-
-        median = lz::median(doubles);
+        double median = lz::median(doubles);
         CHECK(median == Approx((2.5 + 3.3) / 2.));
 
         doubles.push_back(3.3);
@@ -42,5 +39,16 @@ TEST_CASE("Function tools") {
            return i + s.size();
         });
         CHECK(totalSize == 11);
+    }
+
+    SECTION("Pairwise") {
+        auto x = lz::pairwise(ints).toVector();
+        CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
+    }
+
+    SECTION("As") {
+        auto floats = lz::as<float>(ints).toVector();
+        CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
+        CHECK(floats == std::vector<float>{1., 2., 3., 4.});
     }
 }

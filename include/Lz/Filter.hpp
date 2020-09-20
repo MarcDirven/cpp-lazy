@@ -1,10 +1,5 @@
 #pragma once
 
-#include <type_traits>
-#include <algorithm>
-#include <functional>
-#include <vector>
-#include <array>
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/FilterIterator.hpp"
