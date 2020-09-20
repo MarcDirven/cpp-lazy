@@ -28,6 +28,8 @@ namespace lz { namespace detail {
             _iterator(start) {
         }
 
+        RepeatIterator() = default;
+
         reference operator*() const {
             return _iterHelper->toRepeat;
         }

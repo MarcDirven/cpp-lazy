@@ -3,6 +3,7 @@
 #include <list>
 
 #include <catch.hpp>
+#include <iostream>
 
 
 TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functionality]") {

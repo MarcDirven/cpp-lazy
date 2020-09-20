@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 #ifdef CXX_LT_17
@@ -15,24 +15,25 @@
 
 
 namespace lz {
-    template<class>
+    template<class, class>
     class StringSplitter;
 
     namespace detail {
+        template<class String>
         struct SplitViewIteratorHelper {
             std::string delimiter{};
-            const std::string& string = std::string();
+            const String& string = std::string();
         };
 
 
-        template<class SubString>
+        template<class SubString, class String>
         class SplitIterator {
             size_t _currentPos{}, _last{};
             mutable SubString _substring{};
-            const SplitViewIteratorHelper* _splitIteratorHelper{};
+            const SplitViewIteratorHelper<String>* _splitIteratorHelper{};
 
 
-            friend class StringSplitter<SubString>;
+            friend class StringSplitter<SubString, String>;
 
 
         public:
@@ -42,7 +43,7 @@ namespace lz {
             using difference_type = std::ptrdiff_t;
             using pointer = FakePointerProxy<reference>;
 
-            SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper* splitIteratorHelper) :
+            SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<String>* splitIteratorHelper) :
                 _currentPos(startingPosition),
                 _splitIteratorHelper(splitIteratorHelper) {
                 // Micro optimization, check if object is created from begin(), only then we want to search
@@ -50,6 +51,8 @@ namespace lz {
                     _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
                 }
             }
+
+            SplitIterator() = default;
 
             // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
             std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {

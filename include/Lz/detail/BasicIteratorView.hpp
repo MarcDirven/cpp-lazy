@@ -3,11 +3,16 @@
 
 #include <vector>
 #include <array>
+#include <string>
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
+#include <numeric>
+#include <algorithm>
 
-#include <Lz/detail/LzTools.hpp>
+#include "fmt/ostream.h"
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
@@ -27,10 +32,11 @@ namespace lz { namespace detail {
 
     private:
         template<class KeySelectorFunc>
-        using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
+        using KeyType = detail::FunctionReturnType<KeySelectorFunc, value_type>;
 
     public:
         virtual Iterator begin() const = 0;
+
         virtual Iterator end() const = 0;
 
         virtual ~BasicIteratorView() = default;
@@ -50,7 +56,7 @@ namespace lz { namespace detail {
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
          */
-        template<template<typename, typename...> class Container, typename... Args>
+        template<template<class, class...> class Container, class... Args>
         Container<value_type, Args...> to(Args&& ... args) const {
             return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
@@ -72,7 +78,7 @@ namespace lz { namespace detail {
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
-        template<typename Allocator>
+        template<class Allocator>
         std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
             return std::vector<value_type, Allocator>(begin(), end(), alloc);
         }
@@ -86,8 +92,8 @@ namespace lz { namespace detail {
         template<size_t N>
         std::array<value_type, N> toArray() const {
             constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            Iterator b = begin();
-            Iterator e = end();
+            const Iterator b = begin();
+            const Iterator e = end();
 
             if (std::distance(b, e) > size) {
                 throw std::out_of_range("line " + std::to_string(__LINE__) + ": " + __FILE__ +
@@ -162,5 +168,40 @@ namespace lz { namespace detail {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
         }
+
+        /**
+         * Function to stream the iterator to an output stream e.g. `std::cout`.
+         * @param o The stream object.
+         * @param it The iterator to print.
+         * @return The stream object by reference.
+         */
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+            return o << it.toString(" ");
+        }
+
+        /**
+         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+         * lz::range(4).toString(" ") yields 0 1 2 3 4.
+         * @param delimiter The delimiter between the previous value and the next.
+         * @return The converted iterator in string format.
+         */
+        std::string toString(const char* delimiter = "") const {
+            std::string string;
+            for (const value_type& v : *this) {
+#if __has_include(<format>)
+                string += std::format("{}{}", v, delimiter);
+#else
+                string += fmt::format("{}{}", v, delimiter);
+#endif
+            }
+
+            const size_t delimiterLength = std::strlen(delimiter);
+            if (!string.empty() && delimiterLength >= 1) {
+                string.erase(string.end() - delimiterLength);
+            }
+
+            return string;
+        }
     };
+
 }}

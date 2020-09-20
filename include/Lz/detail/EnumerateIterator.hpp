@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
@@ -23,6 +23,8 @@ namespace lz { namespace detail {
             _index(start),
             _iterator(iterator) {
         }
+
+        EnumerateIterator() = default;
 
         reference operator*() const {
             return reference(_index, *_iterator);
@@ -57,7 +59,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator& operator+=(const difference_type offset) {
-            _index += offset;
+            _index += static_cast<IntType>(offset);
             _iterator += offset;
             return *this;
         }
@@ -69,7 +71,7 @@ namespace lz { namespace detail {
         }
 
         EnumerateIterator& operator-=(const difference_type offset) {
-            _index -= offset;
+            _index -= static_cast<IntType>(offset);
             _iterator -= offset;
             return *this;
         }

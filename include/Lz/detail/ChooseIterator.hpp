@@ -4,12 +4,14 @@
 #include <functional>
 #include <algorithm>
 
+#include "LzTools.hpp"
+
 
 namespace lz { namespace detail {
     template<class Iterator, class Function>
     class ChooseIterator {
         using FunctionParamType = decltype(*std::declval<Iterator>());
-        using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
+        using Pair = FunctionReturnType<Function, FunctionParamType>;
         using ChooseFunction = std::function<Pair(FunctionParamType)>;
 
     public:
@@ -39,8 +41,7 @@ namespace lz { namespace detail {
         }
 
     public:
-        ChooseIterator() :
-            _func(ChooseFunction()) {}
+        ChooseIterator() = default;
 
         explicit ChooseIterator(const Iterator begin, const Iterator end, const ChooseFunction* func) :
             _iterator(begin),

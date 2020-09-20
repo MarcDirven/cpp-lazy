@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Lz/detail/AffirmIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/AffirmIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/LzTools.hpp"
 
 
 namespace lz {
@@ -17,7 +18,7 @@ namespace lz {
         Iterator _begin{};
         Iterator _end{};
 
-        using FunctionReturnType = decltype(std::declval<Function>()(*std::declval<Iterator>()));
+        using FunctionReturnType = detail::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
     public:
@@ -33,6 +34,8 @@ namespace lz {
             _helper{predicate, std::forward<Exception>(exception)},
             _begin(begin),
             _end(end) {}
+
+        Affirm() = default;
 
         /**
          * @brief Returns the beginning of the sequence.
@@ -50,6 +53,10 @@ namespace lz {
             return iterator(_end, &_helper);
         }
     };
+    /**
+    * @addtogroup ItFns
+    * @{
+    */
 
     /**
      * @brief Returns an Affirm view object, that can be iterated over.
@@ -116,4 +123,9 @@ namespace lz {
     Affirm<Exception, decltype(std::begin(iterable)), Function> {
         return affirmrange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

@@ -3,8 +3,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/TakeIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/TakeIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -36,6 +36,8 @@ namespace lz {
             _end(end) {
         }
 
+        Take() = default;
+
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.
@@ -58,7 +60,7 @@ namespace lz {
      * @defgroup ItFns Iterator free functions.
      * These are the iterator functions and can all be used to iterate over in a
      * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`,
-     * `toVector<Allocator>`, `toArray<N>`, `to<container>` (specifying its value type of the container is not
+     * `toVector<Allocator>`, `toArray<N>`, `to<container>. toMap, toUnorderedMap` (specifying its value type of the container is not
      *  necessary, so e.g. `to<std::list>()` will do), `begin()`, `end()` methods and `value_type` and `iterator`
      *  typedefs.
      * @{
@@ -108,8 +110,9 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::takerange(...))`.
      */
-    template<class Iterator, class ValueType = typename std::iterator_traits<Iterator>::value_type>
+    template<class Iterator>
     auto takerange(const Iterator begin, const Iterator end) {
+        using ValueType = typename std::iterator_traits<Iterator>::value_type;
         return takewhilerange(begin, end, [](const ValueType&) { return true; });
     }
 

@@ -2,8 +2,8 @@
 
 
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/GenerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/GenerateIterator.hpp"
 
 
 namespace lz {
@@ -33,6 +33,8 @@ namespace lz {
         {
         }
 
+        Generate() = default;
+
         /**
         * @brief Returns the beginning of the map iterator object.
         * @return A bidirectional iterator MapIterator.
@@ -49,6 +51,11 @@ namespace lz {
             return iterator(_amount, &_helper);
         }
     };
+
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief Returns a view to a generate iterator.
@@ -69,4 +76,10 @@ namespace lz {
     Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }
+
+
+    // End of group
+    /**
+     * @}
+     */
 }

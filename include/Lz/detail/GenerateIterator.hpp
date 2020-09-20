@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 #include <iterator>
 #include <functional>
@@ -17,19 +17,17 @@ namespace lz { namespace detail {
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = decltype(std::declval<GeneratorFunc>()());
+        using value_type = detail::FunctionReturnType<GeneratorFunc>;
         using difference_type = size_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;
 
     private:
         size_t _current{};
-        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper;
+        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper{};
 
     public:
-        GenerateIterator():
-            _iterHelper(GenerateIteratorHelper<GeneratorFunc, value_type>{}){
-        }
+        GenerateIterator() = default;
 
         GenerateIterator(const size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
             _current(start),

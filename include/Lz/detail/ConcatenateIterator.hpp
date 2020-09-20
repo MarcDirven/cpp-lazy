@@ -1,23 +1,14 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
 #include <numeric>
 #include <iostream>
+#include <tuple>
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
-#ifdef CXX_LT_17
-    template<typename Same, typename First, typename... More>
-    struct IsAllSame {
-        static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
-    };
-
-    template<typename Same, typename First>
-    struct IsAllSame<Same, First> : std::is_same<Same, First> {
-    };
-#endif
-
     template<class Tuple, size_t I, class = void>
     struct PlusPlus {
         void operator()(Tuple& iterators, const Tuple& end) const {
@@ -127,7 +118,7 @@ namespace lz { namespace detail {
 
             // first iterator is at position begin, and distance bigger than 0
             if (current == currentBegin && distance > 0) {
-                //throw std::out_of_range("cannot access elements before begin");
+                throw std::out_of_range("cannot access elements before begin");
             }
             else {
                 current = std::prev(current, offset);
@@ -169,7 +160,7 @@ namespace lz { namespace detail {
         IterTuple _begin{};
         IterTuple _end{};
 
-        using FirstTupleIterator = std::iterator_traits<std::decay_t<decltype(std::get<0>(_iterators))>>;
+        using FirstTupleIterator = std::iterator_traits<std::decay_t<decltype(std::get<0>(std::declval<IterTuple>()))>>;
 
     public:
         using value_type = typename FirstTupleIterator::value_type;
@@ -178,21 +169,6 @@ namespace lz { namespace detail {
         using pointer = typename FirstTupleIterator::pointer;
         using iterator_category = std::random_access_iterator_tag;
 
-        static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
-
-#ifdef CXX_LT_17
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
-                      "value types of iterators do not match");
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::pointer...>::value, "pointer types of iterators do not match");
-        static_assert(IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value, "reference types of iterators do not match");
-#else
-        static_assert(std::conjunction<std::is_same<value_type,
-            typename std::iterator_traits<Iterators>::value_type>...>::value, "value types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<pointer,
-            typename std::iterator_traits<Iterators>::pointer>...>::value, "pointer types of iterators do not match");
-        static_assert(std::conjunction<std::is_same<reference ,
-            typename std::iterator_traits<Iterators>::reference>...>::value, "reference types of iterators do not match");
-#endif
     private:
         template<size_t... I>
         difference_type minus(std::index_sequence<I...>, const ConcatenateIterator& other) const {
@@ -207,6 +183,8 @@ namespace lz { namespace detail {
             _begin(begin),
             _end(end) {
         }
+
+        ConcatenateIterator() = default;
 
         reference operator*() const {
             return Deref<IterTuple, 0>()(_iterators, _end);

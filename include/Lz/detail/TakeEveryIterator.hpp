@@ -18,7 +18,7 @@ namespace lz {
         size_t _distance{};
 
 
-        friend class ::lz::TakeEvery<Iterator>;
+        friend class TakeEvery<Iterator>;
         using IterTraits = std::iterator_traits<Iterator>;
 
     public:
@@ -35,6 +35,8 @@ namespace lz {
             _current(iterator == end ? distance : 0),
             _distance(distance) {
         }
+
+        TakeEveryIterator() = default;
 
         reference operator*() const {
             return *_iterator;

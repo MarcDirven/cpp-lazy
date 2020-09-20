@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LzTools.hpp"
 
 namespace lz { namespace detail {
     template<class Iterator, class Function>
@@ -13,8 +14,6 @@ namespace lz { namespace detail {
         using reference = typename IterTraits::reference;
         using pointer = typename IterTraits::pointer;
 
-        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
-                      "the function predicate must return a bool");
     private:
         Iterator _iterator{};
 
@@ -23,6 +22,8 @@ namespace lz { namespace detail {
             _iterator(begin != end ? std::find_if(begin, end, [&function](const value_type& value) {
                 return !function(value);
             }) : end) {}
+
+        DropWhileIterator() = default;
 
         reference operator*() const {
             return *_iterator;

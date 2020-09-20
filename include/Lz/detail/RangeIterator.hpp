@@ -21,6 +21,8 @@ namespace lz { namespace detail {
             _step(step) {
         }
 
+        RangeIterator() = default;
+
         value_type operator*() const {
             return _iterator;
         }

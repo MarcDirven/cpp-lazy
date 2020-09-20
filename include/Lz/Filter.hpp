@@ -6,8 +6,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/FilterIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/FilterIterator.hpp"
 
 
 namespace lz {
@@ -25,8 +25,6 @@ namespace lz {
         Iterator _end{};
 
     public:
-        static_assert(std::is_same<decltype(std::declval<Function>()(std::declval<value_type>())), bool>::value,
-            "function must return bool");
         /**
          * @brief The filter constructor.
          * @param begin Beginning of the iterator.
@@ -38,6 +36,8 @@ namespace lz {
             _begin(begin),
             _end(end) {
         }
+
+        Filter() = default;
 
         /**
         * @brief Returns the beginning of the filter iterator object.
@@ -75,6 +75,8 @@ namespace lz {
      */
     template<class Iterator, class Function>
     Filter<Iterator, Function> filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
+        static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+                      "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
     }
 

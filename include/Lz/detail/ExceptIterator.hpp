@@ -31,29 +31,18 @@ namespace lz {
 
         private:
             Iterator _iterator{};
-            const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
+            const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper{};
 
             friend class Except<Iterator, IteratorToExcept>;
 
             void find() {
-                if (_iteratorHelper->isSorted) {
-                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
-                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
-                    });
-                }
-                else {
-                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
-                        return
-                            std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value) == _iteratorHelper->toExceptEnd;
-                    });
-                }
+                _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value) {
+                    return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                });
             }
 
         public:
-            // gcc 5.4.0 crashes with inline declaration
-            ExceptIterator() :
-                _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
-            }
+            ExceptIterator() = default;
 
             explicit ExceptIterator(const Iterator begin, const Iterator end,
                                     const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :

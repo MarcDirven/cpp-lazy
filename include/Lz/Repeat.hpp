@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/RepeatIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/RepeatIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -26,6 +26,8 @@ namespace lz {
             _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
             _amount(amount){
         }
+
+        Repeat() = default;
 
         /**
          * @brief Returns the beginning of the sequence.

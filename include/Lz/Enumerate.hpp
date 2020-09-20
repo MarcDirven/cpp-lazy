@@ -4,8 +4,8 @@
 #include <vector>
 #include <array>
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/EnumerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/EnumerateIterator.hpp"
 
 
 namespace lz {
@@ -22,7 +22,6 @@ namespace lz {
         iterator _end{};
 
     public:
-        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
 
         /**
          * @param begin Beginning of the iterator.
@@ -31,8 +30,10 @@ namespace lz {
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
-            _end(std::distance(begin, end), end) {
+            _end(static_cast<IntType>(std::distance(begin, end)), end) {
         }
+
+        Enumerate() = default;
 
         /**
          * @brief Returns the beginning of the enumerate iterator object.
@@ -72,6 +73,7 @@ namespace lz {
      */
     template<class IntType = int, class Iterator>
     Enumerate<Iterator, IntType> enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
+        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 

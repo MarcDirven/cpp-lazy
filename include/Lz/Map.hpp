@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/MapIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/MapIterator.hpp"
 
 #include <vector>
 #include <array>
@@ -36,6 +36,8 @@ namespace lz {
             _begin(begin),
             _end(end) {
         }
+
+        Map() = default;
 
         /**
         * @brief Returns the beginning of the map iterator object.

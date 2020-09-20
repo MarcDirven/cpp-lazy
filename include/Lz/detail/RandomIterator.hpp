@@ -4,7 +4,7 @@
 #include <random>
 #include <limits>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 #include <chrono>
 #include <iostream>
 
@@ -30,6 +30,8 @@ namespace lz { namespace detail {
             _max(max),
             _isWhileTrueLoop(isWhileTrueLoop) {
         }
+
+        RandomIterator() = default;
 
         value_type operator*() const {
             static std::random_device randomEngine;

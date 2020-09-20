@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Lz/detail/ChooseIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "Lz/detail/ChooseIterator.hpp"
+#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/LzTools.hpp"
 
 
 namespace lz {
@@ -15,12 +16,12 @@ namespace lz {
 
     private:
         using FunctionParamType = decltype(*std::declval<Iterator>());
-        using Pair = decltype(std::declval<Function>()(std::declval<FunctionParamType>()));
+        using Pair = detail::FunctionReturnType<Function, FunctionParamType>;
         using FunctionReturnValuePairSecond = typename Pair::second_type;
         using ChooseFunction = std::function<Pair(FunctionParamType)>;
 
         static_assert(std::is_same<std::pair<bool, FunctionReturnValuePairSecond>, Pair>::value,
-            "function must return type std::pair<bool T>");
+                      "function must return type std::pair<bool T>");
 
         ChooseFunction _func{};
         Iterator _begin;
@@ -40,6 +41,8 @@ namespace lz {
             _end(end) {
         }
 
+        Choose() = default;
+
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
@@ -56,6 +59,11 @@ namespace lz {
             return iterator(_end, _end, &_func);
         }
     };
+
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief Returns a forward iterator view object.
@@ -127,4 +135,9 @@ namespace lz {
     auto choose(Iterable&& iterable, const Function& function) -> Choose<decltype(std::begin(iterable)), Function> {
         return chooserange(std::begin(iterable), std::end(iterable), function);
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

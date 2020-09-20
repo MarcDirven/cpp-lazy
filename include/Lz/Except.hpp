@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/ExceptIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ExceptIterator.hpp"
 
 
 namespace lz {
@@ -31,6 +31,8 @@ namespace lz {
             _begin(begin),
             _end(end) {}
 
+        Except() = default;
+
         /**
          * Returns an iterator to the beginning.
          * @return An iterator to the beginning.
@@ -48,6 +50,11 @@ namespace lz {
             return iterator(_end, _end, &_iteratorHelper);
         }
     };
+
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief This function returns a view to the random access ExceptIterator.
@@ -82,4 +89,9 @@ namespace lz {
     Except<decltype(std::begin(iterable)), decltype(std::begin(toExcept))> {
         return exceptrange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
+
+    // End of group
+    /**
+     * @}
+     */
 }

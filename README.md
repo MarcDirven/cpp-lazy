@@ -1,7 +1,14 @@
 [![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. It makes extended use of STL iterators and contains iterators that allocate 0 bytes of memory on the heap (if >= C++17, else `lz::split` does allocate substrings), making it a very cheap and fast operation. Another reason the iterators are fast is because the iterators are random acces where possible. This makes operations such as `std::distance` an O(1) operation.
+Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. It uses one dependency library `fmt`, which is automatically configured by CMake.
+
+# Features
+- C++14/17/20
+- Compatible with old(er) compiler versions
+- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
+- One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
+- STL compatible
 
 # Current supported iterators & examples
  Current supported iterators are:
@@ -99,7 +106,7 @@ for (int i : filter) {
 // 4
 // 6
 ```
-- **Generate** returns the value of a given function `amount` of times.
+- **Generate** returns the value of a given function `amount` of times. This is essentially the same as `yield` in Python or `yield return` in C#.
 ```cpp
 int myIncreasingCounter = 0;
 constexpr int amount = 4;
@@ -115,6 +122,24 @@ for (int incrementer : lz::generate(generator, amount)) {
 // 1
 // 2
 // 3
+```
+- **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise they are accessed by value.
+```cpp
+std::vector<std::string> strings = {"hello", "world"};
+auto join = lz::join(strings, ", ");
+// if the container type is std::string, a std::string by reference is returned
+for (std::string& s : strings) {
+    std::cout << s;
+}
+// prints: hello, world
+
+std::vector<int> ints = {1, 2, 3};
+auto intJoin = lz::join(ints, ", ");
+// if the container type is not std::string, a std::string by value is returned
+for (std::string s : intJoin) {
+    std::cout << s;
+}
+// prints 1, 2, 3
 ```
 - **Map** selects certain values from a type given a function predicate
 ```cpp
@@ -232,6 +257,26 @@ for (int i : lz::takeevery(sequence, 2)) {
 // 3
 // 5
 ```
+- **Unique** can be used to only get the unique values in a sequence.
+```cpp
+std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
+// Operator== and operator< are required
+auto unique = lz::unique(vector);
+ 
+for (int i : vector) {
+    std::cout << i << '\n';
+}
+// prints
+// 1
+// 2
+// 3
+// 4
+// 5
+// 6
+// 12
+// 42
+// 56
+```
 - **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by reference (`std::tuple<TypeA&, TypeB&[...]>`).
 ```cpp
 std::vector<int> a = {1, 2, 3, 4};
@@ -248,6 +293,25 @@ for (auto [first, second] : lz::zip(a, b)) {
 // 1 1
 // 2 2
 // 3 3
+```
+
+# Function tools
+```cpp
+std::vector<int> ints = {1, 2, 3, 4};
+
+double avg = lz::mean(ints); // avg == (1. + 2. + 3. + 4.) / 4.)
+double median = lz::median(ints); // median == (2 + 3) / 2.)
+
+std::vector<std::string> strings = {"hello", "world", "what's", "up"};
+auto unlines = lz::unlines(strings).toString(); // unlines == "hello\nworld\nwhat's\nup"
+
+std::string string = "aa\nbb\nbb";
+auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
+
+std::vector<std::string> s = {"hello", "world", "!"};
+size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+    return i + s.size();
+}); // totalSize == 11
 ```
 
 # To containers, easy!
@@ -309,9 +373,68 @@ for (std::pair<char, char> pair : map) {
 // e d
 ```
 
+# What is lazy and why would I use it?
+Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this library, all the iterators are lazy evaluated. Suppose you want to have a sequence of `n` random numbers. You could write a for loop:
+
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+
+for (int i = 0; i < n; i++) {
+ std::cout << dist(gen); // prints a random number n times, between [0, 32]
+}
+```
+
+This is actually exactly the same as:
+```cpp
+for (int i : lz::random(0, 32, n)) {
+ std::cout << i;  // prints a random number n times, between [0, 32]
+}
+```
+Both methods do not allocate anything but the second example is a much more convenient way of writing the same thing. Now what if we wanted to do eager evaluation? Well then you could do this:
+
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+std::vector<int> randomNumbers;
+std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
+```
+
+Well, that certainly took alot amount of typing. Instead, try this for change:
+```cpp
+std::vector<int> randomNumbers = lz::random(0, 32 n).toVector();
+```
+But wait... I want to search if the sequence of random numbers contain 6! Well, in 'regular' C++ code that would be:
+```cpp
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution dist(0, 32);
+
+for (int i = 0; i < n; i++) {
+ if (gen(dist)) == 6) {
+  // do something
+ }
+}
+```
+In C++ using this library and because all iterators in this library are STL compatible, we could simply use `std::find`:
+```cpp
+auto random = lz::random(0, 32, n);
+if (std::find(random.begin(), random.end(), 6) != random.end()) {
+ // do something
+}
+```
+So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate any memory and has very little overhead.
+
+## But I like writing loops myself
+Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are bigger because you will have to write the whole loop yourself. On average [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
+
+## What about `ranges::v3`?
+This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). However, both libraries will have its advantages and disadvantages.
 
 # Installation
-Clone the repository and add to `CMakeLists.txt` the following:
+Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or `git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
 add_executable(${PROJECT_NAME} main.cpp)
@@ -327,13 +450,19 @@ int main() {
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Benchmarks cpp-lazy
-These benchmarks include the creation of the view object + 1 iteration. All the container sizes were 32, except the iterable to except in `lz::except` function. The 'main' container had a size of 32, the container to except had a size of 16.
+The time is equal to one iteration.
 
-<div style="text-align:center"><img src="https://i.imgur.com/duTMqRz.png" /></div>
+C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/cj3wcWq.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png" /></div>
 
-<div style="text-align:center"><img src="https://i.imgur.com/QXTMkcf.png" /></div>
+C++17
+
+<div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
+
+C++20
+
+<div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
 
 
 # Small side note...

@@ -42,6 +42,7 @@ set(HEADER_FILES
         ${LZ_HEADERS}/Enumerate.hpp
         ${LZ_HEADERS}/Except.hpp
         ${LZ_HEADERS}/Filter.hpp
+        ${LZ_HEADERS}/FunctionTools.hpp
         ${LZ_HEADERS}/Generate.hpp
         ${LZ_HEADERS}/Join.hpp
         ${LZ_HEADERS}/Map.hpp

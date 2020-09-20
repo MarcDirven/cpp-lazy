@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iterator>
-#include <Lz/detail/TakeEveryIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/TakeEveryIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -34,6 +34,8 @@ namespace lz {
             _distance(std::distance(begin, end)) {
         }
 
+        TakeEvery() = default;
+
         /**
          * @brief Returns the beginning of the iterator.
          * @return The beginning of the iterator.
@@ -50,6 +52,12 @@ namespace lz {
             return iterator(_end, _end, _offset, _distance);
         }
     };
+
+    // Start of group
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief This random access iterator can be used to select elements with `offset` amount. If MSVC and the type is
@@ -85,4 +93,8 @@ namespace lz {
         return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
     }
 
+    // End of group
+    /**
+     * @}
+     */
 }
