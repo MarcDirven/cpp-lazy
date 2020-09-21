@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_BASIC_ITERATOR_VIEW_HPP
+#define LZ_BASIC_ITERATOR_VIEW_HPP
 
 #include <vector>
 #include <array>
@@ -205,3 +207,4 @@ namespace lz { namespace detail {
     };
 
 }}
+#endif

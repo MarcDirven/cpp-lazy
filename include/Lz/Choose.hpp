@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_CHOOSE_HPP
+#define LZ_CHOOSE_HPP
+
 #include "Lz/detail/ChooseIterator.hpp"
 #include "Lz/detail/BasicIteratorView.hpp"
 #include "Lz/detail/LzTools.hpp"
@@ -141,3 +144,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_CHOOSE_ITERATOR_HPP
+#define LZ_CHOOSE_ITERATOR_HPP
+
 #include <iterator>
 #include <functional>
 #include <algorithm>
@@ -78,3 +81,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_ZIP_HPP
+#define LZ_ZIP_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/ZipIterator.hpp"
@@ -89,3 +91,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

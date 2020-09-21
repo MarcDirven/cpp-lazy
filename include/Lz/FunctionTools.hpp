@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_FUNCTION_TOOLS_HPP
+#define LZ_FUNCTION_TOOLS_HPP
+
 #include <numeric>
 #include <iterator>
 #include <algorithm>
@@ -247,3 +250,5 @@ namespace lz {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
 }
+
+#endif

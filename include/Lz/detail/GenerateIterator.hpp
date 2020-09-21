@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_GENERATE_ITERATOR_HPP
+#define LZ_GENERATE_ITERATOR_HPP
+
 #include "LzTools.hpp"
 
 #include <iterator>
@@ -127,3 +130,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

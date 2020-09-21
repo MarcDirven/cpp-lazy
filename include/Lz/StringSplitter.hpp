@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_STRING_SPLITTER_HPP
+#define LZ_STRING_SPLITTER_HPP
 
 #include "detail/SplitIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -85,3 +87,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

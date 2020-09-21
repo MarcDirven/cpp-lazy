@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_REPEAT_HPP
+#define LZ_REPEAT_HPP
 
 #include "detail/RepeatIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -70,3 +72,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_DROP_WHILE_HPP
+#define LZ_DROP_WHILE_HPP
+
 #include "detail/DropWhileIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
@@ -93,3 +96,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

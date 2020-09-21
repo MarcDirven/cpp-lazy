@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_MAP_HPP
+#define LZ_MAP_HPP
+
 #include "detail/BasicIteratorView.hpp"
 #include "detail/MapIterator.hpp"
 
@@ -96,3 +99,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

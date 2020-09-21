@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_MAP_ITERATOR_HPP
+#define LZ_MAP_ITERATOR_HPP
+
 #include <functional>
 
 
@@ -118,3 +121,5 @@ namespace lz {
         };
     }
 }
+
+#endif

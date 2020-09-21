@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_ENUMERATE_HPP
+#define LZ_ENUMERATE_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/EnumerateIterator.hpp"
@@ -98,3 +100,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

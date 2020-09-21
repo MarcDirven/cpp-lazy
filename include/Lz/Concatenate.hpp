@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_CONCATENATE_HPP
+#define LZ_CONCATENATE_HPP
 
 #include "detail/ConcatenateIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -104,3 +106,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

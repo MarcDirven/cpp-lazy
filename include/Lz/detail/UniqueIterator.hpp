@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_UNIQUE_ITERATOR_HPP
+#define LZ_UNIQUE_ITERATOR_HPP
+
 #include <iterator>
 #include <algorithm>
 
@@ -67,3 +70,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

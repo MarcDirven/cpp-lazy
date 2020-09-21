@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_DROP_WHILE_ITERATOR_HPP
+#define LZ_DROP_WHILE_ITERATOR_HPP
+
 #include "LzTools.hpp"
 
 namespace lz { namespace detail {
@@ -110,3 +113,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

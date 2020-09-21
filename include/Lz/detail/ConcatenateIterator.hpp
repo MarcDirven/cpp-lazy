@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_CONCATENATE_ITERATOR_HPP
+#define LZ_CONCATENATE_ITERATOR_HPP
+
 #include <iterator>
 #include <numeric>
 #include <iostream>
@@ -271,3 +274,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_UNIQUE_HPP
+#define LZ_UNIQUE_HPP
+
 #include "detail/BasicIteratorView.hpp"
 #include "detail/UniqueIterator.hpp"
 
@@ -85,3 +88,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

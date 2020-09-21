@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_RANDOM_HPP
+#define LZ_RANDOM_HPP
 
 #include "detail/RandomIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -125,3 +127,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

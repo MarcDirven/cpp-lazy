@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_AFFIRM_HPP
+#define LZ_AFFIRM_HPP
+
 #include "detail/AffirmIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 #include "detail/LzTools.hpp"
@@ -14,7 +17,7 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        detail::AffirmIteratorHelper<Iterator, Exception, value_type> _helper{};
+        detail::AffirmIteratorHelper<Exception, value_type> _helper{};
         Iterator _begin{};
         Iterator _end{};
 
@@ -129,3 +132,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

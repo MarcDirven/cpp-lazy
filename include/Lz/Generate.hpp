@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_GENERATE_HPP
+#define LZ_GENERATE_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/GenerateIterator.hpp"
@@ -82,3 +84,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

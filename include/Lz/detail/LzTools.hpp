@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_LZ_TOOLS_HPP
+#define LZ_LZ_TOOLS_HPP
 
 #include <utility>
 
@@ -36,3 +38,5 @@ namespace lz { namespace detail {
         return (value & 1) == 0;
     }
 }}
+
+#endif

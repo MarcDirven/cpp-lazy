@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_SPLIT_ITERATOR_HPP
+#define LZ_SPLIT_ITERATOR_HPP
+
 #include <algorithm>
 #include <string>
 #include <iostream>
@@ -105,3 +108,5 @@ namespace lz {
         };
     }
 }
+
+#endif

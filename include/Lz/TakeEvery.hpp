@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_TAKE_EVERY_HPP
+#define LZ_TAKE_EVERY_HPP
 
 #include "detail/TakeEveryIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -98,3 +100,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

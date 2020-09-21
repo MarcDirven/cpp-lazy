@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_RANGE_HPP
+#define LZ_RANGE_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/RangeIterator.hpp"
@@ -120,3 +122,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

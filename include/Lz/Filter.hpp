@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_FILTER_HPP
+#define LZ_FILTER_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/FilterIterator.hpp"
@@ -96,3 +98,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

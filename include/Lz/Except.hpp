@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_EXCEPT_HPP
+#define LZ_EXCEPT_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/ExceptIterator.hpp"
@@ -95,3 +97,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif
