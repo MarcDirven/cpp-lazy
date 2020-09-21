@@ -1,8 +1,10 @@
 #pragma once
 
+#ifndef LZ_ZIP_ITERATOR_HPP
+#define LZ_ZIP_ITERATOR_HPP
+
 #include <iterator>
 #include <algorithm>
-#include <iostream>
 
 
 namespace lz { namespace detail {
@@ -16,6 +18,7 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
     private:
+        using MakeIndexSequence = std::index_sequence_for<Iterators...>;
         std::tuple<Iterators...> _iterators{};
 
         template<size_t... I>
@@ -78,7 +81,7 @@ namespace lz { namespace detail {
         ZipIterator() = default;
 
         reference operator*() const {
-            return dereference(std::index_sequence_for<Iterators...>{});
+            return dereference(MakeIndexSequence{});
         }
 
         pointer operator->() const {
@@ -86,7 +89,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator++() {
-            increment(std::index_sequence_for<Iterators...>{});
+            increment(MakeIndexSequence{});
             return *this;
         }
 
@@ -97,7 +100,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator--() {
-            decrement(std::index_sequence_for<Iterators...>{});
+            decrement(MakeIndexSequence{});
             return *this;
         }
 
@@ -108,7 +111,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator+=(const difference_type offset) {
-            plusIs(std::index_sequence_for<Iterators...>{}, offset);
+            plusIs(MakeIndexSequence{}, offset);
             return *this;
         }
 
@@ -119,7 +122,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator-=(const difference_type offset) {
-            minIs(std::index_sequence_for<Iterators...>{}, offset);
+            minIs(MakeIndexSequence{}, offset);
             return *this;
         }
 
@@ -130,7 +133,7 @@ namespace lz { namespace detail {
         }
 
         difference_type operator-(const ZipIterator& other) const {
-            return iteratorMin(std::index_sequence_for<Iterators...>{}, other);
+            return iteratorMin(MakeIndexSequence{}, other);
         }
 
         reference operator[](const difference_type offset) const {
@@ -142,11 +145,11 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const ZipIterator& other) const {
-            return notEqual(std::index_sequence_for<Iterators...>{}, other);
+            return notEqual(MakeIndexSequence{}, other);
         }
 
         bool operator<(const ZipIterator& other) const {
-            return lessThan(std::index_sequence_for<Iterators...>{}, other);
+            return lessThan(MakeIndexSequence{}, other);
         }
 
         bool operator>(const ZipIterator& other) const {
@@ -162,3 +165,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif
