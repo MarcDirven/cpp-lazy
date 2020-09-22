@@ -72,7 +72,7 @@ namespace lz {
      * @return A Join iterator view object.
      */
     template<class Iterator>
-    Join<Iterator> joinrange(const Iterator begin, const Iterator end, std::string delimiter) {
+    Join<Iterator> joinRange(const Iterator begin, const Iterator end, std::string delimiter) {
         return Join<Iterator>(begin, end, std::move(delimiter));
     }
 
@@ -87,7 +87,7 @@ namespace lz {
      */
     template<class Iterable>
     auto join(Iterable&& iterable, std::string delimiter) {
-        return joinrange(std::begin(iterable), std::end(iterable), std::move(delimiter));
+        return joinRange(std::begin(iterable), std::end(iterable), std::move(delimiter));
     }
 
     // End of group

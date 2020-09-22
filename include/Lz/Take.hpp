@@ -81,7 +81,7 @@ namespace lz {
      * `for (auto... lz::takewhilerange(...))`.
      */
     template<class Iterator, class Function>
-    Take<Iterator> takewhilerange(const Iterator begin, const Iterator end, const Function predicate) {
+    Take<Iterator> takeWhileRange(const Iterator begin, const Iterator end, const Function predicate) {
         return Take<Iterator>(begin, end, predicate);
     }
 
@@ -97,8 +97,8 @@ namespace lz {
      * `for (auto... lz::takewhile(...))`.
      */
     template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
-        return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
+    auto takeWhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
+        return takeWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     /**
@@ -112,9 +112,9 @@ namespace lz {
      * `for (auto... lz::takerange(...))`.
      */
     template<class Iterator>
-    Take<Iterator> takerange(const Iterator begin, const Iterator end) {
+    Take<Iterator> takeRange(const Iterator begin, const Iterator end) {
         using ValueType = typename std::iterator_traits<Iterator>::value_type;
-        return takewhilerange(begin, end, [](const ValueType& /*value*/) { return true; });
+        return takeWhileRange(begin, end, [](const ValueType& /*value*/) { return true; });
     }
 
     /**
@@ -130,7 +130,7 @@ namespace lz {
     template<class Iterable>
     auto take(Iterable&& iterable, const size_t amount) -> Take<decltype(std::begin(iterable))> {
         auto begin = std::begin(iterable);
-        return takerange(begin, std::next(begin, amount));
+        return takeRange(begin, std::next(begin, amount));
     }
 
     /**
@@ -146,7 +146,7 @@ namespace lz {
     template<class Iterable>
     auto slice(Iterable&& iterable, const size_t from, const size_t to) -> Take<decltype(std::begin(iterable))> {
         auto begin = std::begin(iterable);
-        return takerange(std::next(begin, from), std::next(begin, to));
+        return takeRange(std::next(begin, from), std::next(begin, to));
     }
 
     // End of group

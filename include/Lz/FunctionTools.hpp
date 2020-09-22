@@ -11,7 +11,7 @@
 #include "Join.hpp"
 #include "Zip.hpp"
 #include "Map.hpp"
-#include "Generate.hpp"
+#include "Filter.hpp"
 
 
 namespace lz {
@@ -67,8 +67,7 @@ namespace lz {
     double median(const Iterator begin, const Iterator end, const Compare compare) {
         const detail::DifferenceType<Iterator> len = std::distance(begin, end);
         if (len == 0) {
-            throw std::invalid_argument(fmt::format("line {}: file: {}: the length of the sequence cannot be 0",
-                                                    __LINE__, __FILE__));
+            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
         }
 
         const detail::DifferenceType<Iterator> mid = len >> 1;
@@ -140,7 +139,7 @@ namespace lz {
     auto unlines(Strings&& strings) -> Join<Iterator> {
         static_assert(std::is_same<std::string, detail::ValueType<Iterator>>::value
 #ifndef CXX_LT_17
-                      || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
+            || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
@@ -165,7 +164,7 @@ namespace lz {
      * @return The result of the transfold operation.
      */
     template<class Iterator, class Init, class SelectorFunc>
-    Init transaccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
+    Init transAccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
         for (; begin != end; ++begin) {
             init = selectorFunc(std::move(init), *begin);
         }
@@ -190,8 +189,8 @@ namespace lz {
      * @return The result of the transfold operation.
      */
     template<class Iterable, class Init, class SelectorFunc>
-    Init transaccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
-        return transaccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
+    Init transAccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
+        return transAccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
     }
 
     /**
@@ -207,7 +206,7 @@ namespace lz {
         if (begin != end) {
             next = std::next(begin);
         }
-        return ziprange(std::make_tuple(begin, next), std::make_tuple(end, end));
+        return zipRange(std::make_tuple(begin, next), std::make_tuple(end, end));
     }
 
     /**
@@ -233,7 +232,7 @@ namespace lz {
     template<class T, class Iterator, class ValueType = detail::ValueType<Iterator>>
     auto as(const Iterator begin, const Iterator end) -> Map<Iterator, std::function<T(ValueType)>> {
         static_assert(std::is_convertible<ValueType, T>::value, "the value type of the container is not convertible to T");
-        return maprange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
+        return mapRange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
             return static_cast<T>(v);
         }));
     }
@@ -248,6 +247,113 @@ namespace lz {
     template<class T, class Iterable, class Iterator = detail::IterType<Iterable>>
     auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(typename detail::ValueType<Iterator>)>> {
         return as<T>(std::begin(iterable), std::end(iterable));
+    }
+
+    /**
+     * Checks if `toFind` is in the sequence (begin, end]. If so, it returns `toFind`, otherwise it returns `defaultValue`.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+     * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
+     * @return Either `toFind` or `defaultValue`.
+     */
+    template<class Iterator, class T, class ValueType = detail::ValueType<Iterator>>
+    ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType toFind, T defaultValue) {
+        return std::find(begin, end, toFind) == end ? std::move(defaultValue) : std::move(toFind);
+    }
+
+    /**
+     * Checks if `toFind` is in the sequence (begin, end]. If so, it returns `toFind`, otherwise it returns `defaultValue`.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param iterable The iterable to search.
+     * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+     * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
+     * @return Either `toFind` or `defaultValue`.
+     */
+    template<class Iterable, class T, class ValueType = detail::ValueTypeIterable<Iterable>>
+    ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue) {
+        return findOrDefault(std::begin(iterable), std::end(iterable), std::forward<ValueType>(toFind), std::forward<T>(defaultValue));
+    }
+
+    /**
+     * Uses `std::find_if(begin, end, predicate)` to check if for one of the elements, `predicate` returns true. If so, its corresponding
+     * value is returned. If not, `defaultValue` is returned.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @tparam UnaryPredicate Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate A function with one argument that returns a bool for its corresponding value type of the iterator.
+     * (see `std::find_if`)
+     * @param defaultValue The default value to return if predicate is `false` for all elements. Use `std::move` to avoid copies.
+     * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
+     */
+    template<class Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueType<Iterator>>
+    ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T defaultValue) {
+        const Iterator pos = std::find_if(begin, end, predicate);
+        return pos == end ? std::move(defaultValue) : *pos;
+    }
+
+    /**
+     * Uses `std::find_if(begin, end, predicate)` to check if for one of the elements, `predicate` returns true. If so, its corresponding
+     * value is returned. If not, `defaultValue` is returned.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @tparam UnaryPredicate Is automatically deduced.
+     * @param iterable The sequence to search.
+     * @param predicate A function with one argument that returns a bool for its corresponding value type of the iterator.
+     * (see `std::find_if`)
+     * @param defaultValue The default value to return if predicate is `false` for all elements. Use `std::move` to avoid copies.
+     * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
+     */
+    template<class Iterable, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterable<Iterable>>
+    ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue) {
+        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, std::forward<T>(defaultValue));
+    }
+
+    /**
+     * This value is returned when indexOf does not find the value specified.
+     */
+    constexpr size_t npos = std::numeric_limits<size_t>::max();
+
+    template<class Iterator, class T>
+    size_t indexOf(const Iterator begin, const Iterator end, const T& val) {
+        const Iterator pos = std::find(begin, end, val);
+        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+    }
+
+    template<class Iterable, class T>
+    size_t indexOf(const Iterable& iterable, const T& val) {
+        return indexOf(std::begin(iterable), std::end(iterable), val);
+    }
+
+    template<class Iterator, class UnaryFunc>
+    size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate) {
+        const Iterator pos = std::find_if(begin, end, predicate);
+        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+    }
+
+    template<class Iterable, class UnaryFunc>
+    size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
+        return indexOfIf(std::begin(iterable), std::end(iterable), predicate);
+    }
+
+    template<class Iterator, class UnaryMapFunc>
+    Map<detail::FilterIterator<Iterator>, UnaryMapFunc>
+    filterMap(const Iterator begin, const Iterator end, const std::function<bool(detail::ValueType<Iterator>)>& filterFunc,
+              const UnaryMapFunc& mapFunc) {
+        detail::FilterIterator<Iterator> beginFilter(begin, end, &filterFunc);
+        detail::FilterIterator<Iterator> endFilter(end, end, &filterFunc);
+        return mapRange(beginFilter, endFilter, mapFunc);
+    }
+
+    template<class Iterable, class UnaryMapFunc>
+    auto filterMap(Iterable&& iterable, const std::function<bool(detail::ValueTypeIterable<Iterable>)>& filterFunc,
+                   const UnaryMapFunc& mapFunc) -> Map<detail::FilterIterator<decltype(std::begin(iterable))>, UnaryMapFunc> {
+        return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
 }
 

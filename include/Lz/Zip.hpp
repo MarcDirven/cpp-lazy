@@ -65,7 +65,7 @@ namespace lz {
      */
 
     template<class... Iterators>
-    Zip<Iterators...> ziprange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+    Zip<Iterators...> zipRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         return Zip<Iterators...>(begin, end);
     }
 
@@ -83,7 +83,7 @@ namespace lz {
      */
     template<class... Iterables>
     auto zip(Iterables&& ... iterables) -> Zip<decltype(std::begin(iterables))...> {
-        return ziprange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+        return zipRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     // End of group

@@ -90,7 +90,7 @@ namespace lz {
      */
     template<class Exception, class Iterator, class Function>
     Affirm<Exception, Iterator, Function>
-    affirmrange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
+    affirmRange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
         return Affirm<Exception, Iterator, Function>(begin, end, std::forward<Exception>(exception), predicate);
     }
 
@@ -124,7 +124,7 @@ namespace lz {
     template<class Exception, class Iterable, class Function>
     auto affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) ->
     Affirm<Exception, decltype(std::begin(iterable)), Function> {
-        return affirmrange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
+        return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
 
     // End of group

@@ -86,21 +86,17 @@ namespace lz {
      */
     template<class Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         if (step == 0) {
-            throw std::range_error(fmt::format("line {}: file: {}: with a step size of 0, the sequence can never end",
-                                               __LINE__, __FILE__));
+            throw std::range_error(__LZ_FILE_LINE__ ": with a step size of 0, the sequence can never end");
         }
         if (start > end && step >= 1) {
-            throw std::range_error(
-                fmt::format("line {}: file: {}: with a step of 1 or bigger and begin greater than end, the sequence can never end",
-                            __LINE__, __FILE__));
+            throw std::range_error(__LZ_FILE_LINE__ ": with a step of 1 or bigger and begin greater than end, the sequence can never end");
         }
         else if (end > start && step < 0) {
             throw std::range_error(
-                fmt::format("line {}: file: {}: with a negative step size and begin start smaller than end, the sequence can never end",
-                            __LINE__, __FILE__));
+                __LZ_FILE_LINE__ ": with a negative step size and begin start smaller than end, the sequence can never end");
         }
-        static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         return Range<Arithmetic>(start, end, step);
     }
 

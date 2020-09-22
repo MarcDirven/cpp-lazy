@@ -71,7 +71,7 @@ namespace lz {
      * @return Enumerate iterator object from [begin, end).
      */
     template<class IntType = int, class Iterator>
-    Enumerate<Iterator, IntType> enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
+    Enumerate<Iterator, IntType> enumerateRange(const Iterator begin, const Iterator end, const IntType start = 0) {
         static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
@@ -92,7 +92,7 @@ namespace lz {
      */
     template<class IntType = int, class Iterable>
     auto enumerate(Iterable&& iterable, const  IntType start = 0) -> Enumerate<decltype(std::begin(iterable)), IntType> {
-        return enumeraterange(std::begin(iterable), std::end(iterable), start);
+        return enumerateRange(std::begin(iterable), std::end(iterable), start);
     }
 
     // End of group

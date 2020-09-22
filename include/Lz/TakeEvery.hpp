@@ -66,16 +66,16 @@ namespace lz {
      * an STL iterator, pass a pointer iterator, not an actual iterator object.
      * @details If one would like to select every 2nd argument one can use this iterator. Example (psuedocode):
      * `takeevery({1, 2, 3}, 2)`. This will select `1` and `3`. If you would like to skip the first element as well
-     * one can use: `takeevery({1, 2, 3}, 2, 2)` the second `2` is the start position, making it select only `3`.
+     * one can use: `takeevery({1, 2, 3}, 2, 2)` the second `2` is the start indexOf, making it select only `3`.
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param offset The index to add every iteration, aka the index to 'select'.
-     * @param start The start position, optional. Can be used to skip the first element as well.
+     * @param start The start indexOf, optional. Can be used to skip the first element as well.
      * @return A TakeEvery object.
      */
     template<class Iterator>
-    TakeEvery<Iterator> takeeveryrange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
+    TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const size_t offset, const size_t start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset);
     }
 
@@ -83,16 +83,16 @@ namespace lz {
      * @brief This random access iterator can be used to select elements with `offset` amount.
      * @details If one would like to select every 2nd argument one can use this iterator. Example (psuedocode):
      * `takeevery({1, 2, 3}, 2)`. This will select `1` and `3`. If you would like to skip the first element as well
-     * one can use: `takeevery({1, 2, 3}, 2, 2)` the second `2` is the start position, making it select only `3`.
+     * one can use: `takeevery({1, 2, 3}, 2, 2)` the second `2` is the start indexOf, making it select only `3`.
      * @tparam Iterable Is automatically deduced.
      * @param iterable An object that can be iterated over.
      * @param offset The index to add every iteration, aka the index to 'select'.
-     * @param start The start position, optional. Can be used to skip the first element as well.
+     * @param start The start indexOf, optional. Can be used to skip the first element as well.
      * @return A TakeEvery object.
      */
     template<class Iterable>
-    auto takeevery(Iterable&& iterable, const size_t offset, const size_t start = 0) -> TakeEvery<decltype(std::begin(iterable))> {
-        return takeeveryrange(std::begin(iterable), std::end(iterable), offset, start);
+    auto takeEvery(Iterable&& iterable, const size_t offset, const size_t start = 0) -> TakeEvery<decltype(std::begin(iterable))> {
+        return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
     }
 
     // End of group

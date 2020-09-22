@@ -5,7 +5,7 @@
 
 int main() {
     std::vector<int> seq = {1, 2, 3, 4, 5, 6};
-    auto takeWhile = lz::takewhile(seq, [](const int i) { return i != 4; });
+    auto takeWhile = lz::takeWhile(seq, [](const int i) { return i != 4; });
     for (int i : takeWhile) {
         std::cout << i << '\n';
     }

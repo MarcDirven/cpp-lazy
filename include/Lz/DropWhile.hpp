@@ -70,7 +70,7 @@ namespace lz {
      * @return A DropWhile iterator view object.
      */
     template<class Iterator, class Function>
-    DropWhile<Iterator, Function> dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
+    DropWhile<Iterator, Function> dropWhileRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "the function predicate must return a bool");
         return DropWhile<Iterator, Function>(begin, end, predicate);
@@ -87,8 +87,8 @@ namespace lz {
      * @return A DropWhile iterator view object.
      */
     template<class Iterable, class Function>
-    auto dropwhile(Iterable&& iterable, const Function& predicate) -> DropWhile<decltype(std::begin(iterable)), Function> {
-        return dropwhilerange(std::begin(iterable), std::end(iterable), predicate);
+    auto dropWhile(Iterable&& iterable, const Function& predicate) -> DropWhile<decltype(std::begin(iterable)), Function> {
+        return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     // End of group

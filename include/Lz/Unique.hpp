@@ -67,7 +67,7 @@ namespace lz {
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniquerange(...))` fashion.
      */
     template<class Iterator>
-    Unique<Iterator> uniquerange(const Iterator begin, const Iterator end) {
+    Unique<Iterator> uniqueRange(const Iterator begin, const Iterator end) {
         return Unique<Iterator>(begin, end);
     }
 
@@ -80,7 +80,7 @@ namespace lz {
      */
     template<class Iterable>
     auto unique(Iterable&& iterable) -> Unique<decltype(std::begin(iterable))> {
-        return uniquerange(std::begin(iterable), std::end(iterable));
+        return uniqueRange(std::begin(iterable), std::end(iterable));
     }
 
     // End of group

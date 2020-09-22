@@ -21,7 +21,7 @@ namespace lz { namespace detail {
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(KeySelectorFunc keyGen, const Allocator& allocator) {
+        MapType create_map(KeySelectorFunc keyGen, const Allocator& allocator) {
             MapType map(allocator);
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
@@ -98,8 +98,7 @@ namespace lz { namespace detail {
             const Iterator e = end();
 
             if (std::distance(b, e) > size) {
-                throw std::out_of_range("line " + std::to_string(__LINE__) + ": " + __FILE__ +
-                                        " the iterator size is too large and/or array size is too small");
+                throw std::out_of_range(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
             }
 
             std::array<value_type, N> container;
@@ -135,7 +134,7 @@ namespace lz { namespace detail {
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
         toMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
-            return createMap<Map>(keyGen, allocator);
+            return create_map<Map>(keyGen, allocator);
         }
 
         /**
@@ -168,7 +167,7 @@ namespace lz { namespace detail {
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
         toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
-            return createMap<UnorderedMap>(keyGen, allocator);
+            return create_map<UnorderedMap>(keyGen, allocator);
         }
 
         /**
@@ -190,11 +189,7 @@ namespace lz { namespace detail {
         std::string toString(const char* delimiter = "") const {
             std::string string;
             for (const value_type& v : *this) {
-#if __has_include(<format>)
-                string += std::format("{}{}", v, delimiter);
-#else
                 string += fmt::format("{}{}", v, delimiter);
-#endif
             }
 
             const size_t delimiterLength = std::strlen(delimiter);
