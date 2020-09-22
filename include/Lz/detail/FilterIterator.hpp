@@ -6,10 +6,11 @@
 #include <type_traits>
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
 
 namespace lz { namespace detail {
-    template<class Iterator, class Function>
+    template<class Iterator>
     class FilterIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 

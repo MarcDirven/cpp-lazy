@@ -9,9 +9,9 @@
 
 namespace lz {
     template<class Iterator, class Function>
-    class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, Function>> {
+    class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator>> {
     public:
-        using iterator = detail::FilterIterator<Iterator, Function>;
+        using iterator = detail::FilterIterator<Iterator>;
         using const_iterator = iterator;
 
         using value_type = typename iterator::value_type;
@@ -49,7 +49,7 @@ namespace lz {
         * @return A forward iterator FilterIterator.
         */
         iterator end() const override {
-            return iterator(_end, _end, &_predicate);;
+            return iterator(_end, _end, &_predicate);
         }
     };
 
@@ -71,7 +71,7 @@ namespace lz {
      * over.
      */
     template<class Iterator, class Function>
-    Filter<Iterator, Function> filterrange(const Iterator begin, const Iterator end, const Function& predicate) {
+    Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
@@ -90,7 +90,7 @@ namespace lz {
      */
     template<class Iterable, class Function>
     auto filter(Iterable&& iterable, const Function& predicate) -> Filter<decltype(std::begin(iterable)), Function> {
-        return filterrange(std::begin(iterable), std::end(iterable), predicate);
+        return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     // End of group
