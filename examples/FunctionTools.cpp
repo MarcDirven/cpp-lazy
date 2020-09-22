@@ -13,7 +13,45 @@ int main() {
     auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
     std::vector<std::string> s = {"hello", "world", "!"};
-    size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+    size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
         return i + s.size();
     }); // totalSize == 11
+
+    std::string toFind = "hel";
+    std::string def = "default";
+
+    toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+    // toFind == "default"
+
+    toFind = "hello";
+    toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+    // toFind == "hello"
+
+    toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+        return s.find('\'') != std::string::npos; // ' is present in the sequence
+    }, def);
+    // toFind == "what's"
+
+    toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+        return s.find('z') != std::string::npos; // z is not present in the sequence
+    }, "default");
+    // toFind == "default"
+
+    std::vector<char> c = {'a', 'b', 'c', 'd'};
+    size_t pos = lz::indexOf(c, 'b');
+    // pos == 1
+
+    pos = lz::indexOf(c, 'e');
+    // pos == lz::npos
+
+    strings = {"hello", "world"};
+    pos = lz::indexOfIf(strings, [](const std::string& s) {
+        return s.find('o') != std::string::npos;
+    });
+    // pos == 0
+
+    pos = lz::indexOfIf(strings, [](const std::string& s) {
+        return s.find('q') != std::string::npos;
+    });
+    // pos == lz::npos
 }
