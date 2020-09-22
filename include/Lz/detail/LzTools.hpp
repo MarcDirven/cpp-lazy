@@ -13,6 +13,9 @@
   #define HAS_CXX_20
 #endif
 
+#define __LZ_STRINGIFY__(x) #x
+#define __LZ_TOSTRING__(x) __LZ_STRINGIFY__(x)
+#define __LZ_FILE_LINE__ __FILE__ ": " __LZ_TOSTRING__(__LINE__)
 
 namespace lz { namespace detail {
     template<class T>
