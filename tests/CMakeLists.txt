@@ -30,7 +30,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Remove error cl : Command line warning D9025 : overriding '/W3' with '/W4'
     string(REPLACE "/W3" "/W4" FLAGS ${CMAKE_CXX_FLAGS})
 else ()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function -Wa,-mbig-obj")
+    SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld)
 endif()
 
 
