@@ -11,14 +11,14 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 - STL compatible
 
 # Current supported iterators & examples
- Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. Example:
+All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with `fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
+- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. This iterator is depricated from version 2.0.0. Instead use `lz::filterMap`. See FunctionTools sections for examples.Example:
 ```cpp
 std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {
     return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
 }).toVector();
-// vector yields (int) {1, 9}
+// vector yields (int) {1, 9}. One can use Type& and use std::move to safely move when using for-loops
 ```
 - **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 here, but they can be all have different sizes.
 ```cpp
@@ -213,10 +213,10 @@ for (std::string& substring : lz::split(toSplit, std::move(delim))) {
 // Hello
 // world
 ```
-- **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
+- **Take**/**slice**/**takeRange**/**takeWhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
 ```cpp
 std::vector<int> seq = {1, 2, 3, 4, 5, 6};
-auto takeWhile = lz::takewhile(seq, [](const int i) { return i != 4; });
+auto takeWhile = lz::takeWhile(seq, [](const int i) { return i != 4; });
 for (int i : takeWhile) {
     std::cout << i << '\n';
 }
@@ -249,7 +249,7 @@ for (int i : slice) {
 ```cpp
 std::vector<int> sequence = {1, 2, 3, 4, 5};
 
-for (int i : lz::takeevery(sequence, 2)) {
+for (int i : lz::takeEvery(sequence, 2)) {
     std::cout << i << '\n';
 }
 // Yields (by reference if '& is used):
@@ -309,9 +309,54 @@ std::string string = "aa\nbb\nbb";
 auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
 std::vector<std::string> s = {"hello", "world", "!"};
-size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
     return i + s.size();
 }); // totalSize == 11
+
+std::string toFind = "hel";
+std::string def = "default";
+
+toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+// toFind == "default"
+
+toFind = "hello";
+toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+// toFind == "hello"
+
+toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+    return s.find('\'') != std::string::npos; // ' is present in the sequence
+}, def);
+// toFind == "what's"
+
+toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+    return s.find('z') != std::string::npos; // z is not present in the sequence
+}, "default");
+// toFind == "default"
+
+std::vector<char> c = {'a', 'b', 'c', 'd'};
+size_t pos = lz::indexOf(c, 'b');
+// pos == 1
+
+pos = lz::indexOf(c, 'e');
+// pos == lz::npos
+
+strings = {"hello", "world"};
+pos = lz::indexOfIf(strings, [](const std::string& s) {
+    return s.find('o') != std::string::npos;
+});
+// pos == 0
+
+pos = lz::indexOfIf(strings, [](const std::string& s) {
+    return s.find('q') != std::string::npos;
+});
+// pos == lz::npos
+
+std::string s = "123swd355";
+auto mf = lz::filterMap(s,
+                        [](const char c) { return static_cast<bool>(std::isdigit(c));}, // If this condition is met...
+                        [](const char c) { return static_cast<int>(c - '0'); }); // This value is returned
+
+// mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5}
 ```
 
 # To containers, easy!
