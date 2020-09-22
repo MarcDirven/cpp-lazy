@@ -7,11 +7,8 @@
 #include "LzTools.hpp"
 
 
-#if __has_include(<format>)
-  #include <format>
-#else
-  #include <fmt/format.h>
-#endif
+#include <fmt/format.h>
+
 
 
 namespace lz { namespace detail {
@@ -43,13 +40,13 @@ namespace lz { namespace detail {
 
         template<class Val = ContainerType>
         inline typename std::enable_if<IsFmtIntCompatible<Val>::value, std::string>::type
-        getFormatted() const {
+        get_formatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
         template<class Val = ContainerType>
         inline typename std::enable_if<!IsFmtIntCompatible<Val>::value, std::string>::type
-        getFormatted() const {
+        get_formatted() const {
             return fmt::format("{}", *_iterator);
         }
 
@@ -69,11 +66,7 @@ namespace lz { namespace detail {
         template<class Val = ContainerType, class = typename std::enable_if<!std::is_same<std::string, Val>::value>::type>
         std::string operator*() const {
             if (_isIteratorTurn) {
-#if __has_include(<format>)
-                return std::format("{}", *_iterator);
-#else
-                return getFormatted();
-#endif
+                return get_formatted();
             }
             return _delimiter;
         }
