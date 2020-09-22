@@ -70,7 +70,7 @@ static void StringSplitter(benchmark::State& state) {
 
 static void TakeWhile(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    auto takeWhile = lz::takewhile(array, [](const int i) { return i != SizePolicy - 1; });
+    auto takeWhile = lz::takeWhile(array, [](const int i) { return i != SizePolicy - 1; });
 
     for (auto _ : state) {
         for (const int taken : takeWhile) {
@@ -166,7 +166,7 @@ static void Repeat(benchmark::State& state) {
 static void TakeEvery(benchmark::State& state) {
     std::array<int, SizePolicy> array{};
     constexpr size_t offset = 2;
-    auto takeEvery = lz::takeevery(array, offset);
+    auto takeEvery = lz::takeEvery(array, offset);
 
     for (auto _ : state) {
         for (const int taken : takeEvery) {
@@ -194,25 +194,12 @@ static void DropWhile(benchmark::State& state) {
         return 1;
     }, SizePolicy).toArray<SizePolicy>();
 
-    auto drop = lz::dropwhile(array, [](const int i) {
+    auto drop = lz::dropWhile(array, [](const int i) {
         return i == 1;
     });
 
     for (auto _ : state) {
         for (const int i : drop) {
-            benchmark::DoNotOptimize(i);
-        }
-    }
-}
-
-static void Choose(benchmark::State& state) {
-    std::string s = "123df574d587f85432df52f4ssf5d222";
-    auto chooser = lz::choose(s, [](const char c) {
-        return std::make_pair(c == '1', 1);
-    });
-
-    for (auto _ : state) {
-        for (const int i : chooser) {
             benchmark::DoNotOptimize(i);
         }
     }
@@ -274,7 +261,6 @@ static void JoinString(benchmark::State& state) {
     }
 }
 
-BENCHMARK(Choose);
 BENCHMARK(Concatenate);
 BENCHMARK(DropWhile);
 BENCHMARK(Enumerate);

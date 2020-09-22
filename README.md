@@ -12,7 +12,7 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 
 # Current supported iterators & examples
 All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with `fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. This iterator is deprecated from version 2.0.0, and will be removed entirely in the releases after. Instead use `lz::filterMap`. See FunctionTools sections for examples.Example:
+- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. This iterator is removed from version 2.0.0. Instead use `lz::filterMap`. See FunctionTools sections for examples.Example:
 ```cpp
 std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {

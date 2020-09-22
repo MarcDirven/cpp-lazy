@@ -4,7 +4,6 @@
 #define LZ_LZ_HPP
 
 #include "Lz/Affirm.hpp"
-#include "Lz/Choose.hpp"
 #include "Lz/Concatenate.hpp"
 #include "Lz/DropWhile.hpp"
 #include "Lz/Enumerate.hpp"
