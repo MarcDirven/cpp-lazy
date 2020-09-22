@@ -100,7 +100,8 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterator, class Function>
-    Choose<Iterator, Function> chooserange(const Iterator begin, const Iterator end, const Function& function) {
+    [[deprecated("Use FunctionTools.hpp: lz::filterMap")]]
+    Choose<Iterator, Function> chooseRange(const Iterator begin, const Iterator end, const Function& function) {
         return Choose<Iterator, Function>(begin, end, function);
     }
 
@@ -135,8 +136,9 @@ namespace lz {
      * @return A choose view object.
      */
     template<class Iterable, class Function>
+    [[deprecated("Use FunctionTools.hpp: lz::filterMap")]]
     auto choose(Iterable&& iterable, const Function& function) -> Choose<decltype(std::begin(iterable)), Function> {
-        return chooserange(std::begin(iterable), std::end(iterable), function);
+        return chooseRange(std::begin(iterable), std::end(iterable), function);
     }
 
     // End of group
