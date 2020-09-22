@@ -35,8 +35,8 @@ TEST_CASE("Function tools") {
 
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
-        size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
-           return i + s.size();
+        size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
+            return i + s.size();
         });
         CHECK(totalSize == 11);
     }
@@ -50,5 +50,60 @@ TEST_CASE("Function tools") {
         auto floats = lz::as<float>(ints).toVector();
         CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
         CHECK(floats == std::vector<float>{1., 2., 3., 4.});
+    }
+
+
+    SECTION("Find or default") {
+        std::vector<std::string> s = {"hello world!", "what's up"};
+        std::string toFind = "hel";
+        std::string def = "default";
+
+        toFind = lz::findOrDefault(s, std::move(toFind), std::move(def));
+        CHECK(toFind == "default");
+
+        def = "default";
+        toFind = "hello world!";
+        toFind = lz::findOrDefault(s, std::move(toFind), std::move(def));
+        CHECK(toFind == "hello world!");
+
+        def = ' ';
+        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+            return s.find('!') != std::string::npos;
+        }, def);
+        CHECK(toFind == "hello world!");
+
+        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+            return s.find('z') != std::string::npos;
+        }, "default");
+        CHECK(toFind == "default");
+    }
+
+    SECTION("Position") {
+        std::vector<char> c = {'a', 'b', 'c', 'd'};
+        size_t pos = lz::indexOf(c, 'b');
+        CHECK(pos == 1);
+
+        pos = lz::indexOf(c, 'e');
+        CHECK(pos == lz::npos);
+
+        std::vector<std::string> strings = {"hello", "world"};
+        pos = lz::indexOfIf(strings, [](const std::string& s) {
+            return s.find('o') != std::string::npos;
+        });
+        CHECK(pos == 0);
+
+        pos = lz::indexOfIf(strings, [](const std::string& s) {
+            return s.find('q') != std::string::npos;
+        });
+        CHECK(pos == lz::npos);
+    }
+
+    SECTION("Map filter") {
+        std::string s = "123swd355";
+        auto mf = lz::filterMap(s,
+                                [](const char c) { return static_cast<bool>(std::isdigit(c));},
+                                [](const char c) { return static_cast<int>(c - '0'); });
+
+        CHECK(mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5});
     }
 }
