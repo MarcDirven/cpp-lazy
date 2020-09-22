@@ -351,11 +351,11 @@ pos = lz::indexOfIf(strings, [](const std::string& s) {
 });
 // pos == lz::npos
 
-std::string s = "123swd355";
-auto mf = lz::filterMap(s,
-                        [](const char c) { return static_cast<bool>(std::isdigit(c));}, // If this condition is met...
-                        [](const char c) { return static_cast<int>(c - '0'); }); // This value is returned
 
+std::string str = "123swd355";
+std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
+// or, if c++17: std::function f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
+auto mf = lz::filterMap(str, f, [](const char c) { return static_cast<int>(c - '0'); }); // f must be by reference
 // mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5}
 ```
 

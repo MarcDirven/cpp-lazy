@@ -394,7 +394,7 @@ namespace lz {
      */
     template<class Iterator, class UnaryMapFunc>
     Map<detail::FilterIterator<Iterator>, UnaryMapFunc>
-    filterMap(const Iterator begin, const Iterator end, const std::function<bool(detail::ValueType<Iterator>)>& filterFunc,
+    filterMap(const Iterator begin, const Iterator end, std::function<bool(detail::ValueType<Iterator>)>& filterFunc,
               const UnaryMapFunc& mapFunc) {
         detail::FilterIterator<Iterator> beginFilter(begin, end, &filterFunc);
         detail::FilterIterator<Iterator> endFilter(end, end, &filterFunc);
@@ -412,7 +412,7 @@ namespace lz {
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
     template<class Iterable, class UnaryMapFunc>
-    auto filterMap(Iterable&& iterable, const std::function<bool(detail::ValueTypeIterable<Iterable>)>& filterFunc,
+    auto filterMap(Iterable&& iterable, std::function<bool(detail::ValueTypeIterable<Iterable>)>& filterFunc,
                    const UnaryMapFunc& mapFunc) -> Map<detail::FilterIterator<decltype(std::begin(iterable))>, UnaryMapFunc> {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }

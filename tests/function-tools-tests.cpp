@@ -2,6 +2,12 @@
 #include <Lz/Range.hpp>
 #include <catch.hpp>
 
+template<class Func, class Iterable,
+    class Param = lz::detail::ValueTypeIterable<Iterable>,
+    class Ret = lz::detail::FunctionReturnType<Func, Param>>
+std::function<Ret(Param)> fnMaker(const Iterable&, Func f) {
+    return std::function<Ret(Param)>(f);
+}
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
@@ -35,7 +41,7 @@ TEST_CASE("Function tools") {
 
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
-        size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
+        size_t totalSize = lz::transAccumulate(s, static_cast<size_t>(0), [](size_t i, const std::string& s) {
             return i + s.size();
         });
         CHECK(totalSize == 11);
@@ -100,10 +106,8 @@ TEST_CASE("Function tools") {
 
     SECTION("Filter map") {
         std::string s = "123swd355";
-        auto mf = lz::filterMap(s,
-                                [](const char c) { return static_cast<bool>(std::isdigit(c));},
-                                [](const char c) { return static_cast<int>(c - '0'); });
-
+        std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
+        auto mf = lz::filterMap(s,f, [](const char c) { return static_cast<int>(c - '0'); });
         CHECK(mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5});
     }
 }
