@@ -13,6 +13,12 @@
 #include "Map.hpp"
 #include "Filter.hpp"
 
+#ifndef CXX_LT_17
+  #define LZ_INLINE_VAR inline
+#else
+  #define LZ_INLINE_VAR
+#endif
+
 
 namespace lz {
     namespace detail {
@@ -317,30 +323,75 @@ namespace lz {
     /**
      * This value is returned when indexOf does not find the value specified.
      */
-    constexpr size_t npos = std::numeric_limits<size_t>::max();
+    constexpr LZ_INLINE_VAR size_t npos = std::numeric_limits<size_t>::max();
 
+    /**
+     * Searches (begin, end] for val, and returns its corresponding index, or lz::npos if no such value exists.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param val The value to search.
+     * @return The index of `val` or lz::npos of no such value exists.
+     */
     template<class Iterator, class T>
     size_t indexOf(const Iterator begin, const Iterator end, const T& val) {
         const Iterator pos = std::find(begin, end, val);
         return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
     }
 
+    /**
+    * Searches `iterable` for val, and returns its corresponding index, or lz::npos if no such value exists.
+    * @tparam Iterable Is automatically deduced.
+    * @tparam T Is automatically deduced.
+    * @param iterable The iterable to search.
+    * @param val The value to search.
+    * @return The index of `val` or lz::npos of no such value exists.
+    */
     template<class Iterable, class T>
     size_t indexOf(const Iterable& iterable, const T& val) {
         return indexOf(std::begin(iterable), std::end(iterable), val);
     }
 
+    /**
+    * Searches (begin, end] with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+    * @tparam Iterator Is automatically deduced.
+    * @tparam UnaryFunc Is automatically deduced.
+    * @param begin The beginning of the sequence.
+    * @param end The ending of the sequence.
+    * @param predicate The search predicate. Uses `std::find_if`.
+    * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
+    */
     template<class Iterator, class UnaryFunc>
     size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate) {
         const Iterator pos = std::find_if(begin, end, predicate);
         return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
     }
 
+    /**
+    * Searches iterable with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+    * @tparam Iterator Is automatically deduced.
+    * @tparam UnaryFunc Is automatically deduced.
+    * @param iterable The sequence to search.
+    * @param predicate The search predicate. Uses `std::find_if`.
+    * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
+    */
     template<class Iterable, class UnaryFunc>
     size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
         return indexOfIf(std::begin(iterable), std::end(iterable), predicate);
     }
 
+    /**
+     * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam UnaryMapFunc Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
+     * passed to the `mapFunc`.
+     * @param mapFunc The function that returns the (new) type.
+     * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
+     */
     template<class Iterator, class UnaryMapFunc>
     Map<detail::FilterIterator<Iterator>, UnaryMapFunc>
     filterMap(const Iterator begin, const Iterator end, const std::function<bool(detail::ValueType<Iterator>)>& filterFunc,
@@ -350,6 +401,16 @@ namespace lz {
         return mapRange(beginFilter, endFilter, mapFunc);
     }
 
+    /**
+     * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam UnaryMapFunc Is automatically deduced.
+     * @param iterable The iterable to filter/map.
+     * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
+     * passed to the `mapFunc`.
+     * @param mapFunc The function that returns the (new) type.
+     * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
+     */
     template<class Iterable, class UnaryMapFunc>
     auto filterMap(Iterable&& iterable, const std::function<bool(detail::ValueTypeIterable<Iterable>)>& filterFunc,
                    const UnaryMapFunc& mapFunc) -> Map<detail::FilterIterator<decltype(std::begin(iterable))>, UnaryMapFunc> {
