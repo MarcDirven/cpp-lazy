@@ -98,7 +98,7 @@ TEST_CASE("Function tools") {
         CHECK(pos == lz::npos);
     }
 
-    SECTION("Map filter") {
+    SECTION("Filter map") {
         std::string s = "123swd355";
         auto mf = lz::filterMap(s,
                                 [](const char c) { return static_cast<bool>(std::isdigit(c));},
