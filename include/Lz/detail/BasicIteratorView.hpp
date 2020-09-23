@@ -9,7 +9,6 @@
 #include <map>
 #include <stdexcept>
 #include <unordered_map>
-#include <numeric>
 #include <algorithm>
 
 #include "fmt/ostream.h"
@@ -21,7 +20,7 @@ namespace lz { namespace detail {
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(KeySelectorFunc keyGen, const Allocator& allocator) {
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) {
             MapType map(allocator);
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
@@ -132,7 +131,7 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-        toMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
         }
@@ -165,7 +164,7 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-        toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
         }
