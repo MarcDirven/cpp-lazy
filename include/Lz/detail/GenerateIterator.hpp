@@ -29,7 +29,9 @@ namespace lz { namespace detail {
 
         GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, bool isWhileTrueLoop) :
             _current(start),
-            _generator(generatorFunc) {}
+            _generator(generatorFunc),
+            _isWhileTrueLoop{isWhileTrueLoop}
+        {}
 
         value_type operator*() const {
             return _generator();
