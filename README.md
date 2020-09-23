@@ -13,29 +13,6 @@ library `fmt`, which is automatically configured by CMake.
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 
-# Important
-To keep all the iterators as lightweight as possible -- due to the fact that STL iterator functions such as `std::find` 
-takes its arguments by copy, because iterators are often just pointers, and therefore cheap to copy -- the iterator
-saves a reference/pointer to its parent, also called a 'View'. If the view object doesn't exist anymore, so does
-its corresponding iterator 'child' object, causing dangling references. This is not true for all iterators however.
-Generally, this is true whenever a lambda needs to be passed and its corresponding view object is returned. Example:
-```cpp
-// A copy of the filter function is made, but its child iterator object still has a reference to the Filter view object.
-// The constructor is called of `filter`, and a dangling reference is created. 
-auto filterMapper = lz::map(lz::filter(s, [] (char c) { return (bool)std::isdigit(c); }),
-                            [](char c) { return static_cast<int>(c - '0');})
-
-// Bad function call ...
-//for (int i : filterMppaer) {
-//    std::cout << i << '\n';
-//}
-```
-Instead use: `lz::filterMap` or...
-```cpp
-auto filter = lz::filter(container, [](){});
-auto mapper = lz::map(filter, [](){});
-```
-
 # Current supported iterators & examples
 All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
 `fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
@@ -391,11 +368,11 @@ pos = lz::indexOfIf(strings, [](const std::string& s) {
 // pos == lz::npos
 
 
-std::string str = "123swd355";
-std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
-// or, if c++17: std::function f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
-auto mf = lz::filterMap(str, f, [](const char c) { return static_cast<int>(c - '0'); }); // f must be by reference
-// mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5}
+std::string str = "123,d35dd";
+auto f = lz::filterMap(str, 
+                       [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
+                       [](const char c) { return static_cast<int>(c - '0'); }); // return this
+// f will yield {1, 2, 3, 3, 5}
 ```
 
 # To containers, easy!
@@ -546,6 +523,25 @@ int main() {
 ```
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
+# Side note
+If you want to re-overwrite or default construct the iterator/view object, use a `std::function` instead of a lambda 
+function. Example:
+```cpp
+// OK
+std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
+    return t.testFieldStr;
+};
+auto map = lz::map(array, f);
+auto it = map.begin();
+it = map.end();
+
+// Not OK
+auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+auto it = map.begin();
+// it = map.end(); error, attempting to reference deleted function operator= for lambda
+
+```
+
 # Benchmarks cpp-lazy
 The time is equal to one iteration.
 
@@ -561,23 +557,3 @@ C++20
 
 <div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
 
-
-# Small side note...
-If using a iterator view object that requests a function, and you would like to re-overwrite the same variable, a 
-`std::function` is required, instead of an inline lambda. Example:
-```cpp
-// Wrong:
-auto someView = lz::view(..., [](const int i) { return i; });
-// Error, no operator= for lambda
-// someView = lz::view(..., [](const int i) { return i; });
-
-// Ok:
-auto someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-
-// Or ofcourse...
-std::function<int(int)> func = [](const int i) { return i; };
-auto anotherView = lz::view(..., func);
-anotherView = lz::view(..., func);
-
-```
