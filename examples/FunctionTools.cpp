@@ -20,11 +20,11 @@ int main() {
     std::string toFind = "hel";
     std::string def = "default";
 
-    toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+    toFind = std::move(lz::findOrDefault(s, toFind, def));
     // toFind == "default"
 
     toFind = "hello";
-    toFind = lz::findOrDefault(s, std::move(toFind), def); // Or use std::move(def) for more efficiency
+    toFind = std::move(lz::findOrDefault(s, toFind, def));
     // toFind == "hello"
 
     toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
@@ -55,8 +55,9 @@ int main() {
     });
     // pos == lz::npos
 
+
     std::string str = "123swd355";
-    std::function<bool(char)> f([](char c) {return static_cast<bool>(std::isdigit(c));});
+    std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
     // or, if c++17: std::function f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
     auto mf = lz::filterMap(str, f, [](const char c) { return static_cast<int>(c - '0'); }); // f must be by reference
     // mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5}

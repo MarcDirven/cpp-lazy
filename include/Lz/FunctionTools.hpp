@@ -266,8 +266,8 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<class Iterator, class T, class ValueType = detail::ValueType<Iterator>>
-    ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType toFind, T defaultValue) {
-        return std::find(begin, end, toFind) == end ? std::move(defaultValue) : std::move(toFind);
+    ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, T&& defaultValue) {
+        return std::find(begin, end, toFind) == end ? defaultValue : toFind;
     }
 
     /**
@@ -281,7 +281,7 @@ namespace lz {
      */
     template<class Iterable, class T, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue) {
-        return findOrDefault(std::begin(iterable), std::end(iterable), std::forward<ValueType>(toFind), std::forward<T>(defaultValue));
+        return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
     }
 
     /**

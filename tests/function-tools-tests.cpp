@@ -2,12 +2,6 @@
 #include <Lz/Range.hpp>
 #include <catch.hpp>
 
-template<class Func, class Iterable,
-    class Param = lz::detail::ValueTypeIterable<Iterable>,
-    class Ret = lz::detail::FunctionReturnType<Func, Param>>
-std::function<Ret(Param)> fnMaker(const Iterable&, Func f) {
-    return std::function<Ret(Param)>(f);
-}
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
@@ -64,12 +58,12 @@ TEST_CASE("Function tools") {
         std::string toFind = "hel";
         std::string def = "default";
 
-        toFind = lz::findOrDefault(s, std::move(toFind), std::move(def));
+        toFind = lz::findOrDefault(s, toFind, def);
         CHECK(toFind == "default");
 
         def = "default";
         toFind = "hello world!";
-        toFind = lz::findOrDefault(s, std::move(toFind), std::move(def));
+        toFind = lz::findOrDefault(s, toFind, def);
         CHECK(toFind == "hello world!");
 
         def = ' ';
@@ -77,6 +71,7 @@ TEST_CASE("Function tools") {
             return s.find('!') != std::string::npos;
         }, def);
         CHECK(toFind == "hello world!");
+        CHECK(!def.empty());
 
         toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
             return s.find('z') != std::string::npos;
