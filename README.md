@@ -25,8 +25,8 @@ auto filterMap(const Container& c, const FilterFunc filterFun, const Func mapFun
     auto myFilter = lz::filter(c, filterFun); /* A copy of filterFun is made here, and stores a reference/pointer to its 
     child, i.e. lz::detail::FilterIterator */
     return lz::map(c, func);
-} // The destructor of myFilter is called, causing the reference of `lz::detail::filterIterator` to be invalid/dangling.
-// This either causes a SEGFAULT or `std::bad_function_call`
+} // The destructor of myFilter is called, causing the reference of lz::detail::filterIterator to be invalid/dangling.
+// This either causes a SEGFAULT or std::bad_function_call
 ```
 
 # Current supported iterators & examples
