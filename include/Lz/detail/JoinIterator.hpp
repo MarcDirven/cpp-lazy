@@ -7,7 +7,7 @@
 #include "LzTools.hpp"
 
 
-#include <fmt/format.h>
+#include "fmt/format.h"
 
 
 
@@ -18,12 +18,15 @@ namespace lz { namespace detail {
                                                              !std::is_same<T, char>::value &&
                                                              !std::is_same<T, unsigned char>::value &&
                                                              !std::is_same<T, wchar_t>::value &&
-                                                             #ifdef HAS_CXX_20
+#ifdef HAS_CXX_20
                                                              !std::is_same<T, char8_t> &&
-                                                             #endif
+#endif
                                                              !std::is_same<T, char16_t>::value &&
                                                              !std::is_same<T, char32_t>::value> {
     };
+
+    template<class T>
+    constexpr bool IsFmtIntCompatibleV = IsFmtIntCompatible<T>::value;
 
 
     template<class Iterator>
@@ -39,13 +42,13 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
         template<class Val = ContainerType>
-        inline typename std::enable_if<IsFmtIntCompatible<Val>::value, std::string>::type
+        inline typename std::enable_if<IsFmtIntCompatibleV<Val>, std::string>::type
         get_formatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
         template<class Val = ContainerType>
-        inline typename std::enable_if<!IsFmtIntCompatible<Val>::value, std::string>::type
+        inline typename std::enable_if<!IsFmtIntCompatibleV<Val>, std::string>::type
         get_formatted() const {
             return fmt::format("{}", *_iterator);
         }
