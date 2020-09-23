@@ -37,6 +37,10 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
             return t.testFieldStr;
         };
         auto map = lz::map(array, f);
+
+        for (auto&& _ : map) {
+            static_cast<void>(_);
+        }
     }
 }
 
