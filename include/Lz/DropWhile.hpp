@@ -3,16 +3,15 @@
 #ifndef LZ_DROP_WHILE_HPP
 #define LZ_DROP_WHILE_HPP
 
-#include "detail/DropWhileIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
     template<class Iterator, class Function>
-    class DropWhile final : public detail::BasicIteratorView<detail::DropWhileIterator<Iterator, Function>> {
+    class DropWhile final : public detail::BasicIteratorView<Iterator> {
     public:
-        using iterator = detail::DropWhileIterator<Iterator, Function>;
-        using const_iterator = iterator;
+        using iterator = Iterator;
+        using const_iterator = Iterator;
 
         using value_type = typename iterator::value_type;
 
@@ -30,9 +29,12 @@ namespace lz {
          * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
          */
         DropWhile(const Iterator begin, const Iterator end, const Function& predicate) :
-            _begin(begin, end, predicate),
-            _end(end, end, predicate) {
-        }
+            _begin(std::find_if(begin, end, [&predicate](const value_type& value) {
+                return !predicate(value);
+            })),
+            _end(end)
+        {}
+
 
         DropWhile() = default;
 

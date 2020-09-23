@@ -13,7 +13,6 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/AffirmIterator.hpp
         ${LZ_DETAIL_HEADERS}/BasicIteratorView.hpp
         ${LZ_DETAIL_HEADERS}/ConcatenateIterator.hpp
-        ${LZ_DETAIL_HEADERS}/DropWhileIterator.hpp
         ${LZ_DETAIL_HEADERS}/EnumerateIterator.hpp
         ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
         ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
