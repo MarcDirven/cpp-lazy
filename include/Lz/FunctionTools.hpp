@@ -385,6 +385,7 @@ namespace lz {
      * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
      * @tparam Iterator Is automatically deduced.
      * @tparam UnaryMapFunc Is automatically deduced.
+     * @tparam UnaryFilterFunc Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
@@ -392,28 +393,27 @@ namespace lz {
      * @param mapFunc The function that returns the (new) type.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
-    template<class Iterator, class UnaryMapFunc>
-    Map<detail::FilterIterator<Iterator>, UnaryMapFunc>
-    filterMap(const Iterator begin, const Iterator end, std::function<bool(detail::ValueType<Iterator>)>& filterFunc,
-              const UnaryMapFunc& mapFunc) {
-        detail::FilterIterator<Iterator> beginFilter(begin, end, &filterFunc);
-        detail::FilterIterator<Iterator> endFilter(end, end, &filterFunc);
-        return mapRange(beginFilter, endFilter, mapFunc);
+    template<class UnaryFilterFunc, class UnaryMapFunc, class Iterator>
+    Map<detail::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>
+    filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
+        Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc);
+        return map(filterView, mapFunc);
     }
 
     /**
      * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
      * @tparam Iterable Is automatically deduced.
      * @tparam UnaryMapFunc Is automatically deduced.
+     * @tparam UnaryFilterFunc Is automatically deduced.
      * @param iterable The iterable to filter/map.
      * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
      * passed to the `mapFunc`.
      * @param mapFunc The function that returns the (new) type.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
-    template<class Iterable, class UnaryMapFunc>
-    auto filterMap(Iterable&& iterable, std::function<bool(detail::ValueTypeIterable<Iterable>)>& filterFunc,
-                   const UnaryMapFunc& mapFunc) -> Map<detail::FilterIterator<decltype(std::begin(iterable))>, UnaryMapFunc> {
+    template<class UnaryFilterFunc, class UnaryMapFunc, class Iterable>
+    auto filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) ->
+    Map<detail::FilterIterator<decltype(std::begin(iterable)), UnaryFilterFunc>, UnaryMapFunc> {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
 }

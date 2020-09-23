@@ -56,9 +56,8 @@ int main() {
     // pos == lz::npos
 
 
-    std::string str = "123swd355";
-    std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
-    // or, if c++17: std::function f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
-    auto mf = lz::filterMap(str, f, [](const char c) { return static_cast<int>(c - '0'); }); // f must be by reference
-    // mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5}
+    std::string str = "123,d35dd";
+    auto f = lz::filterMap(str, [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
+                           [](const char c) { return static_cast<int>(c - '0'); }); // return this
+    // f will yield {1, 2, 3, 3, 5}
 }

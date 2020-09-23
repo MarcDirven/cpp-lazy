@@ -99,10 +99,11 @@ TEST_CASE("Function tools") {
         CHECK(pos == lz::npos);
     }
 
-    SECTION("Filter map") {
-        std::string s = "123swd355";
-        std::function<bool(char)> f = [](char c) { return static_cast<bool>(std::isdigit(c)); };
-        auto mf = lz::filterMap(s,f, [](const char c) { return static_cast<int>(c - '0'); });
-        CHECK(mf.toVector() == std::vector<int>{1, 2, 3, 3, 5, 5});
+    SECTION("FilterMap") {
+        std::string s = "123,d35dd";
+        auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); },
+                               [](const char c) { return static_cast<int>(c - '0'); });
+
+        CHECK(f.toVector() == std::vector<int>{1, 2, 3, 3, 5});
     }
 }
