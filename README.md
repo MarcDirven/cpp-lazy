@@ -18,15 +18,22 @@ To keep all the iterators as lightweight as possible -- due to the fact that STL
 takes its arguments by copy, because iterators are often just pointers, and therefore cheap to copy -- the iterator
 saves a reference/pointer to its parent, also called a 'View'. If the view object doesn't exist anymore, so does
 its corresponding iterator 'child' object, causing dangling references. This is not true for all iterators however.
-Generally, this is true where a lambda is passed. Example:
+Generally, this is true whenever a lambda needs to be passed and its corresponding view object is returned. Example:
 ```cpp
-template<class Container, class MapFunc, class FilterFunc>
-auto filterMap(const Container& c, const FilterFunc filterFun, const Func mapFun) {
-    auto myFilter = lz::filter(c, filterFun); /* A copy of filterFun is made here, and stores a reference/pointer to its 
-    child, i.e. lz::detail::FilterIterator */
-    return lz::map(c, func);
-} // The destructor of myFilter is called, causing the reference of lz::detail::filterIterator to be invalid/dangling.
-// This either causes a SEGFAULT or std::bad_function_call
+// A copy of the filter function is made, but its child iterator object still has a reference to the Filter view object.
+// The constructor is called of `filter`, and a dangling reference is created. 
+auto filterMapper = lz::map(lz::filter(s, [] (char c) { return (bool)std::isdigit(c); }),
+                            [](char c) { return static_cast<int>(c - '0');})
+
+// Bad function call ...
+//for (int i : filterMppaer) {
+//    std::cout << i << '\n';
+//}
+```
+Instead use: `lz::filterMap` or...
+```cpp
+auto filter = lz::filter(container, [](){});
+auto mapper = lz::map(filter, [](){});
 ```
 
 # Current supported iterators & examples
