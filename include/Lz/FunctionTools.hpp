@@ -298,9 +298,9 @@ namespace lz {
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
     template<class Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueType<Iterator>>
-    ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T defaultValue) {
+    ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T&& defaultValue) {
         const Iterator pos = std::find_if(begin, end, predicate);
-        return pos == end ? std::move(defaultValue) : *pos;
+        return pos == end ? defaultValue : *pos;
     }
 
     /**
@@ -317,7 +317,7 @@ namespace lz {
      */
     template<class Iterable, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue) {
-        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, std::forward<T>(defaultValue));
+        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
     /**
