@@ -18,15 +18,33 @@ To keep all the iterators as lightweight as possible -- due to the fact that STL
 takes its arguments by copy, because iterators are often just pointers, and therefore cheap to copy -- the iterator
 saves a reference/pointer to its parent, also called a 'View'. If the view object doesn't exist anymore, so does
 its corresponding iterator 'child' object, causing dangling references. This is not true for all iterators however.
-Generally, this is true where a lambda is passed. Example:
+Generally, this is true whenever a lambda needs to be passed and its corresponding view object is returned. Example:
 ```cpp
-template<class Container, class MapFunc, class FilterFunc>
-auto filterMap(const Container& c, const FilterFunc filterFun, const Func mapFun) {
+template<class MapFunc, class FilterFunc>
+auto filterMap(const std::vector<int>& c, const FilterFunc filterFun, const Func mapFun) {
     auto myFilter = lz::filter(c, filterFun); /* A copy of filterFun is made here, and stores a reference/pointer to its 
     child, i.e. lz::detail::FilterIterator */
     return lz::map(c, func);
 } // The destructor of myFilter is called, causing the reference of lz::detail::filterIterator to be invalid/dangling.
 // This either causes a SEGFAULT or std::bad_function_call
+```
+You would not quite run into this problem very fast since you can 'stack' iterators, but a solution to this problem 
+would be:
+```cpp
+template<class MapFunc, class FilterFunc>
+auto filterMap(const std::vector<int>& c, std::function<bool(int)>& filterFun, const Func mapFun) { // function by reference
+    using ConstIter = lz::Filter<std::vector<int>>::const_iterator; 
+    ConstIter b(c.begin(), c.end(), &filterFun);
+    ConstIter e(c.end(), c.end(), &filterFun); // Store the pointer to the function
+    return lz::mapRange(b, e, func);
+}
+```
+By stacking, the following is meant:
+```cpp
+lz::map(lz::filter(container, [](){}), [](){});
+// or...
+auto filter = lz::filter(container, [](){});
+lz::map(filter, [](){});
 ```
 
 # Current supported iterators & examples
