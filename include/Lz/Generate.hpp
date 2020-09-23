@@ -16,8 +16,8 @@ namespace lz {
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
     private:
-        size_t _amount{};
-        detail::GenerateIteratorHelper<GeneratorFunc, value_type> _helper;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -29,8 +29,8 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(const GeneratorFunc& func, const size_t amount):
-            _amount(amount),
-            _helper{func, amount == std::numeric_limits<size_t>::max()}
+            _begin(0, func, amount == std::numeric_limits<size_t>::max()),
+            _end(amount, func, amount == std::numeric_limits<size_t>::max())
         {
         }
 
@@ -41,7 +41,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator begin() const override {
-            return iterator(0, &_helper);
+            return _begin;
         }
 
         /**
@@ -49,7 +49,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator end() const override {
-            return iterator(_amount, &_helper);
+            return _end;
         }
     };
 

@@ -9,17 +9,16 @@
 
 namespace lz {
     template<class Iterator, class Function>
-    class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator>> {
+    class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, Function>> {
     public:
-        using iterator = detail::FilterIterator<Iterator>;
+        using iterator = detail::FilterIterator<Iterator, Function>;
         using const_iterator = iterator;
 
         using value_type = typename iterator::value_type;
 
     private:
-        std::function<bool(value_type)> _predicate{};
-        Iterator _begin{};
-        Iterator _end{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -29,9 +28,8 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
         Filter(const Iterator begin, const Iterator end, const Function& function) :
-            _predicate{function},
-            _begin(begin),
-            _end(end) {
+            _begin(begin, end, function),
+            _end(end, end, function) {
         }
 
         Filter() = default;
@@ -41,7 +39,7 @@ namespace lz {
         * @return A forward iterator FilterIterator.
         */
         iterator begin() const override {
-            return iterator(_begin, _end, &_predicate);
+            return _begin;
         }
 
         /**
@@ -49,7 +47,7 @@ namespace lz {
         * @return A forward iterator FilterIterator.
         */
         iterator end() const override {
-            return iterator(_end, _end, &_predicate);
+            return _end;
         }
     };
 
@@ -70,7 +68,7 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Iterator, class Function>
+    template<class Function, class Iterator>
     Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "function must return bool");
@@ -88,7 +86,7 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class Iterable, class Function>
+    template<class Function, class Iterable>
     auto filter(Iterable&& iterable, const Function& predicate) -> Filter<decltype(std::begin(iterable)), Function> {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }

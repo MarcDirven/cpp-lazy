@@ -10,7 +10,7 @@
 
 
 namespace lz { namespace detail {
-    template<class Iterator>
+    template<class Iterator, class Function>
     class FilterIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
@@ -24,14 +24,14 @@ namespace lz { namespace detail {
     private:
         Iterator _iterator{};
         Iterator _end{};
-        const std::function<bool(value_type)>* _predicate{};
+        Function _predicate;
 
     public:
-        FilterIterator(const Iterator begin, const Iterator end, const std::function<bool(value_type)>* function) :
+        FilterIterator(const Iterator begin, const Iterator end, const Function& function) :
             _iterator(begin),
             _end(end),
             _predicate(function) {
-            _iterator = std::find_if(_iterator, _end, *_predicate);
+            _iterator = std::find_if(_iterator, _end, _predicate);
         }
 
         FilterIterator() = default;
@@ -46,7 +46,7 @@ namespace lz { namespace detail {
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(++_iterator, _end, *_predicate);
+                _iterator = std::find_if(++_iterator, _end, _predicate);
             }
             return *this;
         }

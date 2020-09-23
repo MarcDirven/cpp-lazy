@@ -3,8 +3,6 @@
 #ifndef LZ_MAP_ITERATOR_HPP
 #define LZ_MAP_ITERATOR_HPP
 
-#include <functional>
-
 
 namespace lz {
     template<class, class>
@@ -18,9 +16,12 @@ namespace lz {
             Iterator _iterator{};
             using FnParamType = decltype(*_iterator);
             using FnReturnType = detail::FunctionReturnType<Function, FnParamType>;
-            const std::function<FnReturnType(FnParamType)>* _function{};
+            Function _function;
+
 
             friend class Map<Iterator, Function>;
+
+
         public:
             using value_type = FnReturnType;
             using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
@@ -28,15 +29,30 @@ namespace lz {
             using reference = value_type;
             using pointer = FakePointerProxy<reference>;
 
-            MapIterator(const Iterator iterator, const std::function<FnReturnType(FnParamType)>* function) :
+            MapIterator(const Iterator iterator, const Function& function) :
                 _iterator(iterator),
                 _function(function) {
             }
 
             MapIterator() = default;
 
+            MapIterator(const MapIterator&) = default;
+
+            MapIterator(MapIterator&& other) noexcept:
+                _iterator(other._iterator),
+                _function(other._function)
+            {}
+
+            MapIterator& operator=(const MapIterator&) = default;
+
+            MapIterator& operator=(MapIterator&& other) noexcept {
+                _iterator = other._iterator;
+                _function = std::move(other._function);
+                return *this;
+            }
+
             value_type operator*() const {
-                return (*_function)(*_iterator);
+                return _function(*_iterator);
             }
 
             FakePointerProxy <reference> operator->() const {

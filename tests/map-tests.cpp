@@ -32,10 +32,11 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
     SECTION("Should be by reference") {
         size_t count = 0;
-        auto map = lz::map(array, [&count, &array](TestStruct& t) -> std::string& {
+    	std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t)->std::string& {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
-        });
+        };
+        auto map = lz::map(array, f);
     }
 }
 
@@ -48,9 +49,10 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
         TestStruct{"FieldC", 3}
     };
 
-    auto map = lz::map(array, [](const TestStruct& t) {
+    std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
         return t.testFieldStr;
-    });
+    };
+    auto map = lz::map(array, f);
     auto it = map.begin();
 
     SECTION("Operator++") {

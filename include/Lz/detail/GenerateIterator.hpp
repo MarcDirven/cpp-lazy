@@ -10,12 +10,6 @@
 
 
 namespace lz { namespace detail {
-    template<class GeneratorFunc, class ValueType>
-    struct GenerateIteratorHelper {
-        std::function<ValueType()> generator{};
-        bool isWhileTrueLoop{};
-    };
-
     template<class GeneratorFunc>
     class GenerateIterator {
     public:
@@ -27,18 +21,18 @@ namespace lz { namespace detail {
 
     private:
         size_t _current{};
-        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper{};
+        GeneratorFunc _generator{};
+        bool _isWhileTrueLoop{};
 
     public:
         GenerateIterator() = default;
 
-        GenerateIterator(const size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
+        GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, bool isWhileTrueLoop) :
             _current(start),
-            _iterHelper(helper)
-        {}
+            _generator(generatorFunc) {}
 
         value_type operator*() const {
-            return _iterHelper->generator();
+            return _generator();
         }
 
         pointer operator->() const {
@@ -46,7 +40,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator++() {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 ++_current;
             }
             return *this;
@@ -59,7 +53,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator--() {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 --_current;
             }
             return *this;
@@ -72,14 +66,14 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator+=(const difference_type offset) {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current += offset;
             }
             return *this;
         }
 
         GenerateIterator& operator-=(const difference_type offset) {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current -= offset;
             }
             return *this;

@@ -24,9 +24,10 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
 TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     constexpr size_t amount = 4;
     size_t counter = 0;
-    auto generator = lz::generate([&counter]() {
+    std::function<size_t()> f = [&counter]() {
         return counter++;
-    }, amount);
+    };
+    auto generator = lz::generate(f, amount);
     auto begin = generator.begin();
 
     SECTION("Operator++") {
