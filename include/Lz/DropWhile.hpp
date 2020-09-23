@@ -13,7 +13,7 @@ namespace lz {
         using iterator = Iterator;
         using const_iterator = Iterator;
 
-        using value_type = typename iterator::value_type;
+        using value_type = typename std::iterator_traits<iterator>::value_type;
 
     private:
         iterator _begin{};
