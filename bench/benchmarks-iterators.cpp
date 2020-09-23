@@ -20,7 +20,7 @@ static void Enumerate(benchmark::State& state) {
 
 static void Filter(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
-    auto filter = lz::filter(arr, [](const int i) { return i != 0; });
+    auto filter = lz::filter(arr, [](const int i) { return i == 0; });
 
     for (auto _ : state) {
         for (const int filtered : filter) {
