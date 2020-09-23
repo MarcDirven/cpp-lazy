@@ -42,7 +42,7 @@ namespace lz {
          * @brief Returns the beginning of the enumerate iterator object.
          * @return A random access DropWhile.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -50,7 +50,7 @@ namespace lz {
          * @brief Returns the ending of the enumerate object.
          * @return A random access DropWhile.
          */
-        iterator end() const {
+        iterator end() const override {
             return _end;
         }
     };

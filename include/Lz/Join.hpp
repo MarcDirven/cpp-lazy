@@ -9,7 +9,7 @@
 
 namespace lz {
     template<class Iterator>
-    class Join : public detail::BasicIteratorView<detail::JoinIterator<Iterator>> {
+    class Join final : public detail::BasicIteratorView<detail::JoinIterator<Iterator>> {
     public:
         using iterator = detail::JoinIterator<Iterator>;
         using const_iterator = iterator;
@@ -43,7 +43,7 @@ namespace lz {
          * @brief Returns the ending of the sequence.
          * @return The ending of the sequence.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return iterator(_begin, _delimiter, true, _distance);
         }
 
@@ -51,7 +51,7 @@ namespace lz {
          * @brief Returns the ending of the sequence.
          * @return The ending of the sequence.
          */
-        iterator end() const {
+        iterator end() const override {
             return iterator(_end, _delimiter, false, _distance);
         }
     };

@@ -14,7 +14,7 @@ namespace lz { namespace detail {
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = detail::FunctionReturnType<GeneratorFunc>;
+        using value_type = FunctionReturnType<GeneratorFunc>;
         using difference_type = size_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;
@@ -27,7 +27,7 @@ namespace lz { namespace detail {
     public:
         GenerateIterator() = default;
 
-        GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, bool isWhileTrueLoop) :
+        GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
             _current(start),
             _generator(generatorFunc),
             _isWhileTrueLoop{isWhileTrueLoop}

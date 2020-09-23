@@ -18,7 +18,7 @@ namespace lz { namespace detail {
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Arithmetic;
         using difference_type = size_t;
-        using pointer = detail::FakePointerProxy<Arithmetic>;
+        using pointer = FakePointerProxy<Arithmetic>;
         using reference = value_type;
 
     private:

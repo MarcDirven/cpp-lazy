@@ -33,12 +33,10 @@ namespace lz {
     public:
         /**
          * @brief Concatenate constructor.
-         * @param beginIterator1 The beginning of the first iterator.
-         * @param endIterator1 The ending of the first iterator.
-         * @param beginIterator2 The beginning of the second iterator.
-         * @param endIterator2 The ending of the second iterator.
+         * @param begin All the beginnings of the containers/iterables.
+         * @param end All the endings of the containers/iterables.
          */
-        Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+        Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :  // NOLINT(modernize-pass-by-value)
             _begin(begin),
             _end(end) {}
 

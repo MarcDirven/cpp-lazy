@@ -93,7 +93,7 @@ namespace lz {
         if (start > end && step >= 1) {
             throw std::range_error(__LZ_FILE_LINE__ ": with a step of 1 or bigger and begin greater than end, the sequence can never end");
         }
-        else if (end > start && step < 0) {
+        if (end > start && step < 0) {
             throw std::range_error(
                 __LZ_FILE_LINE__ ": with a negative step size and begin start smaller than end, the sequence can never end");
         }

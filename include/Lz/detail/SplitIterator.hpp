@@ -3,16 +3,12 @@
 #ifndef LZ_SPLIT_ITERATOR_HPP
 #define LZ_SPLIT_ITERATOR_HPP
 
-#include <algorithm>
 #include <string>
 #include <iostream>
 
 #include "LzTools.hpp"
 
-
-#ifdef CXX_LT_17
-  #include <string>
-#else
+#ifndef CXX_LT_17
   #include <string_view>
 #endif
 

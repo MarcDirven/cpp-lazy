@@ -86,15 +86,15 @@ namespace lz {
     }
 
     /**
-     * @brief This function does the same as `lz::takewhilerange` except that it takes an iterable as parameter.
+     * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
      * Its `begin()` function returns a random access iterator.
-     * @tparam Iterator Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
      * @tparam Function Is automatically deduced.
      * @param iterable An object that has methods `begin()` and `end()`.
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takewhile(...))`.
+     * `for (auto... lz::takeWhile(...))`.
      */
     template<class Iterable, class Function>
     auto takeWhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
@@ -109,7 +109,7 @@ namespace lz {
      * @param begin The beginning of the 'view'.
      * @param end The ending of the 'view'.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takerange(...))`.
+     * `for (auto... lz::takeRange(...))`.
      */
     template<class Iterator>
     Take<Iterator> takeRange(const Iterator begin, const Iterator end) {

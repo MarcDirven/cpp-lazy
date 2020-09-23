@@ -86,7 +86,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random floats.
      */
     template<>
-    auto random(const float min, const float max, const size_t amount) {
+    inline auto random(const float min, const float max, const size_t amount) {
         return Random<float, std::uniform_real_distribution<float>>(min, max, amount);
     }
 
@@ -102,7 +102,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random doubles.
      */
     template<>
-    auto random(const double min, const double max, const size_t amount) {
+    inline auto random(const double min, const double max, const size_t amount) {
         return Random<double, std::uniform_real_distribution<double>>(min, max, amount);
     }
 
@@ -118,7 +118,7 @@ namespace lz {
      * @return A random view object that generates a sequence of random long doubles.
      */
     template<>
-    auto random(const long double min, const long double max, const size_t amount) {
+    inline auto random(const long double min, const long double max, const size_t amount) {
         return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount);
     }
 

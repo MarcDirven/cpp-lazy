@@ -21,7 +21,7 @@ namespace lz {
         using iterator = const_iterator;
 
     private:
-        detail::SplitViewIteratorHelper<String> _splitIteratorHelper;
+        detail::SplitViewIteratorHelper<String> _splitIteratorHelper{};
 
     public:
         using value_type = SubString;

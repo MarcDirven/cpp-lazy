@@ -12,10 +12,9 @@ namespace lz {
 
         template<class Iterator, class Function>
         class MapIterator {
-        private:
             Iterator _iterator{};
             using FnParamType = decltype(*_iterator);
-            using FnReturnType = detail::FunctionReturnType<Function, FnParamType>;
+            using FnReturnType = FunctionReturnType<Function, FnParamType>;
             Function _function;
 
 
@@ -29,27 +28,12 @@ namespace lz {
             using reference = value_type;
             using pointer = FakePointerProxy<reference>;
 
-            MapIterator(const Iterator iterator, const Function& function) :
+            MapIterator(const Iterator iterator, const Function& function) :  // NOLINT(modernize-pass-by-value)
                 _iterator(iterator),
                 _function(function) {
             }
 
             MapIterator() = default;
-
-            MapIterator(const MapIterator&) = default;
-
-            MapIterator(MapIterator&& other) noexcept:
-                _iterator(other._iterator),
-                _function(other._function)
-            {}
-
-            MapIterator& operator=(const MapIterator&) = default;
-
-            MapIterator& operator=(MapIterator&& other) noexcept {
-                _iterator = other._iterator;
-                _function = std::move(other._function);
-                return *this;
-            }
 
             value_type operator*() const {
                 return _function(*_iterator);

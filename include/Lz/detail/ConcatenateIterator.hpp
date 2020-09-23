@@ -177,7 +177,7 @@ namespace lz { namespace detail {
     private:
         template<size_t... I>
         difference_type minus(std::index_sequence<I...>, const ConcatenateIterator& other) const {
-            std::initializer_list<difference_type> totals = {
+	        const std::initializer_list<difference_type> totals = {
                 static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
             return std::accumulate(totals.begin(), totals.end(), static_cast<difference_type>(0));
         }

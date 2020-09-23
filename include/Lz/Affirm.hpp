@@ -17,9 +17,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        detail::AffirmIteratorHelper<Exception, value_type> _helper{};
-        Iterator _begin{};
-        Iterator _end{};
+        iterator _begin{};
+        iterator _end{};
 
         using FunctionReturnType = detail::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
@@ -34,9 +33,10 @@ namespace lz {
          * `exception` is thrown.
          */
         Affirm(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) :
-            _helper{predicate, std::forward<Exception>(exception)},
-            _begin(begin),
-            _end(end) {}
+            _begin(begin, predicate, exception),
+    		_end(end, predicate, std::forward<Exception>(exception)) {
+        }
+    	
 
         Affirm() = default;
 
@@ -44,16 +44,16 @@ namespace lz {
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
-        iterator begin() const {
-            return iterator(_begin, &_helper);
+        iterator begin() const override {
+            return _begin;
         }
 
         /**
          * @brief Returns the ending of the sequence.
          * @return The ending of the sequence.
          */
-        iterator end() const {
-            return iterator(_end, &_helper);
+        iterator end() const override {
+            return _end;
         }
     };
     /**

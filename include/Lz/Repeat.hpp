@@ -15,8 +15,8 @@ namespace lz {
         using value_type = T;
 
     private:
-        detail::RepeatIteratorHelper<T> _iteratorHelper;
-        size_t _amount;
+        detail::RepeatIteratorHelper<T> _iteratorHelper{};
+        size_t _amount{};
 
     public:
         /**
@@ -24,7 +24,7 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        Repeat(T&& toRepeat, const size_t amount):
+        Repeat(T toRepeat, const size_t amount):
             _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
             _amount(amount){
         }

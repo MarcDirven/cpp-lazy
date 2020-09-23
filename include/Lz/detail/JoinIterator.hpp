@@ -6,10 +6,7 @@
 #include <iterator>
 #include "LzTools.hpp"
 
-
 #include "fmt/format.h"
-
-
 
 namespace lz { namespace detail {
     template<class T>
@@ -42,14 +39,14 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
         template<class Val = ContainerType>
-        inline typename std::enable_if<IsFmtIntCompatibleV<Val>, std::string>::type
-        get_formatted() const {
+        typename std::enable_if<IsFmtIntCompatibleV<Val>, std::string>::type
+        getFormatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
         template<class Val = ContainerType>
-        inline typename std::enable_if<!IsFmtIntCompatibleV<Val>, std::string>::type
-        get_formatted() const {
+        typename std::enable_if<!IsFmtIntCompatibleV<Val>, std::string>::type
+        getFormatted() const {
             return fmt::format("{}", *_iterator);
         }
 
@@ -69,7 +66,7 @@ namespace lz { namespace detail {
         template<class Val = ContainerType, class = typename std::enable_if<!std::is_same<std::string, Val>::value>::type>
         std::string operator*() const {
             if (_isIteratorTurn) {
-                return get_formatted();
+                return getFormatted();
             }
             return _delimiter;
         }

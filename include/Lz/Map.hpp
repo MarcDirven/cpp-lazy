@@ -61,9 +61,10 @@ namespace lz {
      * an actual iterator object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
      * will return all pairs first values in the sequence, that is, `1` and `3`.
-     * @tparam Iterable Is automatically deduced.
+     * @tparam Iterator Is automatically deduced.
      * @tparam Function Is automatically deduced.
-     * @param iterable The iterable to do the mapping over.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
      * @param function A function that takes a value type as parameter. It may return anything.
      * @return A Map object from [begin, end) that can be converted to an arbitrary container or can be iterated over
      * using `for (auto... lz::map(...))`.

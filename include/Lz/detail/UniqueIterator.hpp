@@ -10,7 +10,6 @@
 namespace lz { namespace detail {
     template<class Iterator>
     class UniqueIterator {
-    private:
         using IterTraits = std::iterator_traits<Iterator>;
 
         Iterator _iterator{};

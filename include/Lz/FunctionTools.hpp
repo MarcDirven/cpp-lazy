@@ -82,7 +82,7 @@ namespace lz {
 
         if (detail::isEven(len)) {
             const Iterator leftHalf = std::max_element(begin, midIter);
-            return (*leftHalf + *midIter) / 2.;
+            return (static_cast<double>(*leftHalf) + *midIter) / 2.;
         }
         return *midIter;
     }
@@ -142,7 +142,7 @@ namespace lz {
      * @return A Join iterator that joins the strings in the container on `'\n'`.
      */
     template<class Strings, class Iterator = detail::IterType<Strings>>
-    auto unlines(Strings&& strings) -> Join<Iterator> {
+    Join<Iterator> unlines(Strings&& strings) {
         static_assert(std::is_same<std::string, detail::ValueType<Iterator>>::value
 #ifndef CXX_LT_17
             || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
@@ -156,7 +156,7 @@ namespace lz {
      * to sum all string sizes in a container, use:
      * ```cpp
      * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s.begin(), s.end(), 0, [](size_t i, const std::string& rhs) {
+     * size_t totalSize = lz::transAccumulate(s.begin(), s.end(), 0, [](size_t i, const std::string& rhs) {
      *      return i + rhs.size();
      * }); // totalSize = 11
      * ```
@@ -167,7 +167,7 @@ namespace lz {
      * @param end The ending of the sequence
      * @param init The starting value.
      * @param selectorFunc Function that specifies what to add to `init`.
-     * @return The result of the transfold operation.
+     * @return The result of the transAccumulate operation.
      */
     template<class Iterator, class Init, class SelectorFunc>
     Init transAccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
@@ -182,7 +182,7 @@ namespace lz {
      * to sum all string sizes in a container, use:
      * ```cpp
      * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transaccumulate(s, 0, [](size_t i, const std::string& rhs) {
+     * size_t totalSize = lz::transAccumulate(s, 0, [](size_t i, const std::string& rhs) {
      *      return i + rhs.size();
      * }); // totalSize = 11
      * ```
@@ -192,7 +192,7 @@ namespace lz {
      * @param it The container to iterate over.
      * @param init The starting value.
      * @param selectorFunc Function that specifies what to add to `init`.
-     * @return The result of the transfold operation.
+     * @return The result of the transAccumulate operation.
      */
     template<class Iterable, class Init, class SelectorFunc>
     Init transAccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
@@ -251,7 +251,7 @@ namespace lz {
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
     template<class T, class Iterable, class Iterator = detail::IterType<Iterable>>
-    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(typename detail::ValueType<Iterator>)>> {
+    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(detail::ValueType<Iterator>)>> {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
 
@@ -370,7 +370,7 @@ namespace lz {
 
     /**
     * Searches iterable with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
-    * @tparam Iterator Is automatically deduced.
+    * @tparam Iterable Is automatically deduced.
     * @tparam UnaryFunc Is automatically deduced.
     * @param iterable The sequence to search.
     * @param predicate The search predicate. Uses `std::find_if`.

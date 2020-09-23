@@ -39,7 +39,7 @@ namespace lz {
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return iterator(_begin, _end);
         }
 
@@ -47,7 +47,7 @@ namespace lz {
          * @brief Returns the ending of the sequence.
          * @return The ending of the sequence.
          */
-        iterator end() const {
+        iterator end() const override {
             return iterator(_end, _end);
         }
     };
@@ -64,7 +64,7 @@ namespace lz {
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
-     * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniquerange(...))` fashion.
+     * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<class Iterator>
     Unique<Iterator> uniqueRange(const Iterator begin, const Iterator end) {

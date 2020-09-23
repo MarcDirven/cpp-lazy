@@ -110,8 +110,8 @@ namespace lz {
         }
 
         difference_type operator-(const TakeEveryIterator& other) const {
-            difference_type distance = std::distance(other._iterator, _iterator);
-            auto diffOffset = static_cast<difference_type>(distance / _offset);
+            const difference_type distance = std::distance(other._iterator, _iterator);
+            const auto diffOffset = static_cast<difference_type>(distance / _offset);
             return _offset % 2 == 0 ? diffOffset : diffOffset + 1;
         }
 
