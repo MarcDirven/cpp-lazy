@@ -3,10 +3,8 @@
 #ifndef LZ_FILTER_ITERATOR_HPP
 #define LZ_FILTER_ITERATOR_HPP
 
-#include <type_traits>
+
 #include <algorithm>
-#include <functional>
-#include <iostream>
 
 
 namespace lz { namespace detail {

@@ -6,7 +6,6 @@
 #include "LzTools.hpp"
 
 #include <iterator>
-#include <functional>
 
 
 namespace lz { namespace detail {

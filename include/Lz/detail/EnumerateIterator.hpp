@@ -10,7 +10,6 @@
 namespace lz { namespace detail {
     template<class Iterator, class IntType>
     class EnumerateIterator {
-    private:
         IntType _index;
         Iterator _iterator;
 

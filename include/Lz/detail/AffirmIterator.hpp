@@ -4,7 +4,6 @@
 #define LZ_AFFIRM_ITERATOR_HPP
 
 #include <iterator>
-#include <functional>
 
 
 namespace lz { namespace detail {

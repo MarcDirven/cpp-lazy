@@ -4,7 +4,6 @@
 #define LZ_SPLIT_ITERATOR_HPP
 
 #include <string>
-#include <iostream>
 
 #include "LzTools.hpp"
 

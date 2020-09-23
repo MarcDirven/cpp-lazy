@@ -5,7 +5,6 @@
 
 #include <iterator>
 #include <numeric>
-#include <iostream>
 #include <tuple>
 
 #include "LzTools.hpp"

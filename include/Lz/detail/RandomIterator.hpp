@@ -5,11 +5,9 @@
 
 #include <iterator>
 #include <random>
-#include <limits>
 
 #include "LzTools.hpp"
-#include <chrono>
-#include <iostream>
+
 
 namespace lz { namespace detail {
     template<class Arithmetic, class Distribution>

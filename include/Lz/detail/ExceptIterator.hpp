@@ -3,9 +3,8 @@
 #ifndef LZ_EXCEPT_ITERATOR_HPP
 #define LZ_EXCEPT_ITERATOR_HPP
 
-#include <type_traits>
+
 #include <algorithm>
-#include <functional>
 
 
 namespace lz {
