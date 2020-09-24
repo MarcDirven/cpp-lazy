@@ -122,4 +122,13 @@ TEST_CASE("Function tools") {
         CHECK(s.size() == 3);
         CHECK(s == std::vector<std::string>{"hello", "world", "what's"});
     }
+
+    SECTION("To string func") {
+        std::vector<int> v = {1, 2, 3, 4, 5};
+        auto dummy = lz::map(v, [](int i) { return i; });
+
+        CHECK(dummy.toString() == "12345");
+        CHECK(dummy.toString(" ") == "1 2 3 4 5");
+        CHECK(dummy.toString(", ") == "1, 2, 3, 4, 5");
+    }
 }
