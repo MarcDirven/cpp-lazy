@@ -9,8 +9,9 @@ object has many r-value reference overloads. This is very efficient, because now
 std::vector<std::string> strings = {"hello", "world" };
 auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; }); // if s equal "hello", keep it
 std::vector<std::string> newVector = std::move(filter).toVector(); // moves the string into the new vector where the lambda (^) returns true
-// all the values in strings where the lambda returns true, are empty here, one could also do:
-strings = std::move(filter).toVector();
+// All the values in strings where the lambda returns true, are empty here, so strings = { "", "world" }
+// One could also do:
+strings = std::move(filter).toVector(); // overwrites the original container
 ```
 
 This library uses one dependency library `fmt`, which is automatically configured by CMake.
