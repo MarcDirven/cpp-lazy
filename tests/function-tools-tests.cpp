@@ -131,4 +131,16 @@ TEST_CASE("Function tools") {
         CHECK(dummy.toString(" ") == "1 2 3 4 5");
         CHECK(dummy.toString(", ") == "1, 2, 3, 4, 5");
     }
+
+    SECTION("String replace") {
+        std::string myString = "picture.jpg";
+        lz::strReplace(myString, ".jpg", ".png");
+        CHECK(myString == "picture.png");
+        CHECK(myString.length() == std::strlen("picture.png"));
+
+        myString = "picture.png.png";
+        lz::strReplaceAll(myString, ".png", ".jpg");
+        CHECK(myString == "picture.jpg.jpg");
+        CHECK(myString.length() == std::strlen("picture.jpg.jpg"));
+    }
 }

@@ -33,6 +33,29 @@ namespace lz {
 
         template<class Iterable>
         using ValueTypeIterable = typename std::iterator_traits<IterType<Iterable>>::value_type;
+
+        bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const bool replaceAll) {
+            if (oldString.empty() || newString.empty()) {
+                return false;
+            }
+
+            size_t startPos = string.find(oldString);
+            if (startPos == std::string::npos) {
+                return false;
+            }
+
+            std::memcpy(&string[startPos], &newString[0], oldString.length());
+            if (!replaceAll) {
+                return true;
+            }
+
+            startPos = string.find(oldString, newString.length() + startPos);
+            while (startPos != std::string::npos) {
+                std::memcpy(&string[startPos], &newString[0], oldString.length());
+                startPos = string.find(oldString, newString.length() + startPos);
+            }
+            return true;
+        }
     }
 
     /**
@@ -415,6 +438,30 @@ namespace lz {
     auto filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) ->
     Map<detail::FilterIterator<decltype(std::begin(iterable)), UnaryFilterFunc>, UnaryMapFunc> {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
+    }
+
+
+    /**
+     * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
+     * at all.
+     * @param string The string to modify.
+     * @param oldString The string to replace.
+     * @param newString The new string.
+     * @return `true` if replacing has taken place, `false` otherwise.
+     */
+    bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
+        return detail::stringReplaceImpl(string, oldString, newString, false);
+    }
+
+    /**
+     * Replaces all occurrences of `oldString` in `string` to `newString`.
+     * @param string The string to modify.
+     * @param oldString The string to replace.
+     * @param newString The new string.
+     * @return `true` if replacing has taken place, `false` otherwise.
+     */
+    bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
+        return detail::stringReplaceImpl(string, oldString, newString, true);
     }
 }
 

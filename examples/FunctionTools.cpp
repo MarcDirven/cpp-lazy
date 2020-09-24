@@ -60,4 +60,13 @@ int main() {
     auto f = lz::filterMap(str, [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
                            [](const char c) { return static_cast<int>(c - '0'); }); // return this
     // f will yield {1, 2, 3, 3, 5}
+
+
+    std::string myString = "picture.jpg";
+    lz::strReplace(myString, ".jpg", ".png");
+    // myString == "picture.png"
+
+    myString = "picture.png.png";
+    lz::strReplaceAll(myString, ".png", ".jpg");
+    // myString == "picture.jpg.jpg"
 }
