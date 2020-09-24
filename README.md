@@ -11,7 +11,8 @@ auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; }); 
 std::vector<std::string> newVector = std::move(filter).toVector(); // moves the string into the new vector where the lambda (^) returns true
 // all the values in strings where the lambda returns true, are empty here, one could also do:
 strings = std::move(filter).toVector();
- * ```
+```
+
 This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
