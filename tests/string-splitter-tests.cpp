@@ -19,7 +19,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
         }
     }
 
-#ifdef CXX_LT_17
+#ifdef LZ_CXX_LT_17
     SECTION("Should be std::string") {
         CHECK(std::is_same<decltype(*it), std::string&>::value);
     }
