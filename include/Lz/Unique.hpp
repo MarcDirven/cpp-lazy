@@ -39,7 +39,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return _end;
+            return _begin;
         }
 
         /**
@@ -47,7 +47,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return _begin;
+            return _end;
         }
     };
 

@@ -28,7 +28,8 @@ namespace lz {
         Repeat(T toRepeat, const size_t amount):
             _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
             _begin(&_iteratorHelper, 0),
-            _end(&_iteratorHelper, amount) {
+            _end(&_iteratorHelper, amount)
+            {
         }
 
         Repeat() = default;
@@ -38,7 +39,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return _end;
+            return _begin;
         }
 
         /**
