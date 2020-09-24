@@ -14,8 +14,8 @@
 #endif
 
 #define __LZ_STRINGIFY__(x) #x
-#define __LZ_TOSTRING__(x) __LZ_STRINGIFY__(x)
-#define __LZ_FILE_LINE__ __FILE__ ": " __LZ_TOSTRING__(__LINE__)
+#define __LZ_TO_STRING__(x) __LZ_STRINGIFY__(x)
+#define __LZ_FILE_LINE__ __FILE__ ": " __LZ_TO_STRING__(__LINE__)
 
 namespace lz { namespace detail {
     template<class T>
