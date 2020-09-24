@@ -1,7 +1,7 @@
 #include <Lz/FunctionTools.hpp>
 #include <Lz/Range.hpp>
 #include <catch.hpp>
-
+#include <iostream>
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
@@ -105,5 +105,21 @@ TEST_CASE("Function tools") {
                                [](const char c) { return static_cast<int>(c - '0'); });
 
         CHECK(f.toVector() == std::vector<int>{1, 2, 3, 3, 5});
+    }
+
+    SECTION("Moving contents") {
+        std::vector<std::string> s = {"hello", "world", "what's", "up"};
+        auto filter = lz::filter(s, [](const std::string& s) { return s != "Dummy"; });
+        std::vector<std::string> newVec = std::move(filter).toVector();
+
+        CHECK(std::all_of(s.begin(), s.end(), [](const std::string& s) { return s.empty(); }));
+        CHECK(newVec == std::vector<std::string>{"hello", "world", "what's", "up"});
+
+        s = {"hello", "world", "what's", "up"};
+        auto newFilter = lz::filter(s, [](const std::string& s) { return s != "up"; });
+        s = std::move(newFilter).toVector();
+
+        CHECK(s.size() == 3);
+        CHECK(s == std::vector<std::string>{"hello", "world", "what's"});
     }
 }

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <algorithm>
+#include <numeric>
 
 #include "fmt/ostream.h"
 
@@ -20,12 +21,39 @@ namespace lz { namespace detail {
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) {
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const& {
             MapType map(allocator);
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
             });
             return map;
+        }
+
+        template<class MapType, class Allocator, class KeySelectorFunc>
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) && {
+            MapType map(allocator);
+            std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](typename std::iterator_traits<Iterator>::reference value) {
+                return std::make_pair(keyGen(value), std::move(value));
+            });
+            return map;
+        }
+
+        template<size_t N>
+        void verifyRange() const {
+            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
+            const Iterator b = begin();
+            const Iterator e = end();
+
+            if (std::distance(b, e) > size) {
+                throw std::out_of_range(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
+            }
+        }
+
+        template<class Container, class... Args>
+        Container moveContentsOfContainer(Args&&... args) {
+            Container c(std::forward<Args>(args)...);
+            std::move(begin(), end(), std::inserter(c, c.begin()));
+            return c;
         }
 
     public:
@@ -58,8 +86,27 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(Args&& ... args) const {
+        Container<value_type, Args...> to(Args&& ... args) const& {
             return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
+        }
+
+        /**
+         * @brief R-value reference overload of `to`. See `to` const& overload for details. Example of moving:
+         * @details Use this function to convert the iterator to a container. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::list<std::string> newVector = std::move(filter).to<std::list>();
+         * // all the values in strings are empty here, where the lambda returned true
+         * ```
+         * @tparam Container Is automatically deduced.
+         * @tparam Args Additional arguments, automatically deduced.
+         * @param args Additional arguments, for e.g. an allocator.
+         * @return An arbitrary container specified by the entered template parameter.
+         */
+        template<template<class, class...> class Container, class... Args>
+        Container<value_type, Args...> to(Args&& ... args) && {
+            return moveContentsOfContainer<Container<value_type, Args...>>(std::forward<Args>(args)...);
         }
 
         /**
@@ -67,8 +114,23 @@ namespace lz { namespace detail {
          * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
          * @return A `std::vector<value_type>` with the sequence.
          */
-        std::vector<value_type> toVector() const {
+        std::vector<value_type> toVector() const& {
             return std::vector<value_type>(begin(), end());
+        }
+
+        /**
+         * Rvalue reference overload. This will cause the original state of the iterator to be invalid. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::vector<std::string> newVector = std::move(filter).toVector();
+         * // all the values in strings are empty here, where the lambda returned true. One could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @return A new vector, causing the original container to be left in an invalid state.
+         */
+        std::vector<value_type> toVector() && {
+            return moveContentsOfContainer<std::vector<value_type>>();
         }
 
         /**
@@ -80,8 +142,26 @@ namespace lz { namespace detail {
          * @return A new `std::vector<value_type, Allocator>`.
          */
         template<class Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const& {
             return std::vector<value_type, Allocator>(begin(), end(), alloc);
+        }
+
+        /**
+         * Rvalue reference overload. This will cause the original state of the iterator to be invalid. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::vector<std::string> newVector = std::move(filter).toVector();
+         * // all the values in strings where the lambda returns true, are empty here, one could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @tparam Allocator Is automatically deduced.
+         * @param alloc The allocator
+         * @return A new vector, causing the original container to be left in an invalid state.
+         */
+        template<class Allocator>
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) && {
+            return moveContentsOfContainer<std::vector<value_type, Allocator>>(alloc);
         }
 
         /**
@@ -91,17 +171,31 @@ namespace lz { namespace detail {
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<size_t N>
-        std::array<value_type, N> toArray() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            const Iterator b = begin();
-            const Iterator e = end();
-
-            if (std::distance(b, e) > size) {
-                throw std::out_of_range(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
-            }
-
+        std::array<value_type, N> toArray() const& {
+            verifyRange<N>();
             std::array<value_type, N> container{};
-            std::copy(b, e, std::begin(container));
+            std::copy(begin(), end(), std::begin(container));
+            return container;
+        }
+
+        /**
+         * Rvalue reference overload. Causes the original iterator to be left in an invalid state. Example:
+         * ```cpp
+         * std::array<std::string, 2> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::array<std::string, 2> newArray = std::move(filter).toArray<1>();
+         * // all the values in strings where the lambda returns true, are empty here, one could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @tparam N The size of the array.
+         * @return A new `std::array<value_type, N>`.
+         * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
+         */
+        template<size_t N>
+        std::array<value_type, N> toArray() && {
+            verifyRange<N>();
+            std::array<value_type, N> container{};
+            std::move(begin(), end(), container.begin());
             return container;
         }
 
@@ -131,9 +225,34 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const& {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
+        }
+
+        /**
+         * @brief Rvalue reference overload. See `toMap` const l-value reference overload for details. Example of moving:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::map<char, std::string> map = std::move(filter).toMap([](const std::string&s) {return s[0];});
+         * // all the values in strings where the lambda returns true, are empty here
+         * ```
+         * @tparam KeySelectorFunc Is automatically deduced.
+         * @tparam Key Is automatically deduced.
+         * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
+         * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
+         * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
+         * @param allocator Optional, can be used for using a custom allocator.
+         * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
+         */
+        template<class KeySelectorFunc,
+            class Compare = std::less<KeyType<KeySelectorFunc>>,
+            class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
+        std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) && {
+            using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
+            return std::move(*this).template createMap<Map>(keyGen, allocator);
         }
 
         /**
@@ -164,9 +283,35 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const& {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
+        }
+
+        /**
+         * @brief Rvalue reference overload. See `toUnorderedMap` const l-value reference overload for details. Example of moving:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::unordered_map<char, std::string> map = std::move(filter).toUnorderedMap([](const std::string&s) {return s[0];});
+         * // all the values in strings where the lambda returns true, are empty here
+         * ```
+         * @tparam KeySelectorFunc Is automatically deduced.
+         * @tparam Key Is automatically deduced.
+         * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
+         * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
+         * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
+         * @param allocator Optional, can be used for using a custom allocator.
+         * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
+         */
+        template<class KeySelectorFunc,
+            class Hasher = std::hash<KeyType<KeySelectorFunc>>,
+            class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
+            class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
+        std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) && {
+            using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
+            return std::move(*this).template createMap<UnorderedMap>(keyGen, allocator);
         }
 
         /**

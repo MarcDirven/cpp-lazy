@@ -3,8 +3,16 @@
 # cpp-lazy
 Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is 
 because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are
-random access where possible. This makes operations such as `std::distance` an O(1) operation. It uses one dependency 
-library `fmt`, which is automatically configured by CMake.
+random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view 
+object has many r-value reference overloads. This is very efficient, because now we can move from the original container:
+```cpp
+std::vector<std::string> strings = {"hello", "world" };
+auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; }); // if s equal "hello", keep it
+std::vector<std::string> newVector = std::move(filter).toVector(); // moves the string into the new vector where the lambda (^) returns true
+// all the values in strings where the lambda returns true, are empty here, one could also do:
+strings = std::move(filter).toVector();
+ * ```
+This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
 - C++14/17/20
