@@ -30,27 +30,26 @@ namespace lz { namespace detail {
         }
 
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) && {
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator)&& {
             MapType map(allocator);
-            std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](typename std::iterator_traits<Iterator>::reference value) {
-                return std::make_pair(keyGen(value), std::move(value));
-            });
+            std::transform(begin(), end(), std::inserter(map, map.end()),
+                           [keyGen](typename std::iterator_traits<Iterator>::reference value) {
+                               return std::make_pair(keyGen(value), std::move(value));
+                           });
             return map;
         }
 
         template<size_t N>
         void verifyRange() const {
             constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            const Iterator b = begin();
-            const Iterator e = end();
-
-            if (std::distance(b, e) > size) {
-                throw std::out_of_range(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
+            
+            if (std::distance(begin(), end()) > size) {
+                throw std::invalid_argument(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
             }
         }
 
         template<class Container, class... Args>
-        Container moveContentsOfContainer(Args&&... args) {
+        Container moveContentsOfContainer(Args&& ... args) {
             Container c(std::forward<Args>(args)...);
             std::move(begin(), end(), std::inserter(c, c.begin()));
             return c;
@@ -105,7 +104,7 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(Args&& ... args) && {
+        Container<value_type, Args...> to(Args&& ... args)&& {
             return moveContentsOfContainer<Container<value_type, Args...>>(std::forward<Args>(args)...);
         }
 
@@ -129,7 +128,7 @@ namespace lz { namespace detail {
          * ```
          * @return A new vector, causing the original container to be left in an invalid state.
          */
-        std::vector<value_type> toVector() && {
+        std::vector<value_type> toVector()&& {
             return moveContentsOfContainer<std::vector<value_type>>();
         }
 
@@ -160,7 +159,7 @@ namespace lz { namespace detail {
          * @return A new vector, causing the original container to be left in an invalid state.
          */
         template<class Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) && {
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator())&& {
             return moveContentsOfContainer<std::vector<value_type, Allocator>>(alloc);
         }
 
@@ -192,7 +191,7 @@ namespace lz { namespace detail {
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<size_t N>
-        std::array<value_type, N> toArray() && {
+        std::array<value_type, N> toArray()&& {
             verifyRange<N>();
             std::array<value_type, N> container{};
             std::move(begin(), end(), container.begin());
@@ -250,7 +249,7 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) && {
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator())&& {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return std::move(*this).template createMap<Map>(keyGen, allocator);
         }
@@ -309,7 +308,7 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) && {
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator())&& {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return std::move(*this).template createMap<UnorderedMap>(keyGen, allocator);
         }
