@@ -321,7 +321,7 @@ namespace lz {
     }
 
     /**
-     * This value is returned when indexOf does not find the value specified.
+     * This value is returned when indexOf(If) does not find the value specified.
      */
     constexpr LZ_INLINE_VAR size_t npos = std::numeric_limits<size_t>::max();
 
