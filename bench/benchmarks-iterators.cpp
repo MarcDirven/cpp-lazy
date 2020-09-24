@@ -164,8 +164,8 @@ static void Repeat(benchmark::State& state) {
 }
 
 static void TakeEvery(benchmark::State& state) {
-    std::array<int, SizePolicy> array{};
     constexpr size_t offset = 2;
+    std::array<int, SizePolicy * offset> array{};
     auto takeEvery = lz::takeEvery(array, offset);
 
     for (auto _ : state) {
