@@ -38,7 +38,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(&_iteratorHelper, 0);
+            return _end;
         }
 
         /**
@@ -46,7 +46,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(&_iteratorHelper, _amount);
+            return _end;
         }
     };
 
