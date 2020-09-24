@@ -134,13 +134,13 @@ TEST_CASE("Function tools") {
 
     SECTION("String replace") {
         std::string myString = "picture.jpg";
-        lz::strReplace(myString, ".jpg", ".png");
-        CHECK(myString == "picture.png");
-        CHECK(myString.length() == std::strlen("picture.png"));
+        lz::strReplace(myString, ".jpg", ".jpeg");
+        CHECK(myString == "picture.jpeg");
+        CHECK(myString.length() == std::strlen("picture.jpeg"));
 
         myString = "picture.png.png";
-        lz::strReplaceAll(myString, ".png", ".jpg");
-        CHECK(myString == "picture.jpg.jpg");
-        CHECK(myString.length() == std::strlen("picture.jpg.jpg"));
+        lz::strReplaceAll(myString, ".png", ".jpeg");
+        CHECK(myString == "picture.jpeg.jpeg");
+        CHECK(myString.length() == std::strlen("picture.jpeg.jpeg"));
     }
 }

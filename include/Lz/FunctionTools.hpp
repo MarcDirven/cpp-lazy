@@ -35,7 +35,10 @@ namespace lz {
         using ValueTypeIterable = typename std::iterator_traits<IterType<Iterable>>::value_type;
 
         bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const bool replaceAll) {
-            if (oldString.empty() || newString.empty()) {
+            const size_t oldStringSize = oldString.length();
+            const size_t newStringSize = newString.length();
+
+            if (oldStringSize == 0 || newStringSize == 0) {
                 return false;
             }
 
@@ -44,15 +47,15 @@ namespace lz {
                 return false;
             }
 
-            std::memcpy(&string[startPos], &newString[0], oldString.length());
+            string.replace(startPos, oldStringSize, newString);
             if (!replaceAll) {
                 return true;
             }
 
-            startPos = string.find(oldString, newString.length() + startPos);
+            startPos = string.find(oldString, newStringSize + startPos);
             while (startPos != std::string::npos) {
-                std::memcpy(&string[startPos], &newString[0], oldString.length());
-                startPos = string.find(oldString, newString.length() + startPos);
+                string.replace(startPos, oldStringSize, newString);
+                startPos = string.find(oldString, newStringSize + startPos);
             }
             return true;
         }
@@ -439,7 +442,6 @@ namespace lz {
     Map<detail::FilterIterator<decltype(std::begin(iterable)), UnaryFilterFunc>, UnaryMapFunc> {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
-
 
     /**
      * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
