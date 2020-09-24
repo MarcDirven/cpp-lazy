@@ -22,6 +22,7 @@ This library uses one dependency library `fmt`, which is automatically configure
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
+- Little overhead
 
 # Current supported iterators & examples
 All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 

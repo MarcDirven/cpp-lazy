@@ -42,7 +42,7 @@ namespace lz { namespace detail {
         template<size_t N>
         void verifyRange() const {
             constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            
+
             if (std::distance(begin(), end()) > size) {
                 throw std::invalid_argument(__LZ_FILE_LINE__ ": the iterator size is too large and/or array size is too small");
             }
