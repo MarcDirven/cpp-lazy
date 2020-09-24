@@ -338,7 +338,7 @@ namespace lz { namespace detail {
 
             const size_t delimiterLength = std::strlen(delimiter);
             if (!string.empty() && delimiterLength >= 1) {
-                string.erase(string.end() - delimiterLength);
+                string.erase(string.size() - delimiterLength);
             }
 
             return string;
