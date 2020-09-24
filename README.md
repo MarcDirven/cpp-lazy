@@ -555,13 +555,13 @@ The time is equal to one iteration.
 
 C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/KYONRY6.png" /></div>
 
 C++17
 
-<div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/STOgeK5.png" /></div>
 
 C++20
 
-<div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/83qAmvL.png" /></div>
 
