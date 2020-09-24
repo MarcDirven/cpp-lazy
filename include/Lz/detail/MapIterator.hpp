@@ -5,12 +5,12 @@
 
 
 namespace lz {
-    template<class, class>
+    template<LZ_CONCEPT_ITERATOR, class>
     class Map;
 
     namespace detail {
 
-        template<class Iterator, class Function>
+        template<LZ_CONCEPT_ITERATOR Iterator, class Function>
         class MapIterator {
             Iterator _iterator{};
             using FnParamType = decltype(*_iterator);

@@ -7,7 +7,7 @@
 
 #include "LzTools.hpp"
 
-#ifndef CXX_LT_17
+#ifndef LZ_CXX_LT_17
   #include <string_view>
 #endif
 

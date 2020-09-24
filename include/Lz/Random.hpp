@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Arithmetic, class Distribution>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class Random final : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution>> {
     public:
         using iterator = detail::RandomIterator<Arithmetic, Distribution>;
@@ -66,7 +66,7 @@ namespace lz {
      * it is interpreted as a `while-true` loop.
      * @return A random view object that generates a sequence of random numbers
      */
-    template<class Integral>
+    template<LZ_CONCEPT_ARITHMETIC Integral>
     static auto
     random(const Integral min, const Integral max, const size_t amount = std::numeric_limits<size_t>::max()) {
         static_assert(std::is_integral<Integral>::value, "template parameter is not arithmetic");

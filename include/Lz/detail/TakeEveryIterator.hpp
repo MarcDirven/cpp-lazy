@@ -4,15 +4,16 @@
 #define LZ_TAKE_EVERY_ITERATOR_HPP
 
 #include <iterator>
+#include "LzTools.hpp"
 
 
 namespace lz {
-    template<class>
+    template<LZ_CONCEPT_ITERATOR>
     class TakeEvery;
 
     namespace detail {
 
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEveryIterator {
         Iterator _iterator{};
         Iterator _end{};

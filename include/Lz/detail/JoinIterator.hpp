@@ -15,7 +15,7 @@ namespace lz { namespace detail {
                                                              !std::is_same<T, char>::value &&
                                                              !std::is_same<T, unsigned char>::value &&
                                                              !std::is_same<T, wchar_t>::value &&
-#ifdef HAS_CXX_20
+#ifdef LZ_HAS_CXX_20
                                                              !std::is_same<T, char8_t> &&
 #endif
                                                              !std::is_same<T, char16_t>::value &&
@@ -26,7 +26,7 @@ namespace lz { namespace detail {
     constexpr bool IsFmtIntCompatibleV = IsFmtIntCompatible<T>::value;
 
 
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class JoinIterator {
         using IterTraits = std::iterator_traits<Iterator>;
         using ContainerType = typename IterTraits::value_type;

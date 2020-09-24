@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEvery final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator>> {
     public:
         using iterator = detail::TakeEveryIterator<Iterator>;
@@ -87,7 +87,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterable>
-    auto takeEvery(Iterable&& iterable, const size_t offset, const size_t start = 0) -> TakeEvery<decltype(std::begin(iterable))> {
+    TakeEvery<detail::IterType<Iterable>> takeEvery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
         return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
     }
 

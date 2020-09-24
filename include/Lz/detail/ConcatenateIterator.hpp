@@ -157,7 +157,7 @@ namespace lz { namespace detail {
     };
 
     // Begin ConcatIterator
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class ConcatenateIterator {
         using IterTuple = std::tuple<Iterators...>;
         IterTuple _iterators{};

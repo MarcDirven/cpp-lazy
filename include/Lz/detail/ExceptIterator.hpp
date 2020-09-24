@@ -8,11 +8,11 @@
 
 
 namespace lz {
-    template<class, class>
+    template<LZ_CONCEPT_ITERATOR, LZ_CONCEPT_ITERATOR>
     class Except;
 
     namespace detail {
-        template<class Iterator, class IteratorToExcept>
+        template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
         struct ExceptIteratorHelper {
             IteratorToExcept toExceptBegin{};
             IteratorToExcept toExceptEnd{};
@@ -20,10 +20,10 @@ namespace lz {
             bool isSorted{};
         };
 
-        template<class Iterator, class IteratorToExcept>
+        template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
         class ExceptIterator {
             using IterTraits = std::iterator_traits<Iterator>;
-            using ValueTypeToExcept = typename std::iterator_traits<IteratorToExcept>::value_type;
+
         public:
             using iterator_category = std::forward_iterator_tag;
             using value_type = typename IterTraits::value_type;

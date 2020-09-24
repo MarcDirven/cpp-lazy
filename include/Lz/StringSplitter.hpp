@@ -8,7 +8,7 @@
 
 #include <string>
 
-#ifndef CXX_LT_17
+#ifndef LZ_CXX_LT_17
   #include <string_view>
 #endif
 
@@ -54,7 +54,7 @@ namespace lz {
         }
     };
 
-#ifdef CXX_LT_17
+#ifdef LZ_CXX_LT_17
     template class StringSplitter<std::string, std::string>;
     template<class SubString = std::string, class String = std::string>
 #else

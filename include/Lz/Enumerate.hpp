@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator, class IntType>
+    template<LZ_CONCEPT_ITERATOR Iterator, class IntType>
     class Enumerate final : public detail::BasicIteratorView<detail::EnumerateIterator<Iterator, IntType>> {
     public:
         using iterator = detail::EnumerateIterator<Iterator, IntType>;
@@ -70,7 +70,7 @@ namespace lz {
      * @param start The start of the counting index. 0 is assumed by default.
      * @return Enumerate iterator object from [begin, end).
      */
-    template<class IntType = int, class Iterator>
+    template<class IntType = int, LZ_CONCEPT_ITERATOR Iterator>
     Enumerate<Iterator, IntType> enumerateRange(const Iterator begin, const Iterator end, const IntType start = 0) {
         static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
         return Enumerate<Iterator, IntType>(begin, end, start);
@@ -90,8 +90,8 @@ namespace lz {
      * @param start The start of the counting index. 0 is assumed by default.
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
-    template<class IntType = int, class Iterable>
-    auto enumerate(Iterable&& iterable, const  IntType start = 0) -> Enumerate<decltype(std::begin(iterable)), IntType> {
+    template<class IntType = int, LZ_CONCEPT_ITERABLE Iterable>
+    Enumerate<detail::IterType<Iterable>, IntType> enumerate(Iterable&& iterable, const  IntType start = 0) {
         return enumerateRange(std::begin(iterable), std::end(iterable), start);
     }
 

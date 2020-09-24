@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Arithmetic>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
     class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
     public:
         using iterator = detail::RangeIterator<Arithmetic>;
@@ -85,7 +85,7 @@ namespace lz {
      * @return A Range object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::range(...))`.
      */
-    template<class Arithmetic = int>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
         if (step == 0) {
@@ -109,7 +109,7 @@ namespace lz {
      * @return A Range object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::range(...))`.
      */
-    template<class Arithmetic = int>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic end) {
         return range<Arithmetic>(0, end, 1);
     }

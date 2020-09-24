@@ -5,7 +5,6 @@
 
 #include "detail/AffirmIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
-#include "detail/LzTools.hpp"
 
 
 namespace lz {
@@ -122,8 +121,7 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterable, class Function>
-    auto affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) ->
-    Affirm<Exception, decltype(std::begin(iterable)), Function> {
+    Affirm<Exception, detail::IterType<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
         return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
 

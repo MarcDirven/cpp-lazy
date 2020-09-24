@@ -68,7 +68,7 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Function, class Iterator>
+    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "function must return bool");
@@ -86,8 +86,8 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class Function, class Iterable>
-    auto filter(Iterable&& iterable, const Function& predicate) -> Filter<decltype(std::begin(iterable)), Function> {
+    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
+    Filter<detail::IterType<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
 

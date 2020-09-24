@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Iterators...>> {
     public:
         using iterator = detail::ZipIterator<Iterators...>;
@@ -63,7 +63,7 @@ namespace lz {
      * @{
      */
 
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     Zip<Iterators...> zipRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         return Zip<Iterators...>(begin, end);
     }
@@ -80,8 +80,8 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto tuple :  lz::zip(...))`.
      */
-    template<class... Iterables>
-    auto zip(Iterables&& ... iterables) -> Zip<decltype(std::begin(iterables))...> {
+    template<LZ_CONCEPT_ITERABLE... Iterables>
+    Zip<detail::IterType<Iterables>...> zip(Iterables&& ... iterables) {
         return zipRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 

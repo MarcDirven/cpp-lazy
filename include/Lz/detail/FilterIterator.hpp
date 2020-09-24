@@ -8,7 +8,7 @@
 
 
 namespace lz { namespace detail {
-    template<class Iterator, class Function>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class FilterIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 

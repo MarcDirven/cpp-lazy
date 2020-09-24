@@ -7,7 +7,7 @@
 
 
 namespace lz {
-    template<class Iterator, class Function>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class DropWhile final : public detail::BasicIteratorView<Iterator> {
     public:
         using iterator = Iterator;
@@ -71,7 +71,7 @@ namespace lz {
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @return A DropWhile iterator view object.
      */
-    template<class Iterator, class Function>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     DropWhile<Iterator, Function> dropWhileRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "the function predicate must return a bool");
@@ -88,8 +88,8 @@ namespace lz {
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @return A DropWhile iterator view object.
      */
-    template<class Iterable, class Function>
-    auto dropWhile(Iterable&& iterable, const Function& predicate) -> DropWhile<decltype(std::begin(iterable)), Function> {
+    template<LZ_CONCEPT_ITERABLE Iterable, class Function>
+    DropWhile<detail::IterType<Iterable>, Function> dropWhile(Iterable&& iterable, const Function& predicate) {
         return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 

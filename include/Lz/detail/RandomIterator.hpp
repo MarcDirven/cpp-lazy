@@ -10,7 +10,7 @@
 
 
 namespace lz { namespace detail {
-    template<class Arithmetic, class Distribution>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class RandomIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;

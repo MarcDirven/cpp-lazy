@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator, class Function>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class Map final : public detail::BasicIteratorView<detail::MapIterator<Iterator, Function>> {
     public:
         using iterator = detail::MapIterator<Iterator, Function>;
@@ -69,7 +69,7 @@ namespace lz {
      * @return A Map object from [begin, end) that can be converted to an arbitrary container or can be iterated over
      * using `for (auto... lz::map(...))`.
      */
-    template<class Function, class Iterator>
+    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
     Map<Iterator, Function> mapRange(const Iterator begin, const Iterator end, const Function& function) {
         return Map<Iterator, Function>(begin, end, function);
     }
@@ -85,8 +85,8 @@ namespace lz {
      * @return A Map object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::map(...))`.
      */
-    template<class Function, class Iterable>
-    auto map(Iterable&& iterable, const Function& function) -> Map<decltype(std::begin(iterable)), Function> {
+    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
+    Map<detail::IterType<Iterable>, Function> map(Iterable&& iterable, const Function& function) {
         return mapRange(std::begin(iterable), std::end(iterable), function);
     }
 

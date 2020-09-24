@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator, class IteratorToExcept>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
     class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept>> {
     public:
         using iterator = detail::ExceptIterator<Iterator, IteratorToExcept>;
@@ -70,7 +70,8 @@ namespace lz {
      * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
      * @return An Except view object.
      */
-    template<class Iterator, class IteratorToExcept>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    LZ_REQUIRES_LESS_THAN(Iterator, IteratorToExcept)
     Except<Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
                                                    const IteratorToExcept toExceptEnd) {
         return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
@@ -86,9 +87,10 @@ namespace lz {
      * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
      * @return An Except view object.
      */
-    template<class Iterable, class IterableToExcept>
-    auto except(Iterable&& iterable, IterableToExcept&& toExcept) ->
-    Except<decltype(std::begin(iterable)), decltype(std::begin(toExcept))> {
+    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept,
+        class I1 = detail::IterType<Iterable>, class I2 = detail::IterType<IterableToExcept>>
+    LZ_REQUIRES_LESS_THAN(I1, I2)
+    Except<I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
 

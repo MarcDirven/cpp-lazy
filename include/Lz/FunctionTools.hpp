@@ -13,7 +13,7 @@
 #include "Map.hpp"
 #include "Filter.hpp"
 
-#ifndef CXX_LT_17
+#ifndef LZ_CXX_LT_17
   #define LZ_INLINE_VAR inline
 #else
   #define LZ_INLINE_VAR
@@ -22,9 +22,6 @@
 
 namespace lz {
     namespace detail {
-        template<class Iterable>
-        using IterType = std::decay_t<decltype(std::begin(std::declval<Iterable>()))>;
-
         template<class Iterator>
         using ValueType = typename std::iterator_traits<Iterator>::value_type;
 
@@ -68,7 +65,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return The mean of the sequence.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     double mean(const Iterator begin, const Iterator end) {
         const detail::DifferenceType<Iterator> distance = std::distance(begin, end);
         const detail::ValueType<Iterator> sum = std::accumulate(begin, end, detail::ValueType<Iterator>(0));
@@ -81,7 +78,7 @@ namespace lz {
      * @param container The container to calculate the mean of.
      * @return The mean of the container.
      */
-    template<class Iterable>
+    template<LZ_CONCEPT_ITERABLE Iterable>
     double mean(const Iterable& container) {
         return mean(std::begin(container), std::end(container));
     }
@@ -95,7 +92,7 @@ namespace lz {
      * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
      * @return The median of the sequence.
      */
-    template<class Iterator, class Compare>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(const Iterator begin, const Iterator end, const Compare compare) {
         const detail::DifferenceType<Iterator> len = std::distance(begin, end);
         if (len == 0) {
@@ -121,7 +118,7 @@ namespace lz {
      * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
      * @return The median of the sequence.
      */
-    template<class Iterable, class Compare>
+    template<LZ_CONCEPT_ITERABLE Iterable, class Compare>
     double median(Iterable& iterable, const Compare compare) {
         return median(std::begin(iterable), std::end(iterable), compare);
     }
@@ -133,7 +130,7 @@ namespace lz {
      * @param end The ending of the sequence
      * @return The median of the sequence.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     double median(const Iterator begin, const Iterator end) {
         return median(begin, end, std::less<detail::ValueType<Iterator>>());
     }
@@ -144,7 +141,7 @@ namespace lz {
      * @param iterable The container/sequence by reference.
      * @return The median of the sequence.
      */
-    template<class Iterable>
+    template<LZ_CONCEPT_ITERABLE Iterable>
     double median(Iterable& iterable) {
         return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
     }
@@ -170,7 +167,7 @@ namespace lz {
     template<class Strings, class Iterator = detail::IterType<Strings>>
     Join<Iterator> unlines(Strings&& strings) {
         static_assert(std::is_same<std::string, detail::ValueType<Iterator>>::value
-#ifndef CXX_LT_17
+#ifndef LZ_CXX_LT_17
             || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
@@ -195,7 +192,7 @@ namespace lz {
      * @param selectorFunc Function that specifies what to add to `init`.
      * @return The result of the transAccumulate operation.
      */
-    template<class Iterator, class Init, class SelectorFunc>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Init, class SelectorFunc>
     Init transAccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
         for (; begin != end; ++begin) {
             init = selectorFunc(std::move(init), *begin);
@@ -220,7 +217,7 @@ namespace lz {
      * @param selectorFunc Function that specifies what to add to `init`.
      * @return The result of the transAccumulate operation.
      */
-    template<class Iterable, class Init, class SelectorFunc>
+    template<LZ_CONCEPT_ITERABLE Iterable, class Init, class SelectorFunc>
     Init transAccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
         return transAccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
     }
@@ -232,7 +229,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     auto pairwise(const Iterator begin, const Iterator end) -> Zip<Iterator, Iterator> {
         Iterator next = begin;
         if (begin != end) {
@@ -247,7 +244,7 @@ namespace lz {
      * @param iterable A container/iterable.
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
-    template<class Iterable, class Iterator = detail::IterType<Iterable>>
+    template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
     auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
         return pairwise(std::begin(iterable), std::end(iterable));
     }
@@ -261,7 +258,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
-    template<class T, class Iterator, class ValueType = detail::ValueType<Iterator>>
+    template<class T, LZ_CONCEPT_ITERATOR Iterator, class ValueType = detail::ValueType<Iterator>>
     auto as(const Iterator begin, const Iterator end) -> Map<Iterator, std::function<T(ValueType)>> {
         static_assert(std::is_convertible<ValueType, T>::value, "the value type of the container is not convertible to T");
         return mapRange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
@@ -276,7 +273,7 @@ namespace lz {
      * @tparam Iterable A container/iterable.
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
-    template<class T, class Iterable, class Iterator = detail::IterType<Iterable>>
+    template<class T, LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
     auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(detail::ValueType<Iterator>)>> {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
@@ -291,7 +288,7 @@ namespace lz {
      * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
      * @return Either `toFind` or `defaultValue`.
      */
-    template<class Iterator, class T, class ValueType = detail::ValueType<Iterator>>
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class ValueType = detail::ValueType<Iterator>>
     ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, T&& defaultValue) {
         return std::find(begin, end, toFind) == end ? defaultValue : toFind;
     }
@@ -305,7 +302,7 @@ namespace lz {
      * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
      * @return Either `toFind` or `defaultValue`.
      */
-    template<class Iterable, class T, class ValueType = detail::ValueTypeIterable<Iterable>>
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue) {
         return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
     }
@@ -323,7 +320,7 @@ namespace lz {
      * @param defaultValue The default value to return if predicate is `false` for all elements. Use `std::move` to avoid copies.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<class Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueType<Iterator>>
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueType<Iterator>>
     ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T&& defaultValue) {
         const Iterator pos = std::find_if(begin, end, predicate);
         return pos == end ? defaultValue : *pos;
@@ -341,7 +338,7 @@ namespace lz {
      * @param defaultValue The default value to return if predicate is `false` for all elements. Use `std::move` to avoid copies.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<class Iterable, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterable<Iterable>>
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue) {
         return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
@@ -360,7 +357,7 @@ namespace lz {
      * @param val The value to search.
      * @return The index of `val` or lz::npos of no such value exists.
      */
-    template<class Iterator, class T>
+    template<LZ_CONCEPT_ITERATOR Iterator, class T>
     size_t indexOf(const Iterator begin, const Iterator end, const T& val) {
         const Iterator pos = std::find(begin, end, val);
         return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
@@ -374,7 +371,7 @@ namespace lz {
     * @param val The value to search.
     * @return The index of `val` or lz::npos of no such value exists.
     */
-    template<class Iterable, class T>
+    template<LZ_CONCEPT_ITERABLE Iterable, class T>
     size_t indexOf(const Iterable& iterable, const T& val) {
         return indexOf(std::begin(iterable), std::end(iterable), val);
     }
@@ -388,7 +385,7 @@ namespace lz {
     * @param predicate The search predicate. Uses `std::find_if`.
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
-    template<class Iterator, class UnaryFunc>
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
     size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate) {
         const Iterator pos = std::find_if(begin, end, predicate);
         return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
@@ -402,7 +399,7 @@ namespace lz {
     * @param predicate The search predicate. Uses `std::find_if`.
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
-    template<class Iterable, class UnaryFunc>
+    template<LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
     size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
         return indexOfIf(std::begin(iterable), std::end(iterable), predicate);
     }
@@ -419,7 +416,7 @@ namespace lz {
      * @param mapFunc The function that returns the (new) type.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
-    template<class UnaryFilterFunc, class UnaryMapFunc, class Iterator>
+    template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<detail::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>
     filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc);
@@ -437,9 +434,9 @@ namespace lz {
      * @param mapFunc The function that returns the (new) type.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
-    template<class UnaryFilterFunc, class UnaryMapFunc, class Iterable>
-    auto filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) ->
-    Map<detail::FilterIterator<decltype(std::begin(iterable)), UnaryFilterFunc>, UnaryMapFunc> {
+    template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
+    Map<detail::FilterIterator<detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
+    filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
 

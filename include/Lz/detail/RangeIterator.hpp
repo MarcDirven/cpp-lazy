@@ -7,7 +7,7 @@
 
 
 namespace lz { namespace detail {
-    template<class Arithmetic>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};
         Arithmetic _step{};

@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class Join final : public detail::BasicIteratorView<detail::JoinIterator<Iterator>> {
     public:
         using iterator = detail::JoinIterator<Iterator>;
@@ -67,7 +67,7 @@ namespace lz {
      * @param delimiter The delimiter to separate the previous and the next values in the sequence.
      * @return A Join iterator view object.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     Join<Iterator> joinRange(const Iterator begin, const Iterator end, std::string delimiter) {
         return Join<Iterator>(begin, end, std::move(delimiter), std::distance(begin, end) * 2 - 1);
     }
@@ -81,8 +81,8 @@ namespace lz {
      * @param delimiter The delimiter to separate the previous and the next values in the sequence.
      * @return A Join iterator view object.
      */
-    template<class Iterable>
-    auto join(Iterable&& iterable, std::string delimiter) -> Join<decltype(std::begin(iterable))> {
+    template<LZ_CONCEPT_ITERABLE Iterable>
+    Join<detail::IterType<Iterable>> join(Iterable&& iterable, std::string delimiter) {
         return joinRange(std::begin(iterable), std::end(iterable), std::move(delimiter));
     }
 

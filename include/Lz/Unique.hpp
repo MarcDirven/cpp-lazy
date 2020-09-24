@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class Unique final : public detail::BasicIteratorView<detail::UniqueIterator<Iterator>> {
     public:
         using iterator = detail::UniqueIterator<Iterator>;
@@ -65,7 +65,8 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    LZ_REQUIRES_LESS_THAN(Iterator, Iterator)
     Unique<Iterator> uniqueRange(const Iterator begin, const Iterator end) {
         return Unique<Iterator>(begin, end);
     }
@@ -77,8 +78,9 @@ namespace lz {
      * @param iterable The iterable sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
-    template<class Iterable>
-    auto unique(Iterable&& iterable) -> Unique<decltype(std::begin(iterable))> {
+    template<LZ_CONCEPT_ITERABLE Iterable, class It = detail::IterType<Iterable>>
+    LZ_REQUIRES_LESS_THAN(It, It)
+    Unique<It> unique(Iterable&& iterable) {
         return uniqueRange(std::begin(iterable), std::end(iterable));
     }
 
