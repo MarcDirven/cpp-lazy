@@ -174,7 +174,7 @@ namespace lz { namespace detail {
         std::array<value_type, N> toArray() const& {
             verifyRange<N>();
             std::array<value_type, N> container{};
-            std::copy(begin(), end(), std::begin(container));
+            std::copy(begin(), end(), container.begin());
             return container;
         }
 
