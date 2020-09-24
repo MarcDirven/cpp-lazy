@@ -10,15 +10,17 @@
 namespace lz {
     template<class Arithmetic>
     class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
-        Arithmetic _begin{};
-        Arithmetic _end{};
-        Arithmetic _step{};
-
     public:
         using iterator = detail::RangeIterator<Arithmetic>;
         using const_iterator = iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;
+
+    private:
+        iterator _begin{};
+        iterator _end{};
+
+    public:
 
         /**
          * @brief Range iterator constructor from [start, end) with step.
@@ -27,9 +29,8 @@ namespace lz {
          * @param step The step that gets added every iteration.
          */
         Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) :
-            _begin(start),
-            _end(end),
-            _step(step) {
+            _begin(start, step),
+            _end(end, step) {
         }
 
         Range() = default;
@@ -39,7 +40,7 @@ namespace lz {
          * @return The beginning of the random access Range iterator
          */
         iterator begin() const override {
-            return iterator(_begin, _step);
+            return _begin;
         }
 
         /**
@@ -47,7 +48,7 @@ namespace lz {
          * @return The ending of the random access Range iterator
          */
         iterator end() const override {
-            return iterator(_end, _step);
+            return _end;
         }
 
         /**

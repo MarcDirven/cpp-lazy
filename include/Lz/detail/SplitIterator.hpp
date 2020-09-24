@@ -20,7 +20,7 @@ namespace lz {
         template<class String>
         struct SplitViewIteratorHelper {
             std::string delimiter{};
-            const String& string = std::string();
+            const String& string = String();
         };
 
 

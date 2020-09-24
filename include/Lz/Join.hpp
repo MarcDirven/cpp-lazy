@@ -16,10 +16,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        std::string _delimiter{};
-        Iterator _begin{};
-        Iterator _end{};
-        typename iterator::difference_type _distance{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -30,11 +28,9 @@ namespace lz {
          * @param end The ending of the sequence.
          * @param delimiter The delimiter to separate the previous and the next values in the sequence.
          */
-        Join(const Iterator begin, const Iterator end, std::string&& delimiter) :
-            _delimiter(std::move(delimiter)),
-            _begin(begin),
-            _end(end),
-            _distance(std::distance(begin, end) * 2 - 1) {
+        Join(const Iterator begin, const Iterator end, std::string&& delimiter, typename iterator::difference_type difference) :
+            _begin(begin, delimiter, true, difference),
+            _end(end, std::move(delimiter), false, difference){
         }
 
         Join() = default;
@@ -44,7 +40,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator begin() const override {
-            return iterator(_begin, _delimiter, true, _distance);
+            return _begin;
         }
 
         /**
@@ -52,7 +48,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(_end, _delimiter, false, _distance);
+            return _end;
         }
     };
 
@@ -73,7 +69,7 @@ namespace lz {
      */
     template<class Iterator>
     Join<Iterator> joinRange(const Iterator begin, const Iterator end, std::string delimiter) {
-        return Join<Iterator>(begin, end, std::move(delimiter));
+        return Join<Iterator>(begin, end, std::move(delimiter), std::distance(begin, end) * 2 - 1);
     }
 
     /**
@@ -86,7 +82,7 @@ namespace lz {
      * @return A Join iterator view object.
      */
     template<class Iterable>
-    auto join(Iterable&& iterable, std::string delimiter) {
+    auto join(Iterable&& iterable, std::string delimiter) -> Join<decltype(std::begin(iterable))> {
         return joinRange(std::begin(iterable), std::end(iterable), std::move(delimiter));
     }
 

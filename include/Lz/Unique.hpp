@@ -16,8 +16,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        Iterator _begin{};
-        Iterator _end{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -27,10 +27,9 @@ namespace lz {
          * @param begin The beginning of the sequence.
          * @param end The ending of the sequence.
          */
-        Unique(const Iterator begin, const Iterator end):
-            _begin(begin),
-            _end(end)
-        {
+        Unique(const Iterator begin, const Iterator end) :
+            _begin(begin, end),
+            _end(end, end) {
         }
 
         Unique() = default;
@@ -40,7 +39,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(_begin, _end);
+            return _end;
         }
 
         /**
@@ -48,7 +47,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(_end, _end);
+            return _begin;
         }
     };
 

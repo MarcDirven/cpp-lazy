@@ -16,7 +16,8 @@ namespace lz {
 
     private:
         detail::RepeatIteratorHelper<T> _iteratorHelper{};
-        size_t _amount{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -26,7 +27,8 @@ namespace lz {
          */
         Repeat(T toRepeat, const size_t amount):
             _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
-            _amount(amount){
+            _begin(&_iteratorHelper, 0),
+            _end(&_iteratorHelper, amount) {
         }
 
         Repeat() = default;

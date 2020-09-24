@@ -27,8 +27,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        std::tuple<Iterators...> _begin{};
-        std::tuple<Iterators...> _end{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -36,9 +36,9 @@ namespace lz {
          * @param begin All the beginnings of the containers/iterables.
          * @param end All the endings of the containers/iterables.
          */
-        Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :  // NOLINT(modernize-pass-by-value)
-            _begin(begin),
-            _end(end) {}
+        Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+            _begin(begin, begin, end),
+            _end(end, begin, end) {}
 
         Concatenate() = default;
 
@@ -47,7 +47,7 @@ namespace lz {
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return iterator(_begin, _begin, _end);
+            return _begin;
         }
 
         /**
@@ -55,7 +55,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return iterator(_end, _begin, _end);
+            return _end;
         }
     };
 
