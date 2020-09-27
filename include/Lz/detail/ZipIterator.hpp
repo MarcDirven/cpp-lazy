@@ -8,7 +8,7 @@
 
 
 namespace lz { namespace detail {
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
@@ -40,13 +40,15 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         void plusIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            const std::initializer_list<int> expand = {(std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
+            const std::initializer_list<int> expand = {
+                (std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<size_t... I>
         void minIs(std::index_sequence<I...> /*is*/, const difference_type differenceType) {
-            const  std::initializer_list<int> expand = {(std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
+            const std::initializer_list<int> expand = {
+                (std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
@@ -59,7 +61,8 @@ namespace lz { namespace detail {
 
         template<size_t... I>
         bool lessThan(std::index_sequence<I...> /*is*/, const ZipIterator& other) const {
-            const std::initializer_list<difference_type> distances = {(std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
+            const std::initializer_list<difference_type> distances = {
+                (std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
             return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
                 return diff > 0;
             }) != distances.end();

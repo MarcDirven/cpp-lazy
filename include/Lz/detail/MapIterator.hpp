@@ -4,8 +4,10 @@
 #define LZ_MAP_ITERATOR_HPP
 
 
+#include "LzTools.hpp"
+
 namespace lz {
-    template<LZ_CONCEPT_ITERATOR, class>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class Map;
 
     namespace detail {

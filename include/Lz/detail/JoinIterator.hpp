@@ -16,7 +16,7 @@ namespace lz { namespace detail {
                                                              !std::is_same<T, unsigned char>::value &&
                                                              !std::is_same<T, wchar_t>::value &&
 #ifdef LZ_HAS_CXX_20
-                                                             !std::is_same<T, char8_t> &&
+                                                             !std::is_same<T, char8_t>::value &&
 #endif
                                                              !std::is_same<T, char16_t>::value &&
                                                              !std::is_same<T, char32_t>::value> {

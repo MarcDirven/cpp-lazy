@@ -8,7 +8,7 @@
 
 
 namespace lz { namespace detail {
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class UniqueIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 

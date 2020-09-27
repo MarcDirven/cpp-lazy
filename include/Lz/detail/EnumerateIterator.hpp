@@ -8,7 +8,7 @@
 
 
 namespace lz { namespace detail {
-    template<LZ_CONCEPT_ITERATOR Iterator, class IntType>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
     class EnumerateIterator {
         IntType _index;
         Iterator _iterator;

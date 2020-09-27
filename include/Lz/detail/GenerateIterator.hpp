@@ -9,7 +9,7 @@
 
 
 namespace lz { namespace detail {
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;

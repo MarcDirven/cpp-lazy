@@ -23,13 +23,7 @@
 namespace lz {
     namespace detail {
         template<class Iterator>
-        using ValueType = typename std::iterator_traits<Iterator>::value_type;
-
-        template<class Iterator>
         using DifferenceType = typename std::iterator_traits<Iterator>::difference_type;
-
-        template<class Iterable>
-        using ValueTypeIterable = typename std::iterator_traits<IterType<Iterable>>::value_type;
 
         bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const bool replaceAll) {
             const size_t oldStringSize = oldString.length();
@@ -68,7 +62,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
     double mean(const Iterator begin, const Iterator end) {
         const detail::DifferenceType<Iterator> distance = std::distance(begin, end);
-        const detail::ValueType<Iterator> sum = std::accumulate(begin, end, detail::ValueType<Iterator>(0));
+        const detail::ValueTypeIterator<Iterator> sum = std::accumulate(begin, end, detail::ValueTypeIterator<Iterator>(0));
         return static_cast<double>(sum) / distance;
     }
 
@@ -132,7 +126,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     double median(const Iterator begin, const Iterator end) {
-        return median(begin, end, std::less<detail::ValueType<Iterator>>());
+        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>());
     }
 
     /**
@@ -166,9 +160,9 @@ namespace lz {
      */
     template<class Strings, class Iterator = detail::IterType<Strings>>
     Join<Iterator> unlines(Strings&& strings) {
-        static_assert(std::is_same<std::string, detail::ValueType<Iterator>>::value
+        static_assert(std::is_same<std::string, detail::ValueTypeIterator<Iterator>>::value
 #ifndef LZ_CXX_LT_17
-            || std::is_same<std::string_view, detail::ValueType<Iterator>>::value
+            || std::is_same<std::string_view, detail::ValueTypeIterator<Iterator>>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
@@ -258,7 +252,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
-    template<class T, LZ_CONCEPT_ITERATOR Iterator, class ValueType = detail::ValueType<Iterator>>
+    template<class T, LZ_CONCEPT_ITERATOR Iterator, class ValueType = detail::ValueTypeIterator<Iterator>>
     auto as(const Iterator begin, const Iterator end) -> Map<Iterator, std::function<T(ValueType)>> {
         static_assert(std::is_convertible<ValueType, T>::value, "the value type of the container is not convertible to T");
         return mapRange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
@@ -274,7 +268,7 @@ namespace lz {
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
-    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(detail::ValueType<Iterator>)>> {
+    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(detail::ValueTypeIterator<Iterator>)>> {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
 
@@ -288,7 +282,7 @@ namespace lz {
      * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
      * @return Either `toFind` or `defaultValue`.
      */
-    template<LZ_CONCEPT_ITERATOR Iterator, class T, class ValueType = detail::ValueType<Iterator>>
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class ValueType = detail::ValueTypeIterator<Iterator>>
     ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, T&& defaultValue) {
         return std::find(begin, end, toFind) == end ? defaultValue : toFind;
     }
@@ -320,7 +314,7 @@ namespace lz {
      * @param defaultValue The default value to return if predicate is `false` for all elements. Use `std::move` to avoid copies.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueType<Iterator>>
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterator<Iterator>>
     ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T&& defaultValue) {
         const Iterator pos = std::find_if(begin, end, predicate);
         return pos == end ? defaultValue : *pos;

@@ -8,7 +8,7 @@
 #if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
   #define LZ_CXX_LT_17
 #endif
-#if __cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
+#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
   #define LZ_HAS_CXX_20
 #endif
 
@@ -24,23 +24,30 @@ namespace lz {
         { std::end(i) } -> BasicIterator;
     };
 
-    template<class I1, class I2>
-    concept LessThanComparable = requires(I1 it1, I2 it2) {
-        { *it1 < *it2 } -> std::convertible_to<bool>;
+    template<class A, class B>
+    concept LessThanComparable = requires(A a, B b) {
+        { a < b } -> std::convertible_to<bool>;
     };
 
     template<class I>
-    concept Arithmetic = std::is_floating_point_v<I> || std::is_arithmetic_v<I>;
+    concept Arithmetic = std::is_arithmetic_v<I>;
 
   #define LZ_CONCEPT_ARITHMETIC Arithmetic
-  #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
+  #define LZ_CONCEPT_INVOCABLE std::invocable
+  #define LZ_CONCEPT_INTEGRAL std::integral
   #define LZ_CONCEPT_ITERABLE BasicIterable
   #define LZ_CONCEPT_ITERATOR BasicIterator
+
+  #define LZ_REQUIRES_CALLABLE(RET_VAL, FUNC, ...) requires Callable<RET_VAL, FUNC, ##__VA_ARGS__>
+  #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
 #else
   #define LZ_CONCEPT_ARITHMETIC class
-  #define LZ_REQUIRES_LESS_THAN(A, B)
+  #define LZ_CONCEPT_INVOCABLE class
+  #define LZ_CONCEPT_INTEGRAL class
   #define LZ_CONCEPT_ITERATOR class
   #define LZ_CONCEPT_ITERABLE class
+
+  #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif
 }
 
@@ -68,10 +75,16 @@ namespace lz { namespace detail {
     template<class Iterable>
     using IterType = std::decay_t<decltype(std::begin(std::declval<Iterable>()))>;
 
+    template<class Iterator>
+    using ValueTypeIterator = typename std::iterator_traits<Iterator>::value_type;
+
+    template<class Iterable>
+    using ValueTypeIterable = ValueTypeIterator<IterType<Iterable>>;
+
     template<class Function, class... Args>
     using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
 
-    template<class Arithmetic>
+    template<LZ_CONCEPT_INTEGRAL Arithmetic>
     inline bool isEven(const Arithmetic value) {
         return (value & 1) == 0;
     }

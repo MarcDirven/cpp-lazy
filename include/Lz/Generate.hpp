@@ -8,7 +8,7 @@
 
 
 namespace lz {
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class Generate final : public detail::BasicIteratorView<detail::GenerateIterator<GeneratorFunc>> {
     public:
         using iterator = detail::GenerateIterator<GeneratorFunc>;
@@ -73,7 +73,7 @@ namespace lz {
      * @param amount The amount of times to execute `generatorFunc`.
      * @return A generator random access iterator view object.
      */
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }

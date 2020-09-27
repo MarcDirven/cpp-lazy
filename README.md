@@ -17,7 +17,7 @@ strings = std::move(filter).toVector(); // overwrites the original container
 This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
-- C++14/17/20
+- C++14/17/20; C++20 concept support
 - Compatible with old(er) compiler versions
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
