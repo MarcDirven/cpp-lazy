@@ -17,6 +17,10 @@
 #include "LzTools.hpp"
 
 
+#ifdef LZ_HAS_EXECUTION
+  #include <execution>
+#endif
+
 namespace lz { namespace detail {
     template<class Iterator>
     class BasicIteratorView {
@@ -48,11 +52,22 @@ namespace lz { namespace detail {
             }
         }
 
-        template<class Container, class... Args>
-        Container moveContentsOfContainer(Args&& ... args) {
-            Container c(std::forward<Args>(args)...);
-            std::move(begin(), end(), std::inserter(c, c.begin()));
-            return c;
+        template<class Container, class... Args, class Execution>
+        Container moveContainer(const Execution execution, Args&& ... args) {
+            const Iterator b = begin();
+            const Iterator e = end();
+            Container cont(std::forward<Args>(args)...);
+            cont.resize(std::distance(b, e));
+
+            // Prevent static assertion
+            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
+                std::move(b, e, cont.begin());
+            }
+            else {
+                std::move(execution, b, e, cont.begin());
+            }
+
+            return cont;
         }
 
     public:
@@ -69,6 +84,173 @@ namespace lz { namespace detail {
 
         virtual ~BasicIteratorView() = default;
 
+#ifdef LZ_HAS_EXECUTION
+        /**
+         * @brief Returns an arbitrary container type, of which its constructor signature looks like:
+         * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
+         * the typedef `value_type`.
+         * @details Use this function to convert the iterator to a container. Example:
+         * ```cpp
+         * auto list = lazyIterator.to<std::list>();
+         * auto allocator = std::allocator<int>();
+         * auto set = lazyIterator.to<std::set>(allocator);
+         * ```
+         * @tparam Container Is automatically deduced.
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @tparam Args Additional arguments, automatically deduced.
+         * @param args Additional arguments, for e.g. an allocator.
+         * @return An arbitrary container specified by the entered template parameter.
+         */
+        template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
+        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const& {
+            const Iterator b = begin();
+            const Iterator e = end();
+            Container<value_type, Args...> cont(std::forward<Args>(args)...);
+            cont.resize(std::distance(b, e));
+
+            // Prevent static assertion
+            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
+                std::copy(b, e, cont.begin());
+            }
+            else {
+                std::copy(execution, b, e, cont.begin());
+            }
+
+            return cont;
+        }
+
+        /**
+         * @brief R-value reference overload of `to`. See `to` const& overload for details. Example of moving:
+         * @details Use this function to convert the iterator to a container. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::list<std::string> newVector = std::move(filter).to<std::list>();
+         * // all the values in strings are empty here, where the lambda returned true
+         * ```
+         * @tparam Container Is automatically deduced.
+         * @tparam Args Additional arguments, automatically deduced.
+         * @param args Additional arguments, for e.g. an allocator.
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @return An arbitrary container specified by the entered template parameter.
+         */
+        template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
+        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args)&& {
+            return moveContainer<Container<value_type, Args...>>(execution, std::forward<Args>(args)...);
+        }
+
+        /**
+        * @brief Creates a new `std::vector<value_type>` of the sequence.
+        * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
+        * @return A `std::vector<value_type>` with the sequence.
+        */
+        template<class Execution = std::execution::sequenced_policy>
+        std::vector<value_type> toVector(const Execution exec = std::execution::seq) const& {
+            return to<std::vector>(exec);
+        }
+
+        /**
+         * Rvalue reference overload. This will cause the original state of the iterator to be invalid. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::vector<std::string> newVector = std::move(filter).toVector();
+         * // all the values in strings are empty here, where the lambda returned true. One could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @return A new vector, causing the original container to be left in an invalid state.
+         */
+        template<class Execution = std::execution::sequenced_policy>
+        std::vector<value_type> toVector(const Execution exec = std::execution::seq)&& {
+            return moveContainer<std::vector<value_type>>(exec);
+        }
+
+        /**
+         * @brief Creates a new `std::vector<value_type, Allocator>`.
+         * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
+         * by this function.
+         * @tparam Allocator Is automatically deduced.
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @param alloc The allocator.
+         * @return A new `std::vector<value_type, Allocator>`.
+         */
+        template<class Allocator, class Execution = std::execution::sequenced_policy>
+        std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq,
+                                                    const Allocator& alloc = Allocator()) const& {
+            return to<std::vector, Allocator>(exec, alloc);
+        }
+
+        /**
+         * Rvalue reference overload. This will cause the original state of the iterator to be invalid. Example:
+         * ```cpp
+         * std::vector<std::string> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::vector<std::string> newVector = std::move(filter).toVector();
+         * // all the values in strings where the lambda returns true, are empty here, one could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @tparam Allocator Is automatically deduced.
+         * @param alloc The allocator
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @return A new vector, causing the original container to be left in an invalid state.
+         */
+        template<class Allocator, class Execution = std::execution::sequenced_policy>
+        std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq, const Allocator& alloc = Allocator())&& {
+            return moveContainer<std::vector<value_type, Allocator>>(exec, alloc);
+        }
+
+        /**
+         * @brief Creates a new `std::vector<value_type, N>`.
+         * @tparam N The size of the array.
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @return A new `std::array<value_type, N>`.
+         * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
+         */
+        template<size_t N, class Execution = std::execution::sequenced_policy>
+        std::array<value_type, N> toArray(const Execution exec = std::execution::seq) const& {
+            verifyRange<N>();
+            std::array<value_type, N> container{};
+
+            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
+                std::copy(begin(), end(), container.begin());
+            }
+            else {
+                std::copy(exec, begin(), end(), container.begin());
+            }
+
+            return container;
+        }
+
+        /**
+         * Rvalue reference overload. Causes the original iterator to be left in an invalid state. Example:
+         * ```cpp
+         * std::array<std::string, 2> strings = {"hello", "world" };
+         * auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; });
+         * std::array<std::string, 2> newArray = std::move(filter).toArray<1>();
+         * // all the values in strings where the lambda returns true, are empty here, one could also do:
+         * strings = std::move(filter).toVector();
+         * ```
+         * @tparam N The size of the array.
+         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @return A new `std::array<value_type, N>`.
+         * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
+         */
+        template<size_t N, class Execution = std::execution::sequenced_policy>
+        std::array<value_type, N> toArray(const Execution exec = std::execution::seq)&& {
+            verifyRange<N>();
+            std::array<value_type, N> container{};
+
+            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
+                std::move(begin(), end(), container.begin());
+            }
+            else {
+                std::move(exec, begin(), end(), container.begin());
+            }
+
+            return container;
+        }
+#else
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
          * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
@@ -85,7 +267,7 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(Args&& ... args) const& {
+        Container<value_type, Args...> to(std::execution::seq, Args&& ... args) const& {
             return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
         }
 
@@ -103,8 +285,8 @@ namespace lz { namespace detail {
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
          */
-        template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(Args&& ... args)&& {
+        template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
+        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args)&& {
             return moveContentsOfContainer<Container<value_type, Args...>>(std::forward<Args>(args)...);
         }
 
@@ -114,7 +296,7 @@ namespace lz { namespace detail {
          * @return A `std::vector<value_type>` with the sequence.
          */
         std::vector<value_type> toVector() const& {
-            return std::vector<value_type>(begin(), end());
+            return to<std::vector>();
         }
 
         /**
@@ -197,6 +379,7 @@ namespace lz { namespace detail {
             std::move(begin(), end(), container.begin());
             return container;
         }
+#endif
 
         /**
          * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
@@ -343,6 +526,5 @@ namespace lz { namespace detail {
             return string;
         }
     };
-
 }}
 #endif
