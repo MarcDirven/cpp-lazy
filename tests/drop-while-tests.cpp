@@ -1,7 +1,6 @@
 #include <catch.hpp>
 
 #include <Lz/DropWhile.hpp>
-#include <iostream>
 #include <list>
 
 
