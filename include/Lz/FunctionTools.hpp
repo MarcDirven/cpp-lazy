@@ -13,7 +13,12 @@
 #include "Map.hpp"
 #include "Filter.hpp"
 
-#ifndef LZ_CXX_LT_17
+#ifdef LZ_HAS_EXECUTION
+  #include <execution>
+#endif
+
+
+#if (__cplusplus >= 201703L) || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
   #define LZ_INLINE_VAR inline
 #else
   #define LZ_INLINE_VAR
@@ -53,6 +58,11 @@ namespace lz {
     }
 
     /**
+     * This value is returned when indexOf(If) does not find the value specified.
+     */
+    constexpr LZ_INLINE_VAR size_t npos = std::numeric_limits<size_t>::max();
+
+    /**
      * Gets the mean of a sequence.
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence.
@@ -78,75 +88,12 @@ namespace lz {
     }
 
     /**
-     * Gets the median of a sequence.
-     * @tparam Iterator Is automatically deduced.
-     * @tparam Compare Is automatically deduced.
-     * @param begin The beginning of the sequence
-     * @param end The ending of the sequence
-     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
-     * @return The median of the sequence.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-    double median(const Iterator begin, const Iterator end, const Compare compare) {
-        const detail::DifferenceType<Iterator> len = std::distance(begin, end);
-        if (len == 0) {
-            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
-        }
-
-        const detail::DifferenceType<Iterator> mid = len >> 1;
-        const Iterator midIter = std::next(begin, mid);
-        std::nth_element(begin, midIter, end, compare);
-
-        if (detail::isEven(len)) {
-            const Iterator leftHalf = std::max_element(begin, midIter);
-            return (static_cast<double>(*leftHalf) + *midIter) / 2.;
-        }
-        return *midIter;
-    }
-
-    /**
-     * Gets the median of a sequence.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Compare Is automatically deduced.
-     * @param iterable The container/sequence by reference.
-     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
-     * @return The median of the sequence.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable, class Compare>
-    double median(Iterable& iterable, const Compare compare) {
-        return median(std::begin(iterable), std::end(iterable), compare);
-    }
-
-    /**
-     * Gets the median of a sequence.
-     * @tparam Iterator Is automatically deduced.
-     * @param begin The beginning of the sequence
-     * @param end The ending of the sequence
-     * @return The median of the sequence.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    double median(const Iterator begin, const Iterator end) {
-        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>());
-    }
-
-    /**
-     * Gets the median of a sequence.
-     * @tparam Iterable Is automatically deduced.
-     * @param iterable The container/sequence by reference.
-     * @return The median of the sequence.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    double median(Iterable& iterable) {
-        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
-    }
-
-    /**
-     * Returns a StringSplitter iterator, that splits the string on `'\n'`.
-     * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
-     * @tparam String The string type. `std::string` is assumed but can be specified.
-     * @param string The string to split on.
-     * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
-     */
+  * Returns a StringSplitter iterator, that splits the string on `'\n'`.
+  * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
+  * @tparam String The string type. `std::string` is assumed but can be specified.
+  * @param string The string to split on.
+  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
+  */
     template<class SubString = std::string, class String = std::string>
     StringSplitter<SubString, String> lines(String&& string) {
         return split<SubString, String>(string, "\n");
@@ -161,7 +108,7 @@ namespace lz {
     template<class Strings, class Iterator = detail::IterType<Strings>>
     Join<Iterator> unlines(Strings&& strings) {
         static_assert(std::is_same<std::string, detail::ValueTypeIterator<Iterator>>::value
-#ifndef LZ_CXX_LT_17
+#if __has_include(<string_view>) && __cplusplus >= 201703L
             || std::is_same<std::string_view, detail::ValueTypeIterator<Iterator>>::value
 #endif
             , "the type of the container should be std::string or std::string_view");
@@ -272,6 +219,368 @@ namespace lz {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
 
+
+    /**
+     * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
+     * at all.
+     * @param string The string to modify.
+     * @param oldString The string to replace.
+     * @param newString The new string.
+     * @return `true` if replacing has taken place, `false` otherwise.
+     */
+    bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
+        return detail::stringReplaceImpl(string, oldString, newString, false);
+    }
+
+    /**
+     * Replaces all occurrences of `oldString` in `string` to `newString`.
+     * @param string The string to modify.
+     * @param oldString The string to replace.
+     * @param newString The new string.
+     * @return `true` if replacing has taken place, `false` otherwise.
+     */
+    bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
+        return detail::stringReplaceImpl(string, oldString, newString, true);
+    }
+
+#ifdef LZ_HAS_EXECUTION
+    /**
+     * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam UnaryMapFunc Is automatically deduced.
+     * @tparam UnaryFilterFunc Is automatically deduced.
+     * @tparam Execution Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
+     * passed to the `mapFunc`.
+     * @param mapFunc The function that returns the (new) type.
+     * @param execPolicy TThe execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
+     * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
+     */
+    template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
+    Map<detail::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
+    filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+              const Execution execPolicy = std::execution::seq) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc, execPolicy);
+        return map(filterView, mapFunc);
+    }
+
+    /**
+     * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam UnaryMapFunc Is automatically deduced.
+     * @tparam UnaryFilterFunc Is automatically deduced.
+     * @param iterable The iterable to filter/map.
+     * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
+     * passed to the `mapFunc`.
+     * @param mapFunc The function that returns the (new) type.
+     * @param execPolicy TThe execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
+     * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
+     */
+    template<class Execution = std::execution::sequenced_policy,class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
+    Map<detail::FilterIterator<Execution, detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
+    filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+              const Execution execution = std::execution::seq) {
+        return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam Compare Is automatically deduced.
+     * @tparam Execution Is automatically deduced.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence
+     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+     * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
+     * even.
+     * @return The median of the sequence.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare>
+    double median(const Iterator begin, const Iterator end, const Compare compare, const Execution execution = std::execution::seq) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        const detail::DifferenceType<Iterator> len = std::distance(begin, end);
+        if (len == 0) {
+            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
+        }
+
+        const detail::DifferenceType<Iterator> mid = len >> 1;
+        const Iterator midIter = std::next(begin, mid);
+        std::nth_element(execution, begin, midIter, end, compare);
+
+        if (detail::isEven(len)) {
+            const Iterator leftHalf = std::max_element(execution, begin, midIter);
+            return (static_cast<double>(*leftHalf) + *midIter) / 2.;
+        }
+        return *midIter;
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam Compare Is automatically deduced.
+     * @param iterable The container/sequence by reference.
+     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+     * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
+     * even.
+     * @return The median of the sequence.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class Compare>
+    double median(Iterable& iterable, const Compare compare, const Execution execution = std::execution::seq) {
+        return median(std::begin(iterable), std::end(iterable), compare, execution);
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterator Is automatically deduced.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence
+     * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
+     * even.
+     * @return The median of the sequence.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator>
+    double median(const Iterator begin, const Iterator end, const Execution execution = std::execution::seq) {
+        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>(), execution);
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @param iterable The container/sequence by reference.
+     * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
+     * even.
+     * @return The median of the sequence.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable>
+    double median(Iterable& iterable, const Execution execution = std::execution::seq) {
+        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>(), execution);
+    }
+
+    /**
+     * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+     * @param defaultValue The value to return if `toFind` is not found.
+     * @param execution Uses the execution to perform the find.
+     * @return Either `toFind` or `defaultValue`.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T,
+        class ValueType = detail::ValueTypeIterator<Iterator>>
+    ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, T&& defaultValue,
+                            const Execution execution = std::execution::seq) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        return std::find(execution, begin, end, toFind) == end ? defaultValue : toFind;
+    }
+
+    /**
+     * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param iterable The iterable to search.
+     * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+     * @param defaultValue The value to return if `toFind` is not found.
+     * @param execution Uses the execution to perform the find.
+     * @return Either `toFind` or `defaultValue`.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T,
+        class ValueType = detail::ValueTypeIterable<Iterable>>
+    ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue,
+                            const Execution execution = std::execution::seq) {
+        return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+    }
+
+    /**
+     * Uses `std::find_if(begin, end, predicate)` to check if for one of the elements, `predicate` returns true. If so, its corresponding
+     * value is returned. If not, `defaultValue` is returned.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @tparam UnaryPredicate Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate A function with one argument that returns a bool for its corresponding value type of the iterator.
+     * (see `std::find_if`)
+     * @param defaultValue The default value to return if predicate is `false` for all elements.
+     * @param execution Uses the execution to perform the find.
+     * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate,
+        class ValueType = detail::ValueTypeIterator<Iterator>>
+    ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T&& defaultValue,
+                              const Execution execution) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        const Iterator pos = std::find_if(execution, begin, end, predicate);
+        return pos == end ? defaultValue : *pos;
+    }
+
+
+    /**
+     * Uses `std::find_if(begin, end, predicate)` to check if for one of the elements, `predicate` returns true. If so, its corresponding
+     * value is returned. If not, `defaultValue` is returned.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @tparam UnaryPredicate Is automatically deduced.
+     * @param iterable The sequence to search.
+     * @param predicate A function with one argument that returns a bool for its corresponding value type of the iterator.
+     * (see `std::find_if`)
+     * @param defaultValue The default value to return if predicate is `false` for all elements.
+     * @param execution Uses the execution to perform the find.
+     * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate,
+        class ValueType = detail::ValueTypeIterable<Iterable>>
+    ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
+                              const Execution execution = std::execution::seq) {
+        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+    }
+
+    /**
+     * Searches [begin, end) for val, and returns its corresponding index, or lz::npos if no such value exists.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param val The value to search.
+     * @param execution Uses the execution to perform the find.
+     * @return The index of `val` or lz::npos of no such value exists.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
+    size_t indexOf(const Iterator begin, const Iterator end, const T& val, const Execution execution = std::execution::seq) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        const Iterator pos = std::find(execution, begin, end, val);
+        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+    }
+
+    /**
+     * Searches `iterable` for val, and returns its corresponding index, or lz::npos if no such value exists.
+     * @tparam Execution Is automatically deduced.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam T Is automatically deduced.
+     * @param iterable The iterable to search.
+     * @param val The value to search.
+     * @param execution Uses the execution to perform the find.
+     * @return The index of `val` or lz::npos of no such value exists.
+     */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T>
+    size_t indexOf(const Iterable& iterable, const T& val, const Execution execution = std::execution::seq) {
+        return indexOf(std::begin(iterable), std::end(iterable), val, execution);
+    }
+
+    /**
+    * Searches [begin, end) with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+    * @tparam Execution Is automatically deduced.
+    * @tparam Iterator Is automatically deduced.
+    * @tparam UnaryFunc Is automatically deduced.
+    * @param begin The beginning of the sequence.
+    * @param end The ending of the sequence.
+    * @param predicate The search predicate. Uses `std::find_if`.
+    * @param execution Uses the execution to perform the find.
+    * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
+    */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
+    size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+
+        const Iterator pos = std::find_if(execution, begin, end, predicate);
+        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+    }
+
+    /**
+    * Searches iterable with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+    * @tparam Iterable Is automatically deduced.
+    * @tparam UnaryFunc Is automatically deduced.
+    * @param iterable The sequence to search.
+    * @param predicate The search predicate. Uses `std::find_if`.
+    * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
+    */
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
+    size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
+        return indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
+    }
+#else
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam Compare Is automatically deduced.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence
+     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+     * @return The median of the sequence.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
+    double median(const Iterator begin, const Iterator end, const Compare compare) {
+        const detail::DifferenceType<Iterator> len = std::distance(begin, end);
+        if (len == 0) {
+            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
+        }
+
+        const detail::DifferenceType<Iterator> mid = len >> 1;
+        const Iterator midIter = std::next(begin, mid);
+        std::nth_element(begin, midIter, end, compare);
+
+        if (detail::isEven(len)) {
+            const Iterator leftHalf = std::max_element(begin, midIter);
+            return (static_cast<double>(*leftHalf) + *midIter) / 2.;
+        }
+        return *midIter;
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam Compare Is automatically deduced.
+     * @param iterable The container/sequence by reference.
+     * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+     * @return The median of the sequence.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class Compare>
+    double median(Iterable& iterable, const Compare compare) {
+        return median(std::begin(iterable), std::end(iterable), compare);
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Iterator Is automatically deduced.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence
+     * @return The median of the sequence.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    double median(const Iterator begin, const Iterator end) {
+        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>());
+    }
+
+    /**
+     * Gets the median of a sequence.
+     * @tparam Iterable Is automatically deduced.
+     * @param iterable The container/sequence by reference.
+     * @return The median of the sequence.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable>
+    double median(Iterable& iterable) {
+        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
+    }
+
     /**
      * Checks if `toFind` is in the sequence (begin, end]. If so, it returns `toFind`, otherwise it returns `defaultValue`.
      * @tparam Iterator Is automatically deduced.
@@ -336,11 +645,6 @@ namespace lz {
     ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue) {
         return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
-
-    /**
-     * This value is returned when indexOf(If) does not find the value specified.
-     */
-    constexpr LZ_INLINE_VAR size_t npos = std::numeric_limits<size_t>::max();
 
     /**
      * Searches (begin, end] for val, and returns its corresponding index, or lz::npos if no such value exists.
@@ -417,6 +721,7 @@ namespace lz {
         return map(filterView, mapFunc);
     }
 
+
     /**
      * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
      * @tparam Iterable Is automatically deduced.
@@ -434,28 +739,7 @@ namespace lz {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
 
-    /**
-     * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
-     * at all.
-     * @param string The string to modify.
-     * @param oldString The string to replace.
-     * @param newString The new string.
-     * @return `true` if replacing has taken place, `false` otherwise.
-     */
-    bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
-        return detail::stringReplaceImpl(string, oldString, newString, false);
-    }
-
-    /**
-     * Replaces all occurrences of `oldString` in `string` to `newString`.
-     * @param string The string to modify.
-     * @param oldString The string to replace.
-     * @param newString The new string.
-     * @return `true` if replacing has taken place, `false` otherwise.
-     */
-    bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
-        return detail::stringReplaceImpl(string, oldString, newString, true);
-    }
+#endif // End LZ_HAS_EXECUTION
 }
 
 #endif

@@ -5,11 +5,12 @@
 
 #include <utility>
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
-  #define LZ_CXX_LT_17
-#endif
 #if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
   #define LZ_HAS_CXX_20
+#endif
+
+#if __has_include(<execution>) && ((__cplusplus >= 201703L) || defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+  #define LZ_HAS_EXECUTION
 #endif
 
 

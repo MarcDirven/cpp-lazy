@@ -19,7 +19,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
         }
     }
 
-#ifdef LZ_CXX_LT_17
+#if !(__has_include(<string_view>) && (__cplusplus >= 201703L))
     SECTION("Should be std::string") {
         CHECK(std::is_same<decltype(*it), std::string&>::value);
     }

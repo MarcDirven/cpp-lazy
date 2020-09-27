@@ -7,13 +7,23 @@
 #include <algorithm>
 
 
+#include "LzTools.hpp"
+
+
 namespace lz { namespace detail {
+#ifdef LZ_HAS_EXECUTION
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator>
+#else
     template<LZ_CONCEPT_ITERATOR Iterator>
+#endif
     class UniqueIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
         Iterator _iterator{};
         Iterator _end{};
+#ifdef LZ_HAS_EXECUTION
+        Execution _execution;
+#endif
 
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -22,18 +32,35 @@ namespace lz { namespace detail {
         using pointer = typename IterTraits::pointer;
         using reference = typename IterTraits::reference;
 
-        UniqueIterator(const Iterator begin, const Iterator end):
+#ifdef LZ_HAS_EXECUTION
+        UniqueIterator(const Iterator begin, const Iterator end, const Execution execution)
+#else
+        UniqueIterator(const Iterator begin, const Iterator end)
+#endif
+        :
             _iterator(begin),
-            _end(end) {
+            _end(end)
+#ifdef LZ_HAS_EXECUTION
+            , _execution(execution)
+#endif
+        {
             if (begin == end) {
                 return;
             }
 
-            if (std::is_sorted(begin, end)) {
+#ifdef LZ_HAS_EXECUTION
+            if (std::is_sorted(_execution, begin, end))
+#else
+            if (std::is_sorted(begin, end))
+#endif
+            {
                 return;
             }
-
+#ifdef LZ_HAS_EXECUTION
+            std::sort(_execution, begin, end);
+#else
             std::sort(begin, end);
+#endif
         }
 
         UniqueIterator() = default;
@@ -47,7 +74,12 @@ namespace lz { namespace detail {
         }
 
         UniqueIterator& operator++() {
+#ifdef LZ_HAS_EXECUTION
+            _iterator = std::adjacent_find(_execution, _iterator, _end, std::less<value_type>());
+#else
             _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
+#endif
+
             if (_iterator != _end) {
                 ++_iterator;
             }

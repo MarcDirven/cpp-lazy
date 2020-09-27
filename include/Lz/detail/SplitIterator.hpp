@@ -7,7 +7,7 @@
 
 #include "LzTools.hpp"
 
-#ifndef LZ_CXX_LT_17
+#   if __has_include(<string_view>) && __cplusplus >= 201703L
   #include <string_view>
 #endif
 

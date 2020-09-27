@@ -6,12 +6,6 @@
 #include "detail/SplitIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-#include <string>
-
-#ifndef LZ_CXX_LT_17
-  #include <string_view>
-#endif
-
 
 namespace lz {
     template<class SubString, class String>
@@ -54,12 +48,12 @@ namespace lz {
         }
     };
 
-#ifdef LZ_CXX_LT_17
-    template class StringSplitter<std::string, std::string>;
-    template<class SubString = std::string, class String = std::string>
-#else
+#if __has_include(<string_view>) && __cplusplus > 201402L
     template class StringSplitter<std::string_view, std::string_view>;
     template<class SubString = std::string_view, class String = std::string_view>
+#else
+    template class StringSplitter<std::string, std::string>;
+    template<class SubString = std::string, class String = std::string>
 #endif
     // Start of group
     /**
