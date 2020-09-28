@@ -225,7 +225,7 @@ namespace lz { namespace detail {
         template<class Allocator, class Execution = std::execution::sequenced_policy>
         std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq,
                                                     const Allocator& alloc = Allocator()) const& {
-            return to<std::vector, Allocator>(exec, alloc);
+            return to<std::vector>(exec, alloc);
         }
 
         /**
@@ -244,7 +244,7 @@ namespace lz { namespace detail {
          */
         template<class Allocator, class Execution = std::execution::sequenced_policy>
         std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq, const Allocator& alloc = Allocator())&& {
-            return std::move(*this).template to<std::vector, Allocator>(exec, alloc);
+            return std::move(*this).template to<std::vector>(exec, alloc);
         }
 
         /**
