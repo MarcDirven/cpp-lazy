@@ -17,6 +17,18 @@
 
 
 namespace lz { namespace detail {
+    template<typename T>
+    struct HasReserve
+    {
+        template<typename U, size_t (U::*)() const> struct SubstituteFailure {};
+        template<typename U> static char Test(SubstituteFailure<U, &U::reserve>*);
+        template<typename U> static int Test(...);
+        static const bool value = sizeof(Test<T>(0)) == sizeof(char);
+    };
+
+    template<class T>
+    constexpr bool HasReserveV = HasReserve<T>::value;
+
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
@@ -47,32 +59,43 @@ namespace lz { namespace detail {
             }
         }
 
+        template<class Container>
+        inline std::enable_if_t<HasReserveV<Container>, void> reserve(Container& container) const {
+            container.reserve(std::distance(begin(), end()));
+        }
+
+        template<class Container>
+        inline std::enable_if_t<!HasReserveV<Container>, void> reserve(Container&) const {}
+
 #ifdef LZ_HAS_EXECUTION
         template<class Container, class... Args, class CopyFunc, class Execution>
         Container copyOrMoveContainer(Execution execution, const CopyFunc copyFunc, Args&& ... args) const {
             const Iterator b = begin();
             const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
+            reserve(cont);
 
             // Prevent static assertion
             if constexpr (IsSequencedPolicyV<Execution>) {
                 static_cast<void>(execution);
-                copyFunc(b, e, std::back_inserter(cont));
+                // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
+                copyFunc(b, e, std::inserter(cont, cont.begin()));
             }
             else {
-                cont.reserve(std::distance(b, e));
                 copyFunc(std::forward<Execution>(execution), b, e, cont.begin());
             }
 
             return cont;
         }
 #else
+
         template<class Container, class CopyFunc, class... Args>
         Container copyOrMoveContainer(const CopyFunc copyFunc, Args&& ... args) const {
             const Iterator b = begin();
             const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
-            copyFunc(b, e, std::back_inserter(cont));
+            reserve(cont);
+            copyFunc(b, e, std::inserter(cont, cont.begin()));
             return cont;
         }
 #endif
@@ -137,8 +160,8 @@ namespace lz { namespace detail {
             using Cont = Container<value_type, Args...>;
 
             if constexpr (IsSequencedPolicyV<Execution>) {
-                using OutputIter = std::back_insert_iterator<Cont>;
-                OutputIter(*copy)(Iterator, Iterator, OutputIter) = std::copy<Iterator, std::back_insert_iterator<Cont>>;
+                using OutputIter = std::insert_iterator<Cont>;
+                OutputIter(*copy)(Iterator, Iterator, OutputIter) = std::copy<Iterator, OutputIter>;
                 return copyOrMoveContainer<Cont>(execution, copy, std::forward<Args>(args)...);
             }
             else {
@@ -171,8 +194,8 @@ namespace lz { namespace detail {
             using Cont = Container<value_type, Args...>;
 
             if constexpr (IsSequencedPolicyV<Execution>) {
-                using OutputIter = std::back_insert_iterator<Cont>;
-                OutputIter(*move)(Iterator, Iterator, OutputIter) = std::move<Iterator, std::back_insert_iterator<Cont>>;
+                using OutputIter = std::insert_iterator<Cont>;
+                OutputIter(*move)(Iterator, Iterator, OutputIter) = std::move<Iterator, OutputIter>;
                 return copyOrMoveContainer<Cont>(execution, move, std::forward<Args>(args)...);
             }
             else {
@@ -322,7 +345,7 @@ namespace lz { namespace detail {
         template<template<class, class...> class Container, class... Args>
         Container<value_type, Args...> to(Args&& ... args) const& {
             using Cont = Container<value_type, Args...>;
-            using OutputIter = std::back_insert_iterator<Cont>;
+            using OutputIter = std::insert_iterator<Cont>;
 
             OutputIter(*copyFunc)(Iterator, Iterator, OutputIter) = std::copy<Iterator, OutputIter>;
             return copyOrMoveContainer<Cont>(copyFunc, std::forward<Args>(args)...);
@@ -345,7 +368,7 @@ namespace lz { namespace detail {
         template<template<class, class...> class Container, class... Args>
         Container<value_type, Args...> to(Args&& ... args)&& {
             using Cont = Container<value_type, Args...>;
-            using OutputIter = std::back_insert_iterator<Cont>;
+            using OutputIter = std::insert_iterator<Cont>;
 
             OutputIter(*moveFunc)(Iterator, Iterator, OutputIter) = std::move<Iterator, OutputIter>;
             return copyOrMoveContainer<Cont>(moveFunc, std::forward<Args>(args)...);
