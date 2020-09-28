@@ -533,7 +533,10 @@ Clone the repository using `git clone --recurse-submodules https://github.com/Ma
 ```cmake
 add_subdirectory(cpp-lazy)
 add_executable(${PROJECT_NAME} main.cpp)
+
 target_link_libraries(${PROJECT_NAME} cpp-lazy)
+# Or...
+target_link_libraries(${PROJECT_NAME} INTERFACE lz::cpp-lazy)
 ```
 ```cpp
 #include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>

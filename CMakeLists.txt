@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12.4)
 
-project("cpp-lazy")
+project(cpp-lazy)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -52,28 +52,29 @@ set(HEADER_FILES
         ${LZ_HEADERS}/Zip.hpp
         )
 
-add_library("cpp-lazy" INTERFACE)
+add_library(cpp-lazy INTERFACE)
+add_library(lz::cpp-lzy ALIAS cpp-lazy)
 
-target_sources("cpp-lazy" INTERFACE
+# Add headers and helper headers
+target_sources(cpp-lazy INTERFACE
         ${HEADER_FILES}
         ${DETAIL_HEADER_FILES}
         )
 
-target_include_directories("cpp-lazy" INTERFACE
+target_include_directories(cpp-lazy INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
         )
 
-set(INCLUDE_BENCHMARKS FALSE)
-
 # Add fmt
 add_subdirectory(extern/fmt)
-target_link_libraries("cpp-lazy" INTERFACE fmt::fmt-header-only)
-
+target_link_libraries(cpp-lazy INTERFACE fmt::fmt-header-only)
 
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
 
+    # Use a boolean for the benchmarks for now
+    set(INCLUDE_BENCHMARKS FALSE)
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)
         add_subdirectory(bench)
