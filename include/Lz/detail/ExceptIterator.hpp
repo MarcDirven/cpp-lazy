@@ -58,13 +58,21 @@ namespace lz {
 
             void find() {
 #ifdef LZ_HAS_EXECUTION
-                _iterator = std::find_if(_iteratorHelper->execution, _iterator, _iteratorHelper->end, [this](const value_type& value)
+                if constexpr (IsSequencedPolicyV<Execution>) {
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value)
+                    {
+                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                    });
+                }
+                else {
+                    _iterator = std::find_if(_iteratorHelper->execution, _iterator, _iteratorHelper->end, [this](const value_type& value)
 #else
-                _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value)
+                    _iterator = std::find_if(_iterator, _iteratorHelper->end, [this](const value_type& value)
 #endif
-                {
-                    return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
-                });
+                    {
+                        return !std::binary_search(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd, value);
+                    });
+                }
             }
 
         public:
@@ -83,7 +91,12 @@ namespace lz {
                 if (begin != end) {
                     if (!_iteratorHelper->isSorted) {
 #ifdef LZ_HAS_EXECUTION
-                        std::sort(_iteratorHelper->execution, begin, end);
+                        if constexpr (IsSequencedPolicyV<Execution>) {
+                            std::sort(begin, end);
+                        }
+                        else {
+                            std::sort(_iteratorHelper->execution, begin, end);
+                        }
 #else
                         std::sort(begin, end);
 #endif

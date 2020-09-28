@@ -49,15 +49,29 @@ namespace lz { namespace detail {
             }
 
 #ifdef LZ_HAS_EXECUTION
-            if (std::is_sorted(_execution, begin, end))
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                if (std::is_sorted(begin, end)) {
+                    return;
+                }
+            }
+            else {
+                if (std::is_sorted(_execution, begin, end)) {
+                    return;
+                }
+            }
 #else
-            if (std::is_sorted(begin, end))
-#endif
-            {
+            if (std::is_sorted(begin, end)) {
                 return;
             }
+#endif
+
 #ifdef LZ_HAS_EXECUTION
-            std::sort(_execution, begin, end);
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                std::sort(begin, end);
+            }
+            else {
+                std::sort(_execution, begin, end);
+            }
 #else
             std::sort(begin, end);
 #endif
@@ -75,7 +89,12 @@ namespace lz { namespace detail {
 
         UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
-            _iterator = std::adjacent_find(_execution, _iterator, _end, std::less<value_type>());
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
+            }
+            else {
+                _iterator = std::adjacent_find(_execution, _iterator, _end, std::less<value_type>());
+            }
 #else
             _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
 #endif

@@ -13,13 +13,8 @@
 #include <numeric>
 
 #include "fmt/ostream.h"
-
 #include "LzTools.hpp"
 
-
-#ifdef LZ_HAS_EXECUTION
-  #include <execution>
-#endif
 
 namespace lz { namespace detail {
     template<class Iterator>
@@ -52,23 +47,36 @@ namespace lz { namespace detail {
             }
         }
 
-        template<class Container, class... Args, class Execution>
-        Container moveContainer(const Execution execution, Args&& ... args) {
+#ifdef LZ_HAS_EXECUTION
+        template<class Container, class... Args, class CopyFunc, class Execution>
+        Container copyOrMoveContainer(Execution execution, const CopyFunc copyFunc, Args&& ... args) const {
             const Iterator b = begin();
             const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
-            cont.resize(std::distance(b, e));
 
             // Prevent static assertion
-            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
-                std::move(b, e, cont.begin());
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                static_cast<void>(execution);
+                copyFunc(b, e, std::back_inserter(cont));
             }
             else {
-                std::move(execution, b, e, cont.begin());
+                cont.reserve(std::distance(b, e));
+                copyFunc(std::forward<Execution>(execution), b, e, cont.begin());
             }
 
             return cont;
         }
+#else
+        template<class Container, class CopyFunc, class... Args>
+        Container copyOrMoveContainer(const CopyFunc copyFunc, Args&& ... args) const {
+            const Iterator b = begin();
+            const Iterator e = end();
+            Container cont(std::forward<Args>(args)...);
+            cont.reserve(std::distance(b, e));
+            copyFunc(b, e, cont.begin());
+            return cont;
+        }
+#endif
 
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
@@ -76,6 +84,30 @@ namespace lz { namespace detail {
     private:
         template<class KeySelectorFunc>
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+
+#ifdef LZ_HAS_EXECUTION
+        template<size_t N, class CopyFunc, class Execution>
+        std::array<value_type, N> copyOrMoveArray(Execution execution, const CopyFunc copyFunc) const {
+            verifyRange<N>();
+            std::array<value_type, N> array{};
+
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                copyFunc(begin(), end(), array.begin());
+            }
+            else {
+                copyFunc(std::forward<Execution>(execution), begin(), end(), array.begin());
+            }
+            return array;
+        }
+#else
+        template<size_t N, class CopyFunc>
+        std::array<value_type, N> copyOrMoveArray(const CopyFunc copyFunc) const {
+            verifyRange<N>();
+            std::array<value_type, N> array{};
+            copyFunc(begin(), end(), array.begin());
+            return array;
+        }
+#endif
 
     public:
         virtual Iterator begin() const = 0;
@@ -103,20 +135,21 @@ namespace lz { namespace detail {
          */
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
         Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const& {
-            const Iterator b = begin();
-            const Iterator e = end();
-            Container<value_type, Args...> cont(std::forward<Args>(args)...);
-            cont.resize(std::distance(b, e));
+            using Cont = Container<value_type, Args...>;
 
-            // Prevent static assertion
-            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
-                std::copy(b, e, cont.begin());
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                using OutputIter = std::back_insert_iterator<Cont>;
+                OutputIter(*copy)(Iterator, Iterator, OutputIter) = std::copy<Iterator, std::back_insert_iterator<Cont>>;
+                return copyOrMoveContainer<Cont>(execution, copy, std::forward<Args>(args)...);
             }
             else {
-                std::copy(execution, b, e, cont.begin());
-            }
+                using OutputIter = typename Cont::iterator;
+                static_assert(IsForwardOrStrongerV<OutputIter> && IsForwardOrStrongerV<Iterator>,
+                              "Both iterator types must be forward iterator or higher. Use std::execution::seq instead.");
 
-            return cont;
+                OutputIter(*copy)(Execution, Iterator, Iterator, OutputIter) = std::copy<Execution, Iterator, OutputIter>;
+                return copyOrMoveContainer<Cont>(execution, copy, std::forward<Args>(args)...);
+            }
         }
 
         /**
@@ -136,12 +169,27 @@ namespace lz { namespace detail {
          */
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
         Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args)&& {
-            return moveContainer<Container<value_type, Args...>>(execution, std::forward<Args>(args)...);
+            using Cont = Container<value_type, Args...>;
+
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                using OutputIter = std::back_insert_iterator<Cont>;
+                OutputIter(*move)(Iterator, Iterator, OutputIter) = std::move<Iterator, std::back_insert_iterator<Cont>>;
+                return copyOrMoveContainer<Cont>(execution, move, std::forward<Args>(args)...);
+            }
+            else {
+                using OutputIter = typename Cont::iterator;
+                static_assert(IsForwardOrStrongerV<OutputIter> && IsForwardOrStrongerV<Iterator>,
+                              "Both iterator types must be forward iterator or higher. Use std::execution::seq instead.");
+
+                OutputIter(*move)(Execution, Iterator, Iterator, OutputIter) = std::move<Execution, Iterator, OutputIter>;
+                return copyOrMoveContainer<Cont>(execution, move, std::forward<Args>(args)...);
+            }
         }
 
         /**
         * @brief Creates a new `std::vector<value_type>` of the sequence.
         * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
         * @return A `std::vector<value_type>` with the sequence.
         */
         template<class Execution = std::execution::sequenced_policy>
@@ -158,12 +206,12 @@ namespace lz { namespace detail {
          * // all the values in strings are empty here, where the lambda returned true. One could also do:
          * strings = std::move(filter).toVector();
          * ```
-         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @return A new vector, causing the original container to be left in an invalid state.
          */
         template<class Execution = std::execution::sequenced_policy>
         std::vector<value_type> toVector(const Execution exec = std::execution::seq)&& {
-            return moveContainer<std::vector<value_type>>(exec);
+            return std::move(*this).template to<std::vector>(exec);
         }
 
         /**
@@ -171,7 +219,7 @@ namespace lz { namespace detail {
          * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
          * by this function.
          * @tparam Allocator Is automatically deduced.
-         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
@@ -197,29 +245,20 @@ namespace lz { namespace detail {
          */
         template<class Allocator, class Execution = std::execution::sequenced_policy>
         std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq, const Allocator& alloc = Allocator())&& {
-            return moveContainer<std::vector<value_type, Allocator>>(exec, alloc);
+            return std::move(*this).template to<std::vector, Allocator>(exec, alloc);
         }
 
         /**
          * @brief Creates a new `std::vector<value_type, N>`.
          * @tparam N The size of the array.
-         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @return A new `std::array<value_type, N>`.
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<size_t N, class Execution = std::execution::sequenced_policy>
         std::array<value_type, N> toArray(const Execution exec = std::execution::seq) const& {
-            verifyRange<N>();
-            std::array<value_type, N> container{};
-
-            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
-                std::copy(begin(), end(), container.begin());
-            }
-            else {
-                std::copy(exec, begin(), end(), container.begin());
-            }
-
-            return container;
+            const auto copy = std::copy<Iterator, typename std::array<value_type, N>::iterator>;
+            return copyOrMoveArray<N>(exec, copy);
         }
 
         /**
@@ -232,23 +271,38 @@ namespace lz { namespace detail {
          * strings = std::move(filter).toVector();
          * ```
          * @tparam N The size of the array.
-         * @param execution The execution policy. Must be one of `std::execution`'s tags.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @return A new `std::array<value_type, N>`.
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<size_t N, class Execution = std::execution::sequenced_policy>
         std::array<value_type, N> toArray(const Execution exec = std::execution::seq)&& {
-            verifyRange<N>();
-            std::array<value_type, N> container{};
+            const auto mover = std::move<Iterator, typename std::array<value_type, N>::iterator>;
+            return copyOrMoveArray<N>(exec, mover);
+        }
 
-            if constexpr (std::is_same_v<Execution, std::execution::sequenced_policy>) {
-                std::move(begin(), end(), container.begin());
-            }
-            else {
-                std::move(exec, begin(), end(), container.begin());
+        /**
+         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+         * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+         * @param delimiter The delimiter between the previous value and the next.
+         * @param exec The execution policy. Must be one of `std::execution`'s tags.
+         * @return The converted iterator in string format.
+         */
+        template<class Execution = std::execution::sequenced_policy>
+        std::string toString(const char* delimiter = "", const Execution exec = std::execution::seq) const {
+            static_assert(IsParallelPolicyV<Execution> || IsSequencedPolicyV<Execution>,
+                "This function cannot be vectorized. Prefer to use std::execution::par/seq.");
+
+            std::string string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(), [delimiter](const value_type& v) {
+                return fmt::format("{}{}", v, delimiter);
+            });
+
+            const size_t delimiterLength = std::strlen(delimiter);
+            if (!string.empty() && delimiterLength >= 1) {
+                string.erase(string.size() - delimiterLength);
             }
 
-            return container;
+            return string;
         }
 #else
         /**
@@ -267,8 +321,11 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(std::execution::seq, Args&& ... args) const& {
-            return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
+        Container<value_type, Args...> to(Args&& ... args) const& {
+            using Cont = Container<value_type, Args...>;
+
+            const auto copyFunc = std::copy<Iterator, std::back_insert_iterator<Cont>>;
+            return copyOrMoveContainer<Cont>(copyFunc, std::forward<Args>(args)...);
         }
 
         /**
@@ -285,9 +342,12 @@ namespace lz { namespace detail {
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
          */
-        template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args)&& {
-            return moveContentsOfContainer<Container<value_type, Args...>>(std::forward<Args>(args)...);
+        template<template<class, class...> class Container, class... Args>
+        Container<value_type, Args...> to(Args&& ... args)&& {
+            using Cont = Container<value_type, Args...>;
+
+            const auto moveFunc = std::move<Iterator, std::back_insert_iterator<Cont>>;
+            return copyOrMoveContainer<Cont>(moveFunc, std::forward<Args>(args)...);
         }
 
         /**
@@ -311,7 +371,7 @@ namespace lz { namespace detail {
          * @return A new vector, causing the original container to be left in an invalid state.
          */
         std::vector<value_type> toVector()&& {
-            return moveContentsOfContainer<std::vector<value_type>>();
+            return std::move(*this).template to<std::vector>();
         }
 
         /**
@@ -324,7 +384,7 @@ namespace lz { namespace detail {
          */
         template<class Allocator>
         std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const& {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
+            return to<std::vector, Allocator>(alloc);
         }
 
         /**
@@ -342,7 +402,7 @@ namespace lz { namespace detail {
          */
         template<class Allocator>
         std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator())&& {
-            return moveContentsOfContainer<std::vector<value_type, Allocator>>(alloc);
+            return std::move(*this).template to<std::vector, Allocator>(alloc);
         }
 
         /**
@@ -353,10 +413,8 @@ namespace lz { namespace detail {
          */
         template<size_t N>
         std::array<value_type, N> toArray() const& {
-            verifyRange<N>();
-            std::array<value_type, N> container{};
-            std::copy(begin(), end(), container.begin());
-            return container;
+            const auto copy = std::copy<Iterator, typename std::array<value_type, N>::iterator>;
+            return copyOrMoveArray<N>(copy);
         }
 
         /**
@@ -374,10 +432,28 @@ namespace lz { namespace detail {
          */
         template<size_t N>
         std::array<value_type, N> toArray()&& {
-            verifyRange<N>();
-            std::array<value_type, N> container{};
-            std::move(begin(), end(), container.begin());
-            return container;
+            const auto mover = std::move<Iterator, typename std::array<value_type, N>::iterator>;
+            return copyOrMoveArray<N>(mover);
+        }
+
+        /**
+         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+         * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+         * @param delimiter The delimiter between the previous value and the next.
+         * @return The converted iterator in string format.
+         */
+        std::string toString(const char* delimiter = "") const {
+            std::string string;
+            for (const value_type& v : *this) {
+                string += fmt::format("{}{}", v, delimiter);
+            }
+
+            const size_t delimiterLength = std::strlen(delimiter);
+            if (!string.empty() && delimiterLength >= 1) {
+                string.erase(string.size() - delimiterLength);
+            }
+
+            return string;
         }
 #endif
 
@@ -504,26 +580,6 @@ namespace lz { namespace detail {
          */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
             return o << it.toString(" ");
-        }
-
-        /**
-         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
-         * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
-         * @param delimiter The delimiter between the previous value and the next.
-         * @return The converted iterator in string format.
-         */
-        std::string toString(const char* delimiter = "") const {
-            std::string string;
-            for (const value_type& v : *this) {
-                string += fmt::format("{}{}", v, delimiter);
-            }
-
-            const size_t delimiterLength = std::strlen(delimiter);
-            if (!string.empty() && delimiterLength >= 1) {
-                string.erase(string.size() - delimiterLength);
-            }
-
-            return string;
         }
     };
 }}

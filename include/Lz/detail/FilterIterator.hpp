@@ -47,7 +47,12 @@ namespace lz { namespace detail {
 #endif
             {
 #ifdef LZ_HAS_EXECUTION
-            _iterator = std::find_if(_execution, _iterator, _end, _predicate);
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                _iterator = std::find_if(_iterator, _end, _predicate);
+            }
+            else {
+                _iterator = std::find_if(_execution, _iterator, _end, _predicate);
+            }
 #else
             _iterator = std::find_if(_iterator, _end, _predicate);
 #endif
@@ -66,7 +71,12 @@ namespace lz { namespace detail {
         FilterIterator& operator++() {
             if (_iterator != _end) {
 #ifdef LZ_HAS_EXECUTION
-                _iterator = std::find_if(_execution, ++_iterator, _end, _predicate);
+                if constexpr (IsSequencedPolicyV<Execution>) {
+                    _iterator = std::find_if(++_iterator, _end, _predicate);
+                }
+                else {
+                    _iterator = std::find_if(_execution, ++_iterator, _end, _predicate);
+                }
 #else
                 _iterator = std::find_if(++_iterator, _end, _predicate);
 #endif

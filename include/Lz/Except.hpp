@@ -105,7 +105,7 @@ namespace lz {
     Except<Execution, Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end,
                                                               const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
                                                               const Execution execPolicy) {
-        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+        detail::verifyIteratorAndPolicies(execPolicy, begin);
         return Except<Execution, Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd, execPolicy);
     }
 #else

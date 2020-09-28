@@ -93,7 +93,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator>
     LZ_REQUIRES_LESS_THAN(Iterator, Iterator)
     Unique<Execution, Iterator> uniqueRange(const Iterator begin, const Iterator end, const Execution execPolicy = std::execution::seq) {
-        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+        detail::verifyIteratorAndPolicies(execPolicy, begin);
         return Unique<Execution, Iterator>(begin, end, execPolicy);
     }
 #else

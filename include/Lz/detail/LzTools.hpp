@@ -11,6 +11,7 @@
 
 #if __has_include(<execution>) && ((__cplusplus >= 201703L) || defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
   #define LZ_HAS_EXECUTION
+  #include <execution>
 #endif
 
 
@@ -34,19 +35,18 @@ namespace lz {
     concept Arithmetic = std::is_arithmetic_v<I>;
 
   #define LZ_CONCEPT_ARITHMETIC Arithmetic
-  #define LZ_CONCEPT_INVOCABLE std::invocable
-  #define LZ_CONCEPT_INTEGRAL std::integral
-  #define LZ_CONCEPT_ITERABLE BasicIterable
-  #define LZ_CONCEPT_ITERATOR BasicIterator
+  #define LZ_CONCEPT_INVOCABLE  std::invocable
+  #define LZ_CONCEPT_INTEGRAL   std::integral
+  #define LZ_CONCEPT_ITERABLE   BasicIterable
+  #define LZ_CONCEPT_ITERATOR   BasicIterator
 
-  #define LZ_REQUIRES_CALLABLE(RET_VAL, FUNC, ...) requires Callable<RET_VAL, FUNC, ##__VA_ARGS__>
   #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
 #else
   #define LZ_CONCEPT_ARITHMETIC class
-  #define LZ_CONCEPT_INVOCABLE class
-  #define LZ_CONCEPT_INTEGRAL class
-  #define LZ_CONCEPT_ITERATOR class
-  #define LZ_CONCEPT_ITERABLE class
+  #define LZ_CONCEPT_INVOCABLE  class
+  #define LZ_CONCEPT_INTEGRAL   class
+  #define LZ_CONCEPT_ITERATOR   class
+  #define LZ_CONCEPT_ITERABLE   class
 
   #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif
@@ -59,6 +59,45 @@ namespace lz {
 
 
 namespace lz { namespace detail {
+#ifdef LZ_HAS_EXECUTION
+    template<class T>
+    struct IsSequencedPolicy {
+        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>;
+    };
+
+    template<class T>
+    struct IsParallelPolicy {
+        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>;
+    };
+
+    template<class T>
+    struct IsForwardOrStronger {
+        using IterCat = typename std::iterator_traits<T>::iterator_category;
+        static constexpr bool value = !std::is_same_v<IterCat, std::input_iterator_tag> &&
+                                      !std::is_same_v<IterCat, std::output_iterator_tag>;
+    };
+
+    template<class T>
+    constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
+
+    template<class T>
+    constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
+
+    template<class T>
+    constexpr bool IsParallelPolicyV = IsParallelPolicy<T>::value;
+
+    template<class Execution, class Iterator>
+    constexpr void verifyIteratorAndPolicies(Execution, Iterator) {
+        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
+
+        if constexpr (!detail::IsSequencedPolicyV<Execution>) {
+            static_assert(detail::IsForwardOrStrongerV<Iterator>,
+                          "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+        }
+
+    }
+
+#endif
     template<class T>
     class FakePointerProxy {
         T t;

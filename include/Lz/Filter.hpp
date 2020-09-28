@@ -101,7 +101,7 @@ namespace lz {
     filterRange(const Iterator begin, const Iterator end, const Function& predicate, const Execution execution = std::execution::seq) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "function must return bool");
-        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
+        detail::verifyIteratorAndPolicies(execution, begin);
         return Filter<Execution, Iterator, Function>(begin, end, predicate, execution);
     }
 #else

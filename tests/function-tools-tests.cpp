@@ -1,7 +1,7 @@
 #include <Lz/FunctionTools.hpp>
 #include <Lz/Range.hpp>
 #include <catch.hpp>
-#include <iostream>
+
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};

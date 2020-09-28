@@ -18,6 +18,7 @@ This library uses one dependency library `fmt`, which is automatically configure
 
 # Features
 - C++14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
+- Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
