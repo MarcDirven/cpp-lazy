@@ -24,7 +24,7 @@ namespace lz { namespace detail {
     };
 
     template<class Tuple, size_t I>
-    struct PlusPlus<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value>::type> {
+    struct PlusPlus<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
         void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
         }
     };
@@ -42,7 +42,7 @@ namespace lz { namespace detail {
     };
 
     template<class Tuple, size_t I>
-    struct NotEqual<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>::type> {
+    struct NotEqual<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
         bool operator()(const Tuple& iterators, const Tuple& end) const {
             return std::get<I>(iterators) != std::get<I>(end);
         }
@@ -61,7 +61,7 @@ namespace lz { namespace detail {
     };
 
     template<class Tuple, size_t I>
-    struct Deref<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>::type> {
+    struct Deref<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
         auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
             return *std::get<I>(iterators);
         }
@@ -150,7 +150,7 @@ namespace lz { namespace detail {
     };
 
     template<class Tuple, size_t I>
-    struct PlusIs<Tuple, I, typename std::enable_if<I == std::tuple_size<std::decay_t<Tuple>>::value>::type> {
+    struct PlusIs<Tuple, I, typename std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
         template<class DifferenceType>
         void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
         }

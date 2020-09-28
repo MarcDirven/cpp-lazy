@@ -39,14 +39,12 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
         template<class Val = ContainerType>
-        typename std::enable_if<IsFmtIntCompatibleV<Val>, std::string>::type
-        getFormatted() const {
+        std::enable_if_t<IsFmtIntCompatibleV<Val>, std::string> getFormatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
         template<class Val = ContainerType>
-        typename std::enable_if<!IsFmtIntCompatibleV<Val>, std::string>::type
-        getFormatted() const {
+        std::enable_if_t<!IsFmtIntCompatibleV<Val>, std::string> getFormatted() const {
             return fmt::format("{}", *_iterator);
         }
 
@@ -63,7 +61,7 @@ namespace lz { namespace detail {
             _isIteratorTurn(isIteratorTurn),
             _distance(distance) {}
 
-        template<class Val = ContainerType, class = typename std::enable_if<!std::is_same<std::string, Val>::value>::type>
+        template<class Val = ContainerType, class = std::enable_if_t<!std::is_same<std::string, Val>::value>>
         std::string operator*() const {
             if (_isIteratorTurn) {
                 return getFormatted();
@@ -73,7 +71,7 @@ namespace lz { namespace detail {
 
         JoinIterator() = default;
 
-        template<class Val = ContainerType, class = typename std::enable_if<std::is_same<std::string, Val>::value>::type>
+        template<class Val = ContainerType, class = std::enable_if_t<std::is_same<std::string, Val>::value>>
         std::string& operator*() const {
             if (_isIteratorTurn) {
                 return *_iterator;
@@ -149,12 +147,12 @@ namespace lz { namespace detail {
             return (_iterator - other._iterator) * 2 - 1;
         }
 
-        template<class Val = ContainerType, class = typename std::enable_if<!std::is_same<std::string, Val>::value>::type>
+        template<class Val = ContainerType, class = std::enable_if_t<!std::is_same<std::string, Val>::value>>
         std::string operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
-        template<class Val = ContainerType, class = typename std::enable_if<std::is_same<std::string, Val>::value>::type>
+        template<class Val = ContainerType, class = std::enable_if_t<std::is_same<std::string, Val>::value>>
         std::string& operator[](const difference_type offset) const {
             // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a copy
             // of the delimiter
