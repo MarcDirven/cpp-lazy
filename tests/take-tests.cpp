@@ -39,7 +39,7 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
     }
 
     SECTION("Should take while range") {
-        auto taken = lz::takewhile(array, [](int i) { return i != 5; });
+        auto taken = lz::takeWhile(array, [](int i) { return i != 5; });
 
         int expected = 1;
         for (int actual : taken) {

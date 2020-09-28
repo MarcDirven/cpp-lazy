@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <array>
+#ifndef LZ_ZIP_HPP
+#define LZ_ZIP_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/ZipIterator.hpp"
 
 
 namespace lz {
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Iterators...>> {
     public:
         using iterator = detail::ZipIterator<Iterators...>;
@@ -17,8 +17,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        std::tuple<Iterators...> _begin{};
-        std::tuple<Iterators...> _end{};
+        iterator _begin;
+        iterator _end{};
 
     public:
         /**
@@ -35,8 +35,7 @@ namespace lz {
          */
         explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
             _begin(begin),
-            _end(end)
-        {
+            _end(end) {
         }
 
         Zip() = default;
@@ -46,7 +45,7 @@ namespace lz {
          * @return The beginning of the zip iterator.
          */
         iterator begin() const override {
-            return iterator(_begin);
+            return _begin;
         }
 
         /**
@@ -54,7 +53,7 @@ namespace lz {
          * @return The ending of the zip iterator.
          */
         iterator end() const override {
-            return iterator(_end);
+            return _end;
         }
     };
 
@@ -64,8 +63,8 @@ namespace lz {
      * @{
      */
 
-    template<class... Iterators>
-    Zip<Iterators...> ziprange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    Zip<Iterators...> zipRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         return Zip<Iterators...>(begin, end);
     }
 
@@ -81,9 +80,9 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto tuple :  lz::zip(...))`.
      */
-    template<class... Iterables>
-    auto zip(Iterables&& ... iterables) -> Zip<decltype(std::begin(iterables))...> {
-        return ziprange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+    template<LZ_CONCEPT_ITERABLE... Iterables>
+    Zip<detail::IterType<Iterables>...> zip(Iterables&& ... iterables) {
+        return zipRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     // End of group
@@ -91,3 +90,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

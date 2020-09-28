@@ -1,15 +1,13 @@
 #pragma once
 
-#include <algorithm>
+#ifndef LZ_SPLIT_ITERATOR_HPP
+#define LZ_SPLIT_ITERATOR_HPP
+
 #include <string>
-#include <iostream>
 
 #include "LzTools.hpp"
 
-
-#ifdef CXX_LT_17
-  #include <string>
-#else
+#   if __has_include(<string_view>) && __cplusplus >= 201703L
   #include <string_view>
 #endif
 
@@ -22,7 +20,7 @@ namespace lz {
         template<class String>
         struct SplitViewIteratorHelper {
             std::string delimiter{};
-            const String& string = std::string();
+            const String& string = String();
         };
 
 
@@ -105,3 +103,5 @@ namespace lz {
         };
     }
 }
+
+#endif

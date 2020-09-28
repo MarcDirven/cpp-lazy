@@ -1,17 +1,19 @@
 #pragma once
 
-#include "detail/DropWhileIterator.hpp"
+#ifndef LZ_DROP_WHILE_HPP
+#define LZ_DROP_WHILE_HPP
+
 #include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
-    template<class Iterator, class Function>
-    class DropWhile final : public detail::BasicIteratorView<detail::DropWhileIterator<Iterator, Function>> {
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+    class DropWhile final : public detail::BasicIteratorView<Iterator> {
     public:
-        using iterator = detail::DropWhileIterator<Iterator, Function>;
-        using const_iterator = iterator;
+        using iterator = Iterator;
+        using const_iterator = Iterator;
 
-        using value_type = typename iterator::value_type;
+        using value_type = typename std::iterator_traits<iterator>::value_type;
 
     private:
         iterator _begin{};
@@ -27,9 +29,12 @@ namespace lz {
          * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
          */
         DropWhile(const Iterator begin, const Iterator end, const Function& predicate) :
-            _begin(begin, end, predicate),
-            _end(end, end, predicate) {
-        }
+            _begin(std::find_if(begin, end, [&predicate](const value_type& value) {
+                return !predicate(value);
+            })),
+            _end(end)
+        {}
+
 
         DropWhile() = default;
 
@@ -37,7 +42,7 @@ namespace lz {
          * @brief Returns the beginning of the enumerate iterator object.
          * @return A random access DropWhile.
          */
-        iterator begin() const {
+        iterator begin() const override {
             return _begin;
         }
 
@@ -45,7 +50,7 @@ namespace lz {
          * @brief Returns the ending of the enumerate object.
          * @return A random access DropWhile.
          */
-        iterator end() const {
+        iterator end() const override {
             return _end;
         }
     };
@@ -66,8 +71,8 @@ namespace lz {
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @return A DropWhile iterator view object.
      */
-    template<class Iterator, class Function>
-    DropWhile<Iterator, Function> dropwhilerange(const Iterator begin, const Iterator end, const Function& predicate) {
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+    DropWhile<Iterator, Function> dropWhileRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<detail::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "the function predicate must return a bool");
         return DropWhile<Iterator, Function>(begin, end, predicate);
@@ -83,9 +88,9 @@ namespace lz {
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @return A DropWhile iterator view object.
      */
-    template<class Iterable, class Function>
-    auto dropwhile(Iterable&& iterable, const Function& predicate) -> DropWhile<decltype(std::begin(iterable)), Function> {
-        return dropwhilerange(std::begin(iterable), std::end(iterable), predicate);
+    template<LZ_CONCEPT_ITERABLE Iterable, class Function>
+    DropWhile<detail::IterType<Iterable>, Function> dropWhile(Iterable&& iterable, const Function& predicate) {
+        return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     // End of group
@@ -93,3 +98,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

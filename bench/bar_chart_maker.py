@@ -44,7 +44,7 @@ def make_table(benchmark_records, unit, cxx_version, caches, n_iterations, title
 
     cell_text = []
     for row in data:
-        cell_text.append([f'{round(row[0] / n_iterations, 2)} ns', f'{row[1]} x'])
+        cell_text.append([f'{round(row[0] / n_iterations, 4)} ns', f'{row[1]} x'])
 
     row_colors = plt.cm.BuPu(np.full(len(row_headers), 0.1))
     col_colors = plt.cm.BuPu(np.full(len(column_headers), 0.1))
@@ -95,7 +95,8 @@ def get_cmake_cxx_version():
 
 
 def main():
-    benchmark_file_path = os.path.join(os.getcwd(), '..', 'cmake-build-release', 'bench', 'benchmark-iterators.csv')
+    benchmark_file_path = os.path.join(os.getcwd(), '..', 'cmake-build-release-mingw', 'bench',
+                                       'benchmark-iterators.csv')
     cxx_version = get_cmake_cxx_version()
 
     with open(benchmark_file_path) as benchmarks_file:

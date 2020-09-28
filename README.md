@@ -1,26 +1,45 @@
 [![Build Status](https://travis-ci.com/MarcDirven/cpp-lazy.svg?branch=master)](https://travis-ci.com/MarcDirven/cpp-lazy) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. It uses one dependency library `fmt`, which is automatically configured by CMake.
+Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is 
+because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are
+random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view 
+object has many r-value reference overloads. This is very efficient, because now we can move from the original container:
+```cpp
+std::vector<std::string> strings = {"hello", "world" };
+auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; }); // if s equal "hello", keep it
+std::vector<std::string> newVector = std::move(filter).toVector(); // moves the string into the new vector where the lambda (^) returns true
+// All the values in strings where the lambda returns true, are empty here, so strings = { "", "world" }
+// One could also do:
+strings = std::move(filter).toVector(); // overwrites the original container
+```
+
+This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
-- C++14/17/20
+- C++14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
+- Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
+- Little overhead
 
 # Current supported iterators & examples
- Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. Example:
+All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
+`fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
+- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. 
+**This iterator is removed from version 2.0.0. Instead use `lz::filterMap`. See FunctionTools sections for examples.** 
+Example:
 ```cpp
 std::string s = "1q9";
 auto vector = lz::choose(s, [](const char s) {
     return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
 }).toVector();
-// vector yields (int) {1, 9}
+// vector yields (int) {1, 9}. One can use Type& and use std::move to safely move when using for-loops
 ```
-- **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 here, but they can be all have different sizes.
+- **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 
+here, but they can be all have different sizes.
 ```cpp
 std::array<int, 4> a{1, 2, 3, 4};
 std::array<int, 4> b{5, 6, 7, 8};
@@ -66,7 +85,8 @@ for (int i : lz::concat(a, b, c, d)) {
 // 15
 // 16
 ```
-- **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter and the `.second` the element of the container by reference.
+- **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter 
+and the `.second` the element of the container by reference.
 ```cpp
 std::vector<int> toEnumerate = {1, 2, 3, 4, 5};
 
@@ -81,7 +101,8 @@ for (std::pair<int, int> pair : lz::enumerate(toEnumerate)) {
 //          3                               4
 //          4                               5
 ```
-- **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
+- **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. 
+`lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
 ```cpp
 std::vector<int> values = {1, 2, 3, 4, 5};
 std::vector<int> toExcept = {2, 3, 4};
@@ -106,7 +127,8 @@ for (int i : filter) {
 // 4
 // 6
 ```
-- **Generate** returns the value of a given function `amount` of times. This is essentially the same as `yield` in Python or `yield return` in C#.
+- **Generate** returns the value of a given function `amount` of times. This is essentially the same as `yield` in 
+Python or `yield return` in C#.
 ```cpp
 int myIncreasingCounter = 0;
 constexpr int amount = 4;
@@ -123,7 +145,9 @@ for (int incrementer : lz::generate(generator, amount)) {
 // 2
 // 3
 ```
-- **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise they are accessed by value.
+- **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats 
+etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise 
+they are accessed by value.
 ```cpp
 std::vector<std::string> strings = {"hello", "world"};
 auto join = lz::join(strings, ", ");
@@ -213,10 +237,11 @@ for (std::string& substring : lz::split(toSplit, std::move(delim))) {
 // Hello
 // world
 ```
-- **Take**/**slice**/**takerange**/**takewhile** Takes a certain range of elements/slices a range of elements/takes elements while a certain predicate function returns `true`.
+- **Take**/**slice**/**takeRange**/**takeWhile** Takes a certain range of elements/slices a range of 
+elements/takes elements while a certain predicate function returns `true`.
 ```cpp
 std::vector<int> seq = {1, 2, 3, 4, 5, 6};
-auto takeWhile = lz::takewhile(seq, [](const int i) { return i != 4; });
+auto takeWhile = lz::takeWhile(seq, [](const int i) { return i != 4; });
 for (int i : takeWhile) {
     std::cout << i << '\n';
 }
@@ -245,11 +270,12 @@ for (int i : slice) {
 // 3
 // 4
 ```
-- **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in `{1, 3, 5}`.
+- **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in 
+`{1, 3, 5}`.
 ```cpp
 std::vector<int> sequence = {1, 2, 3, 4, 5};
 
-for (int i : lz::takeevery(sequence, 2)) {
+for (int i : lz::takeEvery(sequence, 2)) {
     std::cout << i << '\n';
 }
 // Yields (by reference if '& is used):
@@ -277,7 +303,9 @@ for (int i : vector) {
 // 42
 // 56
 ```
-- **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by reference (`std::tuple<TypeA&, TypeB&[...]>`).
+- **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items 
+contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by
+reference (`std::tuple<TypeA&, TypeB&[...]>`).
 ```cpp
 std::vector<int> a = {1, 2, 3, 4};
 std::vector<int> b = {1, 2, 3};
@@ -309,13 +337,68 @@ std::string string = "aa\nbb\nbb";
 auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
 std::vector<std::string> s = {"hello", "world", "!"};
-size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
+size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
     return i + s.size();
 }); // totalSize == 11
+
+std::string toFind = "hel";
+std::string def = "default";
+
+toFind = lz::findOrDefault(s, toFind, def);
+// toFind == "default"
+
+toFind = "hello";
+toFind = lz::findOrDefault(s, toFind, def);
+// toFind == "hello"
+
+toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+    return s.find('\'') != std::string::npos; // ' is present in the sequence
+}, def);
+// toFind == "what's"
+
+toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+    return s.find('z') != std::string::npos; // z is not present in the sequence
+}, "default");
+// toFind == "default"
+
+std::vector<char> c = {'a', 'b', 'c', 'd'};
+size_t pos = lz::indexOf(c, 'b');
+// pos == 1
+
+pos = lz::indexOf(c, 'e');
+// pos == lz::npos
+
+strings = {"hello", "world"};
+pos = lz::indexOfIf(strings, [](const std::string& s) {
+    return s.find('o') != std::string::npos;
+});
+// pos == 0
+
+pos = lz::indexOfIf(strings, [](const std::string& s) {
+    return s.find('q') != std::string::npos;
+});
+// pos == lz::npos
+
+
+std::string str = "123,d35dd";
+auto f = lz::filterMap(str, 
+                       [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
+                       [](const char c) { return static_cast<int>(c - '0'); }); // return this
+// f will yield {1, 2, 3, 3, 5}
+
+
+std::string myString = "picture.jpg";
+lz::strReplace(myString, ".jpg", ".png");
+// myString == "picture.png"
+
+myString = "picture.png.png";
+lz::strReplaceAll(myString, ".png", ".jpg");
+// myString == "picture.jpg.jpg"
 ```
 
 # To containers, easy!
-Every sequence created by the `lz` library, has the following functions: `toVector`, `to`, `toArray`, `toMap` and `toUnorderedMap`. Examples:
+Every sequence created by the `lz` library, has the following functions: `toVector`, `to`, `toArray`, `toMap` and 
+`toUnorderedMap`. Examples:
 ```cpp
 char c = 'a';
 auto generator = lz::generate([&c]() {
@@ -374,7 +457,9 @@ for (std::pair<char, char> pair : map) {
 ```
 
 # What is lazy and why would I use it?
-Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this library, all the iterators are lazy evaluated. Suppose you want to have a sequence of `n` random numbers. You could write a for loop:
+Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this
+library, all the iterators are lazy evaluated. Suppose you want to have a sequence of `n` random numbers. You could 
+write a for loop:
 
 ```cpp
 std::random_device rd;
@@ -392,7 +477,8 @@ for (int i : lz::random(0, 32, n)) {
  std::cout << i;  // prints a random number n times, between [0, 32]
 }
 ```
-Both methods do not allocate anything but the second example is a much more convenient way of writing the same thing. Now what if we wanted to do eager evaluation? Well then you could do this:
+Both methods do not allocate anything but the second example is a much more convenient way of writing the same thing.
+Now what if we wanted to do eager evaluation? Well then you could do this:
 
 ```cpp
 std::random_device rd;
@@ -425,16 +511,25 @@ if (std::find(random.begin(), random.end(), 6) != random.end()) {
  // do something
 }
 ```
-So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate any memory and has very little overhead.
+So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate 
+any memory and has very little overhead.
 
 ## But I like writing loops myself
-Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are bigger because you will have to write the whole loop yourself. On average [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
+Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are 
+bigger because you will have to write the whole loop yourself. On average 
+[about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain 
+bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop 
+equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
 ## What about `ranges::v3`?
-This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). However, both libraries will have its advantages and disadvantages.
+This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
+compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not
+support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). 
+However, both libraries will have its advantages and disadvantages.
 
 # Installation
-Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or `git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
+Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or 
+`git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
 add_executable(${PROJECT_NAME} main.cpp)
@@ -449,37 +544,37 @@ int main() {
 ```
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
+# Side note
+If you want to re-overwrite or default construct the iterator/view object, use a `std::function` instead of a lambda 
+function. Example:
+```cpp
+// OK
+std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
+    return t.testFieldStr;
+};
+auto map = lz::map(array, f);
+auto it = map.begin();
+it = map.end();
+
+// Not OK
+auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+auto it = map.begin();
+// it = map.end(); error, attempting to reference deleted function operator= for lambda
+
+```
+
 # Benchmarks cpp-lazy
 The time is equal to one iteration.
 
 C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/BbiaiFY.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/KYONRY6.png" /></div>
 
 C++17
 
-<div style="text-align:center"><img src="https://i.imgur.com/BQEjTxI.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/STOgeK5.png" /></div>
 
 C++20
 
-<div style="text-align:center"><img src="https://i.imgur.com/HzzrPgG.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/83qAmvL.png" /></div>
 
-
-# Small side note...
-If using a iterator view object that requests a function, and you would like to re-overwrite the same variable, a `std::function` is required, instead of an inline lambda. Example:
-```cpp
-// Wrong:
-auto someView = lz::view(..., [](const int i) { return i; });
-// Error, no operator= for lambda
-// someView = lz::view(..., [](const int i) { return i; });
-
-// Ok:
-auto someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-someView = lz::view(..., std::function<int(int)>([](const int i) { return i; }));
-
-// Or ofcourse...
-std::function<int(int)> func = [](const int i) { return i; };
-auto anotherView = lz::view(..., func);
-anotherView = lz::view(..., func);
-
-```

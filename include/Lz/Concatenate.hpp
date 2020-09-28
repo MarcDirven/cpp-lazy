@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef LZ_CONCATENATE_HPP
+#define LZ_CONCATENATE_HPP
 
 #include "detail/ConcatenateIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
@@ -17,7 +19,7 @@ namespace lz {
         };
     }
 
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class Concatenate final : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterators...>> {
     public:
         using iterator = detail::ConcatenateIterator<Iterators...>;
@@ -25,20 +27,18 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        std::tuple<Iterators...> _begin{};
-        std::tuple<Iterators...> _end{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
          * @brief Concatenate constructor.
-         * @param beginIterator1 The beginning of the first iterator.
-         * @param endIterator1 The ending of the first iterator.
-         * @param beginIterator2 The beginning of the second iterator.
-         * @param endIterator2 The ending of the second iterator.
+         * @param begin All the beginnings of the containers/iterables.
+         * @param end All the endings of the containers/iterables.
          */
         Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
-            _begin(begin),
-            _end(end) {}
+            _begin(begin, begin, end),
+            _end(end, begin, end) {}
 
         Concatenate() = default;
 
@@ -47,7 +47,7 @@ namespace lz {
          * @return The beginning of the iterator.
          */
         iterator begin() const override {
-            return iterator(_begin, _begin, _end);
+            return _begin;
         }
 
         /**
@@ -55,7 +55,7 @@ namespace lz {
          * @return The ending of the iterator.
          */
         iterator end() const override {
-            return iterator(_end, _begin, _end);
+            return _end;
         }
     };
 
@@ -73,8 +73,8 @@ namespace lz {
      * @param end A tuple of iterators pointing to the ending.
      * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
      */
-    template<class... Iterators>
-    Concatenate<Iterators...> concatrange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    Concatenate<Iterators...> concatRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
         static_assert(detail::IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
                       "value types of iterators do not match");
@@ -94,9 +94,9 @@ namespace lz {
      * @param iterables A parameter pack of containers/iterables.
      * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
      */
-    template<class... Iterables>
-    auto concat(Iterables&& ... iterables) -> Concatenate<decltype(std::begin(iterables))...> {
-        return concatrange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+    template<LZ_CONCEPT_ITERABLE... Iterables>
+    Concatenate<detail::IterType<Iterables>...> concat(Iterables&& ... iterables) {
+        return concatRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     // End of group
@@ -104,3 +104,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

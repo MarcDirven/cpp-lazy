@@ -1,13 +1,12 @@
 #include <catch.hpp>
 
 #include <Lz/DropWhile.hpp>
-#include <iostream>
 #include <list>
 
 
 TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functionality]") {
     std::array<int, 4> arr = {1, 1, 2, 1};
-    auto dropped = lz::dropwhile(arr, [](const int i) { return i == 1; });
+    auto dropped = lz::dropWhile(arr, [](const int i) { return i == 1; });
     auto begin = dropped.begin();
 
     SECTION("Should skip elements") {
@@ -28,7 +27,7 @@ TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functio
 
 TEST_CASE("DropWhile binary operations", "[DropWhile][Binary ops]") {
     std::vector<int> vec = {1, 1, 2, 3, 4, 1};
-    auto dropped = lz::dropwhile(vec, [](const int i) { return i == 1; });
+    auto dropped = lz::dropWhile(vec, [](const int i) { return i == 1; });
     auto begin = dropped.begin();
 
     SECTION("Operator++") {
@@ -81,7 +80,7 @@ TEST_CASE("DropWhile binary operations", "[DropWhile][Binary ops]") {
 TEST_CASE("DropWhile to containers", "[DropWhile][To container]") {
     constexpr size_t size = 4;
     std::array<int, size> arr = {1, 1, 2, 1};
-    auto dropped = lz::dropwhile(arr, [](const int i) { return i == 1; });
+    auto dropped = lz::dropWhile(arr, [](const int i) { return i == 1; });
 
     SECTION("To array") {
         constexpr size_t newSize = 2;

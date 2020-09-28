@@ -1,13 +1,15 @@
 #pragma once
 
+#ifndef LZ_ENUMERATE_ITERATOR_HPP
+#define LZ_ENUMERATE_ITERATOR_HPP
+
 #include <iterator>
 #include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
-    template<class Iterator, class IntType>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
     class EnumerateIterator {
-    private:
         IntType _index;
         Iterator _iterator;
 
@@ -115,3 +117,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

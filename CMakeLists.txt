@@ -12,9 +12,7 @@ set(LZ_DETAIL_HEADERS ${INCLUDE}/Lz/detail)
 set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/AffirmIterator.hpp
         ${LZ_DETAIL_HEADERS}/BasicIteratorView.hpp
-        ${LZ_DETAIL_HEADERS}/ChooseIterator.hpp
         ${LZ_DETAIL_HEADERS}/ConcatenateIterator.hpp
-        ${LZ_DETAIL_HEADERS}/DropWhileIterator.hpp
         ${LZ_DETAIL_HEADERS}/EnumerateIterator.hpp
         ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
         ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
@@ -26,7 +24,6 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/RangeIterator.hpp
         ${LZ_DETAIL_HEADERS}/RepeatIterator.hpp
         ${LZ_DETAIL_HEADERS}/SplitIterator.hpp
-        ${LZ_DETAIL_HEADERS}/TakeIterator.hpp
         ${LZ_DETAIL_HEADERS}/TakeEveryIterator.hpp
         ${LZ_DETAIL_HEADERS}/UniqueIterator.hpp
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
@@ -36,7 +33,6 @@ set(HEADER_FILES
         ${INCLUDE}/Lz.hpp
 
         ${LZ_HEADERS}/Affirm.hpp
-        ${LZ_HEADERS}/Choose.hpp
         ${LZ_HEADERS}/Concatenate.hpp
         ${LZ_HEADERS}/DropWhile.hpp
         ${LZ_HEADERS}/Enumerate.hpp

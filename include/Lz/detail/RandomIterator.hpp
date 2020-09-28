@@ -1,21 +1,22 @@
 #pragma once
 
+#ifndef LZ_RANDOM_ITERATOR_HPP
+#define LZ_RANDOM_ITERATOR_HPP
+
 #include <iterator>
 #include <random>
-#include <limits>
 
 #include "LzTools.hpp"
-#include <chrono>
-#include <iostream>
+
 
 namespace lz { namespace detail {
-    template<class Arithmetic, class Distribution>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class RandomIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Arithmetic;
         using difference_type = size_t;
-        using pointer = detail::FakePointerProxy<Arithmetic>;
+        using pointer = FakePointerProxy<Arithmetic>;
         using reference = value_type;
 
     private:
@@ -129,3 +130,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

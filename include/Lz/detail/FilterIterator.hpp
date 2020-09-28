@@ -1,12 +1,19 @@
 #pragma once
 
-#include <type_traits>
-#include <algorithm>
-#include <functional>
+#ifndef LZ_FILTER_ITERATOR_HPP
+#define LZ_FILTER_ITERATOR_HPP
 
+
+#include <algorithm>
+
+#include "LzTools.hpp"
 
 namespace lz { namespace detail {
-    template<class Iterator, class Function>
+#ifdef LZ_HAS_EXECUTION
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Function>
+#else
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+#endif
     class FilterIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
@@ -20,14 +27,35 @@ namespace lz { namespace detail {
     private:
         Iterator _iterator{};
         Iterator _end{};
-        const std::function<bool(value_type)>* _predicate{};
+        Function _predicate;
+#ifdef LZ_HAS_EXECUTION
+        Execution _execution{};
+#endif
 
     public:
-        FilterIterator(const Iterator begin, const Iterator end, const std::function<bool(value_type)>* function) :
+#ifdef LZ_HAS_EXECUTION
+        FilterIterator(const Iterator begin, const Iterator end, const Function& function, const Execution execution)
+#else
+        FilterIterator(const Iterator begin, const Iterator end, const Function& function)
+#endif
+    :
             _iterator(begin),
             _end(end),
-            _predicate(function) {
-            _iterator = std::find_if(_iterator, _end, *_predicate);
+            _predicate(function)
+#ifdef LZ_HAS_EXECUTION
+            , _execution(execution)
+#endif
+            {
+#ifdef LZ_HAS_EXECUTION
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                _iterator = std::find_if(_iterator, _end, _predicate);
+            }
+            else {
+                _iterator = std::find_if(_execution, _iterator, _end, _predicate);
+            }
+#else
+            _iterator = std::find_if(_iterator, _end, _predicate);
+#endif
         }
 
         FilterIterator() = default;
@@ -42,7 +70,16 @@ namespace lz { namespace detail {
 
         FilterIterator& operator++() {
             if (_iterator != _end) {
-                _iterator = std::find_if(++_iterator, _end, *_predicate);
+#ifdef LZ_HAS_EXECUTION
+                if constexpr (IsSequencedPolicyV<Execution>) {
+                    _iterator = std::find_if(++_iterator, _end, _predicate);
+                }
+                else {
+                    _iterator = std::find_if(_execution, ++_iterator, _end, _predicate);
+                }
+#else
+                _iterator = std::find_if(++_iterator, _end, _predicate);
+#endif
             }
             return *this;
         }
@@ -62,3 +99,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

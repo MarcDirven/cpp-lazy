@@ -1,41 +1,39 @@
 #pragma once
 
+#ifndef LZ_GENERATE_ITERATOR_HPP
+#define LZ_GENERATE_ITERATOR_HPP
+
 #include "LzTools.hpp"
 
 #include <iterator>
-#include <functional>
 
 
 namespace lz { namespace detail {
-    template<class GeneratorFunc, class ValueType>
-    struct GenerateIteratorHelper {
-        std::function<ValueType()> generator{};
-        bool isWhileTrueLoop{};
-    };
-
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = detail::FunctionReturnType<GeneratorFunc>;
+        using value_type = FunctionReturnType<GeneratorFunc>;
         using difference_type = size_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;
 
     private:
         size_t _current{};
-        const GenerateIteratorHelper<GeneratorFunc, value_type>* _iterHelper{};
+        GeneratorFunc _generator{};
+        bool _isWhileTrueLoop{};
 
     public:
         GenerateIterator() = default;
 
-        GenerateIterator(const size_t start, const GenerateIteratorHelper<GeneratorFunc, value_type>* helper):
+        GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
             _current(start),
-            _iterHelper(helper)
+            _generator(generatorFunc),
+            _isWhileTrueLoop{isWhileTrueLoop}
         {}
 
         value_type operator*() const {
-            return _iterHelper->generator();
+            return _generator();
         }
 
         pointer operator->() const {
@@ -43,7 +41,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator++() {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 ++_current;
             }
             return *this;
@@ -56,7 +54,7 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator--() {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 --_current;
             }
             return *this;
@@ -69,14 +67,14 @@ namespace lz { namespace detail {
         }
 
         GenerateIterator& operator+=(const difference_type offset) {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current += offset;
             }
             return *this;
         }
 
         GenerateIterator& operator-=(const difference_type offset) {
-            if (!_iterHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current -= offset;
             }
             return *this;
@@ -127,3 +125,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

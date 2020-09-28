@@ -1,23 +1,28 @@
 #pragma once
 
-#include <functional>
+#ifndef LZ_MAP_ITERATOR_HPP
+#define LZ_MAP_ITERATOR_HPP
 
+
+#include "LzTools.hpp"
 
 namespace lz {
-    template<class, class>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class Map;
 
     namespace detail {
 
-        template<class Iterator, class Function>
+        template<LZ_CONCEPT_ITERATOR Iterator, class Function>
         class MapIterator {
-        private:
             Iterator _iterator{};
             using FnParamType = decltype(*_iterator);
-            using FnReturnType = detail::FunctionReturnType<Function, FnParamType>;
-            const std::function<FnReturnType(FnParamType)>* _function{};
+            using FnReturnType = FunctionReturnType<Function, FnParamType>;
+            Function _function;
+
 
             friend class Map<Iterator, Function>;
+
+
         public:
             using value_type = FnReturnType;
             using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
@@ -25,7 +30,7 @@ namespace lz {
             using reference = value_type;
             using pointer = FakePointerProxy<reference>;
 
-            MapIterator(const Iterator iterator, const std::function<FnReturnType(FnParamType)>* function) :
+            MapIterator(const Iterator iterator, const Function& function) :  // NOLINT(modernize-pass-by-value)
                 _iterator(iterator),
                 _function(function) {
             }
@@ -33,7 +38,7 @@ namespace lz {
             MapIterator() = default;
 
             value_type operator*() const {
-                return (*_function)(*_iterator);
+                return _function(*_iterator);
             }
 
             FakePointerProxy <reference> operator->() const {
@@ -118,3 +123,5 @@ namespace lz {
         };
     }
 }
+
+#endif

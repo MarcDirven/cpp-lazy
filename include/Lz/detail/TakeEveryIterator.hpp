@@ -1,15 +1,19 @@
 #pragma once
 
+#ifndef LZ_TAKE_EVERY_ITERATOR_HPP
+#define LZ_TAKE_EVERY_ITERATOR_HPP
+
 #include <iterator>
+#include "LzTools.hpp"
 
 
 namespace lz {
-    template<class>
+    template<LZ_CONCEPT_ITERATOR>
     class TakeEvery;
 
     namespace detail {
 
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEveryIterator {
         Iterator _iterator{};
         Iterator _end{};
@@ -107,8 +111,8 @@ namespace lz {
         }
 
         difference_type operator-(const TakeEveryIterator& other) const {
-            difference_type distance = std::distance(other._iterator, _iterator);
-            auto diffOffset = static_cast<difference_type>(distance / _offset);
+            const difference_type distance = std::distance(other._iterator, _iterator);
+            const auto diffOffset = static_cast<difference_type>(distance / _offset);
             return _offset % 2 == 0 ? diffOffset : diffOffset + 1;
         }
 
@@ -141,3 +145,5 @@ namespace lz {
         }
     };
 }}
+
+#endif

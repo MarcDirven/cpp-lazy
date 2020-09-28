@@ -1,8 +1,10 @@
 #pragma once
 
+#ifndef LZ_CONCATENATE_ITERATOR_HPP
+#define LZ_CONCATENATE_ITERATOR_HPP
+
 #include <iterator>
 #include <numeric>
-#include <iostream>
 #include <tuple>
 
 #include "LzTools.hpp"
@@ -88,8 +90,10 @@ namespace lz { namespace detail {
     struct MinIs {
         template<class DifferenceType>
         void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-            auto current = std::get<I>(iterators);
-            auto currentBegin = std::get<I>(begin);
+            using TupleElement = typename std::tuple_element<I, Tuple>::type;
+
+            const TupleElement current = std::get<I>(iterators);
+            const TupleElement currentBegin = std::get<I>(begin);
 
             // Current is begin, move on to next iterator
             if (current == currentBegin) {
@@ -111,18 +115,17 @@ namespace lz { namespace detail {
     template<class Tuple>
     struct MinIs<Tuple, 0> {
         template<class DifferenceType>
-        void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const  {
-            auto& current = std::get<0>(iterators);
-            auto currentBegin = std::get<0>(begin);
-            auto distance = static_cast<DifferenceType>(std::distance(current, std::get<0>(end)));
+        void operator()(Tuple& iterators, const Tuple& begin, const Tuple& /*end*/, const DifferenceType offset) const {
+            using TupleElement = typename std::tuple_element<0, Tuple>::type;
 
-            // first iterator is at position begin, and distance bigger than 0
-            if (current == currentBegin && distance > 0) {
-                throw std::out_of_range("cannot access elements before begin");
+            TupleElement& current = std::get<0>(iterators);
+            const TupleElement currentBegin = std::get<0>(begin);
+
+            // first iterator is at indexOf begin, and distance bigger than 0
+            if (std::distance(currentBegin, current) < offset) {
+                throw std::out_of_range(__LZ_FILE_LINE__ ": cannot access elements before begin");
             }
-            else {
-                current = std::prev(current, offset);
-            }
+            current = std::prev(current, offset);
         }
     };
 
@@ -130,9 +133,10 @@ namespace lz { namespace detail {
     struct PlusIs {
         template<class DifferenceType>
         void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
-            auto& currentIterator = std::get<I>(iterators);
-            auto currentEnd = std::get<I>(end);
+            using TupleElement = typename std::tuple_element<I, Tuple>::type;
 
+            TupleElement& currentIterator = std::get<I>(iterators);
+            const TupleElement currentEnd = std::get<I>(end);
             auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
             if (distance > offset) {
@@ -153,7 +157,7 @@ namespace lz { namespace detail {
     };
 
     // Begin ConcatIterator
-    template<class... Iterators>
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class ConcatenateIterator {
         using IterTuple = std::tuple<Iterators...>;
         IterTuple _iterators{};
@@ -172,7 +176,7 @@ namespace lz { namespace detail {
     private:
         template<size_t... I>
         difference_type minus(std::index_sequence<I...>, const ConcatenateIterator& other) const {
-            std::initializer_list<difference_type> totals = {
+	        const std::initializer_list<difference_type> totals = {
                 static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
             return std::accumulate(totals.begin(), totals.end(), static_cast<difference_type>(0));
         }
@@ -271,3 +275,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

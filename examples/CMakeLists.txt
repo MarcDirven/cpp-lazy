@@ -9,7 +9,6 @@ function(create_example_project name)
 endfunction()
 
 create_example_project(Affirm)
-create_example_project(Choose)
 create_example_project(Concatenate)
 create_example_project(Enumerate)
 create_example_project(Except)

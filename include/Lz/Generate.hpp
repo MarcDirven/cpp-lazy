@@ -1,13 +1,14 @@
 #pragma once
 
-
+#ifndef LZ_GENERATE_HPP
+#define LZ_GENERATE_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/GenerateIterator.hpp"
 
 
 namespace lz {
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class Generate final : public detail::BasicIteratorView<detail::GenerateIterator<GeneratorFunc>> {
     public:
         using iterator = detail::GenerateIterator<GeneratorFunc>;
@@ -15,8 +16,8 @@ namespace lz {
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
     private:
-        size_t _amount{};
-        detail::GenerateIteratorHelper<GeneratorFunc, value_type> _helper;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -28,8 +29,8 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(const GeneratorFunc& func, const size_t amount):
-            _amount(amount),
-            _helper{func, amount == std::numeric_limits<size_t>::max()}
+            _begin(0, func, amount == std::numeric_limits<size_t>::max()),
+            _end(amount, func, amount == std::numeric_limits<size_t>::max())
         {
         }
 
@@ -40,7 +41,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator begin() const override {
-            return iterator(0, &_helper);
+            return _begin;
         }
 
         /**
@@ -48,7 +49,7 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator end() const override {
-            return iterator(_amount, &_helper);
+            return _end;
         }
     };
 
@@ -72,7 +73,7 @@ namespace lz {
      * @param amount The amount of times to execute `generatorFunc`.
      * @return A generator random access iterator view object.
      */
-    template<class GeneratorFunc>
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }
@@ -83,3 +84,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

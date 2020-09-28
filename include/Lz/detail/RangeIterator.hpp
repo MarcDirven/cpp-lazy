@@ -1,10 +1,13 @@
 #pragma once
 
+#ifndef LZ_RANGE_ITERATOR_HPP
+#define LZ_RANGE_ITERATOR_HPP
+
 #include <iterator>
 
 
 namespace lz { namespace detail {
-    template<class Arithmetic>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};
         Arithmetic _step{};
@@ -110,3 +113,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

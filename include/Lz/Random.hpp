@@ -1,15 +1,14 @@
 #pragma once
 
-#include <type_traits>
-#include <limits>
-#include <cstddef>
+#ifndef LZ_RANDOM_HPP
+#define LZ_RANDOM_HPP
 
 #include "detail/RandomIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
-    template<class Arithmetic, class Distribution>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class Random final : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution>> {
     public:
         using iterator = detail::RandomIterator<Arithmetic, Distribution>;
@@ -17,8 +16,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        size_t _amount{};
-        Arithmetic _min{}, _max{};
+        iterator _begin;
+        iterator _end;
 
     public:
         /**
@@ -28,10 +27,9 @@ namespace lz {
          * @param amount The amount of random numbers to generate. If `std::numeric_limits<size_t>::max()` it is
          * interpreted as a `while-true` loop.
          */
-        Random(const Arithmetic min, const Arithmetic max, const size_t amount) :
-            _amount(amount),
-            _min(min),
-            _max(max) {
+        Random(const Arithmetic min, const Arithmetic max, const size_t amount, const bool isWhileTrueLoop) :
+            _begin(min, max, 0, isWhileTrueLoop),
+            _end(min, max, amount, isWhileTrueLoop) {
         }
 
         Random() = default;
@@ -41,7 +39,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(_min, _max, 0, _amount == std::numeric_limits<size_t>::max());
+            return _begin;
         }
 
         /**
@@ -49,7 +47,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(_min, _max, _amount, _amount == std::numeric_limits<size_t>::max());
+            return _end;
         }
     };
     /**
@@ -68,11 +66,11 @@ namespace lz {
      * it is interpreted as a `while-true` loop.
      * @return A random view object that generates a sequence of random numbers
      */
-    template<class Integral>
+    template<LZ_CONCEPT_ARITHMETIC Integral>
     static auto
     random(const Integral min, const Integral max, const size_t amount = std::numeric_limits<size_t>::max()) {
         static_assert(std::is_integral<Integral>::value, "template parameter is not arithmetic");
-        return Random<Integral, std::uniform_int_distribution<Integral>>(min, max, amount);
+        return Random<Integral, std::uniform_int_distribution<Integral>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
     }
 
     /**
@@ -87,8 +85,8 @@ namespace lz {
      * @return A random view object that generates a sequence of random floats.
      */
     template<>
-    auto random(const float min, const float max, const size_t amount) {
-        return Random<float, std::uniform_real_distribution<float>>(min, max, amount);
+    inline auto random(const float min, const float max, const size_t amount) {
+        return Random<float, std::uniform_real_distribution<float>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
     }
 
     /**
@@ -103,8 +101,8 @@ namespace lz {
      * @return A random view object that generates a sequence of random doubles.
      */
     template<>
-    auto random(const double min, const double max, const size_t amount) {
-        return Random<double, std::uniform_real_distribution<double>>(min, max, amount);
+    inline auto random(const double min, const double max, const size_t amount) {
+        return Random<double, std::uniform_real_distribution<double>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
     }
 
     /**
@@ -119,8 +117,9 @@ namespace lz {
      * @return A random view object that generates a sequence of random long doubles.
      */
     template<>
-    auto random(const long double min, const long double max, const size_t amount) {
-        return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount);
+    inline auto random(const long double min, const long double max, const size_t amount) {
+        return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount,
+                                                                                amount == std::numeric_limits<size_t>::max());
     }
 
     // End of group
@@ -128,3 +127,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

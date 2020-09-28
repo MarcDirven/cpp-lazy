@@ -1,16 +1,13 @@
 #pragma once
 
+#ifndef LZ_AFFIRM_ITERATOR_HPP
+#define LZ_AFFIRM_ITERATOR_HPP
+
 #include <iterator>
-#include <functional>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
-    template<class Iterator, class Exception, class ValueType>
-    struct AffirmIteratorHelper {
-        std::function<bool(ValueType)> _predicate{};
-        Exception _exception{};
-    };
-
     template<class Exception, class Iterator, class Function>
     class AffirmIterator {
         using IteratorTraits = std::iterator_traits<Iterator>;
@@ -24,26 +21,29 @@ namespace lz { namespace detail {
 
     private:
         Iterator _iterator{};
-        const AffirmIteratorHelper<Iterator, Exception, value_type>* _helper{};
+        Exception _exception{};
+        Function _function{};
 
     public:
-        AffirmIterator(const Iterator iterator, const AffirmIteratorHelper<Iterator, Exception, value_type>* helper) :
+        AffirmIterator(const Iterator iterator, const Function& function, Exception exception) :
             _iterator(iterator),
-            _helper(helper) {
+            _exception(std::move(exception)),
+    		_function(function)
+    	{
         }
 
         AffirmIterator() = default;
 
         reference operator*() const {
-            if (!_helper->_predicate(*_iterator)) {
-                throw _helper->_exception;
+            if (!_function(*_iterator)) {
+                throw _exception;
             }
             return *_iterator;
         }
 
         pointer operator->() const {
-            if (!_helper->_predicate(*_iterator)) {
-                throw _helper->_exception;
+            if (!_function(*_iterator)) {
+                throw _exception;
             }
             return &*_iterator;
         }
@@ -125,3 +125,5 @@ namespace lz { namespace detail {
         }
     };
 }}
+
+#endif

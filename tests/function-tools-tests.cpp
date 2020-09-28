@@ -13,10 +13,7 @@ TEST_CASE("Function tools") {
     }
 
     SECTION("Median") {
-        double median = lz::median(std::vector<int>(ints));
-        CHECK(median == Approx((2 + 3) / 2.));
-
-        median = lz::median(doubles);
+        double median = lz::median(doubles);
         CHECK(median == Approx((2.5 + 3.3) / 2.));
 
         doubles.push_back(3.3);
@@ -38,9 +35,112 @@ TEST_CASE("Function tools") {
 
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
-        size_t totalSize = lz::transaccumulate(s, 0U, [](size_t i, const std::string& s) {
-           return i + s.size();
+        size_t totalSize = lz::transAccumulate(s, static_cast<size_t>(0), [](size_t i, const std::string& s) {
+            return i + s.size();
         });
         CHECK(totalSize == 11);
+    }
+
+    SECTION("Pairwise") {
+        auto x = lz::pairwise(ints).toVector();
+        CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
+    }
+
+    SECTION("As") {
+        auto floats = lz::as<float>(ints).toVector();
+        CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
+        CHECK(floats == std::vector<float>{1., 2., 3., 4.});
+    }
+
+
+    SECTION("Find or default") {
+        std::vector<std::string> s = {"hello world!", "what's up"};
+        std::string toFind = "hel";
+        std::string def = "default";
+
+        toFind = lz::findOrDefault(s, toFind, def);
+        CHECK(toFind == "default");
+
+        def = "default";
+        toFind = "hello world!";
+        toFind = lz::findOrDefault(s, toFind, def);
+        CHECK(toFind == "hello world!");
+
+        def = ' ';
+        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+            return s.find('!') != std::string::npos;
+        }, def);
+        CHECK(toFind == "hello world!");
+        CHECK(!def.empty());
+
+        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+            return s.find('z') != std::string::npos;
+        }, "default");
+        CHECK(toFind == "default");
+    }
+
+    SECTION("Position") {
+        std::vector<char> c = {'a', 'b', 'c', 'd'};
+        size_t pos = lz::indexOf(c, 'b');
+        CHECK(pos == 1);
+
+        pos = lz::indexOf(c, 'e');
+        CHECK(pos == lz::npos);
+
+        std::vector<std::string> strings = {"hello", "world"};
+        pos = lz::indexOfIf(strings, [](const std::string& s) {
+            return s.find('o') != std::string::npos;
+        });
+        CHECK(pos == 0);
+
+        pos = lz::indexOfIf(strings, [](const std::string& s) {
+            return s.find('q') != std::string::npos;
+        });
+        CHECK(pos == lz::npos);
+    }
+
+    SECTION("FilterMap") {
+        std::string s = "123,d35dd";
+        auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); },
+                               [](const char c) { return static_cast<int>(c - '0'); });
+
+        CHECK(f.toVector() == std::vector<int>{1, 2, 3, 3, 5});
+    }
+
+    SECTION("Moving contents") {
+        std::vector<std::string> s = {"hello", "world", "what's", "up"};
+        auto filter = lz::filter(s, [](const std::string& s) { return s != "Dummy"; });
+        std::vector<std::string> newVec = std::move(filter).toVector();
+
+        CHECK(std::all_of(s.begin(), s.end(), [](const std::string& s) { return s.empty(); }));
+        CHECK(newVec == std::vector<std::string>{"hello", "world", "what's", "up"});
+
+        s = {"hello", "world", "what's", "up"};
+        auto newFilter = lz::filter(s, [](const std::string& s) { return s != "up"; });
+        s = std::move(newFilter).toVector();
+
+        CHECK(s.size() == 3);
+        CHECK(s == std::vector<std::string>{"hello", "world", "what's"});
+    }
+
+    SECTION("To string func") {
+        std::vector<int> v = {1, 2, 3, 4, 5};
+        auto dummy = lz::map(v, [](int i) { return i; });
+
+        CHECK(dummy.toString() == "12345");
+        CHECK(dummy.toString(" ") == "1 2 3 4 5");
+        CHECK(dummy.toString(", ") == "1, 2, 3, 4, 5");
+    }
+
+    SECTION("String replace") {
+        std::string myString = "picture.jpg";
+        lz::strReplace(myString, ".jpg", ".jpeg");
+        CHECK(myString == "picture.jpeg");
+        CHECK(myString.length() == std::strlen("picture.jpeg"));
+
+        myString = "picture.png.png";
+        lz::strReplaceAll(myString, ".png", ".jpeg");
+        CHECK(myString == "picture.jpeg.jpeg");
+        CHECK(myString.length() == std::strlen("picture.jpeg.jpeg"));
     }
 }
