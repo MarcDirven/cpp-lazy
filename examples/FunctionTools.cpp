@@ -13,9 +13,12 @@ int main() {
     auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
     std::vector<std::string> s = {"hello", "world", "!"};
+	
+#ifdef LZ_HAS_CXX17
     size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
         return i + s.size();
     }); // totalSize == 11
+#endif
 
     std::string toFind = "hel";
     std::string def = "default";
@@ -69,4 +72,16 @@ int main() {
     myString = "picture.png.png";
     lz::strReplaceAll(myString, ".png", ".jpg");
     // myString == "picture.jpg.jpg"
+
+    auto arr = { 1, 2, 3, 4 };
+	for (auto&& vals : lz::pairwise(arr)) {
+		// printing values yields (using std::get):
+		// 1 2
+		// 2 3
+		// 3 4
+	}
+
+    myString = "picture.png.png";
+    myString = lz::reverse(myString).toString();
+	// myString == gnp.gnp.erutcip
 }

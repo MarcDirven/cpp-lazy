@@ -6,11 +6,11 @@
 int main() {
     std::vector<int> values = {1, 2, 3, 4, 5};
     std::vector<int> toExcept = {2, 3, 4};
+    const auto except = lz::except(values, toExcept);
+    std::cout << except << '\n';
+	// Output: 1 5
 
-    for (int i : lz::except(values, toExcept)) {
-        std::cout << i << '\n';
-    }
-    // yields (container element by reference if '&' is used):
-    // 1
-    // 5
+	for (int i : except) {
+		// Process i...
+	}
 }

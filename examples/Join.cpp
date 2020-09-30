@@ -2,19 +2,22 @@
 #include <iostream>
 
 int main() {
-    std::vector<std::string> strings = {"hello", "world"};
-    auto join = lz::join(strings, ", ");
-    // if the container type is std::string, a std::string by reference is returned
-    for (std::string& s : strings) {
-        std::cout << s;
-    }
-    // prints: hello, world
+    const std::vector<std::string> strings = {"hello", "world"};
+    const auto join = lz::join(strings, ", ");
+    std::cout << join << '\n';
+	// Output: Hello, world
 
-    std::vector<int> ints = {1, 2, 3};
-    auto intJoin = lz::join(ints, ", ");
+     // if the container type is std::string, a std::string by reference is returned
+	for (std::string& s : join) {
+		// Process s...
+	}
+    const std::vector<int> ints = {1, 2, 3};
+    const auto intJoin = lz::join(ints, ", ");
+    std::cout << intJoin << '\n';
+    // Output: 1, 2, 3
+    
     // if the container type is not std::string, a std::string by value is returned
-    for (std::string s : intJoin) {
-        std::cout << s;
-    }
-    // prints 1, 2, 3
+	for (std::string i : intJoin) {
+		// Process i...
+	}
 }

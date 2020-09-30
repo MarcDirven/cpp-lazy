@@ -4,17 +4,14 @@
 
 
 int main() {
-    float min = 0;
-    float max = 1;
-    size_t amount = 4;
-    auto rng = lz::random(min, max, amount);
+    const float min = 0;
+    const float max = 1;
+    const size_t amount = 4;
+    const auto rng = lz::random(min, max, amount);
+    std::cout << rng << '\n';
+    // Output: random number between [0, 1] random number between [0, 1] random number between [0, 1] random number between [0, 1]
 
-    for (float f : rng) {
-        std::cout << f << '\n';
-    }
-    // Yields (by value):
-    // random number between [0, 1]
-    // random number between [0, 1]
-    // random number between [0, 1]
-    // random number between [0, 1]
+	for (float i : rng) {
+		// process i...
+	}
 }

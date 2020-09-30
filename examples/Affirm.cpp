@@ -5,7 +5,7 @@
 int main() {
     std::array<int, 4> array = {1, 2, 3, 4};
 
-    auto affirm = lz::affirm(array, (const char*)"something went wrong", [](const int i) {
+    auto affirm = lz::affirm(array, static_cast<const char*>("something went wrong"), [](const int i) {
         // If i == 4, the value is returned. If i == 4, an exception is thrown
         return i != 4;
     });
