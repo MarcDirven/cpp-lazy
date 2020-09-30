@@ -88,7 +88,8 @@ namespace lz {
     /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
-     * [`toExceptBegin`, `toExceptEnd).
+     * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
+     * be able to do it correctly.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterator Is automatically deduced.
      * @tparam IteratorToExcept Is automatically deduced.
@@ -110,7 +111,8 @@ namespace lz {
     }
 #else
     /**
-     * @brief This function returns a view to the random access ExceptIterator.
+     * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
+     * calling begin(), this iterator will not be able to do it correctly.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd).
      * @tparam Iterator Is automatically deduced.
@@ -133,7 +135,8 @@ namespace lz {
     /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
-     * [`toExceptBegin`, `toExceptEnd).
+     * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
+     * be able to do it correctly.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterator Is automatically deduced.
      * @tparam IteratorToExcept Is automatically deduced.
@@ -155,7 +158,7 @@ namespace lz {
     /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
-     * and has an `operator<`
+     * and has an `operator<`. If elements are changed in `toExcept` after calling begin(), this iterator will not be able to do it correctly.
      * @tparam Iterable Is automatically deduced.
      * @tparam IterableToExcept Is automatically deduced.
      * @param iterable The iterable to except elements from contained by `toExcept`.

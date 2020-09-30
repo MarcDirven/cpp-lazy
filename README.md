@@ -4,39 +4,54 @@
 Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two main reasons this is a fast library is 
 because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are
 random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view 
-object has many r-value reference overloads. This is very efficient, because now we can move from the original container:
-```cpp
-std::vector<std::string> strings = {"hello", "world" };
-auto filter = lz::filter(v, [](const std::string& s) { return s == "hello"; }); // if s equal "hello", keep it
-std::vector<std::string> newVector = std::move(filter).toVector(); // moves the string into the new vector where the lambda (^) returns true
-// All the values in strings where the lambda returns true, are empty here, so strings = { "", "world" }
-// One could also do:
-strings = std::move(filter).toVector(); // overwrites the original container
-```
-
-This library uses one dependency library `fmt`, which is automatically configured by CMake.
+object has many `std::execution::*` overloads. This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
 - C++14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
-- Compatible with old(er) compiler versions
+- Compatible with old(er) compiler versions; at least `gcc` versions => `5.4.0` & `clang` => `7.0.0` (previous 
+versions have not been checked)
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 - Little overhead
 
 # Current supported iterators & examples
-All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
+The iterators are (with some exceptions) by reference. All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
 `fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
-- **Choose**, where you can iterate over a sequence and return a new type (or the same type) from the function entered. 
-**This iterator is removed from version 2.0.0. Instead use `lz::filterMap`. See FunctionTools sections for examples.** 
-Example:
+- filterMap (defined in `FunctionTools.hpp`)
 ```cpp
-std::string s = "1q9";
-auto vector = lz::choose(s, [](const char s) {
-    return std::make_pair(static_cast<bool>(std::isdigit(s)), static_cast<int>(s - '0'));
-}).toVector();
-// vector yields (int) {1, 9}. One can use Type& and use std::move to safely move when using for-loops
+std::string s = "123,d35dd";
+auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
+                        [](const char c) { return static_cast<int>(c - '0'); }); // return this
+std::cout << f << '\n';
+// yields (int) 1 2 3 3 5
+
+for (int i : f) {
+    // process i...
+}
+```
+- **Affirm** check the whole sequence for `predicate`. If predicate returns false, the exception given as parameter is thrown:
+```cpp
+std::array<int, 4> array = {1, 2, 3, 4};
+auto affirm = lz::affirm(array, std::logic_error("logic error"), [](const int i) {
+    // If i != 3, the value is returned. If i == 3, an exception is thrown
+    return i != 3;
+});
+
+auto beg = affirm.begin();
+auto end = affirm.end();
+
+// With while loop, able to continue
+while (beg != end) {
+    try {
+        std::cout << *beg << '\n';
+    }
+    catch (const std::logic_error& err) {
+        std::cout << err.what() << '\n';
+    }
+    ++beg;
+}
 ```
 - **Concatenate**, this iterator can be used to merge two or more containers together. The size of the arrays are 4 
 here, but they can be all have different sizes.
@@ -44,62 +59,37 @@ here, but they can be all have different sizes.
 std::array<int, 4> a{1, 2, 3, 4};
 std::array<int, 4> b{5, 6, 7, 8};
 
-for (int i : lz::concat(a, b)) {
-    std::cout << i << '\n';
+const auto concat = lz::concat(a, b);
+std::cout << concat << '\n';
+// Output: 1 2 3 4 5 6 7 8
+for (int i : concat) {
+    // process i...
 }
-
-// Output:
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 7
-// 8
 
 std::cout << '\n';
 
 std::array<int, 4> c{9, 10, 11, 12};
 std::array<int, 4> d{13, 14, 15, 16};
 
-for (int i : lz::concat(a, b, c, d)) {
-    std::cout << i << '\n';
+const auto concat2 = lz::concat(a, b, c, d);
+std::cout << concat2 << '\n';
+// Output: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+for (int i : concat2) {
+    // process i...
 }
-
-// Output:
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 7
-// 8
-// 9
-// 10
-// 11
-// 12
-// 13
-// 14
-// 15
-// 16
 ```
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter 
 and the `.second` the element of the container by reference.
 ```cpp
-std::vector<int> toEnumerate = {1, 2, 3, 4, 5};
+std::vector<int> values = {1, 2, 3, 4, 5};
+std::vector<int> toExcept = {2, 3, 4};
+const auto except = lz::except(values, toExcept);
+std::cout << except << '\n';
+// Output: 1 5
 
-for (std::pair<int, int> pair : lz::enumerate(toEnumerate)) {
-    std::cout << pair.first << ' ' << pair.second << '\n';
+for (int i : except) {
+    // Process i...
 }
-// yields:
-// [(index element)by value] [(container element) by reference (if '&' is used)]
-//          0                               1
-//          1                               2
-//          2                               3
-//          3                               4
-//          4                               5
 ```
 - **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. 
 `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
@@ -117,15 +107,12 @@ for (int i : lz::except(values, toExcept)) {
 - **Filter** filters out elements given by a function predicate
 ```cpp
 std::vector<int> toFilter = {1, 2, 3, 4, 5, 6};
-auto filter = lz::filter(toFilter, [](const int i) { return i % 2 == 0; });
-
+const auto filter = lz::filter(toFilter, [](const int i) { return i % 2 == 0; });
+std::cout << filter << '\n';
+// Output: 2 4 6
 for (int i : filter) {
-    std::cout << i << '\n';
+    // Process i...
 }
-// yields (container element by reference if '&' is used):
-// 2
-// 4
-// 6
 ```
 - **Generate** returns the value of a given function `amount` of times. This is essentially the same as `yield` in 
 Python or `yield return` in C#.
@@ -135,35 +122,35 @@ constexpr int amount = 4;
 auto generator = [&myIncreasingCounter]() {
     return myIncreasingCounter++;
 };
-
-for (int incrementer : lz::generate(generator, amount)) {
-    std::cout << incrementer << '\n';
+const auto gen = lz::generate(generator, amount);
+std::cout << gen << '\n';
+// Output: 0 1 2 3
+for (int i : gen) {
+    // Process i...
 }
-// yields (by value):
-// 0
-// 1
-// 2
-// 3
 ```
 - **Join** Can be used to join a container to a sequence of `std::string`. Uses `fmt` library to convert ints, floats 
 etc to `std::string`. If the container type is `std::string`, then the elements are accessed by reference, otherwise 
 they are accessed by value.
 ```cpp
-std::vector<std::string> strings = {"hello", "world"};
-auto join = lz::join(strings, ", ");
-// if the container type is std::string, a std::string by reference is returned
-for (std::string& s : strings) {
-    std::cout << s;
-}
-// prints: hello, world
+const std::vector<std::string> strings = {"hello", "world"};
+const auto join = lz::join(strings, ", ");
+std::cout << join << '\n';
+// Output: Hello, world
 
-std::vector<int> ints = {1, 2, 3};
-auto intJoin = lz::join(ints, ", ");
-// if the container type is not std::string, a std::string by value is returned
-for (std::string s : intJoin) {
-    std::cout << s;
+ // if the container type is std::string, a std::string by reference is returned
+for (std::string& s : join) {
+    // Process s...
 }
-// prints 1, 2, 3
+const std::vector<int> ints = {1, 2, 3};
+const auto intJoin = lz::join(ints, ", ");
+std::cout << intJoin << '\n';
+// Output: 1, 2, 3
+
+// if the container type is not std::string, a std::string by value is returned
+for (std::string i : intJoin) {
+    // Process i...
+}
 ```
 - **Map** selects certain values from a type given a function predicate
 ```cpp
@@ -171,44 +158,44 @@ struct SomeStruct {
     std::string s;
     int a{};
 };
+
 std::vector<SomeStruct> s = {
     SomeStruct{"Hello"},
     SomeStruct{"World"}
 };
 
-auto mapper = lz::map(s, [](const SomeStruct& s) { return s.s; });
-for (std::string s : mapper) {
-    std::cout << s << '\n';
-}
+const auto mapper = lz::map(s, [](const SomeStruct& s) { return s.s; });
+std::cout << mapper << '\n';
+// Output: Hello World
+
 // Yields by value if lambda does not use: "[](std::string&) -> std::string& {}":
-// Hello
-// World
+for (std::string i : mapper) {
+    // process i...
+}
 ```
 - **Random** returns a random number `amount` of times.
 ```cpp
-float min = 0;
-float max = 1;
-size_t amount = 4;
-auto rng = lz::random(min, max, amount);
+const float min = 0;
+const float max = 1;
+const size_t amount = 4;
+const auto rng = lz::random(min, max, amount);
+std::cout << rng << '\n';
+// Output: random number between [0, 1] random number between [0, 1] random number between [0, 1] random number between [0, 1]
 
-for (float f : rng) {
-    std::cout << f << '\n';
+for (float i : rng) {
+    // process i...
 }
-// Yields (by value):
-// random number between [0, 1]
-// random number between [0, 1]
-// random number between [0, 1]
-// random number between [0, 1]
 ```
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
 ```cpp
-for (int i : lz::range(3)) {
-    std::cout << i << '\n';
+const auto toRepeat = 155;
+const auto amount = 4;
+const auto repeater = lz::repeat(toRepeat, amount);
+std::cout << repeater << '\n';
+// Output: 155 155 155 155
+for (int i : lz::repeat(toRepeat, amount)) {
+    // Process i..
 }
-// Yields: (by value)
-// 0
-// 1
-// 2
 ```
 - **Repeat** repeats an element `amount` of times.
 ```cpp
@@ -228,80 +215,76 @@ for (int i : lz::repeat(toRepeat, amount)) {
 ```cpp
 std::string toSplit = "Hello world ";
 std::string delim = " ";
-
+const auto splitter = lz::split(toSplit, std::move(delim));
+std::cout << splitter << '\n';
+// Output: Hello world
+// 
 // If C++ 17 or higher, use for (std::string_view s : lz::split) else use for (std::string& substring : lz::split)
-for (std::string& substring : lz::split(toSplit, std::move(delim))) {
+for (std::string& substring : splitter) {
     std::cout << substring << '\n';
 }
-// Yields (by value if C++17 or higher, by ref if C++14):
-// Hello
-// world
 ```
-- **Take**/**slice**/**takeRange**/**takeWhile** Takes a certain range of elements/slices a range of 
-elements/takes elements while a certain predicate function returns `true`.
+- **Take**/**slice**/**takeRange**/**takeWhile/dropWhile** Takes a certain range of elements/slices a range of 
+elements/takes/drops elements while a certain predicate function returns `true`.
 ```cpp
 std::vector<int> seq = {1, 2, 3, 4, 5, 6};
-auto takeWhile = lz::takeWhile(seq, [](const int i) { return i != 4; });
+const auto takeWhile = lz::takeWhile(seq, [](const int i) { return i != 4; });
+std::cout << takeWhile << '\n';
+// Output: 1 2 3
+
 for (int i : takeWhile) {
-    std::cout << i << '\n';
+    // process i...
 }
-// Yields (by reference if '& is used):
-// 1
-// 2
-// 3
-std::cout << '\n';
 
-size_t amount = 2;
-auto take = lz::take(seq, amount);
+const size_t amount = 2;
+const auto take = lz::take(seq, amount);
+std::cout << take << '\n';
+// Output: 1 2
+
 for (int i : take) {
-    std::cout << i << '\n';
+    // process i...
 }
-// Yields (by reference if '& is used):
-// 1
-// 2
-std::cout << '\n';
 
-auto slice = lz::slice(seq, 1, 4);
+const auto slice = lz::slice(seq, 1, 4);
+std::cout << slice << '\n';
+// Output: 2 3 4
+
 for (int i : slice) {
-    std::cout << i << '\n';
+    // process i...
 }
-// Yields (by reference if '& is used):
-// 2
-// 3
-// 4
+
+constexpr std::size_t size = 4;
+std::array<int, size> arr = { 1, 1, 2, 1 };
+const auto dropped = lz::dropWhile(arr, [](const int i) { return i == 1; });
+std::cout << dropped << '\n';
+// output: 2 1
+
+for (int i : dropped) {
+    // process i...
+}
 ```
 - **TakeEvery** skips `offset` values in every iteration. E.g. `lz::takeevery({1, 2, 3, 4, 5}, 2)` will result in 
 `{1, 3, 5}`.
 ```cpp
 std::vector<int> sequence = {1, 2, 3, 4, 5};
+const auto takeEvery = lz::takeEvery(sequence, 2);
+std::cout << takeEvery << '\n';
+// Output: 1 3 5
 
-for (int i : lz::takeEvery(sequence, 2)) {
-    std::cout << i << '\n';
+for (int i : takeEvery) {
+    // process i...
 }
-// Yields (by reference if '& is used):
-// 1
-// 3
-// 5
 ```
 - **Unique** can be used to only get the unique values in a sequence.
 ```cpp
 std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
 // Operator== and operator< are required
-auto unique = lz::unique(vector);
- 
-for (int i : vector) {
-    std::cout << i << '\n';
+const auto unique = lz::unique(vector);
+std::cout << unique << '\n';
+// Output: 1 2 3 4 5 6 12 42 56
+for (int i : unique) {
+    // process i...
 }
-// prints
-// 1
-// 2
-// 3
-// 4
-// 5
-// 6
-// 12
-// 42
-// 56
 ```
 - **Zip** can be used to iterate over multiple containers and stops at the shortest container length. The items 
 contained by `std::tuple` (which the `operator*` returns), returns a `std::tuple` by value and its contained elements by
@@ -313,14 +296,17 @@ std::vector<int> b = {1, 2, 3};
 for (std::tuple<int&, int&> tup : lz::zip(a, b)) {
     std::cout << std::get<0>(tup) << ' ' << std::get<1>(tup) << '\n';
 }
-// or... if C++17 or higher:
-for (auto [first, second] : lz::zip(a, b)) {
-    std::cout << first << ' ' << second << '\n';
-}
 // Yields (by reference if '& is used):
 // 1 1
 // 2 2
 // 3 3
+
+// Or, C++17:
+#ifdef LZ_HAS_CXX17
+for (auto [a, b] : lz::zip(a, b)) {
+    // process a and b...
+}
+#endif
 ```
 
 # Function tools
@@ -394,6 +380,18 @@ lz::strReplace(myString, ".jpg", ".png");
 myString = "picture.png.png";
 lz::strReplaceAll(myString, ".png", ".jpg");
 // myString == "picture.jpg.jpg"
+
+auto arr = { 1, 2, 3, 4 };
+for (auto&& vals : lz::pairwise(arr)) {
+    // printing values yields (using std::get):
+    // 1 2
+    // 2 3
+    // 3 4
+}
+
+myString = "picture.png.png";
+myString = lz::reverse(myString).toString();
+// myString == gnp.gnp.erutcip
 ```
 
 # To containers, easy!
