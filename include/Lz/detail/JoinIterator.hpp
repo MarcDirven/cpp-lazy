@@ -57,6 +57,9 @@ namespace lz { namespace detail {
         mutable bool _isIteratorTurn{true};
         difference_type _distance{};
 
+        template<class T>
+        using IsString = std::is_same<T, std::string>;
+
     public:
         JoinIterator(const Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
             _iterator(iterator),
@@ -64,7 +67,9 @@ namespace lz { namespace detail {
             _isIteratorTurn(isIteratorTurn),
             _distance(distance) {}
 
-        template<class Val = ContainerType, class = std::enable_if_t<!std::is_same<std::string, Val>::value>>
+        JoinIterator() = default;
+
+        template<class Val = ContainerType, class = std::enable_if_t<!IsString<Val>::value>>
         std::string operator*() const {
             if (_isIteratorTurn) {
                 return getFormatted();
@@ -72,10 +77,16 @@ namespace lz { namespace detail {
             return _delimiter;
         }
 
-        JoinIterator() = default;
+        template<class Val = ContainerType, class = std::enable_if_t<IsString<Val>::value && std::is_const<Val>::value>>
+        const std::string& operator*() const {
+            if (_isIteratorTurn) {
+                return *_iterator;
+            }
+            return _delimiter;
+        }
 
-        template<class Val = ContainerType, class = std::enable_if_t<std::is_same<std::string, Val>::value>>
-        std::string& operator*() const {
+        template<class Val = ContainerType, class = std::enable_if_t<IsString<Val>::value && !std::is_const<Val>::value>>
+        std::string& operator*() {
             if (_isIteratorTurn) {
                 return *_iterator;
             }
