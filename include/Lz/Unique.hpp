@@ -7,10 +7,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/UniqueIterator.hpp"
 
-#ifdef LZ_HAS_EXECUTION
-  #include <execution>
-#endif
-
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION

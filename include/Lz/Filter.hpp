@@ -6,9 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/FilterIterator.hpp"
 
-#ifdef LZ_HAS_EXECUTION
-  #include <execution>
-#endif
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
