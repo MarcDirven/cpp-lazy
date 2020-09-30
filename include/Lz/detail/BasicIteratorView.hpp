@@ -37,7 +37,6 @@ namespace lz { namespace detail {
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
 
-
         template<class T>
         constexpr bool HasReserveV = HasReserve<T>::value;
     }
@@ -70,9 +69,6 @@ namespace lz { namespace detail {
         template<class Container>
         inline std::enable_if_t<!HasReserveV<Container>, void> reserve(Container&) const {}
 
-        virtual void print(std::ostream& o) const {
-            o << toString(" ");
-        }
 
 #ifdef LZ_HAS_EXECUTION
 
@@ -140,6 +136,10 @@ namespace lz { namespace detail {
             return array;
         }
 #endif
+
+        void print(std::ostream& o) const {
+            o << toString(" ");
+        }
 
     public:
         virtual Iterator begin() const = 0;
@@ -403,8 +403,7 @@ namespace lz { namespace detail {
          * @return The stream object by reference.
          */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
-            it.print(o);
-            return o;
+            return o << it.toString();
         }
     };
 }}

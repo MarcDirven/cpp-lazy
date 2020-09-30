@@ -19,9 +19,10 @@ namespace lz {
         iterator _begin{};
         iterator _end{};
 
-        void print(std::ostream& o) const override {
+        void print(std::ostream& o) const {
+            using Base = detail::BasicIteratorView<iterator>;
             // The join iterator already has a delimiter, so when printing, skip the delimiter
-            o << toString("");
+            o << Base::toString("");
         }
 
     public:
