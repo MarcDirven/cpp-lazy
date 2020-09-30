@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12.4)
 
 project(cpp-lazy)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 
 set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -34,7 +34,6 @@ set(HEADER_FILES
 
         ${LZ_HEADERS}/Affirm.hpp
         ${LZ_HEADERS}/Concatenate.hpp
-        ${LZ_HEADERS}/DropWhile.hpp
         ${LZ_HEADERS}/Enumerate.hpp
         ${LZ_HEADERS}/Except.hpp
         ${LZ_HEADERS}/Filter.hpp

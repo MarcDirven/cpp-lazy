@@ -37,6 +37,17 @@ namespace lz {
             }
         }
 
+        /**
+         * @brief Extra constructor overload with `std::nullptr_t`. Takes elements from an iterator from [begin, ...).
+         * Takes no function as argument. Rather a `nullptr` to indicate that we are just taking a sequence.
+         * @param begin The beginning of the iterator.
+         * @param end The ending of the iterator.
+         */
+        Take(const Iterator begin, const Iterator end, std::nullptr_t) :
+            _begin(begin),
+            _end(end) {
+        }
+
         Take() = default;
 
         /**
@@ -78,7 +89,7 @@ namespace lz {
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takewhilerange(...))`.
+     * `for (auto... lz::takeWhileRange(...))`.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     Take<Iterator> takeWhileRange(const Iterator begin, const Iterator end, const Function predicate) {
@@ -113,8 +124,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     Take<Iterator> takeRange(const Iterator begin, const Iterator end) {
-        using ValueType = typename std::iterator_traits<Iterator>::value_type;
-        return takeWhileRange(begin, end, [](const ValueType& /*value*/) { return true; });
+        return takeWhileRange(begin, end, nullptr);
     }
 
     /**
@@ -128,7 +138,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<detail::IterType<Iterable>> take(Iterable&& iterable, const size_t amount) {
+    Take<detail::IterType<Iterable>> take(Iterable&& iterable, const std::size_t amount) {
         auto begin = std::begin(iterable);
         return takeRange(begin, std::next(begin, amount));
     }
@@ -144,10 +154,46 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<detail::IterType<Iterable>> slice(Iterable&& iterable, const size_t from, const size_t to) {
+    Take<detail::IterType<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
         auto begin = std::begin(iterable);
         return takeRange(std::next(begin, from), std::next(begin, to));
     }
+
+    /**
+     * @brief Creates a Take iterator view object.
+     * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
+     * no more values are being skipped.
+     * @tparam Iterator Is automatically deduced.
+     * @tparam Function Is automatically deduced. Must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @return A Take iterator view object.
+     */
+	template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+	Take<Iterator> dropWhileRange(Iterator begin, const Iterator end, Function&& predicate) {
+        using ValueType = typename std::iterator_traits<Iterator>::value_type;
+        begin = std::find_if(begin, end, [&predicate](const ValueType& value) {
+            return !predicate(value);
+		});
+        return takeRange(begin, end);
+    }
+
+    /**
+     * @brief Creates a Take iterator view object.
+     * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
+     * no more values are being skipped.
+     * @tparam Iterable Is automatically deduced.
+     * @tparam Function Is automatically deduced. Must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @param iterable The sequence with the values that can be iterated over.
+     * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @return A Take iterator view object.
+     */
+	template<LZ_CONCEPT_ITERABLE Iterable, class Function>
+	Take<detail::IterType<Iterable>> dropWhile(Iterable&& iterable, Function&& predicate) {
+        return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
+    }
+	
 
     // End of group
     /**

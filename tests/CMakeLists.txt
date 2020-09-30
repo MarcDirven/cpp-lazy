@@ -2,12 +2,11 @@ cmake_minimum_required(VERSION 3.12.4)
 
 project(LazyTests)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/affirm-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concatenate-tests.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/drop-while-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/enumerate-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/except-tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/filter-tests.cpp
@@ -29,10 +28,11 @@ add_executable(LazyTests
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Remove error cl : Command line warning D9025 : overriding '/W3' with '/W4'
     string(REPLACE "/W3" "/W4" FLAGS ${CMAKE_CXX_FLAGS})
-else ()
+    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS})
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
 endif()
-
 
 # Add catch
 target_include_directories(LazyTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../extern)
