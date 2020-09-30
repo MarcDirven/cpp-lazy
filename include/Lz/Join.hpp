@@ -19,6 +19,11 @@ namespace lz {
         iterator _begin{};
         iterator _end{};
 
+        void print(std::ostream& o) const override {
+            // The join iterator already has a delimiter, so when printing, skip the delimiter
+            o << toString("");
+        }
+
     public:
         /**
          * @brief Creates a Join object.

@@ -8,7 +8,7 @@ int main() {
 	// Output: Hello, world
 
      // if the container type is std::string, a std::string by reference is returned
-	for (std::string& s : join) {
+	for (const std::string& s : join) {
 		// Process s...
 	}
     const std::vector<int> ints = {1, 2, 3};

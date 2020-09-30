@@ -38,7 +38,8 @@ namespace lz { namespace detail {
         using value_type = std::string;
         using iterator_category = typename IterTraits::iterator_category;
         using difference_type = typename IterTraits::difference_type;
-        using reference = typename std::conditional<std::is_same<std::string, ContainerType>::value, std::string&, std::string>::type;
+        using reference = typename std::conditional<
+            std::is_same<std::string, ContainerType>::value, typename IterTraits::reference, std::string>::type;
         using pointer = FakePointerProxy<reference>;
 
         template<class Val = ContainerType>
@@ -57,9 +58,6 @@ namespace lz { namespace detail {
         mutable bool _isIteratorTurn{true};
         difference_type _distance{};
 
-        template<class T>
-        using IsString = std::is_same<T, std::string>;
-
     public:
         JoinIterator(const Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
             _iterator(iterator),
@@ -69,24 +67,16 @@ namespace lz { namespace detail {
 
         JoinIterator() = default;
 
-        template<class Val = ContainerType, class = std::enable_if_t<!IsString<Val>::value>>
-        std::string operator*() const {
+        template<class Val = ContainerType>
+        std::enable_if_t<!std::is_same<std::string, Val>::value, reference> operator*() const {
             if (_isIteratorTurn) {
                 return getFormatted();
             }
             return _delimiter;
         }
 
-        template<class Val = ContainerType, class = std::enable_if_t<IsString<Val>::value && std::is_const<Val>::value>>
-        const std::string& operator*() const {
-            if (_isIteratorTurn) {
-                return *_iterator;
-            }
-            return _delimiter;
-        }
-
-        template<class Val = ContainerType, class = std::enable_if_t<IsString<Val>::value && !std::is_const<Val>::value>>
-        std::string& operator*() {
+        template<class Val = ContainerType>
+        std::enable_if_t<std::is_same<std::string, Val>::value, reference> operator*() const {
             if (_isIteratorTurn) {
                 return *_iterator;
             }

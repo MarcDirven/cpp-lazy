@@ -16,25 +16,28 @@
 
 
 namespace lz { namespace detail {
-	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+    // ReSharper disable once CppUnnamedNamespaceInHeaderFile
     namespace {
         template<typename T>
-        struct HasReserve
-        {
+        struct HasReserve {
             template<typename U, std::size_t(U::*)() const>
-        	struct SubstituteFailure {};
-        	
-            template<typename U> static char test(SubstituteFailure<U, &U::reserve>*) {
+            struct SubstituteFailure {
+            };
+
+            template<typename U>
+            static char test(SubstituteFailure<U, &U::reserve>*) {
                 return 0;
             }
 
-            template<typename U> static int test(...) {
+            template<typename U>
+            static int test(...) {
                 return 0;
             }
 
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
-    	
+
+
         template<class T>
         constexpr bool HasReserveV = HasReserve<T>::value;
     }
@@ -67,7 +70,12 @@ namespace lz { namespace detail {
         template<class Container>
         inline std::enable_if_t<!HasReserveV<Container>, void> reserve(Container&) const {}
 
+        virtual void print(std::ostream& o) const {
+            o << toString(" ");
+        }
+
 #ifdef LZ_HAS_EXECUTION
+
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
             const Iterator b = begin();
@@ -87,6 +95,7 @@ namespace lz { namespace detail {
 
             return cont;
         }
+
 #else
         template<class Container, class... Args>
         Container copyContainer(Args&& ... args) const {
@@ -107,6 +116,7 @@ namespace lz { namespace detail {
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
 
 #ifdef LZ_HAS_EXECUTION
+
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
             verifyRange<N>();
@@ -120,6 +130,7 @@ namespace lz { namespace detail {
             }
             return array;
         }
+
 #else
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
@@ -135,9 +146,12 @@ namespace lz { namespace detail {
 
         virtual Iterator end() const = 0;
 
+        BasicIteratorView() = default;
+
         virtual ~BasicIteratorView() = default;
 
 #ifdef LZ_HAS_EXECUTION
+
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
          * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
@@ -216,21 +230,33 @@ namespace lz { namespace detail {
          * @return The converted iterator in string format.
          */
         template<class Execution = std::execution::sequenced_policy>
-        std::string toString(const char* delimiter = "", const Execution exec = std::execution::seq) const {
+        std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
             static_assert(IsParallelPolicyV<Execution> || IsSequencedPolicyV<Execution>,
-                "This function cannot be vectorized. Prefer to use std::execution::par/seq.");
+                          "This function cannot be vectorized. Prefer to use std::execution::par/seq.");
 
-            std::string string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(), [delimiter](const value_type& v) {
-                return fmt::format("{}{}", v, delimiter);
-            });
+            std::string string;
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                // Prevent static assertion and/or weird errors when parallel policy is passed
+                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(),
+                                               [delimiter, this](const value_type& v) {
+                                                   return fmt::format("{}{}", v, delimiter);
+                                               });
+            }
+            else {
+                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(),
+                                               [delimiter, this](const value_type& v) {
+                                                   return fmt::format("{}{}", v, delimiter);
+                                               });
+            }
 
-            const std::size_t delimiterLength = std::strlen(delimiter);
+            const std::size_t delimiterLength = delimiter.length();
             if (!string.empty() && delimiterLength >= 1) {
                 string.erase(string.size() - delimiterLength);
             }
 
             return string;
         }
+
 #else
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -292,13 +318,14 @@ namespace lz { namespace detail {
          * @param delimiter The delimiter between the previous value and the next.
          * @return The converted iterator in string format.
          */
-        std::string toString(const char* delimiter = "") const {
+        std::string toString(const std::string& delimiter = "") const {
             std::string string;
+
             for (const value_type& v : *this) {
                 string += fmt::format("{}{}", v, delimiter);
             }
 
-            const std::size_t delimiterLength = std::strlen(delimiter);
+            const std::size_t delimiterLength = delimiter.length();
             if (!string.empty() && delimiterLength >= 1) {
                 string.erase(string.size() - delimiterLength);
             }
@@ -376,7 +403,8 @@ namespace lz { namespace detail {
          * @return The stream object by reference.
          */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
-            return o << it.toString(" ");
+            it.print(o);
+            return o;
         }
     };
 }}

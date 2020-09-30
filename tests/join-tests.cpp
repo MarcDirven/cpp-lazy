@@ -9,6 +9,9 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     auto joinInt = lz::join(v, ", ");
     auto joinStr = lz::join(s, ", ");
 
+    CHECK(joinInt.toString() == "1, 2, 3, 4, 5");
+    CHECK(joinStr.toString() == "h, e, l, l, o");
+
     SECTION("Should convert to string") {
         CHECK(*joinInt.begin() == "1");
         CHECK(*joinStr.begin() == "h");
