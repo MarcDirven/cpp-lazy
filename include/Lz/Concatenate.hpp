@@ -9,14 +9,16 @@
 
 namespace lz {
     namespace detail {
-        template<typename Same, typename First, typename... More>
-        struct IsAllSame {
-            static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
-        };
+        namespace {
+            template<typename Same, typename First, typename... More>
+            struct IsAllSame {
+                static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
+            };
 
-        template<typename Same, typename First>
-        struct IsAllSame<Same, First> : std::is_same<Same, First> {
-        };
+            template<typename Same, typename First>
+            struct IsAllSame<Same, First> : std::is_same<Same, First> {
+            };
+        }
     }
 
     template<LZ_CONCEPT_ITERATOR... Iterators>
