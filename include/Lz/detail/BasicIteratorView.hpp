@@ -10,35 +10,39 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <algorithm>
-#include <numeric>
 
 #include "fmt/ostream.h"
 #include "LzTools.hpp"
 
 
 namespace lz { namespace detail {
-    template<typename T>
-    struct HasReserve
-    {
-        template<typename U, std::size_t (U::*)() const> struct SubstituteFailure {};
-        template<typename U> static char test(SubstituteFailure<U, &U::reserve>*) {
-	        return 0;
-        }
+	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+    namespace {
+        template<typename T>
+        struct HasReserve
+        {
+            template<typename U, std::size_t(U::*)() const>
+        	struct SubstituteFailure {};
+        	
+            template<typename U> static char test(SubstituteFailure<U, &U::reserve>*) {
+                return 0;
+            }
 
-        template<typename U> static int test(...) {
-	        return 0;
-        }
+            template<typename U> static int test(...) {
+                return 0;
+            }
 
-        static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
-    };
-
-    template<class T>
-    constexpr bool HasReserveV = HasReserve<T>::value;
+            static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
+        };
+    	
+        template<class T>
+        constexpr bool HasReserveV = HasReserve<T>::value;
+    }
 
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const& {
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
@@ -64,8 +68,8 @@ namespace lz { namespace detail {
         inline std::enable_if_t<!HasReserveV<Container>, void> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
-        template<class Container, class... Args, class CopyFunc, class Execution>
-        Container copyOrMoveContainer(Execution execution, const CopyFunc copyFunc, Args&& ... args) const {
+        template<class Container, class... Args, class Execution>
+        Container copyContainer(Execution execution, Args&& ... args) const {
             const Iterator b = begin();
             const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
@@ -75,23 +79,22 @@ namespace lz { namespace detail {
             if constexpr (IsSequencedPolicyV<Execution>) {
                 static_cast<void>(execution);
                 // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
-                copyFunc(b, e, std::inserter(cont, cont.begin()));
+                std::copy(b, e, std::inserter(cont, cont.begin()));
             }
             else {
-                copyFunc(std::forward<Execution>(execution), b, e, cont.begin());
+                std::copy(std::forward<Execution>(execution), b, e, cont.begin());
             }
 
             return cont;
         }
 #else
-
-        template<class Container, class CopyFunc, class... Args>
-        Container copyOrMoveContainer(const CopyFunc copyFunc, Args&& ... args) const {
+        template<class Container, class... Args>
+        Container copyContainer(Args&& ... args) const {
             const Iterator b = begin();
             const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
-            copyFunc(b, e, std::inserter(cont, cont.begin()));
+            std::copy(b, e, std::inserter(cont, cont.begin()));
             return cont;
         }
 #endif
@@ -104,25 +107,25 @@ namespace lz { namespace detail {
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
 
 #ifdef LZ_HAS_EXECUTION
-        template<std::size_t N, class CopyFunc, class Execution>
-        std::array<value_type, N> copyOrMoveArray(Execution execution, const CopyFunc copyFunc) const {
+        template<std::size_t N, class Execution>
+        std::array<value_type, N> copyArray(Execution execution) const {
             verifyRange<N>();
             std::array<value_type, N> array{};
 
             if constexpr (IsSequencedPolicyV<Execution>) {
-                copyFunc(begin(), end(), array.begin());
+                std::copy(begin(), end(), array.begin());
             }
             else {
-                copyFunc(std::forward<Execution>(execution), begin(), end(), array.begin());
+                std::copy(std::forward<Execution>(execution), begin(), end(), array.begin());
             }
             return array;
         }
 #else
-        template<std::size_t N, class CopyFunc>
-        std::array<value_type, N> copyOrMoveArray(const CopyFunc copyFunc) const {
+        template<std::size_t N>
+        std::array<value_type, N> copyArray() const {
             verifyRange<N>();
             std::array<value_type, N> array{};
-            copyFunc(begin(), end(), array.begin());
+            std::copy(begin(), end(), array.begin());
             return array;
         }
 #endif
@@ -152,21 +155,18 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const& {
+        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
 
             if constexpr (IsSequencedPolicyV<Execution>) {
                 using OutputIter = std::insert_iterator<Cont>;
-                OutputIter(*copy)(Iterator, Iterator, OutputIter) = std::copy<Iterator, OutputIter>;
-                return copyOrMoveContainer<Cont>(execution, copy, std::forward<Args>(args)...);
+                return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
             else {
                 using OutputIter = typename Cont::iterator;
                 static_assert(IsForwardOrStrongerV<OutputIter> && IsForwardOrStrongerV<Iterator>,
                               "Both iterator types must be forward iterator or higher. Use std::execution::seq instead.");
-
-                OutputIter(*copy)(Execution, Iterator, Iterator, OutputIter) = std::copy<Execution, Iterator, OutputIter>;
-                return copyOrMoveContainer<Cont>(execution, copy, std::forward<Args>(args)...);
+                return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
         }
 
@@ -177,7 +177,7 @@ namespace lz { namespace detail {
         * @return A `std::vector<value_type>` with the sequence.
         */
         template<class Execution = std::execution::sequenced_policy>
-        std::vector<value_type> toVector(const Execution exec = std::execution::seq) const& {
+        std::vector<value_type> toVector(const Execution exec = std::execution::seq) const {
             return to<std::vector>(exec);
         }
 
@@ -192,7 +192,7 @@ namespace lz { namespace detail {
          */
         template<class Allocator, class Execution = std::execution::sequenced_policy>
         std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq,
-                                                    const Allocator& alloc = Allocator()) const& {
+                                                    const Allocator& alloc = Allocator()) const {
             return to<std::vector>(exec, alloc);
         }
 
@@ -204,9 +204,8 @@ namespace lz { namespace detail {
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<std::size_t N, class Execution = std::execution::sequenced_policy>
-        std::array<value_type, N> toArray(const Execution exec = std::execution::seq) const& {
-            const auto copy = std::copy<Iterator, typename std::array<value_type, N>::iterator>;
-            return copyOrMoveArray<N>(exec, copy);
+        std::array<value_type, N> toArray(const Execution exec = std::execution::seq) const {
+            return copyArray<N>(exec);
         }
 
         /**
@@ -249,12 +248,9 @@ namespace lz { namespace detail {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args>
-        Container<value_type, Args...> to(Args&& ... args) const& {
+        Container<value_type, Args...> to(Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
-            using OutputIter = std::insert_iterator<Cont>;
-
-            OutputIter(*copyFunc)(Iterator, Iterator, OutputIter) = std::copy<Iterator, OutputIter>;
-            return copyOrMoveContainer<Cont>(copyFunc, std::forward<Args>(args)...);
+            return copyContainer<Cont>(std::forward<Args>(args)...);
         }
 
         /**
@@ -262,7 +258,7 @@ namespace lz { namespace detail {
          * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
          * @return A `std::vector<value_type>` with the sequence.
          */
-        std::vector<value_type> toVector() const& {
+        std::vector<value_type> toVector() const {
             return to<std::vector>();
         }
 
@@ -275,7 +271,7 @@ namespace lz { namespace detail {
          * @return A new `std::vector<value_type, Allocator>`.
          */
         template<class Allocator>
-        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const& {
+        std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
             return to<std::vector>(alloc);
         }
 
@@ -286,11 +282,8 @@ namespace lz { namespace detail {
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<std::size_t N>
-        std::array<value_type, N> toArray() const& {
-            using ArrayIter = typename std::array<value_type, N>::iterator;
-
-            ArrayIter(*copy)(Iterator, Iterator, ArrayIter) = std::copy<Iterator, ArrayIter>;
-            return copyOrMoveArray<N>(copy);
+        std::array<value_type, N> toArray() const {
+            return copyArray<N>();
         }
 
         /**
@@ -339,7 +332,7 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const& {
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
         }
@@ -371,7 +364,7 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const& {
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
         }

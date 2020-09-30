@@ -7,32 +7,35 @@
 
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
   #define LZ_HAS_CXX17
-#endif
+#endif // Has cxx 17
+
 #if __cplusplus > 201703L || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
   #define LZ_HAS_CXX_20
-#endif
+#endif // Has cxx 20
 
-#if __has_include(<execution>) && defined(LZ_HAS_CXX_20)
+#if __has_include(<execution>) && defined(LZ_HAS_CXX17)
   #define LZ_HAS_EXECUTION
   #include <execution>
-#endif
+#endif // has execution
 
 #if __has_include(<string_view>) && defined(LZ_HAS_CXX17)
   #define LZ_HAS_STRING_VIEW
-#endif
+#endif // has string view
 
-namespace lz {
 #if __has_include(<concepts>) && (defined(LZ_HAS_CXX_20))
   #define LZ_HAS_CONCEPTS
   #include <concepts>
+#endif // has concepts
 
+#ifdef LZ_HAS_CONCEPTS
+namespace lz {
     template<class I>
     concept BasicIterable = requires(I i) {
         { std::begin(i) } -> std::input_or_output_iterator;
         { std::end(i) } -> std::input_or_output_iterator;
     };
 
-	template<class I>
+    template<class I>
     concept BidirectionalIterable = requires(I i) {
         { std::begin(i) } -> std::bidirectional_iterator;
         { std::end(i) } -> std::bidirectional_iterator;
@@ -45,14 +48,15 @@ namespace lz {
 
     template<class I>
     concept Arithmetic = std::is_arithmetic_v<I>;
+} // End lz::detail
 
-  #define LZ_CONCEPT_ARITHMETIC             Arithmetic
+  #define LZ_CONCEPT_ARITHMETIC             lz::Arithmetic
   #define LZ_CONCEPT_INVOCABLE              std::invocable
   #define LZ_CONCEPT_INTEGRAL               std::integral
-  #define LZ_CONCEPT_ITERABLE               BasicIterable
+  #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
   #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
-  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE BidirectionalIterable
+  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
   #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
 #else  // ^^^ has concepts !has concepts vvv
@@ -65,9 +69,8 @@ namespace lz {
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
 
   #define LZ_REQUIRES_LESS_THAN(A, B)
-#endif  // __cpp_lib_concepts
-}
 
+#endif  // lz has concepts
 
 #define LZ_STRINGIFY(x) #x
 #define LZ_TO_STRING(x) LZ_STRINGIFY(x)
@@ -115,15 +118,15 @@ namespace lz { namespace detail {
 #endif // LZ_HAS_EXECUTION
     template<class T>
     class FakePointerProxy {
-        T t;
+        T _t;
 
     public:
         explicit FakePointerProxy(const T& t) :
-            t(t) {
+            _t(t) {
         }
 
         T* operator->() {
-            return &t;
+            return &_t;
         }
     };
 
@@ -143,6 +146,6 @@ namespace lz { namespace detail {
     inline bool isEven(const Arithmetic value) {
         return (value & 1) == 0;
     }
-}}
+}} // end lz::detail
 
 #endif

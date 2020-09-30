@@ -31,7 +31,8 @@ namespace lz {
          * unless the iterator is const, making it a const reference.
          * to alter the values in the iterator (and therefore also the container/iterable), unless the iterator is const,
          * making it a const reference.
-         * @param containers
+         * @param begin The beginning of all the containers
+         * @param end The ending of all the containers
          */
         explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
             _begin(begin),

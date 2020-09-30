@@ -11,7 +11,8 @@
 
 
 namespace lz { namespace detail {
-    namespace {
+	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+	namespace {
         template<class Tuple, std::size_t I, class = void>
         struct PlusPlus {
             void operator()(Tuple& iterators, const Tuple& end) const {
