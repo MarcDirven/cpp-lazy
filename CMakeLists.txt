@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.12.4)
 
 project(cpp-lazy)
-
 set(CMAKE_CXX_STANDARD 20)
-
 
 set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(LZ_HEADERS ${INCLUDE}/Lz)
@@ -31,7 +29,6 @@ set(DETAIL_HEADER_FILES
 
 set(HEADER_FILES
         ${INCLUDE}/Lz.hpp
-
         ${LZ_HEADERS}/Affirm.hpp
         ${LZ_HEADERS}/Concatenate.hpp
         ${LZ_HEADERS}/Enumerate.hpp
@@ -52,7 +49,6 @@ set(HEADER_FILES
         )
 
 add_library(cpp-lazy INTERFACE)
-add_library(lz::cpp-lzy ALIAS cpp-lazy)
 
 # Add headers and helper headers
 target_sources(cpp-lazy INTERFACE
