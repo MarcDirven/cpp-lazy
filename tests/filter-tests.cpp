@@ -35,7 +35,7 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
 
 
 TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<int, size> array{1, 2, 3};
     std::function<bool(int)> f = [](int i) { return i != 3; };
     auto filter = lz::filter(array, f);
@@ -56,11 +56,11 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
 
 
 TEST_CASE("Filter to container", "[Filter][To container]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<int, size> array{1, 2, 3};
 
     SECTION("To array") {
-        constexpr size_t filterSize = 2;
+        constexpr std::size_t filterSize = 2;
         auto filtered = lz::filter(array, [](int i) {
             return i != 3;
         }).toArray<filterSize>();

@@ -7,7 +7,7 @@
 
 
 TEST_CASE("Random should be random", "[Random][Basic functionality]") {
-    constexpr size_t size = 5;
+    constexpr std::size_t size = 5;
 
     SECTION("Random doubles") {
         auto randomArray = lz::random(0., 1., size).toArray<size>();
@@ -23,7 +23,7 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
 }
 
 TEST_CASE("Random binary operations", "[Random][Binary ops]") {
-    constexpr size_t size = 5;
+    constexpr std::size_t size = 5;
     auto random = lz::random(0., 1., size);
     auto it = random.begin();
 
@@ -47,7 +47,7 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        size_t offset = 1;
+        std::size_t offset = 1;
         CHECK(std::distance(it + offset, random.end()) == size - offset);
     }
 
@@ -75,7 +75,7 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
 }
 
 TEST_CASE("Random to containers", "[Random][To container]") {
-    constexpr size_t size = 10;
+    constexpr std::size_t size = 10;
     auto range = lz::random(0., 1., size);
 
     SECTION("To array") {

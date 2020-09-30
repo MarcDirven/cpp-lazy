@@ -48,7 +48,7 @@ namespace lz {
         }
     };
 
-#if __has_include(<string_view>) && __cplusplus > 201402L
+#ifdef LZ_HAS_STRING_VIEW
     template class StringSplitter<std::string_view, std::string_view>;
     template<class SubString = std::string_view, class String = std::string_view>
 #else

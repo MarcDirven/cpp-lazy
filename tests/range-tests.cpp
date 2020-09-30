@@ -110,8 +110,8 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     auto range = lz::range(size);
 
     SECTION("To array") {
-        std::array<int, static_cast<size_t>(size)> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        auto actual = range.toArray<static_cast<size_t>(size)>();
+        std::array<int, static_cast<std::size_t>(size)> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        auto actual = range.toArray<static_cast<std::size_t>(size)>();
 
         CHECK(expected == actual);
     }

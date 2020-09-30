@@ -12,17 +12,13 @@
 #include "Zip.hpp"
 #include "Map.hpp"
 #include "Filter.hpp"
+#include "Take.hpp"
 
-#ifdef LZ_HAS_EXECUTION
-  #include <execution>
-#endif
-
-
-#if (__cplusplus >= 201703L) || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+#ifdef LZ_HAS_CXX17
   #define LZ_INLINE_VAR inline
-#else
+#else // ^^^ inline var vvv !inline var
   #define LZ_INLINE_VAR
-#endif
+#endif // lz has cxx17
 
 
 namespace lz {
@@ -30,15 +26,16 @@ namespace lz {
         template<class Iterator>
         using DifferenceType = typename std::iterator_traits<Iterator>::difference_type;
 
+        // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
         bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const bool replaceAll) {
-            const size_t oldStringSize = oldString.length();
-            const size_t newStringSize = newString.length();
+            const std::size_t oldStringSize = oldString.length();
+            const std::size_t newStringSize = newString.length();
 
             if (oldStringSize == 0 || newStringSize == 0) {
                 return false;
             }
 
-            size_t startPos = string.find(oldString);
+            std::size_t startPos = string.find(oldString);
             if (startPos == std::string::npos) {
                 return false;
             }
@@ -55,12 +52,20 @@ namespace lz {
             }
             return true;
         }
+
+    	template<class T>
+        struct MapFunctor {
+            template<class From>
+            T operator()(const From& f) const {
+                return static_cast<T>(f);
+            }
+        };
     }
 
     /**
      * This value is returned when indexOf(If) does not find the value specified.
      */
-    constexpr LZ_INLINE_VAR size_t npos = std::numeric_limits<size_t>::max();
+    constexpr LZ_INLINE_VAR std::size_t npos = std::numeric_limits<size_t>::max();
 
     /**
      * Gets the mean of a sequence.
@@ -88,15 +93,59 @@ namespace lz {
     }
 
     /**
-  * Returns a StringSplitter iterator, that splits the string on `'\n'`.
-  * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
-  * @tparam String The string type. `std::string` is assumed but can be specified.
-  * @param string The string to split on.
-  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
-  */
+	  * Returns a StringSplitter iterator, that splits the string on `'\n'`.
+	  * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
+	  * @tparam String The string type. `std::string` is assumed but can be specified.
+	  * @param string The string to split on.
+	  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
+	  */
+#ifdef LZ_HAS_STRING_VIEW
+    template<class SubString = std::string_view, class String = std::string>
+#else // ^^^ Lz has string view vvv !lz has string view
     template<class SubString = std::string, class String = std::string>
+#endif
     StringSplitter<SubString, String> lines(String&& string) {
         return split<SubString, String>(string, "\n");
+    }
+
+	/**
+	 * Sums all the values from [from, upToAndIncluding]
+	 * @tparam T An integral value.
+	 * @param from The start to sum from
+	 * @param upToAndIncluding The end of the sum
+	 * @return The result of the sum from [from, upToAndIncluding]
+	 */
+    template<class T>
+    T sumTo(const T from, const T upToAndIncluding) {
+        static_assert(std::is_integral<T>::value, "T must be integral type");
+    	
+        const T fromAbs = std::abs(from);
+        const T toAbs = std::abs(upToAndIncluding);
+        const T error = ((fromAbs - 1) * (fromAbs)) / 2;
+        const T sum = (toAbs * (toAbs + 1)) / 2;
+
+    	if (from < 0) {
+    		if (upToAndIncluding < 0) {
+                return error - sum;
+    		}
+            return -(error + fromAbs - sum);
+    	}
+    	if (upToAndIncluding < 0) {
+            return error - sum;
+    	}
+        assert(from < upToAndIncluding && "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
+        return sum - error;
+    }
+
+    /**
+     * Sums all the values from [0, upToAndIncluding]
+     * @tparam T An integral value.
+     * @param upToAndIncluding The end of the sum
+     * @return The result of the sum from [0, upToAndIncluding]
+     */
+    template<class T>
+    T sumTo(const T upToAndIncluding) {
+        return sumTo(0, upToAndIncluding);
     }
 
     /**
@@ -108,14 +157,16 @@ namespace lz {
     template<class Strings, class Iterator = detail::IterType<Strings>>
     Join<Iterator> unlines(Strings&& strings) {
         static_assert(std::is_same<std::string, detail::ValueTypeIterator<Iterator>>::value
-#if __has_include(<string_view>) && __cplusplus >= 201703L
+#ifdef LZ_HAS_STRING_VIEW
             || std::is_same<std::string_view, detail::ValueTypeIterator<Iterator>>::value
-#endif
+#endif // Lz has string view
             , "the type of the container should be std::string or std::string_view");
         return join(strings, "\n");
     }
 
+#ifndef LZ_HAS_CXX17
     /**
+     * This function is defined when C++ version is lower than 17.
      * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
      * to sum all string sizes in a container, use:
      * ```cpp
@@ -142,6 +193,7 @@ namespace lz {
     }
 
     /**
+     * This function is defined when C++ version is lower than 17.
      * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
      * to sum all string sizes in a container, use:
      * ```cpp
@@ -162,6 +214,7 @@ namespace lz {
     Init transAccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
         return transAccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
     }
+#endif // End LZ_HAS_CXX17
 
     /**
      * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
@@ -171,7 +224,7 @@ namespace lz {
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    auto pairwise(const Iterator begin, const Iterator end) -> Zip<Iterator, Iterator> {
+    Zip<Iterator, Iterator> pairwise(const Iterator begin, const Iterator end) {
         Iterator next = begin;
         if (begin != end) {
             next = std::next(begin);
@@ -191,6 +244,34 @@ namespace lz {
     }
 
     /**
+     * Returns a view object of which its iterators are reversed.
+     * @tparam Iterator Is automatically deduced.
+     * @param begin The beginning of the sequence. Must have at least std::bidirectional_iterator_tag.
+     * @param end The ending of the sequence. Must have at least std::bidirectional_iterator_tag.
+     * @return A Take view object contains the reverse order of [begin end)
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
+    Take<std::reverse_iterator<Iterator>> reverse(const Iterator begin, const Iterator end) {
+#ifndef LZ_HAS_CONCEPTS
+        using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
+        static_assert(std::is_same<IterCat, std::bidirectional_iterator_tag>::value ||
+					  std::is_same<IterCat, std::random_access_iterator_tag>::value, 
+					  "the type of the iterator must be bidirectional or stronger");
+#endif // !Lz has concepts
+        return takeRange(std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
+    }
+    /**
+     * Returns a view object of which its iterators are reversed.
+     * @tparam Iterable Is automatically deduced.
+     * @param iterable The iterable. The iterable must have at least std::bidirectional_iterator_tag.
+     * @return A Take view object contains the reverse order of [begin end)
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
+    Take<std::reverse_iterator<detail::IterType<Iterable>>> reverse(Iterable&& iterable) {
+        return lz::reverse(std::begin(iterable), std::end(iterable)); // ADL std::reverse
+    }
+
+    /**
      * Returns an iterator that constructs type T from the given container. E.g. `lz::as<floats>(...begin(), ...end())` constructs
      * floating points from the given values in the container.
      * @tparam T The type to construct from the elements in the given container
@@ -199,12 +280,11 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
-    template<class T, LZ_CONCEPT_ITERATOR Iterator, class ValueType = detail::ValueTypeIterator<Iterator>>
-    auto as(const Iterator begin, const Iterator end) -> Map<Iterator, std::function<T(ValueType)>> {
-        static_assert(std::is_convertible<ValueType, T>::value, "the value type of the container is not convertible to T");
-        return mapRange(begin, end, static_cast<std::function<T(ValueType)>>([](const ValueType& v) {
-            return static_cast<T>(v);
-        }));
+    template<class T, LZ_CONCEPT_ITERATOR Iterator>
+    Map<Iterator, detail::MapFunctor<T>> as(const Iterator begin, const Iterator end) {
+        using ValueTypeIterator = detail::ValueTypeIterator<Iterator>;
+        static_assert(std::is_convertible<ValueTypeIterator, T>::value, "the value type of the container is not convertible to T");
+        return mapRange(begin, end, detail::MapFunctor<T>());
     }
 
     /**
@@ -215,10 +295,9 @@ namespace lz {
      * @return A map iterator that constructs T from each of the elements in the given container.
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
-    auto as(Iterable&& iterable) -> Map<Iterator, std::function<T(detail::ValueTypeIterator<Iterator>)>> {
+    Map<Iterator, detail::MapFunctor<T>> as(Iterable&& iterable) {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
-
 
     /**
      * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
@@ -228,6 +307,7 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
+    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
         return detail::stringReplaceImpl(string, oldString, newString, false);
     }
@@ -239,6 +319,7 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
+    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
         return detail::stringReplaceImpl(string, oldString, newString, true);
     }
@@ -278,7 +359,7 @@ namespace lz {
      * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container value is
      * passed to the `mapFunc`.
      * @param mapFunc The function that returns the (new) type.
-     * @param execPolicy TThe execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
+     * @param execution TThe execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
     template<class Execution = std::execution::sequenced_policy,class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
@@ -306,7 +387,7 @@ namespace lz {
 
         const detail::DifferenceType<Iterator> len = std::distance(begin, end);
         if (len == 0) {
-            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
+            throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
         }
 
         const detail::DifferenceType<Iterator> mid = len >> 1;
@@ -463,7 +544,7 @@ namespace lz {
      * @return The index of `val` or lz::npos of no such value exists.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
-    size_t indexOf(const Iterator begin, const Iterator end, const T& val, const Execution execution = std::execution::seq) {
+    std::size_t indexOf(const Iterator begin, const Iterator end, const T& val, const Execution execution = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         const Iterator pos = std::find(execution, begin, end, val);
@@ -481,7 +562,7 @@ namespace lz {
      * @return The index of `val` or lz::npos of no such value exists.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T>
-    size_t indexOf(const Iterable& iterable, const T& val, const Execution execution = std::execution::seq) {
+    std::size_t indexOf(const Iterable& iterable, const T& val, const Execution execution = std::execution::seq) {
         return indexOf(std::begin(iterable), std::end(iterable), val, execution);
     }
 
@@ -497,11 +578,11 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
-    size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
+    std::size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         const Iterator pos = std::find_if(execution, begin, end, predicate);
-        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
 
     /**
@@ -513,11 +594,11 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
-    size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
+    std::size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
         return indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
     }
-#else
-
+#else // ^^^ Lz has execution vvv !Lz has execution
+	
     /**
      * Gets the median of a sequence.
      * @tparam Iterator Is automatically deduced.
@@ -531,7 +612,7 @@ namespace lz {
     double median(const Iterator begin, const Iterator end, const Compare compare) {
         const detail::DifferenceType<Iterator> len = std::distance(begin, end);
         if (len == 0) {
-            throw std::invalid_argument(__LZ_FILE_LINE__ ": the length of the sequence cannot be 0");
+            throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
         }
 
         const detail::DifferenceType<Iterator> mid = len >> 1;
@@ -656,9 +737,9 @@ namespace lz {
      * @return The index of `val` or lz::npos of no such value exists.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
-    size_t indexOf(const Iterator begin, const Iterator end, const T& val) {
+    std::size_t indexOf(const Iterator begin, const Iterator end, const T& val) {
         const Iterator pos = std::find(begin, end, val);
-        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
 
     /**
@@ -670,7 +751,7 @@ namespace lz {
     * @return The index of `val` or lz::npos of no such value exists.
     */
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
-    size_t indexOf(const Iterable& iterable, const T& val) {
+    std::size_t indexOf(const Iterable& iterable, const T& val) {
         return indexOf(std::begin(iterable), std::end(iterable), val);
     }
 
@@ -684,9 +765,9 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
-    size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate) {
+    std::size_t indexOfIf(const Iterator begin, const Iterator end, const UnaryFunc predicate) {
         const Iterator pos = std::find_if(begin, end, predicate);
-        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
 
     /**
@@ -698,7 +779,7 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
-    size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
+    std::size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
         return indexOfIf(std::begin(iterable), std::end(iterable), predicate);
     }
 
@@ -721,7 +802,6 @@ namespace lz {
         return map(filterView, mapFunc);
     }
 
-
     /**
      * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
      * @tparam Iterable Is automatically deduced.
@@ -738,8 +818,8 @@ namespace lz {
     filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
-
+	
 #endif // End LZ_HAS_EXECUTION
-}
+} // End namespace lz
 
-#endif
+#endif // End LZ_FUNCTION_TOOLS_HPP

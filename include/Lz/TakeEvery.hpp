@@ -26,8 +26,9 @@ namespace lz {
          * @param begin The beginning of the sequence.
          * @param end The ending of the sequence.
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
+         * @param distance The distance between `begin` and `end`.
          */
-        TakeEvery(const Iterator begin, const Iterator end, const size_t offset, typename iterator::difference_type distance) :
+        TakeEvery(const Iterator begin, const Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
             _begin(begin, end, offset, distance),
             _end(end, end, offset, distance) {
         }
@@ -71,7 +72,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterator>
-    TakeEvery<Iterator> takeEveryRange(const Iterator begin, const Iterator end, const size_t offset, const size_t start = 0) {
+    TakeEvery<Iterator> takeEveryRange(const Iterator begin, const Iterator end, const std::size_t offset, const std::size_t start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset, std::distance(begin, end));
     }
 
@@ -87,7 +88,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<class Iterable>
-    TakeEvery<detail::IterType<Iterable>> takeEvery(Iterable&& iterable, const size_t offset, const size_t start = 0) {
+    TakeEvery<detail::IterType<Iterable>> takeEvery(Iterable&& iterable, const std::size_t offset, const std::size_t start = 0) {
         return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
     }
 

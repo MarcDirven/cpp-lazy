@@ -1,6 +1,8 @@
-#include <Lz/FunctionTools.hpp>
-#include <Lz/Range.hpp>
-#include <catch.hpp>
+#include "Lz/FunctionTools.hpp"
+#include "Lz/Range.hpp"
+
+
+#include "catch.hpp"
 
 
 TEST_CASE("Function tools") {
@@ -21,6 +23,18 @@ TEST_CASE("Function tools") {
         CHECK(median == Approx(3.3));
     }
 
+	SECTION("Sum to") {
+        CHECK(lz::sumTo(4) == 10);
+        CHECK(lz::sumTo(5, 10) == 45);
+        CHECK(lz::sumTo(4, 10) == 49);
+        
+        CHECK(lz::sumTo(-4) == -10);
+        CHECK(lz::sumTo(-4, 3) == -4);
+        CHECK(lz::sumTo(-4, -10) == -49);
+    	
+        CHECK(lz::sumTo(-10, -20) == -165);
+    }
+
     SECTION("Unlines") {
         std::vector<std::string> strings = {"hello", "world", "what's", "up"};
         auto unlines = lz::unlines(strings).toString();
@@ -29,17 +43,19 @@ TEST_CASE("Function tools") {
 
     SECTION("Lines") {
         std::string string = "aa\nbb\nbb";
-        auto lines = lz::lines(string).toVector();
+        auto lines = lz::lines<std::string>(string).toVector();
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
 
+#ifdef LZ_HAS_CXX_17
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
-        size_t totalSize = lz::transAccumulate(s, static_cast<size_t>(0), [](size_t i, const std::string& s) {
+        size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
             return i + s.size();
         });
         CHECK(totalSize == 11);
     }
+#endif
 
     SECTION("Pairwise") {
         auto x = lz::pairwise(ints).toVector();
@@ -81,7 +97,7 @@ TEST_CASE("Function tools") {
 
     SECTION("Position") {
         std::vector<char> c = {'a', 'b', 'c', 'd'};
-        size_t pos = lz::indexOf(c, 'b');
+        std::size_t pos = lz::indexOf(c, 'b');
         CHECK(pos == 1);
 
         pos = lz::indexOf(c, 'e');
@@ -103,24 +119,8 @@ TEST_CASE("Function tools") {
         std::string s = "123,d35dd";
         auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); },
                                [](const char c) { return static_cast<int>(c - '0'); });
-
-        CHECK(f.toVector() == std::vector<int>{1, 2, 3, 3, 5});
-    }
-
-    SECTION("Moving contents") {
-        std::vector<std::string> s = {"hello", "world", "what's", "up"};
-        auto filter = lz::filter(s, [](const std::string& s) { return s != "Dummy"; });
-        std::vector<std::string> newVec = std::move(filter).toVector();
-
-        CHECK(std::all_of(s.begin(), s.end(), [](const std::string& s) { return s.empty(); }));
-        CHECK(newVec == std::vector<std::string>{"hello", "world", "what's", "up"});
-
-        s = {"hello", "world", "what's", "up"};
-        auto newFilter = lz::filter(s, [](const std::string& s) { return s != "up"; });
-        s = std::move(newFilter).toVector();
-
-        CHECK(s.size() == 3);
-        CHECK(s == std::vector<std::string>{"hello", "world", "what's"});
+        auto expected = { 1, 2, 3, 3, 5 };
+        CHECK(std::equal(f.begin(), f.end(), expected.begin(), expected.end()));
     }
 
     SECTION("To string func") {
@@ -142,5 +142,10 @@ TEST_CASE("Function tools") {
         lz::strReplaceAll(myString, ".png", ".jpeg");
         CHECK(myString == "picture.jpeg.jpeg");
         CHECK(myString.length() == std::strlen("picture.jpeg.jpeg"));
+    }
+
+	SECTION("Reverse") {
+        std::string s = "hello";
+        CHECK(lz::reverse(s).toString() == "olleh");
     }
 }

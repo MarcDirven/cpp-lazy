@@ -26,7 +26,7 @@ namespace lz {
 
         template<class SubString, class String>
         class SplitIterator {
-            size_t _currentPos{}, _last{};
+            std::size_t _currentPos{}, _last{};
             mutable SubString _substring{};
             const SplitViewIteratorHelper<String>* _splitIteratorHelper{};
 
@@ -41,7 +41,7 @@ namespace lz {
             using difference_type = std::ptrdiff_t;
             using pointer = FakePointerProxy<reference>;
 
-            SplitIterator(const size_t startingPosition, const SplitViewIteratorHelper<String>* splitIteratorHelper) :
+            SplitIterator(const std::size_t startingPosition, const SplitViewIteratorHelper<String>* splitIteratorHelper) :
                 _currentPos(startingPosition),
                 _splitIteratorHelper(splitIteratorHelper) {
                 // Micro optimization, check if object is created from begin(), only then we want to search
@@ -76,8 +76,8 @@ namespace lz {
             }
 
             SplitIterator& operator++() {
-                const size_t delimLen = _splitIteratorHelper->delimiter.length();
-                const size_t stringLen = _splitIteratorHelper->string.length();
+                const std::size_t delimLen = _splitIteratorHelper->delimiter.length();
+                const std::size_t stringLen = _splitIteratorHelper->string.length();
 
                 if (_last == std::string::npos) {
                     _currentPos = stringLen;

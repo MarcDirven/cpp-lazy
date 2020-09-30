@@ -15,11 +15,11 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
     CHECK(*it == 1);
 
     SECTION("For-loop") {
-        constexpr size_t s = 32;
-        constexpr size_t es = 16;
+        constexpr std::size_t s = 32;
+        constexpr std::size_t es = 16;
 
-        std::array<int, s> largeArr = lz::range((int) s).toArray<s>();
-        std::array<int, es> toLargeExcept = lz::range((int) es).toArray<es>();
+        std::array<int, s> largeArr = lz::range(static_cast<int>(s)).toArray<s>();
+        std::array<int, es> toLargeExcept = lz::range(static_cast<int>(es)).toArray<es>();
 
         auto ex = lz::except(largeArr, toLargeExcept);
         for (int _ : ex) {

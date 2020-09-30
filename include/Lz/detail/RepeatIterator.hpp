@@ -16,7 +16,7 @@ namespace lz { namespace detail {
     template<class T>
     class RepeatIterator {
         const RepeatIteratorHelper<T>* _iterHelper = RepeatIterator<T>();
-        size_t _iterator{};
+        std::size_t _iterator{};
 
     public:
         using iterator_category = std::random_access_iterator_tag;
@@ -25,7 +25,7 @@ namespace lz { namespace detail {
         using pointer = T*;
         using reference = T&;
 
-        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const size_t start) :
+        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const std::size_t start) :
             _iterHelper{iteratorHelper},
             _iterator(start) {
         }

@@ -17,9 +17,9 @@ namespace lz {
     class TakeEveryIterator {
         Iterator _iterator{};
         Iterator _end{};
-        size_t _offset{};
-        size_t _current{};
-        size_t _distance{};
+        std::size_t _offset{};
+        std::size_t _current{};
+        std::size_t _distance{};
 
 
         friend class TakeEvery<Iterator>;
@@ -32,7 +32,7 @@ namespace lz {
         using reference = typename IterTraits::reference;
         using pointer = typename IterTraits::pointer;
 
-        TakeEveryIterator(const Iterator iterator, const Iterator end, const size_t offset, const size_t distance) :
+        TakeEveryIterator(const Iterator iterator, const Iterator end, const std::size_t offset, const std::size_t distance) :
             _iterator(iterator),
             _end(end),
             _offset(offset),
@@ -73,7 +73,7 @@ namespace lz {
         }
 
         TakeEveryIterator& operator+=(const difference_type offset) {
-            auto total = static_cast<size_t>(_offset * offset);
+            auto total = static_cast<std::size_t>(_offset * offset);
 
             if (_current + total >= _distance) {
                 _iterator = _end;

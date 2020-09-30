@@ -28,9 +28,9 @@ namespace lz {
          * @param amount The amount of times to execute. If `amount` is equal to `std::numeric_limits<size_t>::max()`
          * it is interpreted as a `while-true` loop.
          */
-        Generate(const GeneratorFunc& func, const size_t amount):
-            _begin(0, func, amount == std::numeric_limits<size_t>::max()),
-            _end(amount, func, amount == std::numeric_limits<size_t>::max())
+        Generate(const GeneratorFunc& func, const std::size_t amount):
+            _begin(0, func, amount == std::numeric_limits<std::size_t>::max()),
+            _end(amount, func, amount == std::numeric_limits<std::size_t>::max())
         {
         }
 
@@ -74,7 +74,7 @@ namespace lz {
      * @return A generator random access iterator view object.
      */
     template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-    Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
+    Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }
 

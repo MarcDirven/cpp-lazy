@@ -5,7 +5,7 @@
 
 
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
-    constexpr size_t size = 2;
+    constexpr std::size_t size = 2;
     std::array<int, size> array = {1, 2};
 
 
@@ -36,7 +36,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
 
 
 TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<int, size> array = {1, 2, 3};
     auto enumerate = lz::enumerate(array);
     auto begin = enumerate.begin();
@@ -92,7 +92,7 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
 }
 
 TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<int, size> array = {1, 2, 3};
     std::vector<int> vec = {1, 2, 3};
 

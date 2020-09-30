@@ -12,7 +12,7 @@ struct TestStruct {
 
 
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = {
         TestStruct{"FieldA", 1},
         TestStruct{"FieldB", 2},
@@ -31,7 +31,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     }
 
     SECTION("Should be by reference") {
-        size_t count = 0;
+        std::size_t count = 0;
     	std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t)->std::string& {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
@@ -46,7 +46,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
 
 TEST_CASE("Map binary operations", "[Map][Binary ops]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = {
         TestStruct{"FieldA", 1},
         TestStruct{"FieldB", 2},
@@ -106,7 +106,7 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
 }
 
 TEST_CASE("Map to containers", "[Map][To container]") {
-    constexpr size_t size = 3;
+    constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = {
         TestStruct{"FieldA", 1},
         TestStruct{"FieldB", 2},
@@ -119,7 +119,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     SECTION("To array") {
         auto stringArray = map.toArray<size>();
 
-        for (size_t i = 0; i < array.size(); i++) {
+        for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringArray[i] == array[i].testFieldStr);
         }
     }
@@ -127,7 +127,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     SECTION("To vector") {
         auto stringVector = map.toVector();
 
-        for (size_t i = 0; i < array.size(); i++) {
+        for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringVector[i] == array[i].testFieldStr);
         }
     }
@@ -136,7 +136,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
         auto stringList = map.to<std::list>();
         auto listIterator = stringList.begin();
 
-        for (size_t i = 0; i < array.size(); i++, ++listIterator) {
+        for (std::size_t i = 0; i < array.size(); i++, ++listIterator) {
             CHECK(*listIterator == array[i].testFieldStr);
         }
     }

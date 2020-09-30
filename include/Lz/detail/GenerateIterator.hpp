@@ -14,19 +14,19 @@ namespace lz { namespace detail {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = FunctionReturnType<GeneratorFunc>;
-        using difference_type = size_t;
+        using difference_type = std::size_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;
 
     private:
-        size_t _current{};
+        std::size_t _current{};
         GeneratorFunc _generator{};
         bool _isWhileTrueLoop{};
 
     public:
         GenerateIterator() = default;
 
-        GenerateIterator(const size_t start, const GeneratorFunc& generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
+        GenerateIterator(const std::size_t start, const GeneratorFunc& generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
             _current(start),
             _generator(generatorFunc),
             _isWhileTrueLoop{isWhileTrueLoop}

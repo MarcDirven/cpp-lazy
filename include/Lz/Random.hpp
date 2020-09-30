@@ -26,8 +26,9 @@ namespace lz {
          * @param max The maximum value of the random number (included).
          * @param amount The amount of random numbers to generate. If `std::numeric_limits<size_t>::max()` it is
          * interpreted as a `while-true` loop.
+         * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
          */
-        Random(const Arithmetic min, const Arithmetic max, const size_t amount, const bool isWhileTrueLoop) :
+        Random(const Arithmetic min, const Arithmetic max, const std::size_t amount, const bool isWhileTrueLoop) :
             _begin(min, max, 0, isWhileTrueLoop),
             _end(min, max, amount, isWhileTrueLoop) {
         }
@@ -68,9 +69,9 @@ namespace lz {
      */
     template<LZ_CONCEPT_ARITHMETIC Integral>
     static auto
-    random(const Integral min, const Integral max, const size_t amount = std::numeric_limits<size_t>::max()) {
+    random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
         static_assert(std::is_integral<Integral>::value, "template parameter is not arithmetic");
-        return Random<Integral, std::uniform_int_distribution<Integral>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
+        return Random<Integral, std::uniform_int_distribution<Integral>>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
     }
 
     /**
@@ -85,8 +86,8 @@ namespace lz {
      * @return A random view object that generates a sequence of random floats.
      */
     template<>
-    inline auto random(const float min, const float max, const size_t amount) {
-        return Random<float, std::uniform_real_distribution<float>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
+    inline auto random(const float min, const float max, const std::size_t amount) {
+        return Random<float, std::uniform_real_distribution<float>>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
     }
 
     /**
@@ -101,8 +102,8 @@ namespace lz {
      * @return A random view object that generates a sequence of random doubles.
      */
     template<>
-    inline auto random(const double min, const double max, const size_t amount) {
-        return Random<double, std::uniform_real_distribution<double>>(min, max, amount, amount == std::numeric_limits<size_t>::max());
+    inline auto random(const double min, const double max, const std::size_t amount) {
+        return Random<double, std::uniform_real_distribution<double>>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
     }
 
     /**
@@ -117,9 +118,9 @@ namespace lz {
      * @return A random view object that generates a sequence of random long doubles.
      */
     template<>
-    inline auto random(const long double min, const long double max, const size_t amount) {
+    inline auto random(const long double min, const long double max, const std::size_t amount) {
         return Random<long double, std::uniform_real_distribution<long double>>(min, max, amount,
-                                                                                amount == std::numeric_limits<size_t>::max());
+                                                                                amount == std::numeric_limits<std::size_t>::max());
     }
 
     // End of group

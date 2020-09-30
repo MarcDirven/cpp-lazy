@@ -11,150 +11,163 @@
 
 
 namespace lz { namespace detail {
-    template<class Tuple, size_t I, class = void>
-    struct PlusPlus {
-        void operator()(Tuple& iterators, const Tuple& end) const {
-            if (std::get<I>(iterators) != std::get<I>(end)) {
-                ++std::get<I>(iterators);
-            }
-            else {
-                PlusPlus<Tuple, I + 1>()(iterators, end);
-            }
-        }
-    };
-
-    template<class Tuple, size_t I>
-    struct PlusPlus<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
-        void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
-        }
-    };
-
-    template<class Tuple, size_t I, class = void>
-    struct NotEqual {
-        bool operator()(const Tuple& iterators, const Tuple& end) const {
-            if (std::get<I>(iterators) != std::get<I>(end)) {
-                return std::get<I>(iterators) != std::get<I>(end);
-            }
-            else {
-                return NotEqual<Tuple, I + 1>()(iterators, end);
-            }
-        }
-    };
-
-    template<class Tuple, size_t I>
-    struct NotEqual<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
-        bool operator()(const Tuple& iterators, const Tuple& end) const {
-            return std::get<I>(iterators) != std::get<I>(end);
-        }
-    };
-
-    template<class Tuple, size_t I, class = void>
-    struct Deref {
-        auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
-            if (std::get<I>(iterators) != std::get<I>(end)) {
-                return *std::get<I>(iterators);
-            }
-            else {
-                return Deref<Tuple, I + 1>()(iterators, end);
-            }
-        }
-    };
-
-    template<class Tuple, size_t I>
-    struct Deref<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
-        auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
-            return *std::get<I>(iterators);
-        }
-    };
-
-    template<class Tuple, size_t I>
-    struct MinusMinus {
-        void operator()(Tuple& iterators, Tuple& end) const {
-            if (std::get<I>(iterators) == std::get<I>(end)) {
-                --std::get<I>(iterators);
-            }
-            else {
-                MinusMinus<Tuple, I - 1>()(iterators, end);
-            }
-        }
-    };
-
-    template<class Tuple>
-    struct MinusMinus<Tuple, 0> {
-        void operator()(Tuple& iterators, Tuple&) const {
-            --std::get<0>(iterators);
-        }
-    };
-
-    template<class Tuple, size_t I>
-    struct MinIs {
-        template<class DifferenceType>
-        void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-            using TupleElement = typename std::tuple_element<I, Tuple>::type;
-
-            const TupleElement current = std::get<I>(iterators);
-            const TupleElement currentBegin = std::get<I>(begin);
-
-            // Current is begin, move on to next iterator
-            if (current == currentBegin) {
-                MinIs<Tuple, I - 1>()(iterators, begin, end, offset);
-            }
-            else {
-                auto distance = static_cast<DifferenceType>(std::distance(std::get<I>(begin), std::get<I>(end)));
-                if (distance <= offset) {
-                    std::get<I>(iterators) = std::get<I>(begin);
-                    MinIs<Tuple, I - 1>()(iterators, begin, end, distance == 0 ? 1 : offset - distance);
+    namespace {
+        template<class Tuple, std::size_t I, class = void>
+        struct PlusPlus {
+            void operator()(Tuple& iterators, const Tuple& end) const {
+                if (std::get<I>(iterators) != std::get<I>(end)) {
+                    ++std::get<I>(iterators);
                 }
                 else {
-                    std::get<I>(iterators) = std::prev(std::get<I>(iterators), offset);
+                    PlusPlus<Tuple, I + 1>()(iterators, end);
                 }
             }
-        }
-    };
+        };
 
-    template<class Tuple>
-    struct MinIs<Tuple, 0> {
-        template<class DifferenceType>
-        void operator()(Tuple& iterators, const Tuple& begin, const Tuple& /*end*/, const DifferenceType offset) const {
-            using TupleElement = typename std::tuple_element<0, Tuple>::type;
 
-            TupleElement& current = std::get<0>(iterators);
-            const TupleElement currentBegin = std::get<0>(begin);
-
-            // first iterator is at indexOf begin, and distance bigger than 0
-            if (std::distance(currentBegin, current) < offset) {
-                throw std::out_of_range(__LZ_FILE_LINE__ ": cannot access elements before begin");
+        template<class Tuple, std::size_t I>
+        struct PlusPlus<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
+            void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
             }
-            current = std::prev(current, offset);
-        }
-    };
+        };
 
-    template<class Tuple, size_t I, class = void>
-    struct PlusIs {
-        template<class DifferenceType>
-        void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
-            using TupleElement = typename std::tuple_element<I, Tuple>::type;
 
-            TupleElement& currentIterator = std::get<I>(iterators);
-            const TupleElement currentEnd = std::get<I>(end);
-            auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
-
-            if (distance > offset) {
-                currentIterator = std::next(currentIterator, offset);
+        template<class Tuple, std::size_t I, class = void>
+        struct NotEqual {
+            bool operator()(const Tuple& iterators, const Tuple& end) const {
+                if (std::get<I>(iterators) != std::get<I>(end)) {
+                    return std::get<I>(iterators) != std::get<I>(end);
+                }
+                else {
+                    return NotEqual<Tuple, I + 1>()(iterators, end);
+                }
             }
-            else {
-                currentIterator = currentEnd;
-                PlusIs<Tuple, I + 1>()(iterators, end, offset - distance);
-            }
-        }
-    };
+        };
 
-    template<class Tuple, size_t I>
-    struct PlusIs<Tuple, I, typename std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
-        template<class DifferenceType>
-        void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
-        }
-    };
+
+        template<class Tuple, std::size_t I>
+        struct NotEqual<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
+            bool operator()(const Tuple& iterators, const Tuple& end) const {
+                return std::get<I>(iterators) != std::get<I>(end);
+            }
+        };
+
+
+        template<class Tuple, std::size_t I, class = void>
+        struct Deref {
+            auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
+                if (std::get<I>(iterators) != std::get<I>(end)) {
+                    return *std::get<I>(iterators);
+                }
+                else {
+                    return Deref<Tuple, I + 1>()(iterators, end);
+                }
+            }
+        };
+
+
+        template<class Tuple, std::size_t I>
+        struct Deref<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value - 1>> {
+            auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
+                return *std::get<I>(iterators);
+            }
+        };
+
+
+        template<class Tuple, std::size_t I>
+        struct MinusMinus {
+            void operator()(Tuple& iterators, Tuple& end) const {
+                if (std::get<I>(iterators) == std::get<I>(end)) {
+                    --std::get<I>(iterators);
+                }
+                else {
+                    MinusMinus<Tuple, I - 1>()(iterators, end);
+                }
+            }
+        };
+
+
+        template<class Tuple>
+        struct MinusMinus<Tuple, 0> {
+            void operator()(Tuple& iterators, Tuple&) const {
+                --std::get<0>(iterators);
+            }
+        };
+
+
+        template<class Tuple, std::size_t I>
+        struct MinIs {
+            template<class DifferenceType>
+            void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
+                using TupleElement = std::tuple_element_t<I, Tuple>;
+
+                const TupleElement current = std::get<I>(iterators);
+                const TupleElement currentBegin = std::get<I>(begin);
+
+                // Current is begin, move on to next iterator
+                if (current == currentBegin) {
+                    MinIs<Tuple, I - 1>()(iterators, begin, end, offset);
+                }
+                else {
+                    auto distance = static_cast<DifferenceType>(std::distance(std::get<I>(begin), std::get<I>(end)));
+                    if (distance <= offset) {
+                        std::get<I>(iterators) = std::get<I>(begin);
+                        MinIs<Tuple, I - 1>()(iterators, begin, end, distance == 0 ? 1 : offset - distance);
+                    }
+                    else {
+                        std::get<I>(iterators) = std::prev(std::get<I>(iterators), offset);
+                    }
+                }
+            }
+        };
+
+
+        template<class Tuple>
+        struct MinIs<Tuple, 0> {
+            template<class DifferenceType>
+            void operator()(Tuple& iterators, const Tuple& begin, const Tuple& /*end*/, const DifferenceType offset) const {
+                using TupleElement = std::tuple_element_t<0, Tuple>;
+
+                TupleElement& current = std::get<0>(iterators);
+                const TupleElement currentBegin = std::get<0>(begin);
+
+                // first iterator is at indexOf begin, and distance bigger than 0
+                if (std::distance(currentBegin, current) < offset) {
+                    throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
+                }
+                current = std::prev(current, offset);
+            }
+        };
+
+
+        template<class Tuple, std::size_t I, class = void>
+        struct PlusIs {
+            template<class DifferenceType>
+            void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
+                using TupleElement = std::tuple_element_t<I, Tuple>;
+
+                TupleElement& currentIterator = std::get<I>(iterators);
+                const TupleElement currentEnd = std::get<I>(end);
+                auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
+
+                if (distance > offset) {
+                    currentIterator = std::next(currentIterator, offset);
+                }
+                else {
+                    currentIterator = currentEnd;
+                    PlusIs<Tuple, I + 1>()(iterators, end, offset - distance);
+                }
+            }
+        };
+
+
+        template<class Tuple, std::size_t I>
+        struct PlusIs<Tuple, I, std::enable_if_t<I == std::tuple_size<std::decay_t<Tuple>>::value>> {
+            template<class DifferenceType>
+            void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
+            }
+        };
+    }
 
     // Begin ConcatIterator
     template<LZ_CONCEPT_ITERATOR... Iterators>
@@ -164,7 +177,7 @@ namespace lz { namespace detail {
         IterTuple _begin{};
         IterTuple _end{};
 
-        using FirstTupleIterator = std::iterator_traits<std::decay_t<decltype(std::get<0>(std::declval<IterTuple>()))>>;
+        using FirstTupleIterator = std::iterator_traits<std::tuple_element_t<0, decltype(_iterators)>>;
 
     public:
         using value_type = typename FirstTupleIterator::value_type;
@@ -174,7 +187,7 @@ namespace lz { namespace detail {
         using iterator_category = std::random_access_iterator_tag;
 
     private:
-        template<size_t... I>
+        template<std::size_t... I>
         difference_type minus(std::index_sequence<I...>, const ConcatenateIterator& other) const {
 	        const std::initializer_list<difference_type> totals = {
                 static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
@@ -195,7 +208,7 @@ namespace lz { namespace detail {
         }
 
         pointer operator->() const {
-            return &*this;
+            return &(**this);
         }
 
         ConcatenateIterator& operator++() {

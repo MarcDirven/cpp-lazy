@@ -21,7 +21,7 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
     }
 
     SECTION("Length should be correct") {
-        auto dist = static_cast<size_t>(std::distance(concat.begin(), concat.end()));
+        auto dist = static_cast<std::size_t>(std::distance(concat.begin(), concat.end()));
         CHECK(dist == a.size() + b.size());
     }
 }
@@ -64,8 +64,8 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(static_cast<size_t>(concat.end() - begin) == a.size() + b.size());
-        CHECK(static_cast<size_t>(std::distance(concat.begin(), concat.end())) == a.size() + b.size());
+        CHECK(static_cast<std::size_t>(concat.end() - begin) == a.size() + b.size());
+        CHECK(static_cast<std::size_t>(std::distance(concat.begin(), concat.end())) == a.size() + b.size());
     }
 
     SECTION("Operator[]()") {
@@ -97,7 +97,7 @@ TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
     auto concat = lz::concat(v1, v2);
 
     SECTION("To array") {
-        constexpr size_t size = 3 + 3;
+        constexpr std::size_t size = 3 + 3;
         CHECK(concat.toArray<size>() == std::array<int, size>{1, 2, 3, 4, 5, 6});
     }
 

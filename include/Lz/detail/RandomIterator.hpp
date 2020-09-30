@@ -15,17 +15,17 @@ namespace lz { namespace detail {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Arithmetic;
-        using difference_type = size_t;
+        using difference_type = std::size_t;
         using pointer = FakePointerProxy<Arithmetic>;
         using reference = value_type;
 
     private:
-        size_t _current{};
+        std::size_t _current{};
         Arithmetic _min{}, _max{};
         bool _isWhileTrueLoop{};
 
     public:
-        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const size_t current, const bool isWhileTrueLoop) :
+        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::size_t current, const bool isWhileTrueLoop) :
             _current(current),
             _min(min),
             _max(max),
