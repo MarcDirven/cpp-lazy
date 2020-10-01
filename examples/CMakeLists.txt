@@ -4,7 +4,7 @@ project(examples)
 
 function(create_example_project name)
     add_executable(IteratorExample${name} ${name}.cpp)
-    target_link_libraries(IteratorExample${name} PUBLIC cpp-lazy)
+    target_link_libraries(IteratorExample${name} cpp-lazy::cpp-lazy)
     set_property(TARGET IteratorExample${name} PROPERTY CXX_STANDARD 14)
 endfunction()
 

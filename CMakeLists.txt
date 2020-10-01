@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13)
 
 project(cpp-lazy
         VERSION 2.0.0
@@ -30,23 +30,27 @@ target_include_directories(
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-# Add fmt
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
-
     # Use a boolean for the benchmarks for now
     set(INCLUDE_BENCHMARKS FALSE)
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)
         add_subdirectory(bench)
-    endif()
-
-endif()
+    endif ()
+endif ()
 
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_14)
 
 if (CPP_LAZY_INSTALL_LIBRARY)
+
+#    install(TARGETS fmt-header-only
+#            EXPORT ${PROJECT_NAME}_Targets
+##            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+ #           LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+ #           RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
     install(TARGETS ${PROJECT_NAME} fmt-header-only
             EXPORT ${PROJECT_NAME}_Targets
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

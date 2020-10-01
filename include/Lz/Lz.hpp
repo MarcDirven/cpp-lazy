@@ -7,17 +7,20 @@
 #include "Lz/Concatenate.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
-#include "Lz/Filter.hpp"
 #include "Lz/Generate.hpp"
-#include "Lz/Join.hpp"
-#include "Lz/Map.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
 #include "Lz/Repeat.hpp"
-#include "Lz/StringSplitter.hpp"
-#include "Lz/Take.hpp"
 #include "Lz/TakeEvery.hpp"
 #include "Lz/Unique.hpp"
-#include "Lz/Zip.hpp"
+
+#include "Lz/FunctionTools.hpp"
+// Function tools includes:
+// StringSplitter.hpp
+// Join.hpp
+// Zip.hpp
+// Map.hpp
+// Filter.hpp
+// Take.hpp
 
 #endif
