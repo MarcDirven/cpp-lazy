@@ -1,22 +1,36 @@
-cmake_minimum_required(VERSION 3.12.4)
+cmake_minimum_required(VERSION 3.12)
 
-project(cpp-lazy VERSION 2.0.0)
-set(CMAKE_CXX_STANDARD 20)
+project(cpp-lazy
+        VERSION 2.0.0
+        DESCRIPTION
+        "A fast C++14/17/20 header only library for lazy evaluation and function tools"
+        HOMEPAGE_URL "https://github.com/MarcDirven/cpp-lazy"
+        LANGUAGES CXX)
 
-
-add_library(cpp-lazy INTERFACE)
-add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 include(GNUInstallDirs)
 
-target_include_directories(cpp-lazy INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+add_subdirectory(extern/fmt)
+target_link_libraries(${PROJECT_NAME} INTERFACE fmt::fmt-header-only)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(IS_TOPLEVEL_PROJECT TRUE)
+else()
+    set(IS_TOPLEVEL_PROJECT FALSE)
+endif()
+
+option(CPP_LAZY_INSTALL_LIBRARY
+        "Enable installing of cpp-lazy library"
+        ${IS_TOPLEVEL_PROJECT})
+
+target_include_directories(
+        ${PROJECT_NAME}
+        INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Add fmt
-add_subdirectory(extern/fmt)
-target_link_libraries(cpp-lazy INTERFACE fmt::fmt-header-only)
-
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
@@ -30,32 +44,41 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
 endif()
 
-install(TARGETS cpp-lazy fmt-header-only
-        EXPORT cpp-lazy_Targets
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_14)
 
-include(CMakePackageConfigHelpers)
+if (CPP_LAZY_INSTALL_LIBRARY)
+    install(TARGETS ${PROJECT_NAME} fmt-header-only
+            EXPORT ${PROJECT_NAME}_Targets
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-write_basic_package_version_file(cpp-lazyConfigVersion.cmake
-        VERSION ${PROJECT_VERSION}
-        COMPATIBILITY SameMajorVersion)
+    include(CMakePackageConfigHelpers)
 
-configure_package_config_file(
-        "${PROJECT_SOURCE_DIR}/cmake/cpp-lazyConfig.cmake.in"
-        "${PROJECT_BINARY_DIR}/cpp-lazyConfig.cmake"
-        INSTALL_DESTINATION
-        "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+    write_basic_package_version_file(
+            "${PROJECT_NAME}ConfigVersion.cmake"
+            VERSION ${PROJECT_VERSION}
+            COMPATIBILITY SameMajorVersion)
 
-install(EXPORT cpp-lazy_Targets
-        FILE cpp-lazyTargets.cmake
-        NAMESPACE cpp-lazy::
-        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+    configure_package_config_file(
+            "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION
+            "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
 
-install(FILES
-        "${PROJECT_BINARY_DIR}/cpp-lazyConfig.cmake"
-        "${PROJECT_BINARY_DIR}/cpp-lazyConfigVersion.cmake"
-        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+    install(
+            EXPORT ${PROJECT_NAME}_Targets
+            FILE ${PROJECT_NAME}Targets.cmake
+            NAMESPACE ${PROJECT_NAME}::
+            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
 
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/cpp-lazy" DESTINATION include)
+    install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
+
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/Lz"
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
+
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.md")
+
+include(CPack)
