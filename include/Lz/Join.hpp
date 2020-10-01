@@ -14,16 +14,9 @@ namespace lz {
         using iterator = detail::JoinIterator<Iterator>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
-
     private:
         iterator _begin{};
         iterator _end{};
-
-        void print(std::ostream& o) const {
-            using Base = detail::BasicIteratorView<iterator>;
-            // The join iterator already has a delimiter, so when printing, skip the delimiter
-            o << Base::toString("");
-        }
 
     public:
         /**
@@ -55,6 +48,17 @@ namespace lz {
          */
         iterator end() const override {
             return _end;
+        }
+
+        /**
+         * Because a join iterator already has a delimiter, an additional overload is necessary, where the delimiter is defaulted to blank.
+         * @param o The output stream.
+         * @param it The Join object to print.
+         * @return The output stream.
+         */
+        friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& it) {
+            // Join already has a delimiter, default to blank string
+            return o << it.toString();
         }
     };
 
