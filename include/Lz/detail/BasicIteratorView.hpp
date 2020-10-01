@@ -16,6 +16,8 @@
 
 
 namespace lz { namespace detail {
+
+
     // ReSharper disable once CppUnnamedNamespaceInHeaderFile
     namespace {
         template<typename T>
@@ -36,6 +38,7 @@ namespace lz { namespace detail {
 
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
+
 
         template<class T>
         constexpr bool HasReserveV = HasReserve<T>::value;
@@ -93,6 +96,7 @@ namespace lz { namespace detail {
         }
 
 #else
+
         template<class Container, class... Args>
         Container copyContainer(Args&& ... args) const {
             const Iterator b = begin();
@@ -102,6 +106,7 @@ namespace lz { namespace detail {
             std::copy(b, e, std::inserter(cont, cont.begin()));
             return cont;
         }
+
 #endif
 
     public:
@@ -128,6 +133,7 @@ namespace lz { namespace detail {
         }
 
 #else
+
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
             verifyRange<N>();
@@ -135,11 +141,8 @@ namespace lz { namespace detail {
             std::copy(begin(), end(), array.begin());
             return array;
         }
-#endif
 
-        void print(std::ostream& o) const {
-            o << toString(" ");
-        }
+#endif
 
     public:
         virtual Iterator begin() const = 0;
@@ -258,6 +261,7 @@ namespace lz { namespace detail {
         }
 
 #else
+
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
          * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
@@ -332,6 +336,7 @@ namespace lz { namespace detail {
 
             return string;
         }
+
 #endif
 
         /**
@@ -403,8 +408,8 @@ namespace lz { namespace detail {
          * @return The stream object by reference.
          */
         friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
-            return o << it.toString();
+            return o << it.toString(" ");
         }
     };
-}}
+}} // Namespace lz::detail
 #endif
