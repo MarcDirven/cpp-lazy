@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 
 project(cpp-lazy
         VERSION 2.0.0
@@ -45,13 +45,13 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_14)
 
 if (CPP_LAZY_INSTALL_LIBRARY)
 
-#    install(TARGETS fmt-header-only
-#            EXPORT ${PROJECT_NAME}_Targets
-##            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
- #           LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
- #           RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    install(TARGETS fmt-header-only
+            EXPORT ${PROJECT_NAME}_Targets
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-    install(TARGETS ${PROJECT_NAME} fmt-header-only
+    install(TARGETS ${PROJECT_NAME}
             EXPORT ${PROJECT_NAME}_Targets
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
