@@ -1,64 +1,17 @@
 cmake_minimum_required(VERSION 3.12.4)
 
-project(cpp-lazy)
+project(cpp-lazy VERSION 2.0.0)
 set(CMAKE_CXX_STANDARD 20)
 
-set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(LZ_HEADERS ${INCLUDE}/Lz)
-set(LZ_DETAIL_HEADERS ${INCLUDE}/Lz/detail)
-
-set(DETAIL_HEADER_FILES
-        ${LZ_DETAIL_HEADERS}/AffirmIterator.hpp
-        ${LZ_DETAIL_HEADERS}/BasicIteratorView.hpp
-        ${LZ_DETAIL_HEADERS}/ConcatenateIterator.hpp
-        ${LZ_DETAIL_HEADERS}/EnumerateIterator.hpp
-        ${LZ_DETAIL_HEADERS}/ExceptIterator.hpp
-        ${LZ_DETAIL_HEADERS}/FilterIterator.hpp
-        ${LZ_DETAIL_HEADERS}/GenerateIterator.hpp
-        ${LZ_DETAIL_HEADERS}/JoinIterator.hpp
-        ${LZ_DETAIL_HEADERS}/LzTools.hpp
-        ${LZ_DETAIL_HEADERS}/MapIterator.hpp
-        ${LZ_DETAIL_HEADERS}/RandomIterator.hpp
-        ${LZ_DETAIL_HEADERS}/RangeIterator.hpp
-        ${LZ_DETAIL_HEADERS}/RepeatIterator.hpp
-        ${LZ_DETAIL_HEADERS}/SplitIterator.hpp
-        ${LZ_DETAIL_HEADERS}/TakeEveryIterator.hpp
-        ${LZ_DETAIL_HEADERS}/UniqueIterator.hpp
-        ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
-        )
-
-set(HEADER_FILES
-        ${INCLUDE}/Lz.hpp
-        ${LZ_HEADERS}/Affirm.hpp
-        ${LZ_HEADERS}/Concatenate.hpp
-        ${LZ_HEADERS}/Enumerate.hpp
-        ${LZ_HEADERS}/Except.hpp
-        ${LZ_HEADERS}/Filter.hpp
-        ${LZ_HEADERS}/FunctionTools.hpp
-        ${LZ_HEADERS}/Generate.hpp
-        ${LZ_HEADERS}/Join.hpp
-        ${LZ_HEADERS}/Map.hpp
-        ${LZ_HEADERS}/Random.hpp
-        ${LZ_HEADERS}/Range.hpp
-        ${LZ_HEADERS}/Repeat.hpp
-        ${LZ_HEADERS}/StringSplitter.hpp
-        ${LZ_HEADERS}/Take.hpp
-        ${LZ_HEADERS}/TakeEvery.hpp
-        ${LZ_HEADERS}/Unique.hpp
-        ${LZ_HEADERS}/Zip.hpp
-        )
 
 add_library(cpp-lazy INTERFACE)
+add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
-# Add headers and helper headers
-target_sources(cpp-lazy INTERFACE
-        ${HEADER_FILES}
-        ${DETAIL_HEADER_FILES}
-        )
+include(GNUInstallDirs)
 
 target_include_directories(cpp-lazy INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/include
-        )
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # Add fmt
 add_subdirectory(extern/fmt)
@@ -76,3 +29,33 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     endif()
 
 endif()
+
+install(TARGETS cpp-lazy fmt-header-only
+        EXPORT cpp-lazy_Targets
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(cpp-lazyConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion)
+
+configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/cmake/cpp-lazyConfig.cmake.in"
+        "${PROJECT_BINARY_DIR}/cpp-lazyConfig.cmake"
+        INSTALL_DESTINATION
+        "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+
+install(EXPORT cpp-lazy_Targets
+        FILE cpp-lazyTargets.cmake
+        NAMESPACE cpp-lazy::
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+
+install(FILES
+        "${PROJECT_BINARY_DIR}/cpp-lazyConfig.cmake"
+        "${PROJECT_BINARY_DIR}/cpp-lazyConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/cpp-lazy/cmake")
+
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/cpp-lazy" DESTINATION include)

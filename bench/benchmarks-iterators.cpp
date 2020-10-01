@@ -2,7 +2,7 @@
 #include <utility>
 #include <sstream>
 
-#include <Lz.hpp>
+#include <Lz/Lz.hpp>
 
 
 constexpr static size_t SizePolicy = 32;
