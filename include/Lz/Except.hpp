@@ -44,10 +44,10 @@ namespace lz {
 #ifdef LZ_HAS_EXECUTION
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
                const Execution execPolicy) :
-            _iteratorHelper{toExceptBegin, toExceptEnd, end, execPolicy, false},
+            _iteratorHelper(toExceptBegin, toExceptEnd, end, execPolicy, false),
 #else
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
-                    _iteratorHelper{toExceptBegin, toExceptEnd, end, false},
+                    _iteratorHelper(toExceptBegin, toExceptEnd, end, false),
 #endif
             _begin(begin, end, &_iteratorHelper),
             _end(end, end, &_iteratorHelper) {}

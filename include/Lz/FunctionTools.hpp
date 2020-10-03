@@ -15,9 +15,9 @@
 #include "Take.hpp"
 
 #ifdef LZ_HAS_CXX17
-  #define LZ_INLINE_VAR inline
+#define LZ_INLINE_VAR inline
 #else // ^^^ inline var vvv !inline var
-  #define LZ_INLINE_VAR
+#define LZ_INLINE_VAR
 #endif // lz has cxx17
 
 #include <cassert>
@@ -54,11 +54,11 @@ namespace lz {
             return true;
         }
 
-    	template<class T>
-        struct MapFunctor {
+        template<class To>
+        struct ConvertFn {
             template<class From>
-            T operator()(const From& f) const {
-                return static_cast<T>(f);
+            To operator()(const From& f) const {
+                return static_cast<To>(f);
             }
         };
     }
@@ -94,12 +94,12 @@ namespace lz {
     }
 
     /**
-	  * Returns a StringSplitter iterator, that splits the string on `'\n'`.
-	  * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
-	  * @tparam String The string type. `std::string` is assumed but can be specified.
-	  * @param string The string to split on.
-	  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
-	  */
+      * Returns a StringSplitter iterator, that splits the string on `'\n'`.
+      * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or std::string_view.
+      * @tparam String The string type. `std::string` is assumed but can be specified.
+      * @param string The string to split on.
+      * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
+      */
 #ifdef LZ_HAS_STRING_VIEW
     template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
@@ -109,31 +109,31 @@ namespace lz {
         return split<SubString, String>(string, "\n");
     }
 
-	/**
-	 * Sums all the values from [from, upToAndIncluding]
-	 * @tparam T An integral value.
-	 * @param from The start to sum from
-	 * @param upToAndIncluding The end of the sum
-	 * @return The result of the sum from [from, upToAndIncluding]
-	 */
+    /**
+     * Sums all the values from [from, upToAndIncluding]
+     * @tparam T An integral value.
+     * @param from The start to sum from
+     * @param upToAndIncluding The end of the sum
+     * @return The result of the sum from [from, upToAndIncluding]
+     */
     template<class T>
     T sumTo(const T from, const T upToAndIncluding) {
-        static_assert(std::is_integral<T>::value, "T must be integral type");
-    	
+        static_assert(std::is_integral<T>::value, "To must be integral type");
+
         const T fromAbs = std::abs(from);
         const T toAbs = std::abs(upToAndIncluding);
         const T error = ((fromAbs - 1) * (fromAbs)) / 2;
         const T sum = (toAbs * (toAbs + 1)) / 2;
 
-    	if (from < 0) {
-    		if (upToAndIncluding < 0) {
+        if (from < 0) {
+            if (upToAndIncluding < 0) {
                 return error - sum;
-    		}
+            }
             return -(error + fromAbs - sum);
-    	}
-    	if (upToAndIncluding < 0) {
+        }
+        if (upToAndIncluding < 0) {
             return error - sum;
-    	}
+        }
         assert(from < upToAndIncluding && "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
         return sum - error;
     }
@@ -218,7 +218,7 @@ namespace lz {
 #endif // End LZ_HAS_CXX17
 
     /**
-     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
@@ -234,7 +234,7 @@ namespace lz {
     }
 
     /**
-     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
      * @tparam Iterable Is automatically deduced.
      * @param iterable A container/iterable.
      * @return A zip iterator that accesses two adjacent elements of one container.
@@ -256,10 +256,11 @@ namespace lz {
 #ifndef LZ_HAS_CONCEPTS
         using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
         static_assert(std::is_same<IterCat, std::bidirectional_iterator_tag>::value ||
-					  std::is_same<IterCat, std::random_access_iterator_tag>::value, 
-					  "the type of the iterator must be bidirectional or stronger");
+            std::is_same<IterCat, std::random_access_iterator_tag>::value,
+            "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
-        return takeRange(std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
+        using ReverseIterator = std::reverse_iterator<Iterator>;
+        return takeRange(ReverseIterator(end), ReverseIterator(begin));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -273,30 +274,30 @@ namespace lz {
     }
 
     /**
-     * Returns an iterator that constructs type T from the given container. E.g. `lz::as<floats>(...begin(), ...end())` constructs
+     * Returns an iterator that constructs type To from the given container. E.g. `lz::as<floats>(...begin(), ...end())` constructs
      * floating points from the given values in the container.
      * @tparam T The type to construct from the elements in the given container
      * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
-     * @return A map iterator that constructs T from each of the elements in the given container.
+     * @return A map iterator that constructs To from each of the elements in the given container.
      */
     template<class T, LZ_CONCEPT_ITERATOR Iterator>
-    Map<Iterator, detail::MapFunctor<T>> as(const Iterator begin, const Iterator end) {
+    Map<Iterator, detail::ConvertFn<T>> as(const Iterator begin, const Iterator end) {
         using ValueTypeIterator = detail::ValueTypeIterator<Iterator>;
-        static_assert(std::is_convertible<ValueTypeIterator, T>::value, "the value type of the container is not convertible to T");
-        return mapRange(begin, end, detail::MapFunctor<T>());
+        static_assert(std::is_convertible<ValueTypeIterator, T>::value, "the value type of the container is not convertible to To");
+        return mapRange(begin, end, detail::ConvertFn<T>());
     }
 
     /**
-     * Returns an iterator that constructs type T from the given container. E.g. `lz::as<floats>(container)` constructs
+     * Returns an iterator that constructs type To from the given container. E.g. `lz::as<floats>(container)` constructs
      * floating points from the given values in the container.
      * @tparam T The type to construct from the elements in the given container
      * @tparam Iterable A container/iterable.
-     * @return A map iterator that constructs T from each of the elements in the given container.
+     * @return A map iterator that constructs To from each of the elements in the given container.
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
-    Map<Iterator, detail::MapFunctor<T>> as(Iterable&& iterable) {
+    Map<Iterator, detail::ConvertFn<T>> as(Iterable&& iterable) {
         return as<T>(std::begin(iterable), std::end(iterable));
     }
 
@@ -308,7 +309,7 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
-    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
+     // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
         return detail::stringReplaceImpl(string, oldString, newString, false);
     }
@@ -320,7 +321,7 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
-    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
+     // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
         return detail::stringReplaceImpl(string, oldString, newString, true);
     }
@@ -342,8 +343,8 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<detail::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
-    filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
-              const Execution execPolicy = std::execution::seq) {
+        filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+            const Execution execPolicy = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc, execPolicy);
@@ -363,10 +364,10 @@ namespace lz {
      * @param execution TThe execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
-    template<class Execution = std::execution::sequenced_policy,class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
+    template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<detail::FilterIterator<Execution, detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-    filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
-              const Execution execution = std::execution::seq) {
+        filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+            const Execution execution = std::execution::seq) {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
     }
 
@@ -451,7 +452,7 @@ namespace lz {
      * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterator Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
@@ -459,10 +460,10 @@ namespace lz {
      * @param execution Uses the execution to perform the find.
      * @return Either `toFind` or `defaultValue`.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T,
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class To,
         class ValueType = detail::ValueTypeIterator<Iterator>>
-    ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, T&& defaultValue,
-                            const Execution execution = std::execution::seq) {
+        ValueType findOrDefault(const Iterator begin, const Iterator end, ValueType&& toFind, To&& defaultValue,
+            const Execution execution = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         return std::find(execution, begin, end, toFind) == end ? defaultValue : toFind;
@@ -472,17 +473,17 @@ namespace lz {
      * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterable Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @param iterable The iterable to search.
      * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
      * @param defaultValue The value to return if `toFind` is not found.
      * @param execution Uses the execution to perform the find.
      * @return Either `toFind` or `defaultValue`.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T,
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class To,
         class ValueType = detail::ValueTypeIterable<Iterable>>
-    ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue,
-                            const Execution execution = std::execution::seq) {
+        ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, To&& defaultValue,
+            const Execution execution = std::execution::seq) {
         return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
@@ -491,7 +492,7 @@ namespace lz {
      * value is returned. If not, `defaultValue` is returned.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterator Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @tparam UnaryPredicate Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
@@ -501,10 +502,10 @@ namespace lz {
      * @param execution Uses the execution to perform the find.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate,
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class To, class UnaryPredicate,
         class ValueType = detail::ValueTypeIterator<Iterator>>
-    ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, T&& defaultValue,
-                              const Execution execution) {
+        ValueType findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate, To&& defaultValue,
+            const Execution execution) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         const Iterator pos = std::find_if(execution, begin, end, predicate);
@@ -517,7 +518,7 @@ namespace lz {
      * value is returned. If not, `defaultValue` is returned.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterable Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @tparam UnaryPredicate Is automatically deduced.
      * @param iterable The sequence to search.
      * @param predicate A function with one argument that returns a bool for its corresponding value type of the iterator.
@@ -526,10 +527,10 @@ namespace lz {
      * @param execution Uses the execution to perform the find.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate,
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class To, class UnaryPredicate,
         class ValueType = detail::ValueTypeIterable<Iterable>>
-    ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
-                              const Execution execution = std::execution::seq) {
+        ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, To&& defaultValue,
+            const Execution execution = std::execution::seq) {
         return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
 
@@ -537,15 +538,15 @@ namespace lz {
      * Searches [begin, end) for val, and returns its corresponding index, or lz::npos if no such value exists.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterator Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param val The value to search.
      * @param execution Uses the execution to perform the find.
      * @return The index of `val` or lz::npos of no such value exists.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
-    std::size_t indexOf(const Iterator begin, const Iterator end, const T& val, const Execution execution = std::execution::seq) {
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class To>
+    std::size_t indexOf(const Iterator begin, const Iterator end, const To& val, const Execution execution = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         const Iterator pos = std::find(execution, begin, end, val);
@@ -556,14 +557,14 @@ namespace lz {
      * Searches `iterable` for val, and returns its corresponding index, or lz::npos if no such value exists.
      * @tparam Execution Is automatically deduced.
      * @tparam Iterable Is automatically deduced.
-     * @tparam T Is automatically deduced.
+     * @tparam To Is automatically deduced.
      * @param iterable The iterable to search.
      * @param val The value to search.
      * @param execution Uses the execution to perform the find.
      * @return The index of `val` or lz::npos of no such value exists.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T>
-    std::size_t indexOf(const Iterable& iterable, const T& val, const Execution execution = std::execution::seq) {
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class To>
+    std::size_t indexOf(const Iterable& iterable, const To& val, const Execution execution = std::execution::seq) {
         return indexOf(std::begin(iterable), std::end(iterable), val, execution);
     }
 
@@ -599,7 +600,7 @@ namespace lz {
         return indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
     }
 #else // ^^^ Lz has execution vvv !Lz has execution
-	
+
     /**
      * Gets the median of a sequence.
      * @tparam Iterator Is automatically deduced.
@@ -798,7 +799,7 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<detail::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>
-    filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
+        filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc);
         return map(filterView, mapFunc);
     }
@@ -816,10 +817,10 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<detail::FilterIterator<detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-    filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
+        filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
-	
+
 #endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 

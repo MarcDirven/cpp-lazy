@@ -11,6 +11,13 @@ namespace lz { namespace detail {
     struct RepeatIteratorHelper {
         mutable T toRepeat{};
         bool isWhileTrueLoop{};
+
+        RepeatIteratorHelper(T toRepeat, bool isWhileTrueLoop) :
+            toRepeat(std::move(toRepeat)),
+            isWhileTrueLoop(isWhileTrueLoop)
+        {}
+
+        RepeatIteratorHelper() = default;
     };
 
     template<class T>
@@ -25,8 +32,8 @@ namespace lz { namespace detail {
         using pointer = T*;
         using reference = T&;
 
-        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const std::size_t start) :
-            _iterHelper{iteratorHelper},
+        RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const std::size_t start) :
+            _iterHelper(iteratorHelper),
             _iterator(start) {
         }
 
@@ -49,7 +56,7 @@ namespace lz { namespace detail {
 
         RepeatIterator operator++(int) {
             RepeatIterator tmp(*this);
-            ++*this;
+            ++* this;
             return tmp;
         }
 
@@ -62,7 +69,7 @@ namespace lz { namespace detail {
 
         RepeatIterator operator--(int) {
             RepeatIterator tmp(*this);
-            --*this;
+            --* this;
             return tmp;
         }
 

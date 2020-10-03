@@ -8,7 +8,7 @@
 #include "LzTools.hpp"
 
 #if __has_include(<string_view>) && __cplusplus >= 201703L
-  #include <string_view>
+#include <string_view>
 #endif
 
 
@@ -21,6 +21,13 @@ namespace lz {
         struct SplitViewIteratorHelper {
             std::string delimiter{};
             const String& string = String();
+
+            SplitViewIteratorHelper(std::string delimiter, const String& string) :
+                delimiter(std::move(delimiter)),
+                string(string)
+            {}
+
+            SplitViewIteratorHelper() = default;
         };
 
 
@@ -37,7 +44,7 @@ namespace lz {
         public:
             using iterator_category = std::input_iterator_tag;
             using value_type = SubString;
-            using reference = std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString>;
+            using reference = Conditional<std::is_same<SubString, std::string>::value, SubString&, SubString>;
             using difference_type = std::ptrdiff_t;
             using pointer = FakePointerProxy<reference>;
 
@@ -53,7 +60,7 @@ namespace lz {
             SplitIterator() = default;
 
             // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
-            std::conditional_t<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
+            Conditional<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
                 if (_last != std::string::npos) {
                     _substring = SubString(&_splitIteratorHelper->string[_currentPos], _last - _currentPos);
                 }
@@ -97,7 +104,7 @@ namespace lz {
 
             SplitIterator operator++(int) {
                 SplitIterator tmp(*this);
-                ++*this;
+                ++* this;
                 return tmp;
             }
         };

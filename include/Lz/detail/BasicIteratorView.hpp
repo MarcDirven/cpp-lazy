@@ -22,6 +22,7 @@ namespace lz { namespace detail {
     namespace {
         template<typename T>
         struct HasReserve {
+        private:
             template<typename U, std::size_t(U::*)() const>
             struct SubstituteFailure {
             };
@@ -35,13 +36,19 @@ namespace lz { namespace detail {
             static int test(...) {
                 return 0;
             }
-
+        	
+        public:
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
+
+            constexpr bool operator()() const {
+                return value;
+            }
         };
 
-
+#ifdef LZ_HAS_CXX14
         template<class T>
         constexpr bool HasReserveV = HasReserve<T>::value;
+#endif // end has cxx 14
     }
 
     template<class Iterator>
@@ -65,12 +72,12 @@ namespace lz { namespace detail {
         }
 
         template<class Container>
-        inline std::enable_if_t<HasReserveV<Container>, void> reserve(Container& container) const {
+        inline EnableIf<HasReserve<Container>{}(), void > reserve(Container& container) const {
             container.reserve(std::distance(begin(), end()));
         }
 
         template<class Container>
-        inline std::enable_if_t<!HasReserveV<Container>, void> reserve(Container&) const {}
+        inline EnableIf<!HasReserve<Container>{}(), void> reserve(Container&) const {}
 
 
 #ifdef LZ_HAS_EXECUTION
@@ -95,7 +102,7 @@ namespace lz { namespace detail {
             return cont;
         }
 
-#else
+#else // ^^^ has execution vvv ! has execution
 
         template<class Container, class... Args>
         Container copyContainer(Args&& ... args) const {
@@ -107,7 +114,7 @@ namespace lz { namespace detail {
             return cont;
         }
 
-#endif
+#endif // end has execution
 
     public:
         using value_type = typename std::iterator_traits<Iterator>::value_type;
@@ -132,7 +139,7 @@ namespace lz { namespace detail {
             return array;
         }
 
-#else
+#else // ^^^ has execution vvv ! has execution
 
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
@@ -142,7 +149,7 @@ namespace lz { namespace detail {
             return array;
         }
 
-#endif
+#endif // end has execution
 
     public:
         virtual Iterator begin() const = 0;

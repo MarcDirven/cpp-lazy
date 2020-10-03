@@ -26,7 +26,7 @@ namespace lz {
          * @param delimiter The delimiter to split on.
          */
         StringSplitter(String&& str, std::string&& delimiter) :
-            _splitIteratorHelper{std::move(delimiter), std::forward<String>(str)} {
+            _splitIteratorHelper(std::move(delimiter), std::forward<String>(str)) {
         }
 
         StringSplitter() = default;

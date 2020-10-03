@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(CMAKE_CXX_STANDARD 11)
+
 project(cpp-lazy
         VERSION 2.0.0
         DESCRIPTION
@@ -34,17 +36,13 @@ target_include_directories(
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
-
     # Use a boolean for the benchmarks for now
     set(INCLUDE_BENCHMARKS FALSE)
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)
         add_subdirectory(bench)
     endif()
-
 endif()
-
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_14)
 
 if (CPP_LAZY_INSTALL_LIBRARY)
     install(TARGETS ${PROJECT_NAME} fmt
@@ -60,13 +58,11 @@ if (CPP_LAZY_INSTALL_LIBRARY)
             VERSION ${PROJECT_VERSION}
             COMPATIBILITY SameMajorVersion)
 
-    configure_package_config_file(
-            "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+    configure_package_config_file("${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
             "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION
             "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
 
-    install(
-            EXPORT ${PROJECT_NAME}_Targets
+    install(EXPORT ${PROJECT_NAME}_Targets
             FILE ${PROJECT_NAME}Targets.cmake
             NAMESPACE ${PROJECT_NAME}::
             DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")

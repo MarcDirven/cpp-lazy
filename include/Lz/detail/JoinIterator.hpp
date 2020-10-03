@@ -9,24 +9,22 @@
 #include "fmt/format.h"
 
 namespace lz { namespace detail {
-    namespace {
+	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+	namespace {
         template<class T>
         struct IsFmtIntCompatible : std::integral_constant<bool,
             std::is_integral<T>::value &&
             !std::is_same<T, bool>::value &&
             !std::is_same<T, char>::value &&
             !std::is_same<T, unsigned char>::value &&
-            !std::is_same<T, wchar_t>::value &&
+            !std::is_same<T, wchar_t>::value&&
 #ifdef LZ_HAS_CXX_20
-            !std::is_same<T, char8_t>::value &&
+            !std::is_same<T, char8_t>::value&&
 #endif
             !std::is_same<T, char16_t>::value &&
             !std::is_same<T, char32_t>::value> {
         };
-
-        template<class T>
-        constexpr bool IsFmtIntCompatibleV = IsFmtIntCompatible<T>::value;
-    }
+    } // end anonymous
 
 
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -38,24 +36,24 @@ namespace lz { namespace detail {
         using value_type = std::string;
         using iterator_category = typename IterTraits::iterator_category;
         using difference_type = typename IterTraits::difference_type;
-        using reference = typename std::conditional<
-            std::is_same<std::string, ContainerType>::value, typename IterTraits::reference, std::string>::type;
+        using reference = Conditional<
+            std::is_same<std::string, ContainerType>::value, typename IterTraits::reference, std::string>;
         using pointer = FakePointerProxy<reference>;
 
         template<class Val = ContainerType>
-        std::enable_if_t<IsFmtIntCompatibleV<Val>, std::string> getFormatted() const {
+        EnableIf<IsFmtIntCompatible<Val>::value, std::string> getFormatted() const {
             return fmt::format_int(*_iterator).str();
         }
 
         template<class Val = ContainerType>
-        std::enable_if_t<!IsFmtIntCompatibleV<Val>, std::string> getFormatted() const {
+        EnableIf<!IsFmtIntCompatible<Val>::value, std::string> getFormatted() const {
             return fmt::format("{}", *_iterator);
         }
 
     private:
         Iterator _iterator{};
         mutable std::string _delimiter{};
-        mutable bool _isIteratorTurn{true};
+        mutable bool _isIteratorTurn{ true };
         difference_type _distance{};
 
     public:
@@ -68,7 +66,7 @@ namespace lz { namespace detail {
         JoinIterator() = default;
 
         template<class Val = ContainerType>
-        std::enable_if_t<!std::is_same<std::string, Val>::value, reference> operator*() const {
+        EnableIf<!std::is_same<std::string, Val>::value, reference> operator*() const {
             if (_isIteratorTurn) {
                 return getFormatted();
             }
@@ -76,7 +74,7 @@ namespace lz { namespace detail {
         }
 
         template<class Val = ContainerType>
-        std::enable_if_t<std::is_same<std::string, Val>::value, reference> operator*() const {
+        EnableIf<std::is_same<std::string, Val>::value, reference> operator*() const {
             if (_isIteratorTurn) {
                 return *_iterator;
             }
@@ -97,7 +95,7 @@ namespace lz { namespace detail {
 
         JoinIterator& operator++() const {
             JoinIterator tmp(*this);
-            ++*this;
+            ++* this;
             return tmp;
         }
 
@@ -111,7 +109,7 @@ namespace lz { namespace detail {
 
         JoinIterator operator--(int) {
             JoinIterator tmp(*this);
-            --*this;
+            --* this;
             return tmp;
         }
 
@@ -151,12 +149,12 @@ namespace lz { namespace detail {
             return (_iterator - other._iterator) * 2 - 1;
         }
 
-        template<class Val = ContainerType, class = std::enable_if_t<!std::is_same<std::string, Val>::value>>
+        template<class Val = ContainerType, class = EnableIf<!std::is_same<std::string, Val>::value>>
         std::string operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
-        template<class Val = ContainerType, class = std::enable_if_t<std::is_same<std::string, Val>::value>>
+        template<class Val = ContainerType, class = EnableIf<std::is_same<std::string, Val>::value>>
         std::string& operator[](const difference_type offset) const {
             // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a copy
             // of the delimiter
@@ -196,6 +194,6 @@ namespace lz { namespace detail {
             return !(*this < other);
         }
     };
-}}
+}} // end lz::detail
 
 #endif

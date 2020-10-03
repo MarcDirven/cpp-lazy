@@ -26,7 +26,7 @@ namespace lz {
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
         Repeat(T toRepeat, const std::size_t amount):
-            _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<std::size_t>::max()},
+            _iteratorHelper(std::move(toRepeat), amount == std::numeric_limits<std::size_t>::max()),
             _begin(&_iteratorHelper, 0),
             _end(&_iteratorHelper, amount)
             {
