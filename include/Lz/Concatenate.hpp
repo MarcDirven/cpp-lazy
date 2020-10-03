@@ -7,9 +7,9 @@
 #include "detail/BasicIteratorView.hpp"
 
 
-namespace lz {
-    namespace detail {
-        namespace {
+namespace lz { namespace detail {
+		// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+		namespace {
             template<typename Same, typename First, typename... More>
             struct IsAllSame {
                 static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
