@@ -19,7 +19,7 @@ namespace lz { namespace detail {
         using pointer = FakePointerProxy<reference>;
 
     private:
-        using MakeIndexSequence = MakeIndexSequence<sizeof...(Iterators)>;
+        using IndexSequence = MakeIndexSequence<sizeof...(Iterators)>;
         std::tuple<Iterators...> _iterators{};
 
         template<std::size_t... I>
@@ -85,7 +85,7 @@ namespace lz { namespace detail {
         ZipIterator() = default;
 
         reference operator*() const {
-            return dereference(MakeIndexSequence());
+            return dereference(IndexSequence());
         }
 
         pointer operator->() const {
@@ -93,7 +93,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator++() {
-            increment(MakeIndexSequence());
+            increment(IndexSequence());
             return *this;
         }
 
@@ -104,7 +104,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator--() {
-            decrement(MakeIndexSequence());
+            decrement(IndexSequence());
             return *this;
         }
 
@@ -115,7 +115,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator+=(const difference_type offset) {
-            plusIs(MakeIndexSequence(), offset);
+            plusIs(IndexSequence(), offset);
             return *this;
         }
 
@@ -126,7 +126,7 @@ namespace lz { namespace detail {
         }
 
         ZipIterator& operator-=(const difference_type offset) {
-            minIs(MakeIndexSequence(), offset);
+            minIs(IndexSequence(), offset);
             return *this;
         }
 
@@ -137,7 +137,7 @@ namespace lz { namespace detail {
         }
 
         difference_type operator-(const ZipIterator& other) const {
-            return iteratorMin(MakeIndexSequence(), other);
+            return iteratorMin(IndexSequence(), other);
         }
 
         reference operator[](const difference_type offset) const {
@@ -149,11 +149,11 @@ namespace lz { namespace detail {
         }
 
         bool operator!=(const ZipIterator& other) const {
-            return notEqual(MakeIndexSequence(), other);
+            return notEqual(IndexSequence(), other);
         }
 
         bool operator<(const ZipIterator& other) const {
-            return lessThan(MakeIndexSequence(), other);
+            return lessThan(IndexSequence(), other);
         }
 
         bool operator>(const ZipIterator& other) const {
