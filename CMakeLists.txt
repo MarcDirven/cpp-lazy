@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 
 project(cpp-lazy
         VERSION 2.0.0
@@ -13,7 +13,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 include(GNUInstallDirs)
 
 add_subdirectory(extern/fmt)
-target_link_libraries(${PROJECT_NAME} INTERFACE fmt::fmt-header-only)
+target_link_libraries(${PROJECT_NAME} INTERFACE fmt::fmt)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(IS_TOPLEVEL_PROJECT TRUE)
@@ -30,22 +30,24 @@ target_include_directories(
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+# Add fmt
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
+
     # Use a boolean for the benchmarks for now
     set(INCLUDE_BENCHMARKS FALSE)
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)
         add_subdirectory(bench)
-    endif ()
-endif ()
+    endif()
+
+endif()
 
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_14)
 
 if (CPP_LAZY_INSTALL_LIBRARY)
-
-    install(TARGETS ${PROJECT_NAME} fmt-header-only
+    install(TARGETS ${PROJECT_NAME} fmt
             EXPORT ${PROJECT_NAME}_Targets
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
