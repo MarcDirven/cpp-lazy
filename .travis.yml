@@ -17,7 +17,7 @@ install:
   - md5sum -c cmake_md5.txt
   # extract the binaries; the output here is quite lengthy,
   # so we swallow it to not clutter up the travis console
-  - tar -xvf cmake-3.13.1-Linux-x86_64.tar.gz > /dev/null
+  - tar -xvf cmake-3.13.4-Linux-x86_64.tar.gz > /dev/null
   - mv cmake-3.3.2-Linux-x86_64 cmake-install
   # add both the top-level directory and the bin directory from the archive
   # to the system PATH. By adding it to the front of the path we hide the
