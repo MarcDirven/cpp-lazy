@@ -120,7 +120,7 @@ TEST_CASE("Function tools") {
         auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); },
                                [](const char c) { return static_cast<int>(c - '0'); });
         auto expected = { 1, 2, 3, 3, 5 };
-        CHECK(std::equal(f.begin(), f.end(), expected.begin(), expected.end()));
+        CHECK(std::equal(f.begin(), f.end(), expected.begin()));
     }
 
     SECTION("To string func") {
