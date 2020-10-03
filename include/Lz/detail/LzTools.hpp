@@ -4,6 +4,7 @@
 #define LZ_LZ_TOOLS_HPP
 
 #define LZ_CURRENT_VERSION "2.0.0"
+#include <tuple>
 
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
   #define LZ_HAS_CXX11
