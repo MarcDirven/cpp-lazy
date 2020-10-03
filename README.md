@@ -19,7 +19,7 @@ versions have not been checked)
 # Current supported iterators & examples
 The iterators are (with some exceptions) by reference. All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
 `fmt::print` and `fmt::format`. The iterator also contains a `toString` function. Current supported iterators are:
-- filterMap (defined in `FunctionTools.hpp`)
+- `filterMap` (defined in `FunctionTools.hpp`)
 ```cpp
 std::string s = "123,d35dd";
 auto f = lz::filterMap(s, [](const char c) { return static_cast<bool>(std::isdigit(c)); }, // if this is true
