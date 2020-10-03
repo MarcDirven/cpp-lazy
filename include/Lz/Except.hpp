@@ -83,7 +83,7 @@ namespace lz {
 
 #ifdef LZ_HAS_EXECUTION
     /**
-     * @brief This function returns a view to the random access ExceptIterator.
+     * @brief This function returns a view to the ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
      * be able to do it correctly.
@@ -130,7 +130,7 @@ namespace lz {
 
 #ifdef LZ_HAS_EXECUTION
     /**
-     * @brief This function returns a view to the random access ExceptIterator.
+     * @brief This function returns a view to the ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
      * be able to do it correctly.
@@ -153,7 +153,7 @@ namespace lz {
     }
 #else
     /**
-     * @brief This function returns a view to the random access ExceptIterator.
+     * @brief This function returns a view to the ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
      * and has an `operator<`. If elements are changed in `toExcept` after calling begin(), this iterator will not be able to do it correctly.
      * @tparam Iterable Is automatically deduced.
