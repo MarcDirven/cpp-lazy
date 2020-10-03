@@ -16,8 +16,6 @@
 
 
 namespace lz { namespace detail {
-
-
     // ReSharper disable once CppUnnamedNamespaceInHeaderFile
     namespace {
         template<typename T>
@@ -68,13 +66,12 @@ namespace lz { namespace detail {
         }
 
         template<class Container>
-        inline EnableIf<HasReserve<Container>::value, void > reserve(Container& container) const {
+        EnableIf<HasReserve<Container>::value, void> reserve(Container& container) const {
             container.reserve(std::distance(begin(), end()));
         }
 
         template<class Container>
-        inline EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
-
+        EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
 
@@ -118,7 +115,8 @@ namespace lz { namespace detail {
     private:
         template<class KeySelectorFunc>
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-
+    	
+        template<class ValueType = value_type>
 #ifdef LZ_HAS_EXECUTION
 
         template<std::size_t N, class Execution>
