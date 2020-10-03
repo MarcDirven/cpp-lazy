@@ -29,7 +29,7 @@ namespace lz { namespace detail {
         GenerateIterator(const std::size_t start, const GeneratorFunc& generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
             _current(start),
             _generator(generatorFunc),
-            _isWhileTrueLoop{isWhileTrueLoop}
+            _isWhileTrueLoop(isWhileTrueLoop)
         {}
 
         value_type operator*() const {
