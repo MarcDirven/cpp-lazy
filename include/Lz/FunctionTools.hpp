@@ -23,7 +23,8 @@
 #include <cassert>
 
 namespace lz {
-    namespace detail {
+	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
+	namespace detail { namespace {
         template<class Iterator>
         using DifferenceType = typename std::iterator_traits<Iterator>::difference_type;
 
@@ -61,7 +62,7 @@ namespace lz {
                 return static_cast<To>(f);
             }
         };
-    }
+    }} // namespace detail::<anonymous>
 
     /**
      * This value is returned when indexOf(If) does not find the value specified.
