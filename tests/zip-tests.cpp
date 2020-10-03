@@ -155,8 +155,9 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, std::tuple<int, float, short>> actual = lz::zip(a, b, c).toMap(
-            [](const auto& tup) {
+        using Tuple = std::tuple<int, float, short>;
+        std::map<int, Tuple> actual = lz::zip(a, b, c).toMap(
+            [](const Tuple& tup) {
                 return std::get<0>(tup);
             });
         std::map<int, std::tuple<int, float, short>> expected = {
@@ -171,8 +172,9 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     }
 
     SECTION("To map") {
-        std::unordered_map<int, std::tuple<int, float, short>> actual = lz::zip(a, b, c).toUnorderedMap(
-            [](const auto& tup) {
+        using Tuple = std::tuple<int, float, short>;
+        std::unordered_map<int, Tuple> actual = lz::zip(a, b, c).toUnorderedMap(
+            [](const Tuple& tup) {
                 return std::get<0>(tup);
             });
 
