@@ -20,6 +20,7 @@
   #define LZ_INLINE_VAR
 #endif // lz has cxx17
 
+#include <cassert>
 
 namespace lz {
     namespace detail {
