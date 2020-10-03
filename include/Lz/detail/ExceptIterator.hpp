@@ -30,10 +30,12 @@ namespace lz {
 #endif
             bool isSorted{};
 
-            ExceptIteratorHelper(IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Iterator end) :
+            ExceptIteratorHelper(const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd, const Iterator end, 
+								 const bool isSorted) :
                 toExceptBegin(toExceptBegin),
                 toExceptEnd(toExceptEnd),
-                end(end)
+                end(end),
+        		isSorted(isSorted)
             {}
         };
 

@@ -39,10 +39,6 @@ namespace lz { namespace detail {
         	
         public:
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
-
-            constexpr bool operator()() const {
-                return value;
-            }
         };
 
 #ifdef LZ_HAS_CXX14
@@ -72,12 +68,12 @@ namespace lz { namespace detail {
         }
 
         template<class Container>
-        inline EnableIf<HasReserve<Container>{}(), void > reserve(Container& container) const {
+        inline EnableIf<HasReserve<Container>::value, void > reserve(Container& container) const {
             container.reserve(std::distance(begin(), end()));
         }
 
         template<class Container>
-        inline EnableIf<!HasReserve<Container>{}(), void> reserve(Container&) const {}
+        inline EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
 
 
 #ifdef LZ_HAS_EXECUTION
