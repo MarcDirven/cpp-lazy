@@ -12,7 +12,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 include(GNUInstallDirs)
 
-add_subdirectory(include/Lz/fmt)
+add_subdirectory(extern/fmt)
 target_link_libraries(${PROJECT_NAME} INTERFACE fmt::fmt)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
