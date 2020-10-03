@@ -115,8 +115,7 @@ namespace lz { namespace detail {
     private:
         template<class KeySelectorFunc>
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-    	
-        template<class ValueType = value_type>
+
 #ifdef LZ_HAS_EXECUTION
 
         template<std::size_t N, class Execution>
