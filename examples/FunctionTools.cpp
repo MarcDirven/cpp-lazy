@@ -85,6 +85,9 @@ int main() {
     myString = lz::reverse(myString).toString();
 	// myString == gnp.gnp.erutcip
 
+    int summed = lz::sumTo(50000); // 1 + 2 + 3 + 4 + 5 + ... 50'000
+	// summed == 1250025000
+	
     std::vector<std::vector<int>> vecs = {
 		{1, 2, 3, 4}, {5, 6, 7, 8}
     };
