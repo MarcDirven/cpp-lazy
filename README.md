@@ -392,6 +392,17 @@ for (auto&& vals : lz::pairwise(arr)) {
 myString = "picture.png.png";
 myString = lz::reverse(myString).toString();
 // myString == gnp.gnp.erutcip
+
+for (std::tuple<int, int> tup : lz::transpose(vecs)) {
+	// std::cout << std::get<0>(tup) << std::get<1>(tup) << '\n'
+
+	// 1 5
+	// 2 6
+	// 3 7
+	// 4 8
+}
+std::vector<std::array<int, 2>> transposed = lz::transposeToVector(vecs);
+// transposed == std::vector<std::array<int, 2>>{ { 1, 5 }, { 2, 6 }, { 3, 7 }, { 4, 8 }});
 ```
 
 # To containers, easy!
