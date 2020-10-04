@@ -7,7 +7,7 @@ random access where possible. This makes operations such as `std::distance` an O
 object has many `std::execution::*` overloads. This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
-- C++14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
+- C++11/14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions; at least `gcc` versions => `5.4.0` & `clang` => `7.0.0` (previous 
 versions have not been checked)
