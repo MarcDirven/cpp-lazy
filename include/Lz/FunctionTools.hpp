@@ -173,7 +173,7 @@ namespace lz {
      * @return A transposed 2D vector in a `std::vector<std::array<ValueType, 2>>`-like fashion where `ValueType` is the type of the
      * container.
      */
-    template<class Iterable, class ValueType = typename detail::Decay<Iterable>::value_type::value_type>
+    template<class Iterable, class ValueType = typename detail::ValueTypeIterable<Iterable>::value_type>
     auto transposeToVector(Iterable&& container) -> std::vector<std::array<ValueType, 2>> {
         auto transposed = lz::transpose(container);
         return lz::map(transposed, [](const std::tuple<ValueType, ValueType>& tuple) {
