@@ -91,7 +91,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
     double mean(const Iterable& container) {
-        return mean(std::begin(container), std::end(container));
+        return lz::mean(std::begin(container), std::end(container));
     }
 
     /**
@@ -105,9 +105,9 @@ namespace lz {
     template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
     template<class SubString = std::string, class String = std::string>
-#endif
+#endif // end has string view
     StringSplitter<SubString, String> lines(String&& string) {
-        return split<SubString, String>(string, "\n");
+        return lz::split<SubString, String>(string, "\n");
     }
 
     /**
@@ -147,7 +147,38 @@ namespace lz {
      */
     template<class T>
     T sumTo(const T upToAndIncluding) {
-        return sumTo(0, upToAndIncluding);
+        return lz::sumTo(0, upToAndIncluding);
+    }
+
+    /**
+	 * Transposes a 2D container. Use `transposeToVector` to convert it to a vector.
+	 * @tparam Iterable Is automatically deduced.
+	 * @param container The 2D container.
+	 * @return A zip view object, containing a tuple where `std::get<0>` is container[0] and `std::get<1>` is container[1].
+	 */
+    template<class Iterable, class Outer = detail::IterType<Iterable>, class Inner = decltype(std::begin(*std::declval<Outer>()))>
+    Zip<Inner, Inner> transpose(Iterable&& container) {
+        const Outer start = std::begin(container);
+        const Outer next = std::next(start);
+
+        auto begin = std::make_tuple(start->begin(), next->begin());
+        auto end = std::make_tuple(start->end(), next->end());
+        return lz::zipRange(begin, end);
+    }
+
+    /**
+     * Transposes a 2D container, and puts it into a `std::vector<std::array<ValueType, 2>>` where `ValueType` is the type of the container.
+     * @tparam Iterable Is automatically deduced.
+     * @param container The 2D container.
+     * @return A transposed 2D vector in a `std::vector<std::array<ValueType, 2>>`-like fashion where `ValueType` is the type of the
+     * container.
+     */
+    template<class Iterable, class ValueType = typename std::decay_t<Iterable>::value_type::value_type>
+    auto transposeToVector(Iterable&& container) -> std::vector<std::array<ValueType, 2>> {
+        auto transposed = lz::transpose(container);
+        return lz::map(transposed, [](const std::tuple<ValueType, ValueType>& tuple) {
+            return  std::array<ValueType, 2>{std::get<0>(tuple), std::get<1>(tuple) };
+        }).toVector();
     }
 
     /**
@@ -163,10 +194,9 @@ namespace lz {
             || std::is_same<std::string_view, detail::ValueTypeIterator<Iterator>>::value
 #endif // Lz has string view
             , "the type of the container should be std::string or std::string_view");
-        return join(strings, "\n");
+        return lz::join(strings, "\n");
     }
 
-#ifndef LZ_HAS_CXX17
     /**
      * This function is defined when C++ version is lower than 17.
      * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
@@ -187,6 +217,9 @@ namespace lz {
      * @return The result of the transAccumulate operation.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Init, class SelectorFunc>
+#ifdef LZ_HAS_CXX17
+    [[deprecated("a similar method is defined in <algorithm>; use std::transform_reduce instead")]]
+#endif // end lz has cxx 17
     Init transAccumulate(Iterator begin, const Iterator end, Init init, const SelectorFunc selectorFunc) {
         for (; begin != end; ++begin) {
             init = selectorFunc(std::move(init), *begin);
@@ -214,9 +247,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Init, class SelectorFunc>
     Init transAccumulate(const Iterable& it, Init init, const SelectorFunc selectorFunc) {
-        return transAccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
+        return lz::transAccumulate(std::begin(it), std::end(it), std::move(init), selectorFunc);
     }
-#endif // End LZ_HAS_CXX17
 
     /**
      * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
@@ -231,7 +263,7 @@ namespace lz {
         if (begin != end) {
             next = std::next(begin);
         }
-        return zipRange(std::make_tuple(begin, next), std::make_tuple(end, end));
+        return lz::zipRange(std::make_tuple(begin, next), std::make_tuple(end, end));
     }
 
     /**
@@ -242,7 +274,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
     auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
-        return pairwise(std::begin(iterable), std::end(iterable));
+        return lz::pairwise(std::begin(iterable), std::end(iterable));
     }
 
     /**
@@ -261,7 +293,7 @@ namespace lz {
             "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
         using ReverseIterator = std::reverse_iterator<Iterator>;
-        return takeRange(ReverseIterator(end), ReverseIterator(begin));
+        return lz::takeRange(ReverseIterator(end), ReverseIterator(begin));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -287,7 +319,7 @@ namespace lz {
     Map<Iterator, detail::ConvertFn<T>> as(const Iterator begin, const Iterator end) {
         using ValueTypeIterator = detail::ValueTypeIterator<Iterator>;
         static_assert(std::is_convertible<ValueTypeIterator, T>::value, "the value type of the container is not convertible to To");
-        return mapRange(begin, end, detail::ConvertFn<T>());
+        return lz::mapRange(begin, end, detail::ConvertFn<T>());
     }
 
     /**
@@ -299,7 +331,7 @@ namespace lz {
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterType<Iterable>>
     Map<Iterator, detail::ConvertFn<T>> as(Iterable&& iterable) {
-        return as<T>(std::begin(iterable), std::end(iterable));
+        return lz::as<T>(std::begin(iterable), std::end(iterable));
     }
 
     /**
@@ -344,12 +376,12 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<detail::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
-        filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+	filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
             const Execution execPolicy = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc, execPolicy);
-        return map(filterView, mapFunc);
+        return lz::map(filterView, mapFunc);
     }
 
     /**
@@ -367,9 +399,9 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<detail::FilterIterator<Execution, detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-        filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+	filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
             const Execution execution = std::execution::seq) {
-        return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
+        return lz::filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
     }
 
     /**
@@ -417,7 +449,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class Compare>
     double median(Iterable& iterable, const Compare compare, const Execution execution = std::execution::seq) {
-        return median(std::begin(iterable), std::end(iterable), compare, execution);
+        return lz::median(std::begin(iterable), std::end(iterable), compare, execution);
     }
 
     /**
@@ -432,7 +464,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator>
     double median(const Iterator begin, const Iterator end, const Execution execution = std::execution::seq) {
-        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>(), execution);
+        return lz::median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>(), execution);
     }
 
     /**
@@ -446,7 +478,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable>
     double median(Iterable& iterable, const Execution execution = std::execution::seq) {
-        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>(), execution);
+        return lz::median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>(), execution);
     }
 
     /**
@@ -485,7 +517,7 @@ namespace lz {
         class ValueType = detail::ValueTypeIterable<Iterable>>
         ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, To&& defaultValue,
             const Execution execution = std::execution::seq) {
-        return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+        return lz::findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
     /**
@@ -532,7 +564,7 @@ namespace lz {
         class ValueType = detail::ValueTypeIterable<Iterable>>
         ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, To&& defaultValue,
             const Execution execution = std::execution::seq) {
-        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+        return lz::findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
 
     /**
@@ -566,7 +598,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class To>
     std::size_t indexOf(const Iterable& iterable, const To& val, const Execution execution = std::execution::seq) {
-        return indexOf(std::begin(iterable), std::end(iterable), val, execution);
+        return lz::indexOf(std::begin(iterable), std::end(iterable), val, execution);
     }
 
     /**
@@ -598,7 +630,7 @@ namespace lz {
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
     std::size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate, const Execution execution = std::execution::seq) {
-        return indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
+        return lz::indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
     }
 #else // ^^^ Lz has execution vvv !Lz has execution
 
@@ -639,7 +671,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Compare>
     double median(Iterable& iterable, const Compare compare) {
-        return median(std::begin(iterable), std::end(iterable), compare);
+        return lz::median(std::begin(iterable), std::end(iterable), compare);
     }
 
     /**
@@ -651,7 +683,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     double median(const Iterator begin, const Iterator end) {
-        return median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>());
+        return lz::median(begin, end, std::less<detail::ValueTypeIterator<Iterator>>());
     }
 
     /**
@@ -662,7 +694,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
     double median(Iterable& iterable) {
-        return median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
+        return lz::median(std::begin(iterable), std::end(iterable), std::less<detail::ValueTypeIterable<Iterable>>());
     }
 
     /**
@@ -691,7 +723,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefault(const Iterable& iterable, ValueType&& toFind, T&& defaultValue) {
-        return findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
+        return lz::findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
     }
 
     /**
@@ -727,7 +759,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class ValueType = detail::ValueTypeIterable<Iterable>>
     ValueType findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue) {
-        return findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
+        return lz::findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
     /**
@@ -755,7 +787,7 @@ namespace lz {
     */
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
     std::size_t indexOf(const Iterable& iterable, const T& val) {
-        return indexOf(std::begin(iterable), std::end(iterable), val);
+        return lz::indexOf(std::begin(iterable), std::end(iterable), val);
     }
 
     /**
@@ -783,7 +815,7 @@ namespace lz {
     */
     template<LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
     std::size_t indexOfIf(const Iterable& iterable, const UnaryFunc predicate) {
-        return indexOfIf(std::begin(iterable), std::end(iterable), predicate);
+        return lz::indexOfIf(std::begin(iterable), std::end(iterable), predicate);
     }
 
     /**
@@ -800,9 +832,9 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<detail::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>
-        filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
+	filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
         Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc);
-        return map(filterView, mapFunc);
+        return lz::map(filterView, mapFunc);
     }
 
     /**
@@ -818,8 +850,8 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<detail::FilterIterator<detail::IterType<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-        filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
-        return filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
+	filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
+        return lz::filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
     }
 
 #endif // End LZ_HAS_EXECUTION

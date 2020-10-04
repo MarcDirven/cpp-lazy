@@ -47,7 +47,7 @@ TEST_CASE("Function tools") {
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
 
-#ifdef LZ_HAS_CXX_17
+#ifndef LZ_HAS_CXX_17
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
         size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
@@ -55,7 +55,7 @@ TEST_CASE("Function tools") {
         });
         CHECK(totalSize == 11);
     }
-#endif
+#endif // end lz has cxx 17
 
     SECTION("Pairwise") {
         auto x = lz::pairwise(ints).toVector();
@@ -67,7 +67,6 @@ TEST_CASE("Function tools") {
         CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
         CHECK(floats == std::vector<float>{1., 2., 3., 4.});
     }
-
 
     SECTION("Find or default") {
         std::vector<std::string> s = {"hello world!", "what's up"};
@@ -147,5 +146,13 @@ TEST_CASE("Function tools") {
 	SECTION("Reverse") {
         std::string s = "hello";
         CHECK(lz::reverse(s).toString() == "olleh");
+    }
+
+	SECTION("Transpose") {
+        std::vector<std::vector<int>> vecs = {
+        	{1, 2, 3, 4}, {5, 6, 7, 8}
+        };
+
+        CHECK(lz::transposeToVector(vecs) == std::vector<std::array<int, 2>>{ { 1, 5 }, { 2, 6 }, { 3, 7 }, { 4, 8 }});
     }
 }
