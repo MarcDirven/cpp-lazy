@@ -577,17 +577,20 @@ auto it = map.begin();
 ```
 
 # Benchmarks cpp-lazy
-The time is equal to one iteration.
+The time is equal to one iteration. Compiled with: winlibs-x86_64-posix-seh-gcc-10.2.1-snapshot20200912-mingw-w64-7.0.0-r1
+
+C++11
+<div style="text-align:center"><img src="https://i.imgur.com/vs0nBFA.png" /></div>
 
 C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/KYONRY6.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/fkMxRYH.png" /></div>
 
 C++17
 
-<div style="text-align:center"><img src="https://i.imgur.com/STOgeK5.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/13CBp0x.png" /></div>
 
 C++20
 
-<div style="text-align:center"><img src="https://i.imgur.com/83qAmvL.png" /></div>
+<div style="text-align:center"><img src="https://i.imgur.com/pzb2Lp7.png" /></div>
 
