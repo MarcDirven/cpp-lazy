@@ -79,17 +79,20 @@ for (int i : concat2) {
 }
 ```
 - **Enumerate**, when iterating over this iterator, it returns a `std::pair` where the `.first` is the index counter 
-and the `.second` the element of the container by reference.
+and the `.second` the element of the container by reference. Note that using `operator<<` for printing requires a `operator<<` for `std::pair<X, Y>`.
 ```cpp
-std::vector<int> values = {1, 2, 3, 4, 5};
-std::vector<int> toExcept = {2, 3, 4};
-const auto except = lz::except(values, toExcept);
-std::cout << except << '\n';
-// Output: 1 5
+std::vector<int> toEnumerate = {1, 2, 3, 4, 5};
 
-for (int i : except) {
-    // Process i...
+for (std::pair<int, int> pair : lz::enumerate(toEnumerate)) {
+std::cout << pair.first << ' ' << pair.second << '\n';
 }
+// yields:
+// [(index element)by value] [(container element) by reference (if '&' is used)]
+//          0                               1
+//          1                               2
+//          2                               3
+//          3                               4
+//          4                               5
 ```
 - **Except** excepts/skips elements in container `iterable`, contained by `toExcept`, e.g. 
 `lz::except({1, 2, 3}, {1, 2})` will result in `{ 3 }`.
@@ -188,14 +191,15 @@ for (float i : rng) {
 ```
 - **Range** creates a sequence of numbers e.g. `lz::range(30)` creates a range of ints from [0, 30).
 ```cpp
-const auto toRepeat = 155;
-const auto amount = 4;
-const auto repeater = lz::repeat(toRepeat, amount);
-std::cout << repeater << '\n';
-// Output: 155 155 155 155
-for (int i : lz::repeat(toRepeat, amount)) {
-    // Process i..
+for (int i : lz::range(3)) {
+    std::cout << i << '\n';
 }
+// Yields: (by value)
+// 0
+// 1
+// 2
+// or ofcourse (yields: 0 1 2):
+std::cout << lz::range(3) << '\n';
 ```
 - **Repeat** repeats an element `amount` of times.
 ```cpp
@@ -278,7 +282,7 @@ for (int i : takeEvery) {
 - **Unique** can be used to only get the unique values in a sequence.
 ```cpp
 std::vector<int> vector = {5, 3, 2, 5, 6, 42, 2, 3, 56, 3, 1, 12, 3};
-// Operator== and operator< are required
+// Operator== and operator< are required (std::adjacent_find (==) and std::is_sorted (<))
 const auto unique = lz::unique(vector);
 std::cout << unique << '\n';
 // Output: 1 2 3 4 5 6 12 42 56
