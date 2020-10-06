@@ -100,11 +100,9 @@ namespace lz { namespace internal {
 
         template<class Container, class... Args>
         Container copyContainer(Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
-            std::copy(b, e, std::inserter(cont, cont.begin()));
+            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
             return cont;
         }
 
@@ -408,4 +406,4 @@ namespace lz { namespace internal {
         }
     };
 }} // Namespace lz::internal
-#endif
+#endif // end LZ_BASIC_ITERATOR_VIEW_HPP
