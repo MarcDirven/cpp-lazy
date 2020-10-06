@@ -221,35 +221,6 @@ namespace lz {
     }
 
     /**
-	 * Transposes a 2D container. Use `transposeToVector` to convert it to a vector.
-	 * @param container The 2D container.
-	 * @return A zip view object, containing a tuple where `std::get<0>` is container[0] and `std::get<1>` is container[1].
-	 */
-    template<class Iterable, class Outer = internal::IterType<Iterable>, class Inner = decltype(std::begin(*std::declval<Outer>()))>
-    Zip<Inner, Inner> transpose(Iterable&& container) {
-        const Outer start = std::begin(container);
-        const Outer next = std::next(start);
-
-        const auto begin = std::make_tuple(std::begin(*start), std::begin(*next));
-        const auto end = std::make_tuple(std::end(*start), std::end(*next));
-        return lz::zipRange(begin, end);
-    }
-
-    /**
-     * Transposes a 2D container, and puts it into a `std::vector<std::array<ValueType, 2>>` where `ValueType` is the type of the container.
-     * @param container The 2D container.
-     * @return A transposed 2D vector in a `std::vector<std::array<ValueType, 2>>`-like fashion where `ValueType` is the type of the
-     * container.
-     */
-    template<class Iterable, class ValueType = typename internal::ValueTypeIterable<Iterable>::value_type>
-    auto transposeToVector(Iterable&& container) -> std::vector<std::array<ValueType, 2>> {
-        auto transposed = lz::transpose(container);
-        return lz::map(transposed, [](const std::tuple<ValueType, ValueType>& tuple) {
-            return std::array<ValueType, 2>{std::get<0>(tuple), std::get<1>(tuple) };
-        }).toVector();
-    }
-
-    /**
      * The exact opposite of `lines`. It joins a container of `std::string` or `std::string_view` container with `'\n'` as delimiter.
      * @param strings The container of `std::string` or `std::string_view`.
      * @return A Join iterator that joins the strings in the container on `'\n'`.
