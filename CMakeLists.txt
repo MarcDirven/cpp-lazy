@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_CXX_STANDARD 11)
-
 project(cpp-lazy
         VERSION 2.0.0
         DESCRIPTION
@@ -31,6 +29,8 @@ target_include_directories(
         ${PROJECT_NAME}
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 
 # Add fmt
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
