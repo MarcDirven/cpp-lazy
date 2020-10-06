@@ -1,22 +1,13 @@
 #include "Lz/FunctionTools.hpp"
 #include "Lz/Range.hpp"
-
 #include "catch.hpp"
 
-
-template<class T>
-constexpr auto hasReserve(T&& t) -> decltype(t.reserve(0), bool()) {
-    return true;
-}
-
-template<class T>
-constexpr bool hasReserve(...) {
-    return false;
-}
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
     std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+
+
 
     SECTION("Mean") {
         double avg = lz::mean(ints);
@@ -155,14 +146,6 @@ TEST_CASE("Function tools") {
 	SECTION("Reverse") {
         std::string s = "hello";
         CHECK(lz::reverse(s).toString() == "olleh");
-    }
-
-	SECTION("Transpose") {
-        std::vector<std::vector<int>> vecs = {
-        	{1, 2, 3, 4}, {5, 6, 7, 8}
-        };
-
-        CHECK(lz::transposeToVector(vecs) == std::vector<std::array<int, 2>>{ { 1, 5 }, { 2, 6 }, { 3, 7 }, { 4, 8 }});
     }
 
 #ifdef LZ_HAS_CXX_17
