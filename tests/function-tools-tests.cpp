@@ -4,6 +4,16 @@
 #include "catch.hpp"
 
 
+template<class T>
+constexpr auto hasReserve(T&& t) -> decltype(t.reserve(0), bool()) {
+    return true;
+}
+
+template<class T>
+constexpr bool hasReserve(...) {
+    return false;
+}
+
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
     std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};

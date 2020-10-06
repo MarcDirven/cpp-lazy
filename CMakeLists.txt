@@ -31,7 +31,7 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
         )
 
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(IS_TOPLEVEL_PROJECT TRUE)
@@ -76,7 +76,8 @@ set(INCLUDE_BENCHMARKS TRUE)
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     add_subdirectory(tests)
     add_subdirectory(examples)
-
+    # Use a boolean for the benchmarks for now
+    set(INCLUDE_BENCHMARKS TRUE)
     if (${INCLUDE_BENCHMARKS})
         add_subdirectory(extern/benchmark)
         add_subdirectory(bench)
