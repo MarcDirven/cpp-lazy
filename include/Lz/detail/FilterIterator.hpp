@@ -5,8 +5,12 @@
 #include <functional>
 
 
-namespace lz { namespace detail {
-    template<class Iterator, class Function>
+namespace lz { namespace internal {
+#ifdef LZ_HAS_EXECUTION
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Function>
+#else
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+#endif
     class FilterIterator {
     public:
         using iterator_category = std::forward_iterator_tag;

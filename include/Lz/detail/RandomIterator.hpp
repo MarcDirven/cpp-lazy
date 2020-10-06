@@ -7,34 +7,8 @@
 #include <Lz/detail/LzTools.hpp>
 
 
-namespace lz { namespace detail {
-    static std::mt19937& createRandomEngine() {
-        std::random_device rd;
-        static std::seed_seq seed{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-        static std::mt19937 instance(seed);
-        return instance;
-    }
-
-    template<class Arithmetic, class Distribution>
-    struct RandomIteratorHelper {
-        static std::mt19937& randomEngine;
-        mutable Distribution distribution{};
-        bool isWhileTrueLoop;
-
-        RandomIteratorHelper(Arithmetic min, Arithmetic max, size_t amount) :
-            distribution(min, max),
-            isWhileTrueLoop(amount == std::numeric_limits<size_t>::max()) {
-        }
-
-        Arithmetic rand() const {
-            return distribution(randomEngine);
-        }
-    };
-
-    template<class Arithmetic, class Distribution>
-    std::mt19937& RandomIteratorHelper<Arithmetic, Distribution>::randomEngine = createRandomEngine();
-
-    template<class Arithmetic, class Distribution>
+namespace lz { namespace internal {
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class RandomIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;

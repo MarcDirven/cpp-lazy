@@ -7,14 +7,15 @@
 
 namespace lz {
     template<class T>
-    class Repeat final : public detail::BasicIteratorView<detail::RepeatIterator<T>> {
+    class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
     public:
-        using iterator = detail::RepeatIterator<T>;
+        using iterator = internal::RepeatIterator<T>;
         using value_type = T;
 
     private:
-        detail::RepeatIteratorHelper<T> _iteratorHelper;
-        size_t _amount;
+        internal::RepeatIteratorHelper<T> _iteratorHelper{};
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -53,7 +54,6 @@ namespace lz {
     /**
      * @brief Returns `toRepeat`, `amount` of times. If amount is left empty, it never stops and is interpreted as a
      * `while-true` loop.
-     * @tparam T Is automatically deduced by the compiler.
      * @param toRepeat The value to repeat `amount` times.
      * @param amount The amount of times to repeat the loop, returning `toRepeat`.
      * @return A repeat object, containing the random access iterator.

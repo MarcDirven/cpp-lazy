@@ -4,7 +4,7 @@
 #include <limits>
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<class T>
     struct RepeatIteratorHelper {
         mutable T toRepeat{};

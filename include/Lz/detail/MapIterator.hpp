@@ -23,9 +23,7 @@ namespace lz { namespace detail {
             _function(function) {
         }
 
-        value_type operator*() const {
-            return _function(*_iterator);
-        }
+    namespace internal {
 
         FakePointerProxy<reference> operator->() {
             return FakePointerProxy<decltype(**this)>(**this);

@@ -11,6 +11,11 @@
 
 #include <string>
 
+    namespace internal {
+        template<class String>
+        struct SplitViewIteratorHelper {
+            std::string delimiter{};
+            const String& string = String();
 
 #else
 

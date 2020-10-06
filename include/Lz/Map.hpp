@@ -9,10 +9,10 @@
 
 
 namespace lz {
-    template<class Iterator, class Function>
-    class Map final : public detail::BasicIteratorView<detail::MapIterator<Iterator, Function>> {
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+    class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {
     public:
-        using iterator = detail::MapIterator<Iterator, Function>;
+        using iterator = internal::MapIterator<Iterator, Function>;
         using const_iterator = iterator;
 
         using value_type = typename iterator::value_type;
@@ -61,9 +61,8 @@ namespace lz {
      * an actual iterator object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
      * will return all pairs first values in the sequence, that is, `1` and `3`.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Function Is automatically deduced.
-     * @param iterable The iterable to do the mapping over.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
      * @param function A function that takes a value type as parameter. It may return anything.
      * @return A Map object from [begin, end) that can be converted to an arbitrary container or can be iterated over
      * using `for (auto... lz::map(...))`.
@@ -77,16 +76,14 @@ namespace lz {
      * @brief Returns a bidirectional map object.
      * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
      * will return all pairs first values in the sequence, that is, `1` and `3`.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Function Is automatically deduced.
      * @param iterable The iterable to do the mapping over.
      * @param function A function that takes a value type as parameter. It may return anything.
      * @return A Map object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::map(...))`.
      */
-    template<class Iterable, class Function>
-    auto map(Iterable&& iterable, Function function) {
-        return maprange(std::begin(iterable), std::end(iterable), function);
+    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
+    Map<internal::IterType<Iterable>, Function> map(Iterable&& iterable, const Function& function) {
+        return mapRange(std::begin(iterable), std::end(iterable), function);
     }
 
     // End of group

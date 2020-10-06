@@ -8,12 +8,10 @@
 
 
 namespace lz {
-    template<class... Containers>
-    class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Containers...>> {
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
     public:
-        using value_type = std::tuple<typename std::decay_t<Containers>::value_type...>;
-
-        using iterator = detail::ZipIterator<Containers...>;
+        using iterator = internal::ZipIterator<Iterators...>;
         using const_iterator = iterator;
 
     private:
@@ -69,14 +67,13 @@ namespace lz {
      * @details The tuple that is returned by `operator*` returns a `std::tuple` by value and its elements by
      * reference e.g. `std::tuple<Args&...>`. So it is possible to alter the values in the container/iterable),
      * unless the iterator is const, making it a const reference.
-     * @tparam Iterables Is automatically deduced.
      * @param iterables The iterables to iterate simultaneously over.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto tuple :  lz::zip(...))`.
      */
-    template<class... Iterables>
-    auto zip(Iterables&& ... iterables) {
-        return Zip<Iterables...>(iterables...);
+    template<LZ_CONCEPT_ITERABLE... Iterables>
+    Zip<internal::IterType<Iterables>...> zip(Iterables&& ... iterables) {
+        return zipRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     // End of group

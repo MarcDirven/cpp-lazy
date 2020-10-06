@@ -20,14 +20,14 @@
 
 
 namespace lz {
-    template<class SubString>
-    class StringSplitter final : public detail::BasicIteratorView<detail::SplitIterator<SubString>> {
+    template<class SubString, class String>
+    class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String>> {
     public:
-        using const_iterator = detail::SplitIterator<SubString>;
+        using const_iterator = internal::SplitIterator<SubString, String>;
         using iterator = const_iterator;
 
     private:
-        detail::SplitViewIteratorHelper<SubString> _splitIteratorHelper;
+        internal::SplitViewIteratorHelper<String> _splitIteratorHelper{};
 
     public:
         using value_type = SubString;

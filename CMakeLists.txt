@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.12.4)
 
-project("cpp-lazy")
-
-set(CMAKE_CXX_STANDARD 14)
+project(cpp-lazy
+        VERSION 2.0.1
+        DESCRIPTION
+        "A fast C++11/14/17/20 header only library for lazy evaluation and function tools"
+        HOMEPAGE_URL "https://github.com/MarcDirven/cpp-lazy"
+        LANGUAGES CXX)
 
 
 set(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -28,8 +31,13 @@ set(DETAIL_HEADER_FILES
         ${LZ_DETAIL_HEADERS}/ZipIterator.hpp
         )
 
-set(HEADER_FILES
-        ${INCLUDE}/Lz.hpp
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(IS_TOPLEVEL_PROJECT TRUE)
+else()
+    set(IS_TOPLEVEL_PROJECT FALSE)
+endif()
 
         ${LZ_HEADERS}/Choose.hpp
         ${LZ_HEADERS}/Concatenate.hpp
@@ -47,7 +55,11 @@ set(HEADER_FILES
         ${LZ_HEADERS}/Zip.hpp
         )
 
-add_library("cpp-lazy" INTERFACE)
+target_include_directories(
+        ${PROJECT_NAME}
+        INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 
 target_sources("cpp-lazy" INTERFACE
         ${HEADER_FILES}

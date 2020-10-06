@@ -6,10 +6,10 @@
 
 
 namespace lz {
-    template<class Iterator1, class Iterator2>
-    class Concatenate : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterator1, Iterator2>> {
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
     public:
-        using iterator = detail::ConcatenateIterator<Iterator1, Iterator2>;
+        using iterator = internal::ConcatenateIterator<Iterators...>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
@@ -42,15 +42,43 @@ namespace lz {
         using Reference1 = typename std::iterator_traits<Iterator1>::reference;
         using Reference2 = typename std::iterator_traits<Iterator2>::reference;
 
-        static_assert(std::is_same<ValueType1, ValueType2>::value, "value types of the iterators do not match");
-        static_assert(std::is_same<Pointer1, Pointer2>::value, "pointer types of the iterators do not match");
-        static_assert(std::is_same<Reference1, Reference2>::value, "reference types of the iterators do not match");
+    /**
+     * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater than
+     * or equal to 2.
+     * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
+     * @param begin A tuple of iterators pointing to the beginning.
+     * @param end A tuple of iterators pointing to the ending.
+     * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+     */
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    Concatenate<Iterators...> concatRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+        static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
+        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
+                      "value types of iterators do not match");
+        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::pointer...>::value,
+                      "pointer types of iterators do not match");
+        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value,
+                      "reference types of iterators do not match");
 
         return Concatenate<Iterator1, Iterator2>(begin1, end1, begin2, end2);
     }
 
-    template<class Iterable1, class Iterable2>
-    auto concat(Iterable1&& a, Iterable2&& b) {
-        return concatrange(std::begin(a), std::end(a), std::begin(b), std::end(b));
+    /**
+     * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the parameter pack must be
+     * greater than or equal to 2.
+     * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
+     * @param iterables A parameter pack of containers/iterables.
+     * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+     */
+    template<LZ_CONCEPT_ITERABLE... Iterables>
+    Concatenate<internal::IterType<Iterables>...> concat(Iterables&& ... iterables) {
+        return concatRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
-}
+
+    // End of group
+    /**
+     * @}
+     */
+} // end lz
+
+#endif

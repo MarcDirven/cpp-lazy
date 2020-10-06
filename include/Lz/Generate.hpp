@@ -7,10 +7,10 @@
 
 
 namespace lz {
-    template<class GeneratorFunc>
-    class Generate final : public detail::BasicIteratorView<detail::GenerateIterator<GeneratorFunc>> {
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
+    class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {
     public:
-        using iterator = detail::GenerateIterator<GeneratorFunc>;
+        using iterator = internal::GenerateIterator<GeneratorFunc>;
         using const_iterator = iterator;
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
@@ -59,7 +59,6 @@ namespace lz {
      * size_t amount = 4;
      * auto vector = lz::generate([&a]() { return a++; }, amount).toVector();
      * // vector yields: { 0, 1, 2, 3 }
-     * @tparam GeneratorFunc Is automatically deduced.
      * @param generatorFunc The function to execute `amount` of times. The return value of the function is the type
      * that is generated.
      * @param amount The amount of times to execute `generatorFunc`.

@@ -22,7 +22,12 @@ add_executable(LazyTests
         ${CMAKE_CURRENT_SOURCE_DIR}/zip-tests.cpp
         )
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wextra -Wall -Wno-unused-function")
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Remove error cl : Command line warning D9025 : overriding '/W3' with '/W4'
+    string(REPLACE "/W3" "/W4" FLAGS ${CMAKE_CXX_FLAGS})
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS})
 
 # Add catch
 target_include_directories(LazyTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../extern)

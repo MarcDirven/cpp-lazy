@@ -6,14 +6,8 @@
 #include <functional>
 
 
-namespace lz { namespace detail {
-    template<class GeneratorFunc, class ValueType>
-    struct GenerateIteratorHelper {
-        std::function<ValueType()> generator{};
-        bool isWhileTrueLoop{};
-    };
-
-    template<class GeneratorFunc>
+namespace lz { namespace internal {
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;

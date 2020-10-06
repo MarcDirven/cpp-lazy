@@ -4,8 +4,8 @@
 #include <Lz/detail/LzTools.hpp>
 
 
-namespace lz { namespace detail {
-    template<class Iterator, class IntType>
+namespace lz { namespace internal {
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
     class EnumerateIterator {
     public:
         IntType _index;

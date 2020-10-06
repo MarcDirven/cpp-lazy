@@ -5,89 +5,116 @@
 #include <functional>
 
 
-namespace lz {
-    template<class, class>
-    class Except;
+namespace lz { namespace internal {
+#ifdef LZ_HAS_EXECUTION
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+#else // ^^^ has execution vvv ! has execution
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+#endif // end has execution
+    class ExceptIterator {
+        using IterTraits = std::iterator_traits<Iterator>;
 
-    namespace detail {
-        template<class Iterator, class IteratorToExcept>
-        struct ExceptIteratorHelper {
-            IteratorToExcept toExceptBegin{};
-            IteratorToExcept toExceptEnd{};
-        };
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = typename IterTraits::value_type;
+        using difference_type = typename IterTraits::difference_type;
+        using pointer = typename IterTraits::pointer;
+        using reference = typename IterTraits::reference;
 
-        template<class Iterator, class IteratorToExcept>
-        class ExceptIterator {
-        public:
-            using iterator_category = std::forward_iterator_tag;
-            using value_type = typename std::iterator_traits<Iterator>::value_type;
-            using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-            using pointer = typename std::iterator_traits<Iterator>::pointer;
-            using reference = typename std::iterator_traits<Iterator>::reference;
+    private:
+        Iterator _iterator{};
+        Iterator _end{};
+        IteratorToExcept _toExceptBegin{};
+        IteratorToExcept _toExceptEnd{};
 
-        private:
-            Iterator _iterator{};
-            Iterator _end{};
-            const ExceptIteratorHelper<Iterator, IteratorToExcept>* _iteratorHelper;
+#ifdef LZ_HAS_EXECUTION
+        Execution _execution{};
+#endif // end has execution
 
-            friend class Except<Iterator, IteratorToExcept>;
+        void find() {
+#ifdef LZ_HAS_EXECUTION
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                        return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                });
+            }
+            else {
+                _iterator = std::find_if(_execution, _iterator, _end, [this](const value_type& value) {
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+               });
+            }
+#else // ^^^ has execution vvv ! has execution
+            _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+            });
+#endif // end has execution
+        }
 
-            void find() {
-                IteratorToExcept it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                                *_iterator);
+    public:
+        ExceptIterator() = default;
 
-                while (it != _iteratorHelper->toExceptEnd) {
-                    ++_iterator;
-                    if (_iterator == _end) {
-                        return;
+#ifdef LZ_HAS_EXECUTION
+        ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+            const IteratorToExcept toExceptEnd, const Execution execution) :
+#else // ^^^ has execution vvv ! has execution
+        ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+            const IteratorToExcept toExceptEnd) :
+#endif // end has execution
+            _iterator(begin),
+            _end(end),
+            _toExceptBegin(toExceptBegin),
+            _toExceptEnd(toExceptEnd)
+#ifdef LZ_HAS_EXECUTION
+            , _execution(execution)
+#endif // end has execution
+        {
+            if (begin != end) {
+                if (!std::is_sorted(_toExceptBegin, _toExceptEnd)) {
+#ifdef LZ_HAS_EXECUTION
+                    if constexpr (IsSequencedPolicyV<Execution>) {
+                        std::sort(_toExceptBegin, _toExceptEnd);
                     }
-                    it = std::find(_iteratorHelper->toExceptBegin, _iteratorHelper->toExceptEnd,
-                                   *_iterator);
+                    else {
+                        std::sort(_execution, _toExceptBegin, _toExceptEnd);
+                    }
+#else // ^^^ has execution vvv ! has execution
+                    std::sort(_toExceptBegin, _toExceptEnd);
+#endif // end has execution
                 }
+                find();
             }
+        }
 
-        public:
-            // gcc 5.4.0 crashes with inline declaration
-            ExceptIterator() :
-                _iteratorHelper(ExceptIteratorHelper<Iterator, IteratorToExcept>()) {
-            }
+        reference operator*() const {
+            return *_iterator;
+        }
 
-            explicit ExceptIterator(const Iterator begin, const Iterator end,
-                                    const ExceptIteratorHelper<Iterator, IteratorToExcept>* iteratorHelper) :
-                _iterator(begin),
-                _end(end),
-                _iteratorHelper(iteratorHelper) {
-            }
+        pointer operator->() const {
+            return &*_iterator;
+        }
 
-            reference operator*() const {
-                return *_iterator;
+        ExceptIterator& operator++() {
+            ++_iterator;
+            if (_iterator != _end) {
+                find();
             }
+            return *this;
+        }
 
-            pointer operator->() const {
-                return _iterator.operator->();
-            }
+        ExceptIterator operator++(int) {
+            ExceptIterator tmp(*this);
+            ++* this;
+            return tmp;
+        }
 
-            ExceptIterator& operator++() {
-                ++_iterator;
-                if (_iterator != _end) {
-                    find();
-                }
-                return *this;
-            }
+        bool operator!=(const ExceptIterator& other) const {
+            return _iterator != other._end;
+        }
 
-            ExceptIterator operator++(int) {
-                auto tmp = *this;
-                ++*this;
-                return tmp;
-            }
+        bool operator==(const ExceptIterator& other) const {
+            return !(*this != other);
+        }
+    };
+}} // end lz::internal
 
-            bool operator!=(const ExceptIterator& other) const {
-                return _iterator != other._end;
-            }
-
-            bool operator==(const ExceptIterator& other) const {
-                return !(*this != other);
-            }
-        };
-    }
-}
+#endif

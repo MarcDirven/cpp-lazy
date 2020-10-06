@@ -7,7 +7,7 @@ namespace lz {
     template<class>
     class TakeEvery;
 
-    namespace detail {
+    namespace internal {
 
     template<class Iterator>
     class TakeEveryIterator {

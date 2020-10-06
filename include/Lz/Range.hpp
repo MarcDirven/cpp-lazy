@@ -8,14 +8,10 @@
 
 
 namespace lz {
-    template<class Arithmetic>
-    class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
-        Arithmetic _begin{};
-        Arithmetic _end{};
-        Arithmetic _step{};
-
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+    class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
     public:
-        using iterator = detail::RangeIterator<Arithmetic>;
+        using iterator = internal::RangeIterator<Arithmetic>;
         using const_iterator = iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;

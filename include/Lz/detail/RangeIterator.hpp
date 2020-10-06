@@ -3,8 +3,8 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
-    template<class Arithmetic>
+namespace lz { namespace internal {
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};
         Arithmetic _step{};

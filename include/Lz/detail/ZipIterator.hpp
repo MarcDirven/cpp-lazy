@@ -5,8 +5,8 @@
 #include <iostream>
 
 
-namespace lz { namespace detail {
-    template<class... Containers>
+namespace lz { namespace internal {
+    template<LZ_CONCEPT_ITERATOR... Iterators>
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
