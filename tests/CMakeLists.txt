@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.12.4)
-set(CMAKE_CXX_STANDARD 11)
 
 project(LazyTests)
 
@@ -30,6 +29,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Remove error cl : Command line warning D9025 : overriding '/W3' with '/W4'
     string(REPLACE "/W3" "/W4" FLAGS ${CMAKE_CXX_FLAGS})
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS})
+endif()
 
 # Add catch
 target_include_directories(LazyTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../extern)
