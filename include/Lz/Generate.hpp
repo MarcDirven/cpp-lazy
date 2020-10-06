@@ -1,9 +1,10 @@
 #pragma once
 
+#ifndef LZ_GENERATE_HPP
+#define LZ_GENERATE_HPP
 
-
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/GenerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/GenerateIterator.hpp"
 
 
 namespace lz {
@@ -15,8 +16,8 @@ namespace lz {
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
     private:
-        size_t _amount{};
-        detail::GenerateIteratorHelper<GeneratorFunc, value_type> _helper;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -27,18 +28,20 @@ namespace lz {
          * @param amount The amount of times to execute. If `amount` is equal to `std::numeric_limits<size_t>::max()`
          * it is interpreted as a `while-true` loop.
          */
-        Generate(const GeneratorFunc func, const size_t amount):
-            _amount(amount),
-            _helper{func, amount == std::numeric_limits<size_t>::max()}
+        Generate(const GeneratorFunc& func, const std::size_t amount):
+            _begin(0, func, amount == std::numeric_limits<std::size_t>::max()),
+            _end(amount, func, amount == std::numeric_limits<std::size_t>::max())
         {
         }
+
+        Generate() = default;
 
         /**
         * @brief Returns the beginning of the map iterator object.
         * @return A bidirectional iterator MapIterator.
         */
         iterator begin() const override {
-            return iterator(0, &_helper);
+            return _begin;
         }
 
         /**
@@ -46,9 +49,14 @@ namespace lz {
         * @return A bidirectional iterator MapIterator.
         */
         iterator end() const override {
-            return iterator(_amount, &_helper);
+            return _end;
         }
     };
+
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief Returns a view to a generate iterator.
@@ -64,8 +72,16 @@ namespace lz {
      * @param amount The amount of times to execute `generatorFunc`.
      * @return A generator random access iterator view object.
      */
-    template<class GeneratorFunc>
-    auto generate(const GeneratorFunc generatorFunc, const size_t amount = std::numeric_limits<size_t>::max()) {
+    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
+    Generate<GeneratorFunc> generate(const GeneratorFunc& generatorFunc, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
         return Generate<GeneratorFunc>(generatorFunc, amount);
     }
+
+
+    // End of group
+    /**
+     * @}
+     */
 }
+
+#endif

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <type_traits>
+#ifndef LZ_EXCEPT_ITERATOR_HPP
+#define LZ_EXCEPT_ITERATOR_HPP
+
+
 #include <algorithm>
-#include <functional>
 
 
 namespace lz { namespace internal {

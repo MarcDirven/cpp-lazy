@@ -8,17 +8,18 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
     std::string toSplit = "Hello  world  test  123  ";
     std::string delimiter = "  ";
     auto splitter = lz::split(toSplit, std::move(delimiter));
+
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
         std::vector<std::string> expected = {"Hello", "world", "test", "123"};
 
-        for (size_t i = 0; i < expected.size(); i++, ++it) {
+        for (std::size_t i = 0; i < expected.size(); i++, ++it) {
             CHECK(*it == expected[i]);
         }
     }
 
-#ifdef CXX_LT_17
+#ifndef LZ_HAS_STRING_VIEW
     SECTION("Should be std::string") {
         CHECK(std::is_same<decltype(*it), std::string&>::value);
     }
@@ -43,6 +44,18 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
     auto it = splitter.begin();
 
     CHECK(*it == "Hello");
+
+    auto test = splitter.begin();
+    CHECK(*test == "Hello");
+    ++test;
+    CHECK(*test == "world");
+    ++test;
+    CHECK(*test == "test");
+    ++test;
+    CHECK(*test == "123");
+    ++test;
+    CHECK(test == splitter.end());
+
 
     SECTION("Operator++") {
         ++it;

@@ -9,13 +9,10 @@ int main() {
     auto generator = [&myIncreasingCounter]() {
         return myIncreasingCounter++;
     };
-
-    for (int incrementer : lz::generate(generator, amount)) {
-        std::cout << incrementer << '\n';
-    }
-    // yields (by value):
-    // 0
-    // 1
-    // 2
-    // 3
+    const auto gen = lz::generate(generator, amount);
+    std::cout << gen << '\n';
+	// Output: 0 1 2 3
+	for (int i : gen) {
+		// Process i...
+	}
 }

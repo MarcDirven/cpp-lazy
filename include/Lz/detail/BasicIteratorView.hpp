@@ -1,12 +1,18 @@
 #pragma once
 
+#ifndef LZ_BASIC_ITERATOR_VIEW_HPP
+#define LZ_BASIC_ITERATOR_VIEW_HPP
 
 #include <vector>
 #include <array>
+#include <string>
 #include <map>
+#include <stdexcept>
 #include <unordered_map>
+#include <algorithm>
 
-#include <Lz/detail/LzTools.hpp>
+#include "fmt/ostream.h"
+#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
@@ -42,7 +48,7 @@ namespace lz { namespace internal {
     template<class Iterator>
     class BasicIteratorView {
         template<class MapType, class Allocator, class KeySelectorFunc>
-        MapType createMap(KeySelectorFunc keyGen, const Allocator& allocator) {
+        MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
@@ -108,14 +114,47 @@ namespace lz { namespace internal {
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
     private:
-        template<typename KeySelectorFunc>
-        using KeyType = decltype(std::declval<KeySelectorFunc>()(std::declval<value_type>()));
+        template<class KeySelectorFunc>
+        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+
+#ifdef LZ_HAS_EXECUTION
+
+        template<std::size_t N, class Execution>
+        std::array<value_type, N> copyArray(Execution execution) const {
+            verifyRange<N>();
+            std::array<value_type, N> array{};
+
+            if constexpr (IsSequencedPolicyV<Execution>) {
+                std::copy(begin(), end(), array.begin());
+            }
+            else {
+                std::copy(std::forward<Execution>(execution), begin(), end(), array.begin());
+            }
+            return array;
+        }
+
+#else // ^^^ has execution vvv ! has execution
+
+        template<std::size_t N>
+        std::array<value_type, N> copyArray() const {
+            verifyRange<N>();
+            std::array<value_type, N> array{};
+            std::copy(begin(), end(), array.begin());
+            return array;
+        }
+
+#endif // end has execution
 
     public:
-
         virtual Iterator begin() const = 0;
 
         virtual Iterator end() const = 0;
+
+        BasicIteratorView() = default;
+
+        virtual ~BasicIteratorView() = default;
+
+#ifdef LZ_HAS_EXECUTION
 
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -239,7 +278,8 @@ namespace lz { namespace internal {
          */
         template<template<class, class...> class Container, class... Args>
         Container<value_type, Args...> to(Args&& ... args) const {
-            return Container<value_type, Args...>(begin(), end(), std::forward<Args>(args)...);
+            using Cont = Container<value_type, Args...>;
+            return copyContainer<Cont>(std::forward<Args>(args)...);
         }
 
         /**
@@ -248,7 +288,7 @@ namespace lz { namespace internal {
          * @return A `std::vector<value_type>` with the sequence.
          */
         std::vector<value_type> toVector() const {
-            return std::vector<value_type>(begin(), end());
+            return to<std::vector>();
         }
 
         /**
@@ -258,9 +298,9 @@ namespace lz { namespace internal {
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
-        template<typename Allocator>
+        template<class Allocator>
         std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-            return std::vector<value_type, Allocator>(begin(), end(), alloc);
+            return to<std::vector>(alloc);
         }
 
         /**
@@ -269,17 +309,33 @@ namespace lz { namespace internal {
          * @return A new `std::array<value_type, N>`.
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
-        template<size_t N>
+        template<std::size_t N>
         std::array<value_type, N> toArray() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
-            if (std::distance(begin(), end()) > size) {
-                throw std::out_of_range("the iterator size is too large and/or array size is too small");
+            return copyArray<N>();
+        }
+
+        /**
+         * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+         * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+         * @param delimiter The delimiter between the previous value and the next.
+         * @return The converted iterator in string format.
+         */
+        std::string toString(const std::string& delimiter = "") const {
+            std::string string;
+
+            for (const value_type& v : *this) {
+                string += fmt::format("{}{}", v, delimiter);
             }
 
-            std::array<value_type, N> container;
-            std::copy(begin(), end(), std::begin(container));
-            return container;
+            const std::size_t delimiterLength = delimiter.length();
+            if (!string.empty() && delimiterLength >= 1) {
+                string.erase(string.size() - delimiterLength);
+            }
+
+            return string;
         }
+
+#endif
 
         /**
          * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
@@ -305,7 +361,7 @@ namespace lz { namespace internal {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-        toMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
         }
@@ -336,9 +392,19 @@ namespace lz { namespace internal {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-        toUnorderedMap(KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) {
+        toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
+        }
+
+        /**
+         * Function to stream the iterator to an output stream e.g. `std::cout`.
+         * @param o The stream object.
+         * @param it The iterator to print.
+         * @return The stream object by reference.
+         */
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+            return o << it.toString(" ");
         }
     };
 }} // Namespace lz::internal

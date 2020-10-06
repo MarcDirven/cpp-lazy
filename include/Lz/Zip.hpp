@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <array>
+#ifndef LZ_ZIP_HPP
+#define LZ_ZIP_HPP
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/ZipIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ZipIterator.hpp"
 
 
 namespace lz {
@@ -14,9 +14,11 @@ namespace lz {
         using iterator = internal::ZipIterator<Iterators...>;
         using const_iterator = iterator;
 
+        using value_type = typename iterator::value_type;
+
     private:
         iterator _begin;
-        iterator _end;
+        iterator _end{};
 
     public:
         /**
@@ -29,13 +31,15 @@ namespace lz {
          * unless the iterator is const, making it a const reference.
          * to alter the values in the iterator (and therefore also the container/iterable), unless the iterator is const,
          * making it a const reference.
-         * @param containers
+         * @param begin The beginning of all the containers
+         * @param end The ending of all the containers
          */
-        explicit Zip(Containers&& ... containers) :
-            _begin(std::make_tuple(std::begin(containers)...)),
-            _end(std::make_tuple(std::end(containers)...))
-        {
+        explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+            _begin(begin),
+            _end(end) {
         }
+
+        Zip() = default;
 
         /**
          * @brief Returns the beginning of the zip iterator.
@@ -60,6 +64,11 @@ namespace lz {
      * @{
      */
 
+    template<LZ_CONCEPT_ITERATOR... Iterators>
+    Zip<Iterators...> zipRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
+        return Zip<Iterators...>(begin, end);
+    }
+
     /**
      * @brief This function can be used to iterate over multiple containers. It stops at its smallest container.
      * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
@@ -81,3 +90,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

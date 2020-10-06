@@ -1,11 +1,10 @@
 #pragma once
 
+#ifndef LZ_ENUMERATE_HPP
+#define LZ_ENUMERATE_HPP
 
-#include <vector>
-#include <array>
-
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/EnumerateIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/EnumerateIterator.hpp"
 
 
 namespace lz {
@@ -22,6 +21,7 @@ namespace lz {
         iterator _end{};
 
     public:
+
         /**
          * @param begin Beginning of the iterator.
          * @param end Ending of the iterator.
@@ -29,8 +29,10 @@ namespace lz {
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
             _begin(start, begin),
-            _end(start, end) {
+            _end(static_cast<IntType>(std::distance(begin, end)), end) {
         }
+
+        Enumerate() = default;
 
         /**
          * @brief Returns the beginning of the enumerate iterator object.
@@ -67,8 +69,11 @@ namespace lz {
      * @param start The start of the counting index. 0 is assumed by default.
      * @return Enumerate iterator object from [begin, end).
      */
-    template<class IntType = int, class Iterator>
-    auto enumeraterange(const Iterator begin, const Iterator end, const IntType start = 0) {
+    template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERATOR Iterator>
+    Enumerate<Iterator, IntType> enumerateRange(const Iterator begin, const Iterator end, const IntType start = 0) {
+#ifndef LZ_HAS_CONCEPTS
+        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
+#endif
         return Enumerate<Iterator, IntType>(begin, end, start);
     }
 
@@ -95,3 +100,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

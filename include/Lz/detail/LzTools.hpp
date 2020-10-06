@@ -4,20 +4,20 @@
 #define LZ_LZ_TOOLS_HPP
 
 #include <tuple>
-#include <vector>
-#include <type_traits>
-#include <utility>
-#include <algorithm>
-#include <map>
 
+#if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
+#define LZ_HAS_CXX11
+#elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
+#define LZ_HAS_CXX11
+#endif // end has cxx 11
 
-#if __cplusplus < 201703L || (defined(_MSVC_LANG) && _MSVC_LANG < 201703L)
-#define CXX_LT_17
-#endif
-#if __cplusplus > 202002L || (defined(_MSVC_LANG) && _MSVC_LANG > 202002L)
-#define HAS_CXX_20
-#endif
+#if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
+#define LZ_HAS_CXX14
+#endif // end has cxx 14
 
+#if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
+#define LZ_HAS_CXX17
+#endif // Has cxx 17
 
 #if __cplusplus > 201703L || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
 #define LZ_HAS_CXX_20
@@ -171,15 +171,15 @@ namespace lz { namespace internal {
 
     template<class T>
     class FakePointerProxy {
-        T t;
+        T _t;
 
     public:
         explicit FakePointerProxy(const T& t) :
-            t(t) {
+            _t(t) {
         }
 
         T* operator->() {
-            return &t;
+            return &_t;
         }
     };
 

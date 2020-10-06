@@ -11,7 +11,7 @@ TEST_CASE("Repeat changing and creating elements", "[Repeat][Basic functionality
     auto repeater = lz::repeat(toRepeat, 5);
 
     SECTION("Should be 5 times 20") {
-        size_t counter = 0;
+        std::size_t counter = 0;
         for (int i : repeater) {
             CHECK(i == 20);
             ++counter;

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <array>
+#ifndef LZ_RANGE_HPP
+#define LZ_RANGE_HPP
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/RangeIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/RangeIterator.hpp"
 
 
 namespace lz {
@@ -16,6 +16,12 @@ namespace lz {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;
 
+    private:
+        iterator _begin{};
+        iterator _end{};
+
+    public:
+
         /**
          * @brief Range iterator constructor from [start, end) with step.
          * @param start The start of the counting.
@@ -23,17 +29,18 @@ namespace lz {
          * @param step The step that gets added every iteration.
          */
         Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) :
-            _begin(start),
-            _end(end),
-            _step(step) {
+            _begin(start, step),
+            _end(end, step) {
         }
+
+        Range() = default;
 
         /**
          * @brief Returns the beginning of the random access Range iterator
          * @return The beginning of the random access Range iterator
          */
         iterator begin() const override {
-            return iterator(_begin, _step);
+            return _begin;
         }
 
         /**
@@ -41,7 +48,7 @@ namespace lz {
          * @return The ending of the random access Range iterator
          */
         iterator end() const override {
-            return iterator(_end, _step);
+            return _end;
         }
 
         /**
@@ -61,8 +68,6 @@ namespace lz {
         }
     };
 
-    template class Range<int>;
-
     // Start of group
     /**
      * @addtogroup ItFns
@@ -80,9 +85,19 @@ namespace lz {
      * @return A Range object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::range(...))`.
      */
-    template<class Arithmetic = int>
-    auto range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
+    Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
         static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
+        if (step == 0) {
+            throw std::range_error(LZ_FILE_LINE ": with a step size of 0, the sequence can never end");
+        }
+        if (start > end && step >= 1) {
+            throw std::range_error(LZ_FILE_LINE ": with a step of 1 or bigger and begin greater than end, the sequence can never end");
+        }
+        if (end > start && step < 0) {
+            throw std::range_error(
+                LZ_FILE_LINE ": with a negative step size and begin start smaller than end, the sequence can never end");
+        }
         return Range<Arithmetic>(start, end, step);
     }
 
@@ -94,8 +109,8 @@ namespace lz {
      * @return A Range object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::range(...))`.
      */
-    template<class Arithmetic = int>
-    auto range(const Arithmetic end) {
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
+    Range<Arithmetic> range(const Arithmetic end) {
         return range<Arithmetic>(0, end, 1);
     }
 
@@ -104,3 +119,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

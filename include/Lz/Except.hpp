@@ -1,8 +1,10 @@
 #pragma once
 
+#ifndef LZ_EXCEPT_HPP
+#define LZ_EXCEPT_HPP
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/ExceptIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ExceptIterator.hpp"
 
 
 namespace lz {
@@ -20,13 +22,11 @@ namespace lz {
         using iterator = internal::ExceptIterator<Iterator, IteratorToExcept>;
 #endif
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
-        Iterator _begin;
-        Iterator _end;
-        detail::ExceptIteratorHelper<Iterator, IteratorToExcept> _iteratorHelper;
+        iterator _begin{};
+        iterator _end{};
 
     public:
         /**
@@ -36,20 +36,27 @@ namespace lz {
          * @param toExceptBegin The beginning of the actual elements to except.
          * @param toExceptEnd The ending of the actual elements to except.
          */
-        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-               const IteratorToExcept toExceptEnd) :
-            _begin(begin),
-            _end(end),
-            _iteratorHelper{toExceptBegin, toExceptEnd} {}
+#ifdef LZ_HAS_EXECUTION
+        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
+            const Execution execPolicy) :
+            _begin(begin, end, toExceptBegin, toExceptEnd, execPolicy),
+            _end(end, end, toExceptBegin, toExceptEnd, execPolicy)
+        {}
+#else // ^^^ has execution vvv ! has execution
+        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
+            _begin(begin, end, toExceptBegin, toExceptEnd),
+            _end(end, end, toExceptBegin, toExceptEnd)
+    	{}
+#endif // end has execution
+
+        Except() = default;
 
         /**
          * Returns an iterator to the beginning.
          * @return An iterator to the beginning.
          */
         iterator begin() const override {
-            iterator begin(_begin, _end, &_iteratorHelper);
-            begin.find();
-            return begin;
+            return _begin;
         }
 
         /**
@@ -57,7 +64,7 @@ namespace lz {
          * @return An iterator to the ending.
          */
         iterator end() const override {
-            return iterator(_end, _end, &_iteratorHelper);
+            return _end;
         }
     };
 
@@ -118,6 +125,8 @@ namespace lz {
      * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
      * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
      * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
+     * @param execPolicy The execution policy. Must be one of `std::execution`'s tags. The sorting check, the sorting and finding the
+     * elements are done using this policy.
      * @return An Except view object.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept,
@@ -126,7 +135,7 @@ namespace lz {
         Except<Execution, I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept, const Execution execPolicy = std::execution::seq) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept), execPolicy);
     }
-
+#else // ^^^ has execution vvv ! has execution
     /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
@@ -141,4 +150,12 @@ namespace lz {
         Except<I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
-}
+#endif // end has execution
+
+    // End of group
+    /**
+     * @}
+     */
+    }
+
+#endif

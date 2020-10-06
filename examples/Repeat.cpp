@@ -4,15 +4,12 @@
 
 
 int main() {
-    auto toRepeat = 155;
-    auto amount = 4;
-
+    const auto toRepeat = 155;
+    const auto amount = 4;
+    const auto repeater = lz::repeat(toRepeat, amount);
+    std::cout << repeater << '\n';
+	// Output: 155 155 155 155
     for (int i : lz::repeat(toRepeat, amount)) {
-        std::cout << i << '\n';
+        // Process i..
     }
-    // Yields (by reference if '&' is used):
-    // 155
-    // 155
-    // 155
-    // 155
 }

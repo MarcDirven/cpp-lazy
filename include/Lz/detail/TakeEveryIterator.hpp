@@ -1,33 +1,38 @@
 #pragma once
 
+#ifndef LZ_TAKE_EVERY_ITERATOR_HPP
+#define LZ_TAKE_EVERY_ITERATOR_HPP
+
 #include <iterator>
+#include "LzTools.hpp"
 
 
 namespace lz {
-    template<class>
+    template<LZ_CONCEPT_ITERATOR>
     class TakeEvery;
 
     namespace internal {
 
-    template<class Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEveryIterator {
         Iterator _iterator{};
         Iterator _end{};
-        size_t _offset{};
-        size_t _current{};
-        size_t _distance{};
+        std::size_t _offset{};
+        std::size_t _current{};
+        std::size_t _distance{};
 
 
-        friend class ::lz::TakeEvery<Iterator>;
+        friend class TakeEvery<Iterator>;
+        using IterTraits = std::iterator_traits<Iterator>;
 
     public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
+        using value_type = typename IterTraits::value_type;
+        using iterator_category = typename IterTraits::iterator_category;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = typename IterTraits::reference;
+        using pointer = typename IterTraits::pointer;
 
-        TakeEveryIterator(const Iterator iterator, const Iterator end, const size_t offset, const size_t distance) :
+        TakeEveryIterator(const Iterator iterator, const Iterator end, const std::size_t offset, const std::size_t distance) :
             _iterator(iterator),
             _end(end),
             _offset(offset),
@@ -35,12 +40,14 @@ namespace lz {
             _distance(distance) {
         }
 
+        TakeEveryIterator() = default;
+
         reference operator*() const {
             return *_iterator;
         }
 
         pointer operator->() const {
-            return _iterator.operator->();
+            return &*_iterator;
         }
 
         TakeEveryIterator& operator++() {
@@ -49,7 +56,7 @@ namespace lz {
         }
 
         TakeEveryIterator operator++(int) {
-            auto tmp = *this;
+            TakeEveryIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -66,7 +73,7 @@ namespace lz {
         }
 
         TakeEveryIterator& operator+=(const difference_type offset) {
-            auto total = _offset * offset;
+            auto total = static_cast<std::size_t>(_offset * offset);
 
             if (_current + total >= _distance) {
                 _iterator = _end;
@@ -92,20 +99,20 @@ namespace lz {
         }
 
         TakeEveryIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            TakeEveryIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         TakeEveryIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            TakeEveryIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
 
         difference_type operator-(const TakeEveryIterator& other) const {
-            auto distance = std::distance(other._iterator, _iterator);
-            auto diffOffset = static_cast<difference_type>(distance / _offset);
+            const difference_type distance = std::distance(other._iterator, _iterator);
+            const auto diffOffset = static_cast<difference_type>(distance / _offset);
             return _offset % 2 == 0 ? diffOffset : diffOffset + 1;
         }
 
@@ -138,3 +145,5 @@ namespace lz {
         }
     };
 }}
+
+#endif

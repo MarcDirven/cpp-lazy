@@ -1,8 +1,10 @@
 #pragma once
 
+#ifndef LZ_CONCATENATE_HPP
+#define LZ_CONCATENATE_HPP
 
-#include <Lz/detail/ConcatenateIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/ConcatenateIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -18,29 +20,38 @@ namespace lz {
         iterator _end{};
 
     public:
-        Concatenate(const Iterator1 beginIterator1, const Iterator1 endIterator1, const Iterator2 beginIterator2,
-                    const Iterator2 endIterator2) :
-            _begin(beginIterator1, endIterator1, beginIterator2, endIterator2),
-            _end(endIterator1, endIterator1, endIterator2, endIterator2) {
-        }
+        /**
+         * @brief Concatenate constructor.
+         * @param begin All the beginnings of the containers/iterables.
+         * @param end All the endings of the containers/iterables.
+         */
+        Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+            _begin(begin, begin, end),
+            _end(end, begin, end) {}
 
+        Concatenate() = default;
+
+        /**
+         * @brief Returns the beginning of the iterator.
+         * @return The beginning of the iterator.
+         */
         iterator begin() const override {
             return _begin;
         }
 
+        /**
+         * @brief Returns the ending of the iterator.
+         * @return The ending of the iterator.
+         */
         iterator end() const override {
             return _end;
         }
     };
 
-    template<class Iterator1, class Iterator2>
-    auto concatrange(Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Iterator2 end2) {
-        using ValueType1 = typename std::iterator_traits<Iterator1>::value_type;
-        using ValueType2 = typename std::iterator_traits<Iterator2>::value_type;
-        using Pointer1 = typename std::iterator_traits<Iterator1>::pointer;
-        using Pointer2 = typename std::iterator_traits<Iterator2>::pointer;
-        using Reference1 = typename std::iterator_traits<Iterator1>::reference;
-        using Reference2 = typename std::iterator_traits<Iterator2>::reference;
+    /**
+     * @addtogroup ItFns
+     * @{
+     */
 
     /**
      * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater than
@@ -60,7 +71,7 @@ namespace lz {
         static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value,
                       "reference types of iterators do not match");
 
-        return Concatenate<Iterator1, Iterator2>(begin1, end1, begin2, end2);
+        return Concatenate<Iterators...>(begin, end);
     }
 
     /**

@@ -1,7 +1,9 @@
 #pragma once
 
+#ifndef LZ_REPEAT_ITERATOR_HPP
+#define LZ_REPEAT_ITERATOR_HPP
+
 #include <iterator>
-#include <limits>
 
 
 namespace lz { namespace internal {
@@ -9,12 +11,19 @@ namespace lz { namespace internal {
     struct RepeatIteratorHelper {
         mutable T toRepeat{};
         bool isWhileTrueLoop{};
+
+        RepeatIteratorHelper(T toRepeat, bool isWhileTrueLoop) :
+            toRepeat(std::move(toRepeat)),
+            isWhileTrueLoop(isWhileTrueLoop)
+        {}
+
+        RepeatIteratorHelper() = default;
     };
 
     template<class T>
     class RepeatIterator {
         const RepeatIteratorHelper<T>* _iterHelper = RepeatIterator<T>();
-        size_t _iterator{};
+        std::size_t _iterator{};
 
     public:
         using iterator_category = std::random_access_iterator_tag;
@@ -23,10 +32,12 @@ namespace lz { namespace internal {
         using pointer = T*;
         using reference = T&;
 
-        explicit RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const size_t start) :
-            _iterHelper{iteratorHelper},
+        RepeatIterator(const RepeatIteratorHelper<T>* iteratorHelper, const std::size_t start) :
+            _iterHelper(iteratorHelper),
             _iterator(start) {
         }
+
+        RepeatIterator() = default;
 
         reference operator*() const {
             return _iterHelper->toRepeat;
@@ -44,8 +55,8 @@ namespace lz { namespace internal {
         }
 
         RepeatIterator operator++(int) {
-            auto tmp = *this;
-            ++*this;
+            RepeatIterator tmp(*this);
+            ++* this;
             return tmp;
         }
 
@@ -57,8 +68,8 @@ namespace lz { namespace internal {
         }
 
         RepeatIterator operator--(int) {
-            auto tmp(*this);
-            --*this;
+            RepeatIterator tmp(*this);
+            --* this;
             return tmp;
         }
 
@@ -77,13 +88,13 @@ namespace lz { namespace internal {
         }
 
         RepeatIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            RepeatIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         RepeatIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            RepeatIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
@@ -121,3 +132,5 @@ namespace lz { namespace internal {
         }
     };
 }}
+
+#endif

@@ -1,13 +1,10 @@
 #pragma once
 
-#include <type_traits>
-#include <algorithm>
-#include <functional>
-#include <vector>
-#include <array>
+#ifndef LZ_FILTER_HPP
+#define LZ_FILTER_HPP
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/FilterIterator.hpp>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/FilterIterator.hpp"
 
 
 namespace lz {
@@ -25,7 +22,6 @@ namespace lz {
         using iterator = internal::FilterIterator<Iterator, Function>;
 #endif
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
@@ -37,12 +33,28 @@ namespace lz {
          * @brief The filter constructor.
          * @param begin Beginning of the iterator.
          * @param end End of the iterator.
+         * @param execution The execution policy.
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
-        Filter(const Iterator begin, const Iterator end, const Function function) :
+#ifdef LZ_HAS_EXECUTION
+        Filter(const Iterator begin, const Iterator end, const Function& function, const Execution execution) :
+            _begin(begin, end, function, execution),
+            _end(end, end, function, execution) {
+        }
+#else
+        /**
+         * @brief The filter constructor.
+         * @param begin Beginning of the iterator.
+         * @param end End of the iterator.
+         * @param function A function with parameter the value type of the iterable and must return a bool.
+         */
+        Filter(const Iterator begin, const Iterator end, const Function& function) :
             _begin(begin, end, function),
             _end(end, end, function) {
         }
+#endif
+
+        Filter() = default;
 
         /**
         * @brief Returns the beginning of the filter iterator object.
@@ -66,6 +78,7 @@ namespace lz {
      * @{
      */
 
+#ifdef LZ_HAS_EXECUTION
     /**
      * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
      * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all
@@ -73,6 +86,7 @@ namespace lz {
      * @param begin The beginning of the range.
      * @param end The ending of the range.
      * @param predicate A function that must return a bool, and needs a value type of the container as parameter.
+     * @param execution The execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
@@ -101,6 +115,7 @@ namespace lz {
                       "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
     }
+#endif
 
 #ifdef LZ_HAS_EXECUTION
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
@@ -122,9 +137,12 @@ namespace lz {
     Filter<internal::IterType<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
+#endif
 
     // End of group
     /**
      * @}
      */
 }
+
+#endif

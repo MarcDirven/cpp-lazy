@@ -1,8 +1,10 @@
 #pragma once
 
+#ifndef LZ_REPEAT_HPP
+#define LZ_REPEAT_HPP
 
-#include <Lz/detail/RepeatIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/RepeatIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -23,17 +25,21 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        Repeat(T&& toRepeat, const size_t amount):
-            _iteratorHelper{std::move(toRepeat), amount == std::numeric_limits<size_t>::max()},
-            _amount(amount){
+        Repeat(T toRepeat, const std::size_t amount):
+            _iteratorHelper(std::move(toRepeat), amount == std::numeric_limits<std::size_t>::max()),
+            _begin(&_iteratorHelper, 0),
+            _end(&_iteratorHelper, amount)
+            {
         }
+
+        Repeat() = default;
 
         /**
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return iterator(&_iteratorHelper, 0);
+            return _begin;
         }
 
         /**
@@ -41,7 +47,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return iterator(&_iteratorHelper, _amount);
+            return _end;
         }
     };
 
@@ -59,7 +65,7 @@ namespace lz {
      * @return A repeat object, containing the random access iterator.
      */
     template<class T>
-    auto repeat(T toRepeat, const size_t amount = std::numeric_limits<size_t>::max()) {
+    Repeat<T> repeat(T toRepeat, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
         return Repeat<T>(std::move(toRepeat), amount);
     }
 
@@ -68,3 +74,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

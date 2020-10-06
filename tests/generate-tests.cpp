@@ -6,27 +6,28 @@
 
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
-    constexpr size_t amount = 4;
-    size_t counter = 0;
+    constexpr std::size_t amount = 4;
+    std::size_t counter = 0;
     auto generator = lz::generate([&counter]() {
         return counter++;
     }, amount);
 
     SECTION("Should be 0, 1, 2, 3") {
-        size_t expected = 0;
-        for (int i : generator) {
-            CHECK((size_t)i == expected++);
+        std::size_t expected = 0;
+        for (std::size_t i : generator) {
+            CHECK(i == expected++);
         }
     }
 }
 
 
 TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
-    constexpr size_t amount = 4;
-    size_t counter = 0;
-    auto generator = lz::generate([&counter]() {
+    constexpr std::size_t amount = 4;
+    std::size_t counter = 0;
+    std::function<std::size_t()> f = [&counter]() {
         return counter++;
-    }, amount);
+    };
+    auto generator = lz::generate(f, amount);
     auto begin = generator.begin();
 
     SECTION("Operator++") {
@@ -47,7 +48,7 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        const size_t toAdd = 2;
+        const std::size_t toAdd = 2;
         begin += toAdd;
         CHECK(std::distance(begin, generator.end()) == amount - toAdd);
     }
@@ -77,39 +78,39 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
 }
 
 TEST_CASE("Generate to containers", "[Generate][To container]") {
-    constexpr size_t amount = 4;
-    size_t counter = 0;
+    constexpr std::size_t amount = 4;
+    std::size_t counter = 0;
     auto generator = lz::generate([&counter]() {
         return counter++;
     }, amount);
 
     SECTION("To array") {
-        std::array<size_t, amount> array = generator.toArray<amount>();
-        std::array<size_t, amount> expected = {0, 1, 2, 3};
+        std::array<std::size_t, amount> array = generator.toArray<amount>();
+        std::array<std::size_t, amount> expected = {0, 1, 2, 3};
 
         CHECK(array == expected);
     }
 
     SECTION("To vector") {
-        std::vector<size_t> vector = generator.toVector();
-        std::vector<size_t> expected = {0, 1, 2, 3};
+        std::vector<std::size_t> vector = generator.toVector();
+        std::vector<std::size_t> expected = {0, 1, 2, 3};
 
         CHECK(vector == expected);
     }
 
     SECTION("To other container using to<>()") {
-        std::list<size_t> vector = generator.to<std::list>();
-        std::list<size_t> expected = {0, 1, 2, 3};
+        std::list<std::size_t> vector = generator.to<std::list>();
+        std::list<std::size_t> expected = {0, 1, 2, 3};
 
         CHECK(vector == expected);
     }
 
     SECTION("To map") {
-        std::map<size_t, size_t> map = generator.toMap([](const size_t elm) {
+        std::map<std::size_t, std::size_t> map = generator.toMap([](const std::size_t elm) {
             return elm * 10;
         });
 
-        std::map<size_t, size_t> expected = {
+        std::map<std::size_t, std::size_t> expected = {
             {0, 0},
             {10, 1},
             {20, 2},
@@ -120,11 +121,11 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<size_t, size_t> map = generator.toUnorderedMap([](const size_t elm) {
+        std::unordered_map<std::size_t, std::size_t> map = generator.toUnorderedMap([](const std::size_t elm) {
             return elm * 10;
         });
 
-        std::unordered_map<size_t, size_t> expected = {
+        std::unordered_map<std::size_t, std::size_t> expected = {
             {0, 0},
             {10, 1},
             {20, 2},

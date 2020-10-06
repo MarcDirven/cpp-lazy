@@ -1,8 +1,14 @@
 #pragma once
 
-#include <iterator>
-#include <Lz/detail/LzTools.hpp>
+#ifndef LZ_CONCATENATE_ITERATOR_HPP
+#define LZ_CONCATENATE_ITERATOR_HPP
 
+#include <iterator>
+#include <numeric>
+#include <stdexcept>
+#include <tuple>
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
@@ -172,136 +178,95 @@ namespace lz { namespace internal {
         using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
     public:
+        using value_type = typename FirstTupleIterator::value_type;
+        using difference_type = std::ptrdiff_t;
+        using reference = typename FirstTupleIterator::reference;
+        using pointer = typename FirstTupleIterator::pointer;
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = typename std::iterator_traits<Iterator1>::value_type;
-        using difference_type = typename std::iterator_traits<Iterator1>::difference_type;
-        using reference = typename std::iterator_traits<Iterator1>::reference;
-        using pointer = typename std::iterator_traits<Iterator1>::pointer;
 
     private:
-        Iterator1 _iterator1{}, _end1{};
-        Iterator2 _iterator2{}, _begin2{}, _end2{};
+        template<std::size_t... I>
+        difference_type minus(IndexSequence<I...>, const ConcatenateIterator& other) const {
+	        const std::initializer_list<difference_type> totals = {
+                static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
+            return std::accumulate(totals.begin(), totals.end(), static_cast<difference_type>(0));
+        }
 
     public:
-        ConcatenateIterator(const Iterator1 iterator1, const Iterator2 end1, const Iterator1 iterator2,
-                            const Iterator2 end2) :
-            _iterator1(iterator1),
-            _end1(end1),
-            _iterator2(iterator2),
-            _begin2(iterator2),
-            _end2(end2) {}
+        ConcatenateIterator(const IterTuple& iterators, const IterTuple& begin, const IterTuple& end) :  // NOLINT(modernize-pass-by-value)
+            _iterators(iterators),
+            _begin(begin),
+            _end(end) {
+        }
+
+        ConcatenateIterator() = default;
 
         reference operator*() const {
-            if (_iterator1 != _end1) {
-                return *_iterator1;
-            }
-            else if (_iterator2 != _end2) {
-                return *_iterator2;
-            }
-            throw std::out_of_range("all iterators have been exhausted");
+            return Deref<IterTuple, 0>()(_iterators, _end);
         }
 
         pointer operator->() const {
-            if (_iterator1 != _end1) {
-                return _iterator1.operator->();
-            }
-            else if (_iterator2 != _end2) {
-                return _iterator2.operator->();
-            }
-            return nullptr;
+            return &(**this);
         }
 
         ConcatenateIterator& operator++() {
-            if (_iterator1 != _end1) {
-                ++_iterator1;
-            }
-            else if (_iterator2 != _end2) {
-                ++_iterator2;
-            }
+            PlusPlus<IterTuple, 0>()(_iterators, _end);
             return *this;
         }
 
         ConcatenateIterator operator++(int) {
-            auto tmp = *this;
+            ConcatenateIterator tmp(*this);
             ++*this;
             return tmp;
         }
 
         ConcatenateIterator& operator--() {
-            if (_iterator2 == _end2 && _iterator1 == _end1) {
-                --_iterator2;
-            }
-            else if (_iterator2 != _end2 && _iterator1 != _end2) {
-                --_iterator1;
-            }
+            MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _end);
             return *this;
         }
 
         ConcatenateIterator operator--(int) {
-            auto tmp(*this);
-            --*this;
+            ConcatenateIterator tmp(*this);
+            ++*this;
             return tmp;
         }
 
         ConcatenateIterator& operator+=(const difference_type offset) {
-            auto distance = static_cast<difference_type>(std::distance(_iterator1, _end1));
-
-            if (distance > offset) {
-                _iterator1 = std::next(_iterator1, offset);
-            }
-            else {
-                _iterator1 = _end1;
-                _iterator2 = std::next(_iterator2, offset - distance);
-            }
+            PlusIs<IterTuple, 0>()(_iterators, _end, offset);
             return *this;
         }
 
         ConcatenateIterator& operator-=(const difference_type offset) {
-            if (_iterator1 != _end1) {
-                _iterator1 = std::prev(_iterator1, offset);
-            }
-            else {
-                // Check if overlap
-                auto distance = static_cast<difference_type>(std::distance(_iterator2, _end2));
-
-                if (_iterator2 == _begin2) {
-                    _iterator1 = std::prev(_iterator1, offset);
-                }
-                else if (distance <= offset) {
-                    _iterator2 = _begin2;
-                    _iterator1 = std::prev(_iterator1, offset - distance);
-                }
-            }
+            MinIs<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end, offset);
             return *this;
         }
 
         ConcatenateIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            ConcatenateIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         ConcatenateIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            ConcatenateIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
 
         difference_type operator-(const ConcatenateIterator& other) const {
-            return static_cast<difference_type>(std::distance(other._iterator1, _end1) +
-                                                std::distance(other._iterator2, _end2));
-        }
-
-        reference operator[](const difference_type offset) const {
-            return *(*this + offset);
+            return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
         }
 
         bool operator!=(const ConcatenateIterator& other) const {
-            return _iterator1 != other._iterator1 || _iterator2 != other._iterator2;
+            return NotEqual<IterTuple, 0>()(_iterators, other._iterators);
         }
 
         bool operator==(const ConcatenateIterator& other) const {
             return !(*this != other);
+        }
+
+        reference operator[](const difference_type offset) const {
+            return *(*this + offset);
         }
 
         bool operator<(const ConcatenateIterator& other) const {
@@ -321,3 +286,5 @@ namespace lz { namespace internal {
         }
     };
 }}
+
+#endif

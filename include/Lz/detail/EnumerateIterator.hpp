@@ -1,27 +1,32 @@
 #pragma once
 
+#ifndef LZ_ENUMERATE_ITERATOR_HPP
+#define LZ_ENUMERATE_ITERATOR_HPP
+
 #include <iterator>
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
     class EnumerateIterator {
-    public:
         IntType _index;
         Iterator _iterator;
 
+        using IterTraits = std::iterator_traits<Iterator>;
     public:
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using value_type = std::pair<IntType, typename std::iterator_traits<Iterator>::value_type>;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-        using reference = std::pair<IntType, typename std::iterator_traits<Iterator>::reference>;
+        using iterator_category = typename IterTraits::iterator_category;
+        using value_type = std::pair<IntType, typename IterTraits::value_type>;
+        using difference_type = typename IterTraits::difference_type;
+        using reference = std::pair<IntType, typename IterTraits::reference>;
         using pointer = FakePointerProxy<reference>;
 
         EnumerateIterator(const IntType start, const Iterator iterator) :
             _index(start),
             _iterator(iterator) {
         }
+
+        EnumerateIterator() = default;
 
         reference operator*() const {
             return reference(_index, *_iterator);
@@ -38,7 +43,7 @@ namespace lz { namespace internal {
         }
 
         EnumerateIterator operator++(int) {
-            auto tmp = *this;
+            EnumerateIterator tmp = *this;
             ++*this;
             return tmp;
         }
@@ -50,31 +55,31 @@ namespace lz { namespace internal {
         }
 
         EnumerateIterator operator--(int) {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             --*this;
             return tmp;
         }
 
         EnumerateIterator& operator+=(const difference_type offset) {
-            _index += offset;
+            _index += static_cast<IntType>(offset);
             _iterator += offset;
             return *this;
         }
 
         EnumerateIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         EnumerateIterator& operator-=(const difference_type offset) {
-            _index -= offset;
+            _index -= static_cast<IntType>(offset);
             _iterator -= offset;
             return *this;
         }
 
         EnumerateIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            EnumerateIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
@@ -112,3 +117,5 @@ namespace lz { namespace internal {
         }
     };
 }}
+
+#endif

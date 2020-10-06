@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Lz/detail/BasicIteratorView.hpp>
-#include <Lz/detail/MapIterator.hpp>
+#ifndef LZ_MAP_HPP
+#define LZ_MAP_HPP
 
-#include <vector>
-#include <array>
-#include <map>
+#include "detail/BasicIteratorView.hpp"
+#include "detail/MapIterator.hpp"
 
 
 namespace lz {
@@ -14,7 +13,6 @@ namespace lz {
     public:
         using iterator = internal::MapIterator<Iterator, Function>;
         using const_iterator = iterator;
-
         using value_type = typename iterator::value_type;
 
     private:
@@ -28,10 +26,12 @@ namespace lz {
          * @param end End of the iterator.
          * @param function A function with parameter the value type. It may return anything.
          */
-        Map(Iterator begin, Iterator end, Function function) :
+        Map(const Iterator begin, const Iterator end, const Function& function) :
             _begin(begin, function),
             _end(end, function) {
         }
+
+        Map() = default;
 
         /**
         * @brief Returns the beginning of the map iterator object.
@@ -67,8 +67,8 @@ namespace lz {
      * @return A Map object from [begin, end) that can be converted to an arbitrary container or can be iterated over
      * using `for (auto... lz::map(...))`.
      */
-    template<class Iterator, class Function>
-    auto maprange(Iterator begin, Iterator end, Function function) {
+    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
+    Map<Iterator, Function> mapRange(const Iterator begin, const Iterator end, const Function& function) {
         return Map<Iterator, Function>(begin, end, function);
     }
 
@@ -91,3 +91,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

@@ -7,9 +7,9 @@
 
 
 TEST_CASE("TakeEvery changing and creating elements", "[TakeEvery][Basic functionality]") {
-    constexpr size_t size = 4;
+    constexpr std::size_t size = 4;
     std::array<int, size> array = {1, 2, 3, 4};
-    auto takeEvery = lz::takeevery(array, 2);
+    auto takeEvery = lz::takeEvery(array, 2);
     auto iterator = takeEvery.begin();
 
     SECTION("TakeEvery should be by reference") {
@@ -26,7 +26,7 @@ TEST_CASE("TakeEvery changing and creating elements", "[TakeEvery][Basic functio
     }
 
     SECTION("TakeEvery should select every amount-th with skip first") {
-        takeEvery = lz::takeevery(array, 2, 1);
+        takeEvery = lz::takeEvery(array, 2, 1);
         iterator = takeEvery.begin();
 
         CHECK(*iterator == 2);
@@ -39,9 +39,9 @@ TEST_CASE("TakeEvery changing and creating elements", "[TakeEvery][Basic functio
 
 
 TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
-    constexpr size_t size = 4;
+    constexpr std::size_t size = 4;
     std::array<int, size> array = {1, 2, 3, 4};
-    auto takeEvery = lz::takeevery(array, 3);
+    auto takeEvery = lz::takeEvery(array, 3);
     auto iterator = takeEvery.begin();
 
     SECTION("Operator++") {
@@ -91,13 +91,13 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
 }
 
 TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {
-    constexpr size_t size = 4;
+    constexpr std::size_t size = 4;
     std::array<int, size> array = {1, 2, 3, 4};
-    constexpr size_t offset = 2;
-    auto takeEvery = lz::takeevery(array, offset);
+    constexpr std::size_t offset = 2;
+    auto takeEvery = lz::takeEvery(array, offset);
 
     SECTION("To array") {
-        std::array<int, static_cast<size_t>(size / offset)> actual = takeEvery.toArray<offset>();
+        std::array<int, static_cast<std::size_t>(size / offset)> actual = takeEvery.toArray<offset>();
         CHECK(actual == std::array<int, offset>{1, 3});
     }
 

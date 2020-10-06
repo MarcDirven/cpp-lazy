@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef LZ_RANGE_ITERATOR_HPP
+#define LZ_RANGE_ITERATOR_HPP
+
 #include <iterator>
 
 
@@ -21,6 +24,8 @@ namespace lz { namespace internal {
             _step(step) {
         }
 
+        RangeIterator() = default;
+
         value_type operator*() const {
             return _iterator;
         }
@@ -35,7 +40,7 @@ namespace lz { namespace internal {
         }
 
         RangeIterator operator++(int) {
-            auto tmp = *this;
+            RangeIterator tmp(*this);
             ++*this;
             return tmp;
         }
@@ -46,7 +51,7 @@ namespace lz { namespace internal {
         }
 
         RangeIterator operator--(int) {
-            auto tmp(*this);
+            RangeIterator tmp(*this);
             --*this;
             return tmp;
         }
@@ -57,7 +62,7 @@ namespace lz { namespace internal {
         }
 
         RangeIterator operator+(const difference_type offset) const {
-            auto tmp = *this;
+            RangeIterator tmp(*this);
             return tmp += offset;
         }
 
@@ -67,12 +72,12 @@ namespace lz { namespace internal {
         }
 
         RangeIterator operator-(const difference_type other) const {
-            auto tmp = *this;
+            RangeIterator tmp = *this;
             return tmp -= other;
         }
 
         difference_type operator-(const RangeIterator& other) const {
-            auto distance = _iterator - other._iterator;
+            difference_type distance = _iterator - other._iterator;
             return static_cast<difference_type>(distance / _step);
         }
 
@@ -108,3 +113,5 @@ namespace lz { namespace internal {
         }
     };
 }}
+
+#endif

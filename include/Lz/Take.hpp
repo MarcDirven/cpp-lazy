@@ -1,18 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <array>
+#ifndef LZ_TAKE_HPP
+#define LZ_TAKE_HPP
 
-#include <Lz/detail/TakeIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
     class Take final : public internal::BasicIteratorView<Iterator> {
     public:
-        using iterator = detail::TakeIterator<Iterator, Function>;
-        using const_iterator = iterator;
+        using iterator = Iterator;
+        using const_iterator = Iterator;
 
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
@@ -26,13 +25,30 @@ namespace lz {
          * returns false, the iterator stops.
          * @param begin The beginning of the iterator.
          * @param end The ending of the iterator.
-         * @param function Function that must contain a the value type in its arguments and must return a bool. If the
+         * @param predicate Function that must contain a the value type in its arguments and must return a bool. If the
          * function returns false, the iterator stops.
          */
-        Take(Iterator begin, Iterator end, Function function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+        template<class Function>
+        Take(const Iterator begin, const Iterator end, const Function predicate) :
+            _begin(begin),
+            _end(end) {
+            if (_begin != _end) {
+                _begin = !predicate(*_begin) ? end : _begin;
+            }
         }
+
+        /**
+         * @brief Extra constructor overload with `std::nullptr_t`. Takes elements from an iterator from [begin, ...).
+         * Takes no function as argument. Rather a `nullptr` to indicate that we are just taking a sequence.
+         * @param begin The beginning of the iterator.
+         * @param end The ending of the iterator.
+         */
+        Take(const Iterator begin, const Iterator end, std::nullptr_t) :
+            _begin(begin),
+            _end(end) {
+        }
+
+        Take() = default;
 
         /**
          * @brief Returns the beginning of the iterator.
@@ -56,7 +72,7 @@ namespace lz {
      * @defgroup ItFns Iterator free functions.
      * These are the iterator functions and can all be used to iterate over in a
      * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`,
-     * `toVector<Allocator>`, `toArray<N>`, `to<container>` (specifying its value type of the container is not
+     * `toVector<Allocator>`, `toArray<N>`, `to<container>. toMap, toUnorderedMap` (specifying its value type of the container is not
      *  necessary, so e.g. `to<std::list>()` will do), `begin()`, `end()` methods and `value_type` and `iterator`
      *  typedefs.
      * @{
@@ -71,25 +87,25 @@ namespace lz {
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takewhilerange(...))`.
+     * `for (auto... lz::takeWhileRange(...))`.
      */
-    template<class Iterator, class Function>
-    auto takewhilerange(Iterator begin, Iterator end, Function predicate) {
-        return Take<Iterator, Function>(begin, end, predicate);
+    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+    Take<Iterator> takeWhileRange(const Iterator begin, const Iterator end, const Function predicate) {
+        return Take<Iterator>(begin, end, predicate);
     }
 
     /**
-     * @brief This function does the same as `lz::takewhilerange` except that it takes an iterable as parameter.
+     * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
      * Its `begin()` function returns a random access iterator.
      * @param iterable An object that has methods `begin()` and `end()`.
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takewhile(...))`.
+     * `for (auto... lz::takeWhile(...))`.
      */
-    template<class Iterable, class Function>
-    auto takewhile(Iterable&& iterable, Function predicate) {
-        return takewhilerange(std::begin(iterable), std::end(iterable), predicate);
+    template<LZ_CONCEPT_ITERABLE Iterable, class Function>
+    auto takeWhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
+        return takeWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 
     /**
@@ -99,11 +115,11 @@ namespace lz {
      * @param begin The beginning of the 'view'.
      * @param end The ending of the 'view'.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
-     * `for (auto... lz::takerange(...))`.
+     * `for (auto... lz::takeRange(...))`.
      */
-    template<class Iterator>
-    auto takerange(Iterator begin, Iterator end) {
-        return takewhilerange(begin, end, [](const auto&) { return true; });
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    Take<Iterator> takeRange(const Iterator begin, const Iterator end) {
+        return takeWhileRange(begin, end, nullptr);
     }
 
     /**
@@ -118,7 +134,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable>
     Take<internal::IterType < Iterable>> take(Iterable&& iterable, const std::size_t amount) {
         auto begin = std::begin(iterable);
-        return takerange(begin, std::next(begin, amount));
+        return takeRange(begin, std::next(begin, amount));
     }
 
     /**
@@ -133,7 +149,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable>
     Take<internal::IterType<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
         auto begin = std::begin(iterable);
-        return takerange(std::next(begin, from), std::next(begin, to));
+        return takeRange(std::next(begin, from), std::next(begin, to));
     }
 
     /**
@@ -173,3 +189,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

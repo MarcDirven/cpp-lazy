@@ -1,10 +1,12 @@
 #pragma once
 
+#ifndef LZ_RANDOM_ITERATOR_HPP
+#define LZ_RANDOM_ITERATOR_HPP
+
 #include <iterator>
 #include <random>
-#include <limits>
 
-#include <Lz/detail/LzTools.hpp>
+#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
@@ -13,22 +15,30 @@ namespace lz { namespace internal {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Arithmetic;
-        using difference_type = size_t;
-        using pointer = detail::FakePointerProxy<Arithmetic>;
+        using difference_type = std::size_t;
+        using pointer = FakePointerProxy<Arithmetic>;
         using reference = value_type;
 
     private:
-        size_t _current{};
-        const RandomIteratorHelper<Arithmetic, Distribution>* _randomIteratorHelper;
+        std::size_t _current{};
+        Arithmetic _min{}, _max{};
+        bool _isWhileTrueLoop{};
 
     public:
-        explicit RandomIterator(const size_t current, const RandomIteratorHelper<Arithmetic, Distribution>* helper) :
+        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::size_t current, const bool isWhileTrueLoop) :
             _current(current),
-            _randomIteratorHelper(helper) {
+            _min(min),
+            _max(max),
+            _isWhileTrueLoop(isWhileTrueLoop) {
         }
 
+        RandomIterator() = default;
+
         value_type operator*() const {
-            return _randomIteratorHelper->rand();
+            static std::random_device randomEngine;
+            static std::mt19937 generator(randomEngine());
+            Distribution randomNumber(_min, _max);
+            return randomNumber(generator);
         }
 
         pointer operator->() const {
@@ -36,53 +46,53 @@ namespace lz { namespace internal {
         }
 
         RandomIterator& operator++() {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 ++_current;
             }
             return *this;
         }
 
         RandomIterator operator++(int) {
-            auto tmp = *this;
+            RandomIterator tmp(*this);
             ++*this;
             return tmp;
         }
 
         RandomIterator& operator--() {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 --_current;
             }
             return *this;
         }
 
         RandomIterator operator--(int) {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             --*this;
             return tmp;
         }
 
         RandomIterator& operator+=(const difference_type offset) {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current += offset;
             }
             return *this;
         }
 
         RandomIterator operator+(const difference_type offset) const {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             tmp += offset;
             return tmp;
         }
 
         RandomIterator& operator-=(const difference_type offset) {
-            if (!_randomIteratorHelper->isWhileTrueLoop) {
+            if (!_isWhileTrueLoop) {
                 _current -= offset;
             }
             return *this;
         }
 
         RandomIterator operator-(const difference_type offset) const {
-            auto tmp(*this);
+            RandomIterator tmp(*this);
             tmp -= offset;
             return tmp;
         }
@@ -120,3 +130,5 @@ namespace lz { namespace internal {
         }
     };
 }}
+
+#endif

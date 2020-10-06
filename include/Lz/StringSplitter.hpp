@@ -1,22 +1,10 @@
 #pragma once
 
+#ifndef LZ_STRING_SPLITTER_HPP
+#define LZ_STRING_SPLITTER_HPP
 
-#include <Lz/detail/SplitIterator.hpp>
-#include <Lz/detail/BasicIteratorView.hpp>
-
-
-#include <array>
-#include <vector>
-
-
-#ifdef CXX_LT_17
-
-#include <string>
-
-
-#else
-#include <string_view>
-#endif
+#include "detail/SplitIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 
 namespace lz {
@@ -37,9 +25,11 @@ namespace lz {
          * @param str The string to split.
          * @param delimiter The delimiter to split on.
          */
-        StringSplitter(const std::string& str, std::string&& delimiter) :
-            _splitIteratorHelper{std::move(delimiter), str} {
+        StringSplitter(String&& str, std::string&& delimiter) :
+            _splitIteratorHelper(std::move(delimiter), std::forward<String>(str)) {
         }
+
+        StringSplitter() = default;
 
         /**
          * @brief Returns an input string split iterator to the beginning.
@@ -58,12 +48,12 @@ namespace lz {
         }
     };
 
-#ifdef CXX_LT_17
-    template class StringSplitter<std::string>;
-    template<class SubString = std::string>
+#ifdef LZ_HAS_STRING_VIEW
+    template class StringSplitter<std::string_view, std::string_view>;
+    template<class SubString = std::string_view, class String = std::string_view>
 #else
-    template class StringSplitter<std::string_view>;
-    template<class SubString = std::string_view>
+    template class StringSplitter<std::string, std::string>;
+    template<class SubString = std::string, class String = std::string>
 #endif
     // Start of group
     /**
@@ -82,8 +72,8 @@ namespace lz {
      * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::split(...))`.
      */
-    auto split(const std::string& str, std::string delimiter) {
-        return StringSplitter<SubString>(str, std::move(delimiter));
+    StringSplitter<SubString, String> split(String&& str, std::string delimiter) {
+        return StringSplitter<SubString, String>(std::forward<String>(str), std::move(delimiter));
     }
 
     // End of group
@@ -91,3 +81,5 @@ namespace lz {
      * @}
      */
 }
+
+#endif

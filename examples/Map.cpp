@@ -15,11 +15,12 @@ int main() {
         SomeStruct{"World"}
     };
 
-    auto mapper = lz::map(s, [](const SomeStruct& s) { return s.s; });
-    for (std::string s : mapper) {
-        std::cout << s << '\n';
-    }
+    const auto mapper = lz::map(s, [](const SomeStruct& s) { return s.s; });
+    std::cout << mapper << '\n';
+	// Output: Hello World
+
     // Yields by value if lambda does not use: "[](std::string&) -> std::string& {}":
-    // Hello
-    // World
+	for (std::string i : mapper) {
+		// process i...
+	}
 }
