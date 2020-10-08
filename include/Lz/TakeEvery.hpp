@@ -16,11 +16,6 @@ namespace lz {
 
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief TakeEvery constructor.
          * @param begin The beginning of the sequence.
@@ -29,27 +24,11 @@ namespace lz {
          * @param distance The distance between `begin` and `end`.
          */
         TakeEvery(const Iterator begin, const Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
-            _begin(begin, end, offset, distance),
-            _end(end, end, offset, distance) {
+            internal::BasicIteratorView<iterator>(iterator(begin, end, offset, distance), iterator(end, end, offset, distance))
+        {
         }
 
         TakeEvery() = default;
-
-        /**
-         * @brief Returns the beginning of the iterator.
-         * @return The beginning of the iterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the iterator.
-         * @return The ending of the iterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group

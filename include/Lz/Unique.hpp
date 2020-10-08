@@ -25,11 +25,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Creates an Unique iterator view object.
          * @details Use this iterator view to eventually get an iterator of unique values. The operator< and operator== must be
@@ -39,33 +34,17 @@ namespace lz {
          */
 #ifdef LZ_HAS_EXECUTION
         Unique(const Iterator begin, const Iterator end, const Execution e) :
-            _begin(begin, end, e),
-            _end(end, end, e) {
+            internal::BasicIteratorView<iterator>(iterator(begin, end, e), iterator(end, end, e))
+        {
         }
 #else
         Unique(const Iterator begin, const Iterator end) :
-            _begin(begin, end),
-            _end(end, end) {
+            internal::BasicIteratorView<iterator>(iterator(begin, end), iterator(end, end))
+        {
         }
 #endif
 
         Unique() = default;
-
-        /**
-         * @brief Returns the beginning of the sequence.
-         * @return The beginning of the sequence.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group

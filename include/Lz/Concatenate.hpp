@@ -14,38 +14,16 @@ namespace lz {
         using iterator = internal::ConcatenateIterator<Iterators...>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
-
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Concatenate constructor.
          * @param begin All the beginnings of the containers/iterables.
          * @param end All the endings of the containers/iterables.
          */
         Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
-            _begin(begin, begin, end),
-            _end(end, begin, end) {}
+            internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end))
+            {}
 
         Concatenate() = default;
-
-        /**
-         * @brief Returns the beginning of the iterator.
-         * @return The beginning of the iterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the iterator.
-         * @return The ending of the iterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**

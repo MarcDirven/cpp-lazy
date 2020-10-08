@@ -24,11 +24,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * Except constructor. Excepts all elements between [begin, end) contained by [toExceptBegin, toExceptEnd)
          * @param begin The beginning of the iterator to skip.
@@ -39,33 +34,17 @@ namespace lz {
 #ifdef LZ_HAS_EXECUTION
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
             const Execution execPolicy) :
-            _begin(begin, end, toExceptBegin, toExceptEnd, execPolicy),
-            _end(end, end, toExceptBegin, toExceptEnd, execPolicy)
+            internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, execPolicy),
+                                                  iterator(end, end, toExceptBegin, toExceptEnd, execPolicy))
         {}
 #else // ^^^ has execution vvv ! has execution
         Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
-            _begin(begin, end, toExceptBegin, toExceptEnd),
-            _end(end, end, toExceptBegin, toExceptEnd)
+            internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd),
+                                                  iterator(end, end, toExceptBegin, toExceptEnd))
     	{}
 #endif // end has execution
 
         Except() = default;
-
-        /**
-         * Returns an iterator to the beginning.
-         * @return An iterator to the beginning.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * Returns an iterator to the ending.
-         * @return An iterator to the ending.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**

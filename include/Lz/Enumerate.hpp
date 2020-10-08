@@ -16,10 +16,6 @@ namespace lz {
 
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
     public:
 
         /**
@@ -28,27 +24,11 @@ namespace lz {
          * @param start The start of the counting index. 0 is assumed by default.
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
-            _begin(start, begin),
-            _end(static_cast<IntType>(std::distance(begin, end)), end) {
+            internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(std::distance(begin, end)), end))
+        {
         }
 
         Enumerate() = default;
-
-        /**
-         * @brief Returns the beginning of the enumerate iterator object.
-         * @return A random access EnumerateIterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the enumerate object.
-         * @return A random access EnumerateIterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**

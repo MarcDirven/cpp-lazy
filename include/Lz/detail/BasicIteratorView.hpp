@@ -38,15 +38,14 @@ namespace lz { namespace internal {
         public:
             static constexpr bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
-
-#ifdef LZ_HAS_CXX14
-        template<class T>
-        constexpr bool HasReserveV = HasReserve<T>::value;
-#endif // end has cxx 14
     }
 
-    template<class Iterator>
+    template<class LzIterator>
     class BasicIteratorView {
+    public:
+        using value_type = typename std::iterator_traits<LzIterator>::value_type;
+
+    private:
         template<class MapType, class Allocator, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
@@ -58,7 +57,7 @@ namespace lz { namespace internal {
 
         template<std::size_t N>
         void verifyRange() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
+            constexpr auto size = static_cast<typename std::iterator_traits<LzIterator>::difference_type>(N);
 
             if (std::distance(begin(), end()) > size) {
                 throw std::invalid_argument(LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
@@ -74,11 +73,10 @@ namespace lz { namespace internal {
         EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
-
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
+            const LzIterator b = begin();
+            const LzIterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
 
@@ -96,27 +94,6 @@ namespace lz { namespace internal {
             return cont;
         }
 
-#else // ^^^ has execution vvv ! has execution
-
-        template<class Container, class... Args>
-        Container copyContainer(Args&& ... args) const {
-            Container cont(std::forward<Args>(args)...);
-            reserve(cont);
-            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
-            return cont;
-        }
-
-#endif // end has execution
-
-    public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-
-    private:
-        template<class KeySelectorFunc>
-        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-
-#ifdef LZ_HAS_EXECUTION
-
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
             verifyRange<N>();
@@ -130,8 +107,15 @@ namespace lz { namespace internal {
             }
             return array;
         }
-
 #else // ^^^ has execution vvv ! has execution
+
+        template<class Container, class... Args>
+        Container copyContainer(Args&& ... args) const {
+            Container cont(std::forward<Args>(args)...);
+            reserve(cont);
+            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
+            return cont;
+        }
 
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
@@ -142,13 +126,28 @@ namespace lz { namespace internal {
         }
 
 #endif // end has execution
+    private:
+        template<class KeySelectorFunc>
+        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+
+        LzIterator _begin{};
+        LzIterator _end{};
 
     public:
-        virtual Iterator begin() const = 0;
+        virtual LzIterator begin() const {
+            return _begin;
+        };
 
-        virtual Iterator end() const = 0;
+        virtual LzIterator end() const {
+            return _end;
+        };
 
         BasicIteratorView() = default;
+
+        BasicIteratorView(const LzIterator begin, const LzIterator end):
+            _begin(begin),
+            _end(end)
+        {}
 
         virtual ~BasicIteratorView() = default;
 
@@ -332,7 +331,6 @@ namespace lz { namespace internal {
 
             return string;
         }
-
 #endif
 
         /**
@@ -401,7 +399,7 @@ namespace lz { namespace internal {
          * @param it The iterator to print.
          * @return The stream object by reference.
          */
-        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
             return o << it.toString(" ");
         }
     };

@@ -16,11 +16,6 @@ namespace lz {
 
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin;
-        iterator _end{};
-
-    public:
         /**
          * @brief This object can be used to iterate over multiple containers. It stops at its smallest container.
          * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
@@ -35,27 +30,12 @@ namespace lz {
          * @param end The ending of all the containers
          */
         explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
-            _begin(begin),
-            _end(end) {
+            internal::BasicIteratorView<iterator>(iterator(begin), iterator(end))
+
+        {
         }
 
         Zip() = default;
-
-        /**
-         * @brief Returns the beginning of the zip iterator.
-         * @return The beginning of the zip iterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the zip iterator.
-         * @return The ending of the zip iterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group
