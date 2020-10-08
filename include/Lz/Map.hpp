@@ -15,11 +15,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief The Map constructor.
          * @param begin Beginning of the iterator.
@@ -27,27 +22,11 @@ namespace lz {
          * @param function A function with parameter the value type. It may return anything.
          */
         Map(const Iterator begin, const Iterator end, const Function& function) :
-            _begin(begin, function),
-            _end(end, function) {
+            internal::BasicIteratorView<iterator>(iterator(begin, function), iterator(end, function))
+        {
         }
 
         Map() = default;
-
-        /**
-        * @brief Returns the beginning of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-        * @brief Returns the ending of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group

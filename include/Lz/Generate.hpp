@@ -15,11 +15,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Generator constructor.
          * @details Creates a generator object. Executes `func` `amount` of times, and returns the value of this
@@ -29,28 +24,12 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(const GeneratorFunc& func, const std::size_t amount):
-            _begin(0, func, amount == std::numeric_limits<std::size_t>::max()),
-            _end(amount, func, amount == std::numeric_limits<std::size_t>::max())
+            internal::BasicIteratorView<iterator>(iterator(0, func, amount == std::numeric_limits<std::size_t>::max()),
+                                                  iterator(amount, func, amount == std::numeric_limits<std::size_t>::max()))
         {
         }
 
         Generate() = default;
-
-        /**
-        * @brief Returns the beginning of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-        * @brief Returns the ending of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**

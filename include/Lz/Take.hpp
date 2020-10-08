@@ -15,11 +15,6 @@ namespace lz {
 
         using value_type = typename std::iterator_traits<Iterator>::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
          * returns false, the iterator stops.
@@ -30,11 +25,8 @@ namespace lz {
          */
         template<class Function>
         Take(const Iterator begin, const Iterator end, const Function predicate) :
-            _begin(begin),
-            _end(end) {
-            if (_begin != _end) {
-                _begin = !predicate(*_begin) ? end : _begin;
-            }
+            internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end)
+        {
         }
 
         /**
@@ -44,27 +36,11 @@ namespace lz {
          * @param end The ending of the iterator.
          */
         Take(const Iterator begin, const Iterator end, std::nullptr_t) :
-            _begin(begin),
-            _end(end) {
+            internal::BasicIteratorView<iterator>(begin, end)
+        {
         }
 
         Take() = default;
-
-        /**
-         * @brief Returns the beginning of the iterator.
-         * @return The beginning of the iterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the iterator.
-         * @return The ending of the iterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group
@@ -132,8 +108,8 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<internal::IterType < Iterable>> take(Iterable&& iterable, const std::size_t amount) {
-        auto begin = std::begin(iterable);
+    Take<internal::IterType<Iterable>> take(Iterable&& iterable, const std::size_t amount) {
+        const auto begin = std::begin(iterable);
         return takeRange(begin, std::next(begin, amount));
     }
 
@@ -148,7 +124,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
     Take<internal::IterType<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
-        auto begin = std::begin(iterable);
+        const auto begin = std::begin(iterable);
         return takeRange(std::next(begin, from), std::next(begin, to));
     }
 

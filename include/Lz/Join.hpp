@@ -14,11 +14,7 @@ namespace lz {
         using iterator = internal::JoinIterator<Iterator>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
-    private:
-        iterator _begin{};
-        iterator _end{};
 
-    public:
         /**
          * @brief Creates a Join object.
          * @details Combines the iterator values followed by the delimiter. It is evaluated in a
@@ -28,27 +24,12 @@ namespace lz {
          * @param delimiter The delimiter to separate the previous and the next values in the sequence.
          */
         Join(const Iterator begin, const Iterator end, std::string delimiter, typename iterator::difference_type difference) :
-            _begin(begin, delimiter, true, difference),
-            _end(end, std::move(delimiter), false, difference){
+            internal::BasicIteratorView<iterator>(iterator(begin, delimiter, true, difference),
+                                                  iterator(end, delimiter, false, difference))
+        {
         }
 
         Join() = default;
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator end() const override {
-            return _end;
-        }
 
         /**
          * Because a join iterator already has a delimiter, an additional overload is necessary, where the delimiter is defaulted to blank.

@@ -16,8 +16,7 @@ namespace lz {
 
     private:
         internal::RepeatIteratorHelper<T> _iteratorHelper{};
-        iterator _begin{};
-        iterator _end{};
+        std::size_t _amount{};
 
     public:
         /**
@@ -25,11 +24,11 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        Repeat(T toRepeat, const std::size_t amount):
-            _iteratorHelper(std::move(toRepeat), amount == std::numeric_limits<std::size_t>::max()),
-            _begin(&_iteratorHelper, 0),
-            _end(&_iteratorHelper, amount)
-            {
+        explicit Repeat(T toRepeat, const std::size_t amount):
+            internal::BasicIteratorView<iterator>(iterator(), iterator()),
+            _amount(amount),
+            _iteratorHelper(std::move(toRepeat), amount)
+        {
         }
 
         Repeat() = default;
@@ -39,7 +38,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(&_iteratorHelper, 0);
         }
 
         /**
@@ -47,7 +46,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return _end;
+            return iterator(&_iteratorHelper, _amount);
         }
     };
 

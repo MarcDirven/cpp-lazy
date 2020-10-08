@@ -15,11 +15,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin;
-        iterator _end;
-
-    public:
         /**
          * @brief Random view object constructor, from [`min, max`].
          * @param min The minimum value of the random number (included).
@@ -29,27 +24,11 @@ namespace lz {
          * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
          */
         Random(const Arithmetic min, const Arithmetic max, const std::size_t amount, const bool isWhileTrueLoop) :
-            _begin(min, max, 0, isWhileTrueLoop),
-            _end(min, max, amount, isWhileTrueLoop) {
+            internal::BasicIteratorView<iterator>(iterator(min, max, 0, isWhileTrueLoop), iterator(min, max, amount, isWhileTrueLoop))
+        {
         }
 
         Random() = default;
-
-        /**
-         * @brief Returns the beginning of the sequence.
-         * @return The beginning of the sequence.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 	
     /**

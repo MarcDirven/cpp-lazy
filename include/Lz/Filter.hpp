@@ -24,10 +24,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
     public:
         /**
          * @brief The filter constructor.
@@ -38,8 +34,9 @@ namespace lz {
          */
 #ifdef LZ_HAS_EXECUTION
         Filter(const Iterator begin, const Iterator end, const Function& function, const Execution execution) :
-            _begin(begin, end, function, execution),
-            _end(end, end, function, execution) {
+            internal::BasicIteratorView<iterator>(iterator(begin, end, function, execution),
+                                                  iterator(end, end, function, execution))
+        {
         }
 #else
         /**
@@ -49,28 +46,12 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
         Filter(const Iterator begin, const Iterator end, const Function& function) :
-            _begin(begin, end, function),
-            _end(end, end, function) {
+            internal::BasicIteratorView<iterator>(iterator(begin, end, function), iterator(end, end, function))
+        {
         }
 #endif
 
         Filter() = default;
-
-        /**
-        * @brief Returns the beginning of the filter iterator object.
-        * @return A forward iterator FilterIterator.
-        */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-        * @brief Returns the ending of the filter iterator object.
-        * @return A forward iterator FilterIterator.
-        */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**
@@ -139,6 +120,12 @@ namespace lz {
     }
 #endif
 
+
+    template<class Iterator, class Function, class Execution = std::execution::sequenced_policy>
+    auto filter(internal::BasicIteratorView<Iterator>& iteratorView, const Function predicate,
+                const Execution execution = std::execution::seq)  -> lz::Filter<Execution, decltype(iteratorView.begin()), Function> {
+        return lz::filterRange(iteratorView.begin(), iteratorView.end(), predicate);
+    }
     // End of group
     /**
      * @}
