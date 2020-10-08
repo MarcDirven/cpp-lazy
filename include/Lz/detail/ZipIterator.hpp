@@ -42,15 +42,13 @@ namespace lz { namespace internal {
         template<std::size_t... I>
         void plusIs(IndexSequence<I...>, const difference_type differenceType) {
             const std::initializer_list<int> expand = {
-                (std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
+                (std::advance(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
         void minIs(IndexSequence<I...>, const difference_type differenceType) {
-            const std::initializer_list<int> expand = {
-                (std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
-            static_cast<void>(expand);
+            plusIs(MakeIndexSequenceForThis(), -differenceType);
         }
 
         template<std::size_t... I>

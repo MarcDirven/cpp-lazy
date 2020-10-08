@@ -149,10 +149,12 @@ namespace lz { namespace internal {
                 auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
                 if (distance > offset) {
-                    currentIterator = std::next(currentIterator, offset);
+                    std::advance(currentIterator, offset);
                 }
                 else {
-                    currentIterator = currentEnd;
+                    // Moves to end
+                    const auto toEndDistance = std::distance(currentIterator, currentEnd);
+                    std::advance(currentIterator, toEndDistance);
                     PlusIs<Tuple, I + 1>()(iterators, end, offset - distance);
                 }
             }
