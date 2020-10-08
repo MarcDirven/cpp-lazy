@@ -16,9 +16,6 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
-
         using FunctionReturnType = internal::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
@@ -31,29 +28,13 @@ namespace lz {
          * @param predicate The function that checks whether the iterator has met the condition(s). If false is returned, the exception
          * `exception` is thrown.
          */
-        Affirm(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) :
-            _begin(begin, predicate, exception),
-    		_end(end, predicate, std::forward<Exception>(exception)) {
+        Affirm(const Iterator begin, const Iterator end, const Exception& exception, const Function& predicate) :
+            internal::BasicIteratorView<iterator>(iterator(begin, predicate, exception), iterator(end, predicate, exception))
+        {
         }
     	
 
         Affirm() = default;
-
-        /**
-         * @brief Returns the beginning of the sequence.
-         * @return The beginning of the sequence.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
     /**
     * @addtogroup ItFns
