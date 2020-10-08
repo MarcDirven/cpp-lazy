@@ -405,7 +405,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     bool hasOne(Iterator begin, const Iterator end) {
-        return !lz::isEmpty(begin, end) && begin++ == end;
+        return !lz::isEmpty(begin, end) && ++begin == end;
     }
 
     /**
