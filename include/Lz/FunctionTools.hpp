@@ -153,7 +153,7 @@ namespace lz {
      * @return `true` if replacing has taken place, `false` otherwise.
      */
     // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
-    bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
+    inline bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
         return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::false_type());
     }
 
@@ -165,7 +165,7 @@ namespace lz {
      * @return `true` if replacing has taken place, `false` otherwise.
      */
     // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
-    bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
+    inline bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
         return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::true_type());
     }
 
@@ -292,7 +292,7 @@ namespace lz {
     Zip<Iterator, Iterator> pairwise(const Iterator begin, const Iterator end) {
         Iterator next = begin;
         if (begin != end) {
-            next = std::next(begin);
+            std::advance(next, 1);
         }
         return lz::zipRange(std::make_tuple(begin, next), std::make_tuple(end, end));
     }
