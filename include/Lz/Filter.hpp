@@ -24,7 +24,6 @@ namespace lz {
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
-    public:
         /**
          * @brief The filter constructor.
          * @param begin Beginning of the iterator.

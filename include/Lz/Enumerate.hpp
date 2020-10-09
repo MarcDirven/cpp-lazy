@@ -16,8 +16,6 @@ namespace lz {
 
         using value_type = typename iterator::value_type;
 
-    public:
-
         /**
          * @param begin Beginning of the iterator.
          * @param end Ending of the iterator.
