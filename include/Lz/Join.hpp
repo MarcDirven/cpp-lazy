@@ -22,6 +22,7 @@ namespace lz {
          * @param begin The beginning of the sequence.
          * @param end The ending of the sequence.
          * @param delimiter The delimiter to separate the previous and the next values in the sequence.
+         * @param difference The difference between `begin` and `end`
          */
         Join(const Iterator begin, const Iterator end, std::string delimiter, typename iterator::difference_type difference) :
             internal::BasicIteratorView<iterator>(iterator(begin, delimiter, true, difference),
