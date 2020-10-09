@@ -1,0 +1,75 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+  workflow_dispatch: ~
+
+env:
+  CMAKE_CONFIG_TYPE: Debug
+  CTEST_OUTPUT_ON_FAILURE: 1
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        install: [YES, NO]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: friendlyanon/fetch-core-count@v1
+        id: cores
+
+      - name: Configure (install)
+        if: matrix.install == 'YES'
+        run: cmake -S . -B build/install
+          -D CMAKE_BUILD_TYPE:STRING=Debug
+          -D CPP-LAZY_USE_INSTALLED_FMT:BOOL=NO
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+
+      - name: Build (install)
+        if: matrix.install == 'YES'
+        run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Install
+        if: matrix.install == 'YES'
+        run: cmake --install build/install
+
+      - name: Configure tests
+        run: cmake -S tests -B build/tests
+          -D CMAKE_BUILD_TYPE:STRING=Debug
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
+          -D TEST_INSTALLED_VERSION:BOOL=${{ matrix.install }}
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+
+      - name: Build tests
+        run: cmake --build build/tests -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Run tests
+        working-directory: build/tests
+        run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+
+  examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: friendlyanon/fetch-core-count@v1
+        id: cores
+
+      - name: Configure
+        run: cmake -S examples -B build/examples
+          -D CMAKE_BUILD_TYPE:STRING=Debug
+
+      - name: Build
+        run: cmake --build build/examples -j ${{ steps.cores.outputs.plus_one }}

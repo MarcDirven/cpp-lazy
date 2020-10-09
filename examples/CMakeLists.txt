@@ -1,28 +1,33 @@
-cmake_minimum_required(VERSION 3.12.4)
+cmake_minimum_required(VERSION 3.14)
 
-project(examples)
+project(examples LANGUAGES CXX)
 
-function(create_example_project name)
+include(FetchContent)
+FetchContent_Declare(cpp-lazy SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
+FetchContent_MakeAvailable(cpp-lazy)
+
+set(examples
+        Affirm
+        Concatenate
+        Enumerate
+        Except
+        Filter
+        FunctionTools
+        Generate
+        Join
+        Map
+        Random
+        Range
+        Repeat
+        StringSplitter
+        Take
+        TakeEvery
+        ToContainer
+        Unique
+        Zip)
+
+foreach(name IN LISTS examples)
     add_executable(IteratorExample${name} ${name}.cpp)
-    target_link_libraries(IteratorExample${name} cpp-lazy::cpp-lazy)
-    set_property(TARGET IteratorExample${name} PROPERTY CXX_STANDARD 14)
-endfunction()
-
-create_example_project(Affirm)
-create_example_project(Concatenate)
-create_example_project(Enumerate)
-create_example_project(Except)
-create_example_project(Filter)
-create_example_project(FunctionTools)
-create_example_project(Generate)
-create_example_project(Join)
-create_example_project(Map)
-create_example_project(Random)
-create_example_project(Range)
-create_example_project(Repeat)
-create_example_project(StringSplitter)
-create_example_project(Take)
-create_example_project(TakeEvery)
-create_example_project(ToContainer)
-create_example_project(Unique)
-create_example_project(Zip)
+    target_link_libraries(IteratorExample${name} PRIVATE cpp-lazy::cpp-lazy)
+    target_compile_features(IteratorExample${name} PRIVATE cxx_std_14)
+endforeach()

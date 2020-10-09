@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 project(cpp-lazy
         VERSION 2.0.0
@@ -7,73 +7,77 @@ project(cpp-lazy
         HOMEPAGE_URL "https://github.com/MarcDirven/cpp-lazy"
         LANGUAGES CXX)
 
-add_library(${PROJECT_NAME} INTERFACE)
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+# ---- Warning guard ----
 
+# Protect dependents from this project's warnings if the guard isn't disabled
+set(cpp-lazy_warning_guard "SYSTEM")
+if(cpp-lazy_INCLUDE_WITHOUT_SYSTEM)
+    set(cpp-lazy_warning_guard "")
+endif()
+
+# ---- Import {fmt} ----
+
+option(CPP-LAZY_USE_INSTALLED_FMT "Import {fmt} using find_package" NO)
+if(CPP-LAZY_USE_INSTALLED_FMT)
+    find_package(fmt 7 REQUIRED CONFIG)
+else()
+    set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
+    set(FMT_OS YES CACHE INTERNAL "")
+    include(FetchContent)
+    FetchContent_Declare(fmt
+            GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+            GIT_TAG a581e9e5d83673fefbecb7cc6ea2514af83f77c8
+            UPDATE_DISCONNECTED YES)
+    FetchContent_MakeAvailable(fmt)
+endif()
+
+# ---- Declare library ----
+
+add_library(cpp-lazy INTERFACE)
+add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
+
+target_link_libraries(cpp-lazy INTERFACE fmt::fmt)
+
+target_compile_features(cpp-lazy INTERFACE cxx_std_11)
+
+target_include_directories(cpp-lazy
+        ${cpp-lazy_warning_guard}
+        INTERFACE
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+
+# ---- Install ----
+
+include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-add_subdirectory(extern/fmt)
-target_link_libraries(${PROJECT_NAME} INTERFACE fmt::fmt)
+set(cpp-lazy_directory "cpp-lazy-${PROJECT_VERSION}")
+set(cpp-lazy_include_directory "${CMAKE_INSTALL_INCLUDEDIR}/${cpp-lazy_directory}")
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    set(IS_TOPLEVEL_PROJECT TRUE)
-else()
-    set(IS_TOPLEVEL_PROJECT FALSE)
-endif()
+install(TARGETS cpp-lazy
+        EXPORT cpp-lazyTargets
+        INCLUDES #
+        DESTINATION "${cpp-lazy_include_directory}")
 
-option(CPP_LAZY_INSTALL_LIBRARY
-        "Enable installing of cpp-lazy library"
-        ${IS_TOPLEVEL_PROJECT})
+write_basic_package_version_file(
+        cpp-lazyConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+        ARCH_INDEPENDENT)
 
-target_include_directories(
-        ${PROJECT_NAME}
-        INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+set(cpp-lazy_install_cmakedir
+        "${CMAKE_INSTALL_LIBDIR}/cmake/${cpp-lazy_directory}")
 
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+install(EXPORT cpp-lazyTargets
+        NAMESPACE cpp-lazy::
+        DESTINATION "${cpp-lazy_install_cmakedir}")
 
-# Add fmt
-if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    add_subdirectory(tests)
-    add_subdirectory(examples)
-    # Use a boolean for the benchmarks for now
-    set(INCLUDE_BENCHMARKS FALSE)
-    if (${INCLUDE_BENCHMARKS})
-        add_subdirectory(extern/benchmark)
-        add_subdirectory(bench)
-    endif()
-endif()
+install(FILES
+        "${PROJECT_SOURCE_DIR}/cmake/cpp-lazyConfig.cmake"
+        "${PROJECT_BINARY_DIR}/cpp-lazyConfigVersion.cmake"
+        DESTINATION "${cpp-lazy_install_cmakedir}")
 
-if (CPP_LAZY_INSTALL_LIBRARY)
-    install(TARGETS ${PROJECT_NAME} fmt
-            EXPORT ${PROJECT_NAME}_Targets
-            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
-
-    include(CMakePackageConfigHelpers)
-
-    write_basic_package_version_file(
-            "${PROJECT_NAME}ConfigVersion.cmake"
-            VERSION ${PROJECT_VERSION}
-            COMPATIBILITY SameMajorVersion)
-
-    configure_package_config_file("${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" INSTALL_DESTINATION
-            "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
-
-    install(EXPORT ${PROJECT_NAME}_Targets
-            FILE ${PROJECT_NAME}Targets.cmake
-            NAMESPACE ${PROJECT_NAME}::
-            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
-
-    install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-            "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake")
-
-    install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/Lz"
-            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-endif()
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+        DESTINATION "${cpp-lazy_include_directory}")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.md")
 
