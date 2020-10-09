@@ -51,6 +51,12 @@ namespace lz {
         { std::end(i) } -> std::bidirectional_iterator;
     };
 
+    template<class I>
+    concept RandomAccesIterable = requires(I i) {
+        { std::begin(i) } -> std::random_access_iterator;
+        { std::end(i) } -> std::random_access_iterator;
+    };
+
     template<class A, class B>
     concept LessThanComparable = requires(A a, B b) {
         { a < b } -> std::convertible_to<bool>;
@@ -65,6 +71,8 @@ namespace lz {
 #define LZ_CONCEPT_INVOCABLE              std::invocable
 #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
 #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
+#define LZ_CONCEPT_RA_ITERATOR            std::random_acess_iterator
+#define LZ_CONCEPT_RA_ITERABLE            std::random_acess_iterator
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
@@ -77,6 +85,8 @@ namespace lz {
 #define LZ_CONCEPT_ITERABLE               class
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
+#define LZ_CONCEPT_RA_ITERATOR            class
+#define LZ_CONCEPT_RA_ITERABLE            class
 
 #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif  // lz has concepts
@@ -190,6 +200,12 @@ namespace lz { namespace internal {
 
     template<typename Same, typename First>
     struct IsAllSame<Same, First> : std::is_same<Same, First> {
+    };
+
+    template<class T>
+    struct IsRandomAccess {
+        static constexpr bool value = !std::is_same_v<std::input_iterator_tag, T> && !std::is_same_v<std::output_iterator_tag, T> &&
+                                      !std::is_same_v<std::forward_iterator_tag, T> && !std::is_same_v<std::bidirectional_iterator_tag, T>;
     };
 
     template<class Iterable>
