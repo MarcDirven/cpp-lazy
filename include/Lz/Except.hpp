@@ -78,7 +78,7 @@ namespace lz {
     }
 
     /**
-     * @brief This function returns a view to the random access ExceptIterator.
+     * @brief This function returns a view to the ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
      * be able to do it correctly.
@@ -98,7 +98,7 @@ namespace lz {
     }
 #else // ^^^ has execution vvv ! has execution
      /**
-      * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
+      * @brief This function returns a view to the ExceptIterator. If elements are changed in `toExcept` after
       * calling begin(), this iterator will not be able to do it correctly.
       * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
       * [`toExceptBegin`, `toExceptEnd).

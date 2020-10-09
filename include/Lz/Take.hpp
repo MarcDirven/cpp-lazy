@@ -56,7 +56,7 @@ namespace lz {
 
     /**
      * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
-     * returns false, the iterator stops. Its `begin()` function returns a random access iterator.
+     * returns false, the iterator stops. Its `begin()` function returns an iterator.
      * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
      * @param begin The beginning of the iterator.
      * @param end The beginning of the iterator.
@@ -72,7 +72,7 @@ namespace lz {
 
     /**
      * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
-     * Its `begin()` function returns a random access iterator.
+     * Its `begin()` function returns an iterator.
      * @param iterable An object that has methods `begin()` and `end()`.
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
@@ -86,7 +86,7 @@ namespace lz {
 
     /**
      * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a
-     * random access iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
+     * an iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
      * iterator object.
      * @param begin The beginning of the 'view'.
      * @param end The ending of the 'view'.
@@ -115,7 +115,7 @@ namespace lz {
 
     /**
      * @brief This function slices an iterable. It is equivalent to [`begin() + from, begin() + to`).
-     * Its `begin()` function returns a random access iterator.
+     * Its `begin()` function returns an iterator.
      * @param iterable An iterable with method `begin()`.
      * @param from The offset from the beginning of the iterable.
      * @param to The offset from the beginning to take. `from` must be higher than `to`.
