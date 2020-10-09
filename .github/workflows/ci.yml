@@ -19,8 +19,11 @@ jobs:
   gcc:
     strategy:
       matrix:
-        version: [4.8, 5, 6, 7, 8, 9, 10]
+        version: ['4.8', 5, 6, 7, 8, 9, 10]
         standard: [11, 14, 17]
+        include:
+          - version: '4.8'
+            pic: -D CMAKE_PROJECT_FMT_INCLUDE_BEFORE=cmake/gcc48PICFix.cmake
 
     runs-on: ubuntu-latest
 
@@ -48,6 +51,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          ${{ matrix.pic }}
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -72,7 +76,7 @@ jobs:
   clang:
     strategy:
       matrix:
-        version: [5.0, 6.0, 8, 9, 10]
+        version: ['5.0', '6.0', 8, 9, 10]
         standard: [11, 14, 17]
 
     runs-on: ubuntu-latest
@@ -130,6 +134,7 @@ jobs:
 
       - name: Configure (install)
         run: cmake -S . -B build/install
+          -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build (install)
