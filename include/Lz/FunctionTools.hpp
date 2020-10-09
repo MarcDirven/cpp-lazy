@@ -68,6 +68,7 @@ namespace lz {
             }
             return true;
         }
+		
         template<class To>
         struct ConvertFn {
             template<class From>
@@ -152,7 +153,6 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
-    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     inline bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
         return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::false_type());
     }
@@ -164,19 +164,18 @@ namespace lz {
      * @param newString The new string.
      * @return `true` if replacing has taken place, `false` otherwise.
      */
-    // ReSharper disable once CppNonInlineFunctionDefinitionInHeaderFile
     inline bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
         return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::true_type());
     }
 
 #ifdef LZ_HAS_STRING_VIEW
-    template<class... Types>
-    auto concatAsStringView(Types&&... types) -> lz::Concatenate<decltype(std::begin(std::string_view(types)))...> {
+    template<class... Strings>
+    auto concatAsStringView(Strings&&... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
         static_assert(
-            internal::IsAllSame<char, typename std::iterator_traits<decltype(internal::begin(types))>::value_type...>::value,
+            internal::IsAllSame<char, typename std::iterator_traits<decltype(internal::begin(strings))>::value_type...>::value,
             "the character type of the strings must use `char`"
         );
-        return lz::concat(static_cast<std::string_view>(types)...);
+        return lz::concat(static_cast<std::string_view>(strings)...);
     }
 #endif // end lz has string view
 
@@ -494,7 +493,7 @@ namespace lz {
      * Gets the first element of the sequence, or `value` if the sequence is empty.
      * @param iterable The iterable to get the first value of, or `value` in case it is empty.
      * @param value The value to return if `iterable` is empty.
-     * @return Either the first element of `iterable` or `value` if the sequence is emtpy.
+     * @return Either the first element of `iterable` or `value` if the sequence is empty.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
     internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable, const T& value) {
@@ -510,7 +509,7 @@ namespace lz {
      * This function returns the last element. If the sequence is empty, it returns `value`.
      * @param iterable The iterable to get the last value of, or `value` in case it is empty.
      * @param value The value to return if `iterable` is empty.
-     * @return Either the last element of `iterable` or `value` if the sequence is emtpy.
+     * @return Either the last element of `iterable` or `value` if the sequence is empty.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
     internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable, const T& value) {
