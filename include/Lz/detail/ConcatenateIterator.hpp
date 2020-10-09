@@ -133,7 +133,7 @@ namespace lz { namespace internal {
                 if (std::distance(currentBegin, current) < offset) {
                     throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
                 }
-                current = std::prev(current, offset);
+                std::advance(current, -offset);
             }
         };
 
