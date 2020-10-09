@@ -57,7 +57,7 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
         ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-            const IteratorToExcept toExceptEnd, const Execution execution) :
+                       const IteratorToExcept toExceptEnd, const Execution execution) :
 #else // ^^^ has execution vvv ! has execution
         ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
             const IteratorToExcept toExceptEnd) :
@@ -71,18 +71,15 @@ namespace lz { namespace internal {
 #endif // end has execution
         {
             if (begin != end) {
-                if (!std::is_sorted(_toExceptBegin, _toExceptEnd)) {
 #ifdef LZ_HAS_EXECUTION
-                    if constexpr (IsSequencedPolicyV<Execution>) {
-                        std::sort(_toExceptBegin, _toExceptEnd);
-                    }
-                    else {
-                        std::sort(_execution, _toExceptBegin, _toExceptEnd);
-                    }
-#else // ^^^ has execution vvv ! has execution
-                    std::sort(_toExceptBegin, _toExceptEnd);
-#endif // end has execution
+                if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd)) {
+                    std::sort(_execution, _toExceptBegin, _toExceptEnd);
                 }
+#else // ^^^ has execution vvv ! has execution
+                if (!std::is_sorted(_toExceptBegin, _toExceptEnd)) {
+                    std::sort(_toExceptBegin, _toExceptEnd);
+                }
+#endif // end has execution
                 find();
             }
         }
