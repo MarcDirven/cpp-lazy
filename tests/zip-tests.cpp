@@ -161,11 +161,10 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
                 return std::get<0>(tup);
             });
         std::map<int, std::tuple<int, float, short>> expected = {
-            std::make_pair(1, std::make_tuple(1, 1.f, 1)),
-            std::make_pair(2, std::make_tuple(2, 2.f, 2)),
-            std::make_pair(3, std::make_tuple(3, 3.f, 3)),
-            std::make_pair(4, std::make_tuple(4, 4.f, 4))
-
+            std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),
+            std::make_pair(2, std::make_tuple(2, 2.f, static_cast<short>(2))),
+            std::make_pair(3, std::make_tuple(3, 3.f, static_cast<short>(3))),
+            std::make_pair(4, std::make_tuple(4, 4.f, static_cast<short>(4)))
         };
 
         CHECK(actual == expected);
@@ -179,10 +178,10 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
             });
 
         std::unordered_map<int, std::tuple<int, float, short>> expected = {
-            std::make_pair(1, std::make_tuple(1, 1.f, 1)),
-            std::make_pair(2, std::make_tuple(2, 2.f, 2)),
-            std::make_pair(3, std::make_tuple(3, 3.f, 3)),
-            std::make_pair(4, std::make_tuple(4, 4.f, 4))
+            std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),
+            std::make_pair(2, std::make_tuple(2, 2.f, static_cast<short>(2))),
+            std::make_pair(3, std::make_tuple(3, 3.f, static_cast<short>(3))),
+            std::make_pair(4, std::make_tuple(4, 4.f, static_cast<short>(4)))
 
         };
 
