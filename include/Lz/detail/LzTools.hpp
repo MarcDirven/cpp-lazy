@@ -215,13 +215,13 @@ namespace lz { namespace internal {
     using ValueType = typename std::iterator_traits<Iterator>::value_type;
 
     template<class Iterator>
-    using PointerTypeIterator = typename std::iterator_traits<Iterator>::pointer;
+    using PointerType = typename std::iterator_traits<Iterator>::pointer;
 
     template<class Iterator>
     using RefType = typename std::iterator_traits<Iterator>::reference;
 
     template<class Iterator>
-    using DiffTypeIterator = typename std::iterator_traits<Iterator>::difference_type;
+    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
 
     template<class Function, class... Args>
     using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));

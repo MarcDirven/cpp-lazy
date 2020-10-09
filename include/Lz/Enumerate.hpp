@@ -69,7 +69,7 @@ namespace lz {
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
-    Enumerate<internal::IterType<Iterable>, IntType> enumerate(Iterable&& iterable, const  IntType start = 0) {
+    Enumerate<internal::IterTypeFromIterable<Iterable>, IntType> enumerate(Iterable&& iterable, const  IntType start = 0) {
         return enumerateRange(std::begin(iterable), std::end(iterable), start);
     }
 

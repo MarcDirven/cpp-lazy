@@ -61,7 +61,7 @@ namespace lz {
      * `for (auto... lz::map(...))`.
      */
     template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-    Map<internal::IterType<Iterable>, Function> map(Iterable&& iterable, const Function& function) {
+    Map<internal::IterTypeFromIterable<Iterable>, Function> map(Iterable&& iterable, const Function& function) {
         return mapRange(std::begin(iterable), std::end(iterable), function);
     }
 

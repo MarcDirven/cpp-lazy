@@ -97,7 +97,7 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterable, class Function>
-    Affirm<Exception, internal::IterType<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
+    Affirm<Exception, internal::IterTypeFromIterable<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
         return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
 

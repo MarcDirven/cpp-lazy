@@ -13,7 +13,7 @@ namespace lz {
         using iterator = Iterator;
         using const_iterator = Iterator;
 
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
+        using value_type = internal::ValueType<Iterator>;
 
         /**
          * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
@@ -108,7 +108,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<internal::IterType<Iterable>> take(Iterable&& iterable, const std::size_t amount) {
+    Take<internal::IterTypeFromIterable < Iterable>> take(Iterable&& iterable, const std::size_t amount) {
         const auto begin = std::begin(iterable);
         return takeRange(begin, std::next(begin, amount));
     }
@@ -123,7 +123,7 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<internal::IterType<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
+    Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
         const auto begin = std::begin(iterable);
         return takeRange(std::next(begin, from), std::next(begin, to));
     }
@@ -155,7 +155,7 @@ namespace lz {
      * @return A Take iterator view object.
      */
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-	Take<internal::IterType<Iterable>> dropWhile(Iterable&& iterable, Function&& predicate) {
+	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function&& predicate) {
         return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 	

@@ -80,7 +80,7 @@ namespace lz {
     }
 
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
-    Filter<Execution, internal::IterType<Iterable>, Function>
+    Filter<Execution, internal::IterTypeFromIterable<Iterable>, Function>
     filter(Iterable&& iterable, const Function& predicate, const Execution execPolicy = std::execution::seq) {
         return filterRange(std::begin(iterable), std::end(iterable), predicate, execPolicy);
     }
@@ -98,7 +98,7 @@ namespace lz {
      */
     template<class Function, class Iterator>
     Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
-        static_assert(std::is_same<internal::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
                       "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
     }
@@ -113,7 +113,7 @@ namespace lz {
      * over using `for (auto... lz::filter(...))`.
      */
     template<class Function, class Iterable>
-    Filter<internal::IterType<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
+    Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
 #endif // end lz has execution

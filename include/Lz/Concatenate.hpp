@@ -42,11 +42,11 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR... Iterators>
     Concatenate<Iterators...> concatRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
         static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
-        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::value_type...>::value,
+        static_assert(internal::IsAllSame<internal::ValueType<Iterators>...>::value,
                       "value types of iterators do not match");
-        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::pointer...>::value,
+        static_assert(internal::IsAllSame<internal::PointerType<Iterators>...>::value,
                       "pointer types of iterators do not match");
-        static_assert(internal::IsAllSame<typename std::iterator_traits<Iterators>::reference...>::value,
+        static_assert(internal::IsAllSame<internal::RefType<Iterators>...>::value,
                       "reference types of iterators do not match");
 
         return Concatenate<Iterators...>(begin, end);
@@ -60,7 +60,7 @@ namespace lz {
      * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
      */
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    Concatenate<internal::IterType<Iterables>...> concat(Iterables&& ... iterables) {
+    Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&& ... iterables) {
         return concatRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 

@@ -61,7 +61,7 @@ namespace lz {
      * `for (auto tuple :  lz::zip(...))`.
      */
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    Zip<internal::IterType<Iterables>...> zip(Iterables&& ... iterables) {
+    Zip<internal::IterTypeFromIterable<Iterables>...> zip(Iterables&& ... iterables) {
         return zipRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 

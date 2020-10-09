@@ -67,7 +67,7 @@ namespace lz {
       * @return An Except view object.
       */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept>
-    LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<Iterator>, internal::ValueTypeIterator<IteratorToExcept>)
+    LZ_REQUIRES_LESS_THAN(internal::ValueType<Iterator>, internal::ValueType<IteratorToExcept>)
     Except<Execution, Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end,const IteratorToExcept toExceptBegin,
                                                               const IteratorToExcept toExceptEnd, const Execution execPolicy) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
@@ -91,8 +91,8 @@ namespace lz {
      * @return An Except view object.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept,
-        class I1 = internal::IterType<Iterable>, class I2 = internal::IterType<IterableToExcept>>
-    LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<I1>, internal::ValueTypeIterator<I2>)
+        class I1 = internal::IterTypeFromIterable<Iterable>, class I2 = internal::IterTypeFromIterable<IterableToExcept>>
+    LZ_REQUIRES_LESS_THAN(internal::ValueType<I1>, internal::ValueType<I2>)
     Except<Execution, I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept, const Execution execPolicy = std::execution::seq) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept), execPolicy);
     }
@@ -125,7 +125,7 @@ namespace lz {
          * @return An Except view object.
          */
     template<class Iterable, class IterableToExcept>
-    Except<internal::IterType<Iterable>, internal::IterType<IterableToExcept>> except(Iterable&& iterable, IterableToExcept&& toExcept) {
+    Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>> except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
 #endif // end has execution

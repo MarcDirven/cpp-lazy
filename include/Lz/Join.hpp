@@ -72,7 +72,7 @@ namespace lz {
      * @return A Join iterator view object.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Join<internal::IterType<Iterable>> join(Iterable&& iterable, std::string delimiter) {
+    Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
         return joinRange(std::begin(iterable), std::end(iterable), std::move(delimiter));
     }
 

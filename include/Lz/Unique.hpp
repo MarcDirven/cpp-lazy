@@ -82,7 +82,7 @@ namespace lz {
      * element are done using this policy.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable, class It = internal::IterType<Iterable>>
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable, class It = internal::IterTypeFromIterable<Iterable>>
     LZ_REQUIRES_LESS_THAN(It, It)
     Unique<Execution, It> unique(Iterable&& iterable, const Execution execPolicy = std::execution::seq) {
         return uniqueRange(std::begin(iterable), std::end(iterable), execPolicy);
@@ -110,7 +110,7 @@ namespace lz {
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
     template<class Iterable>
-    Unique<internal::IterType<Iterable>> unique(Iterable&& iterable) {
+    Unique<internal::IterTypeFromIterable<Iterable>> unique(Iterable&& iterable) {
         return uniqueRange(std::begin(iterable), std::end(iterable));
     }
 #endif // end has execution

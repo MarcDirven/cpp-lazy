@@ -13,9 +13,9 @@ namespace lz { namespace internal {
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = std::tuple<typename std::iterator_traits<Iterators>::value_type...>;
+        using value_type = std::tuple<internal::ValueType<Iterators>...>;
         using difference_type = std::ptrdiff_t;
-        using reference = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
+        using reference = std::tuple<internal::RefType<Iterators>...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
