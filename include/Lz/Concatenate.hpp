@@ -21,7 +21,7 @@ namespace lz {
          */
         Concatenate(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
             internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end))
-            {}
+        {}
 
         Concatenate() = default;
     };
