@@ -119,13 +119,6 @@ namespace lz {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
 #endif
-
-
-    template<class Iterator, class Function, class Execution = std::execution::sequenced_policy>
-    auto filter(internal::BasicIteratorView<Iterator>& iteratorView, const Function predicate,
-                const Execution execution = std::execution::seq)  -> lz::Filter<Execution, decltype(iteratorView.begin()), Function> {
-        return lz::filterRange(iteratorView.begin(), iteratorView.end(), predicate);
-    }
     // End of group
     /**
      * @}
