@@ -608,7 +608,8 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable>
     double median(Iterable& iterable, const Execution execution = std::execution::seq) {
-        return lz::median(std::begin(iterable), std::end(iterable), std::less<internal::ValueTypeIterable<Iterable>>(), execution);
+        return lz::median(std::begin(iterable), std::end(iterable),
+                          std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>(), execution);
     }
 
     /**
@@ -636,8 +637,8 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class U>
-    internal::ValueTypeIterable<Iterable> findOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
-                                                        const Execution execution = std::execution::seq) {
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> findOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
+                                                                                const Execution execution = std::execution::seq) {
         return lz::findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
@@ -670,10 +671,10 @@ namespace lz {
      * @param execution Uses the execution to perform the find.
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate,
-        class ValueType = internal::ValueTypeIterable<Iterable>>
-    internal::ValueTypeIterable<Iterable> findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
-                                                          const Execution execution = std::execution::seq) {
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>>
+    findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
+                    const Execution execution = std::execution::seq) {
         return lz::findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
 
