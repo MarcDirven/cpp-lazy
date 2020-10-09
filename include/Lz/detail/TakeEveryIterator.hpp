@@ -92,7 +92,7 @@ namespace lz {
                 _iterator = _end;
             }
             else {
-                _iterator = std::prev(_iterator, total);
+                std::advance(_iterator, -total);
                 _current -= total;
             }
             return *this;
