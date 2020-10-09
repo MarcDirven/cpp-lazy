@@ -113,7 +113,7 @@ namespace lz { namespace internal {
                         MinIs<Tuple, I - 1>()(iterators, begin, end, distance == 0 ? 1 : offset - distance);
                     }
                     else {
-                        std::get<I>(iterators) = std::prev(std::get<I>(iterators), offset);
+                        std::advance(std::get<I>(iterators), -offset);
                     }
                 }
             }
@@ -133,7 +133,7 @@ namespace lz { namespace internal {
                 if (std::distance(currentBegin, current) < offset) {
                     throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
                 }
-                current = std::prev(current, offset);
+                std::advance(current, -offset);
             }
         };
 
