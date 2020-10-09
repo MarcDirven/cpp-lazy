@@ -204,8 +204,9 @@ namespace lz { namespace internal {
 
     template<class T>
     struct IsRandomAccess {
-        static constexpr bool value = !std::is_same_v<std::input_iterator_tag, T> && !std::is_same_v<std::output_iterator_tag, T> &&
-                                      !std::is_same_v<std::forward_iterator_tag, T> && !std::is_same_v<std::bidirectional_iterator_tag, T>;
+        static constexpr bool value = !std::is_same<std::input_iterator_tag, T>::value &&
+        !std::is_same<std::output_iterator_tag, T>::value && !std::is_same<std::forward_iterator_tag, T>::value &&
+        !std::is_same<std::bidirectional_iterator_tag, T>::value;
     };
 
     template<class Iterable>
