@@ -66,35 +66,17 @@ namespace lz {
       * elements are done using this policy.
       * @return An Except view object.
       */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept>
     LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<Iterator>, internal::ValueTypeIterator<IteratorToExcept>)
-        Except<Execution, Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end,
-            const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
-            const Execution execPolicy) {
-        internal::verifyIteratorAndPolicies(execPolicy, begin);
+    Except<Execution, Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end,const IteratorToExcept toExceptBegin,
+                                                              const IteratorToExcept toExceptEnd, const Execution execPolicy) {
+#ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
+        static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
+                                                                         "or higher for std::sort");
+#endif // end lz has concepts
         return Except<Execution, Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd, execPolicy);
     }
-#else // ^^^ has execution vvv ! has execution
-     /**
-      * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
-      * calling begin(), this iterator will not be able to do it correctly.
-      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
-      * [`toExceptBegin`, `toExceptEnd).
-      * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
-      * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
-      * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
-      * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
-      * @return An Except view object.
-      */
-    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
-    LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<Iterator>, internal::ValueTypeIterator<IteratorToExcept>)
-        Except<Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-            const IteratorToExcept toExceptEnd) {
-        return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
-    }
-#endif // end has execution
 
-#ifdef LZ_HAS_EXECUTION
     /**
      * @brief This function returns a view to the random access ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
@@ -108,25 +90,42 @@ namespace lz {
      * elements are done using this policy.
      * @return An Except view object.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept,
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept,
         class I1 = internal::IterType<Iterable>, class I2 = internal::IterType<IterableToExcept>>
-        LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<I1>, internal::ValueTypeIterator<I2>)
-        Except<Execution, I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept, const Execution execPolicy = std::execution::seq) {
+    LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<I1>, internal::ValueTypeIterator<I2>)
+    Except<Execution, I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept, const Execution execPolicy = std::execution::seq) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept), execPolicy);
     }
 #else // ^^^ has execution vvv ! has execution
-    /**
-     * @brief This function returns a view to the random access ExceptIterator.
-     * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
-     * and has an `operator<`. If elements are changed in `toExcept` after calling begin(), this iterator will not be able to do it correctly.
-     * @param iterable The iterable to except elements from contained by `toExcept`.
-     * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
-     * @return An Except view object.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept,
-        class I1 = internal::IterType<Iterable>, class I2 = internal::IterType<IterableToExcept>>
-        LZ_REQUIRES_LESS_THAN(internal::ValueTypeIterator<I1>, internal::ValueTypeIterator<I2>)
-        Except<I1, I2> except(Iterable&& iterable, IterableToExcept&& toExcept) {
+     /**
+      * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
+      * calling begin(), this iterator will not be able to do it correctly.
+      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
+      * [`toExceptBegin`, `toExceptEnd).
+      * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
+      * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
+      * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
+      * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
+      * @return An Except view object.
+      */
+    template<class Iterator, class IteratorToExcept>
+    Except<Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
+        const IteratorToExcept toExceptEnd) {
+        static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
+                                                                         "or higher for std::sort");
+        return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
+    }
+
+     /**
+         * @brief This function returns a view to the random access ExceptIterator.
+         * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
+         * and has an `operator<`. If elements are changed in `toExcept` after calling begin(), this iterator will not be able to do it correctly.
+         * @param iterable The iterable to except elements from contained by `toExcept`.
+         * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
+         * @return An Except view object.
+         */
+    template<class Iterable, class IterableToExcept>
+    Except<internal::IterType<Iterable>, internal::IterType<IterableToExcept>> except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
 #endif // end has execution
@@ -135,6 +134,6 @@ namespace lz {
     /**
      * @}
      */
-    }
+} // end namespace lz
 
-#endif
+#endif // end LZ_EXCEPT_HPP

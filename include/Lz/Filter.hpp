@@ -78,7 +78,14 @@ namespace lz {
         internal::verifyIteratorAndPolicies(execution, begin);
         return Filter<Execution, Iterator, Function>(begin, end, predicate, execution);
     }
-#else
+
+    template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
+    Filter<Execution, internal::IterType<Iterable>, Function>
+    filter(Iterable&& iterable, const Function& predicate, const Execution execPolicy = std::execution::seq) {
+        return filterRange(std::begin(iterable), std::end(iterable), predicate, execPolicy);
+    }
+
+#else // ^^^ has execution vvv ! has execution
     /**
      * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
      * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all
@@ -89,21 +96,13 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
+    template<class Function, class Iterator>
     Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
         static_assert(std::is_same<internal::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
                       "function must return bool");
         return Filter<Iterator, Function>(begin, end, predicate);
     }
-#endif
 
-#ifdef LZ_HAS_EXECUTION
-    template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
-    Filter<Execution, internal::IterType<Iterable>, Function>
-    filter(Iterable&& iterable, const Function& predicate, const Execution execPolicy = std::execution::seq) {
-        return filterRange(std::begin(iterable), std::end(iterable), predicate, execPolicy);
-    }
-#else
     /**
      * @brief Returns a forward filter iterator. If the `predicate` returns false, the value it is excluded.
      * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all
@@ -113,15 +112,15 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
+    template<class Function, class Iterable>
     Filter<internal::IterType<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
         return filterRange(std::begin(iterable), std::end(iterable), predicate);
     }
-#endif
+#endif // end lz has execution
     // End of group
     /**
      * @}
      */
 }
 
-#endif
+#endif // end LZ_FILTER_HPP
