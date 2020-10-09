@@ -86,13 +86,13 @@ namespace lz {
         }
 
         TakeEveryIterator& operator-=(const difference_type offset) {
-            auto total = _offset * offset;
+            const auto total = _offset * offset;
 
             if (static_cast<std::ptrdiff_t>(_current - total) < 0) {
                 _iterator = _end;
             }
             else {
-                std::advance(_iterator, -total);
+                std::advance(_iterator, -static_cast<difference_type>(total));
                 _current -= total;
             }
             return *this;
