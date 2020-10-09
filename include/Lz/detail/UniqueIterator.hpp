@@ -13,9 +13,9 @@
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class Execution, LZ_CONCEPT_ITERATOR Iterator>
-#else
+#else // ^^^ lz has execution vvv ! lz has execution
     template<LZ_CONCEPT_ITERATOR Iterator>
-#endif
+#endif // end lz has execution
     class UniqueIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
@@ -23,7 +23,7 @@ namespace lz { namespace internal {
         Iterator _end{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution;
-#endif
+#endif // end lz has execution
 
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -34,47 +34,35 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
         UniqueIterator(const Iterator begin, const Iterator end, const Execution execution)
-#else
+#else // ^^^ lz has execution vvv ! lz has execution
         UniqueIterator(const Iterator begin, const Iterator end)
-#endif
+#endif // end lz has execution
         :
             _iterator(begin),
             _end(end)
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
-#endif
+#endif // end lz has execution
         {
             if (begin == end) {
                 return;
             }
 
 #ifdef LZ_HAS_EXECUTION
-            if constexpr (IsSequencedPolicyV<Execution>) {
-                if (std::is_sorted(begin, end)) {
-                    return;
-                }
+            if (std::is_sorted(_execution, begin, end)) {
+                return;
             }
-            else {
-                if (std::is_sorted(_execution, begin, end)) {
-                    return;
-                }
-            }
-#else
+#else // ^^^ lz has execution vvv ! lz has execution
             if (std::is_sorted(begin, end)) {
                 return;
             }
-#endif
+#endif // end lz has execution
 
 #ifdef LZ_HAS_EXECUTION
-            if constexpr (IsSequencedPolicyV<Execution>) {
-                std::sort(begin, end);
-            }
-            else {
-                std::sort(_execution, begin, end);
-            }
-#else
+            std::sort(_execution, begin, end);
+#else // ^^^ lz has execution vvv ! lz has execution
             std::sort(begin, end);
-#endif
+#endif // end lz has execution
         }
 
         UniqueIterator() = default;
@@ -95,9 +83,9 @@ namespace lz { namespace internal {
             else {
                 _iterator = std::adjacent_find(_execution, _iterator, _end, std::less<value_type>());
             }
-#else
+#else // ^^^ lz has execution vvv ! lz has execution
             _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
-#endif
+#endif // end lz has execution
 
             if (_iterator != _end) {
                 ++_iterator;
