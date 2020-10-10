@@ -21,9 +21,6 @@ jobs:
       matrix:
         version: ['4.8', 5, 6, 7, 8, 9, 10]
         standard: [11, 14, 17]
-        include:
-          - version: '4.8'
-            pic: -D CMAKE_PROJECT_FMT_INCLUDE_BEFORE=cmake/gcc48PICFix.cmake
 
     runs-on: ubuntu-latest
 
@@ -51,7 +48,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
-          ${{ matrix.pic }}
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -98,6 +95,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -138,10 +136,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build (install)
-        run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/install --config Release
+          -j ${{ steps.cores.outputs.plus_one }}
 
       - name: Install
-        run: cmake --install build/install
+        run: cmake --install build/install --config Release
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
@@ -150,11 +149,12 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/tests --config Release
+          -j ${{ steps.cores.outputs.plus_one }}
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+        run: ctest -C Release -VV -j ${{ steps.cores.outputs.plus_one }}
 
   examples:
     runs-on: ubuntu-latest
