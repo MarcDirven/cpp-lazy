@@ -3,6 +3,7 @@
 #ifndef LZ_FUNCTION_TOOLS_HPP
 #define LZ_FUNCTION_TOOLS_HPP
 
+
 #include <numeric>
 #include <iterator>
 #include <algorithm>
@@ -17,8 +18,8 @@
 
 #ifdef LZ_HAS_CXX17
   #define LZ_INLINE_VAR inline
-#else // ^^^ inline var vvv !inline var
-  #define LZ_INLINE_VAR
+#else // ^^^ has cxx 17 vvv !has cxx 17
+  #define LZ_INLINE_VARZ
 #endif // lz has cxx17
 
 #include <cassert>
@@ -348,7 +349,7 @@ namespace lz {
      * @return A map iterator that constructs To from each of the elements in the given container.
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable>
-    auto as(Iterable&& iterable) -> Map<decltype(std::begin(iterable)), internal::ConvertFn<T>> {
+    Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
         return lz::as<T>(std::begin(iterable), std::end(iterable));
     }
 
@@ -522,7 +523,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
-            const Execution execPolicy = std::execution::seq) {
+              const Execution execPolicy = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
         Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc, execPolicy);
@@ -541,7 +542,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<Execution, internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
-            const Execution execution = std::execution::seq) {
+              const Execution execution = std::execution::seq) {
         return lz::filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
     }
 
