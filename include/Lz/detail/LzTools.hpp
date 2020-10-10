@@ -6,35 +6,35 @@
 #include <tuple>
 
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
-#define LZ_HAS_CXX11
+  #define LZ_HAS_CXX11
 #elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
-#define LZ_HAS_CXX11
+  #define LZ_HAS_CXX11
 #endif // end has cxx 11
 
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
-#define LZ_HAS_CXX14
+  #define LZ_HAS_CXX14
 #endif // end has cxx 14
 
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
-#define LZ_HAS_CXX17
+  #define LZ_HAS_CXX17
 #endif // Has cxx 17
 
 #if __cplusplus > 201703L || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
-#define LZ_HAS_CXX_20
+  #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
 #if __has_include(<execution>) && defined(LZ_HAS_CXX17)
-#define LZ_HAS_EXECUTION
-#include <execution>
+  #define LZ_HAS_EXECUTION
+  #include <execution>
 #endif // has execution
 
 #if __has_include(<string_view>) && defined(LZ_HAS_CXX17)
-#define LZ_HAS_STRING_VIEW
+  #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
 #if __has_include(<concepts>) && (defined(LZ_HAS_CXX_20))
-#define LZ_HAS_CONCEPTS
-#include <concepts>
+  #define LZ_HAS_CONCEPTS
+  #include <concepts>
 #endif // has concepts
 
 #ifdef LZ_HAS_CONCEPTS

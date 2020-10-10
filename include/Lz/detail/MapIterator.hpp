@@ -41,7 +41,7 @@ namespace lz {
                 return _function(*_iterator);
             }
 
-            FakePointerProxy <reference> operator->() const {
+            FakePointerProxy<reference> operator->() const {
                 return FakePointerProxy<decltype(**this)>(**this);
             }
 
