@@ -43,7 +43,7 @@ namespace lz { namespace internal {
     template<class LzIterator>
     class BasicIteratorView {
     public:
-        using value_type = typename std::iterator_traits<LzIterator>::value_type;
+        using value_type = internal::ValueType<LzIterator>;
 
     private:
         template<class MapType, class Allocator, class KeySelectorFunc>
