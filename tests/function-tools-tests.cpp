@@ -2,6 +2,7 @@
 #include "Lz/Range.hpp"
 #include "catch.hpp"
 
+#include <cctype>
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
