@@ -45,11 +45,19 @@ namespace lz { namespace detail {
 #endif // end has cxx 14
     }
 
+
     template<class Iterator>
     class BasicIteratorView {
+
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        template<class MapType, class KeySelectorFunc>
+        MapType createMap(const KeySelectorFunc keyGen) const {
+            MapType map;
+#else
         template<class MapType, class Allocator, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
+#endif
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
             });
@@ -137,7 +145,14 @@ namespace lz { namespace detail {
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
             verifyRange<N>();
+#if (__GNUC__) && !(defined(__clang__)) && (__GNUC__ < 5)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
             std::array<value_type, N> array{};
+#if (__GNUC__) && !(defined(__clang__)) && (__GNUC__ < 5)
+  #pragma GCC diagnostic pop
+#endif
             std::copy(begin(), end(), array.begin());
             return array;
         }
@@ -364,10 +379,17 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        toMap(const KeySelectorFunc keyGen) const {
+            using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
+            return createMap<Map>(keyGen);
+#else // ^^^gcc < 5 vvv gcc >= 5
         toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
+#endif // end lz gcc version < 5
         }
+
 
         /**
          * @brief Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`.
@@ -396,9 +418,15 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        toUnorderedMap(const KeySelectorFunc keyGen) const {
+            using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
+            return createMap<UnorderedMap>(keyGen);
+#else // ^^^gcc < 5 vvv gcc >= 5
         toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
+#endif // end lz gcc version < 5
         }
 
         /**
