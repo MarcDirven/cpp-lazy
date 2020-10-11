@@ -9,7 +9,7 @@
 #include "LzTools.hpp"
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
     class RandomIterator {
     public:

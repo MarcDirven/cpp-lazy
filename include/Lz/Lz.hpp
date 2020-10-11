@@ -4,7 +4,6 @@
 #define LZ_LZ_HPP
 
 #include "Lz/Affirm.hpp"
-#include "Lz/Concatenate.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Generate.hpp"
@@ -22,5 +21,6 @@
 // Map.hpp
 // Filter.hpp
 // Take.hpp
+// Concatenate.hpp
 
 #endif

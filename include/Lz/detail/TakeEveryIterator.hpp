@@ -11,7 +11,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR>
     class TakeEvery;
 
-    namespace detail {
+    namespace internal {
 
     template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEveryIterator {
@@ -79,20 +79,20 @@ namespace lz {
                 _iterator = _end;
             }
             else {
-                _iterator = std::next(_iterator, total);
+                std::advance(_iterator, total);
                 _current += total;
             }
             return *this;
         }
 
         TakeEveryIterator& operator-=(const difference_type offset) {
-            auto total = _offset * offset;
+            const auto total = _offset * offset;
 
             if (static_cast<std::ptrdiff_t>(_current - total) < 0) {
                 _iterator = _end;
             }
             else {
-                _iterator = std::prev(_iterator, total);
+                std::advance(_iterator, -static_cast<difference_type>(total));
                 _current -= total;
             }
             return *this;

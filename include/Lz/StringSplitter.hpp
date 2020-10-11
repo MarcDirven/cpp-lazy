@@ -9,13 +9,13 @@
 
 namespace lz {
     template<class SubString, class String>
-    class StringSplitter final : public detail::BasicIteratorView<detail::SplitIterator<SubString, String>> {
+    class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String>> {
     public:
-        using const_iterator = detail::SplitIterator<SubString, String>;
+        using const_iterator = internal::SplitIterator<SubString, String>;
         using iterator = const_iterator;
 
     private:
-        detail::SplitViewIteratorHelper<String> _splitIteratorHelper{};
+        internal::SplitViewIteratorHelper<String> _splitIteratorHelper{};
 
     public:
         using value_type = SubString;
@@ -26,7 +26,8 @@ namespace lz {
          * @param delimiter The delimiter to split on.
          */
         StringSplitter(String&& str, std::string&& delimiter) :
-            _splitIteratorHelper(std::move(delimiter), std::forward<String>(str)) {
+            _splitIteratorHelper(std::move(delimiter), std::forward<String>(str))
+        {
         }
 
         StringSplitter() = default;

@@ -9,19 +9,17 @@
 
 namespace lz {
     template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-    class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
+    class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
     public:
-        using iterator = detail::RangeIterator<Arithmetic>;
+        using iterator = internal::RangeIterator<Arithmetic>;
         using const_iterator = iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
+        using Base = internal::BasicIteratorView<iterator>;
 
     public:
-
         /**
          * @brief Range iterator constructor from [start, end) with step.
          * @param start The start of the counting.
@@ -29,34 +27,18 @@ namespace lz {
          * @param step The step that gets added every iteration.
          */
         Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) :
-            _begin(start, step),
-            _end(end, step) {
+            Base(iterator(start, step), iterator(end, step))
+        {
         }
 
         Range() = default;
-
-        /**
-         * @brief Returns the beginning of the random access Range iterator
-         * @return The beginning of the random access Range iterator
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the random access Range iterator
-         * @return The ending of the random access Range iterator
-         */
-        iterator end() const override {
-            return _end;
-        }
 
         /**
          * @brief Returns the reverse beginning of the random access Range iterator
          * @return The reverse beginning of the random access Range iterator
          */
         reverse_iterator rbegin() const {
-            return reverse_iterator(begin());
+            return reverse_iterator(Base::begin());
         }
 
         /**
@@ -64,7 +46,7 @@ namespace lz {
          * @return The reverse ending of the random access Range iterator
          */
         reverse_iterator rend() const {
-            return reverse_iterator(end());
+            return reverse_iterator(Base::end());
         }
     };
 

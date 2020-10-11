@@ -9,18 +9,12 @@
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
-    class Enumerate final : public detail::BasicIteratorView<detail::EnumerateIterator<Iterator, IntType>> {
+    class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {
     public:
-        using iterator = detail::EnumerateIterator<Iterator, IntType>;
+        using iterator = internal::EnumerateIterator<Iterator, IntType>;
         using const_iterator = iterator;
 
         using value_type = typename iterator::value_type;
-
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
 
         /**
          * @param begin Beginning of the iterator.
@@ -28,27 +22,11 @@ namespace lz {
          * @param start The start of the counting index. 0 is assumed by default.
          */
         Enumerate(const Iterator begin, const Iterator end, const IntType start = 0) :
-            _begin(start, begin),
-            _end(static_cast<IntType>(std::distance(begin, end)), end) {
+            internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(std::distance(begin, end)), end))
+        {
         }
 
         Enumerate() = default;
-
-        /**
-         * @brief Returns the beginning of the enumerate iterator object.
-         * @return A random access EnumerateIterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the enumerate object.
-         * @return A random access EnumerateIterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**
@@ -64,7 +42,6 @@ namespace lz {
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
      * Furthermore, the `operator*` of this iterator returns an std::pair by value.
      * @tparam IntType The type of the iterator integer. By default, `int` is assumed. Can be any arithmetic type.
-     * @tparam Iterator The type of the iterator. Is automatically deduced by default.
      * @param begin Beginning of the iterator.
      * @param end Ending of the iterator.
      * @param start The start of the counting index. 0 is assumed by default.
@@ -87,13 +64,12 @@ namespace lz {
      * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
      * Furthermore, the `operator*` of this iterator returns an std::pair by value.
      * @tparam IntType The type of the iterator integer. By default, `int` is assumed. Can be any arithmetic type.
-     * @tparam Iterable The type of the Iterable. Is automatically deduced by default.
      * @param iterable An iterable, e.g. a container / object with `begin()` and `end()` methods.
      * @param start The start of the counting index. 0 is assumed by default.
      * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
      */
     template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
-    Enumerate<detail::IterType<Iterable>, IntType> enumerate(Iterable&& iterable, const  IntType start = 0) {
+    Enumerate<internal::IterTypeFromIterable<Iterable>, IntType> enumerate(Iterable&& iterable, const  IntType start = 0) {
         return enumerateRange(std::begin(iterable), std::end(iterable), start);
     }
 

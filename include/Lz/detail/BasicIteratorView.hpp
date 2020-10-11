@@ -15,7 +15,7 @@
 #include "LzTools.hpp"
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     // ReSharper disable once CppUnnamedNamespaceInHeaderFile
     namespace {
         template<typename T>
@@ -36,12 +36,11 @@ namespace lz { namespace detail {
             }
         	
         public:
-            static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
+            static constexpr bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
     }
 
-
-    template<class Iterator>
+    template<class LzIterator>
     class BasicIteratorView {
 
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
@@ -61,7 +60,7 @@ namespace lz { namespace detail {
 
         template<std::size_t N>
         void verifyRange() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
+            constexpr auto size = static_cast<typename std::iterator_traits<LzIterator>::difference_type>(N);
 
             if (std::distance(begin(), end()) > size) {
                 throw std::invalid_argument(LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
@@ -77,11 +76,10 @@ namespace lz { namespace detail {
         EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
-
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
+            const LzIterator b = begin();
+            const LzIterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
 
@@ -92,34 +90,12 @@ namespace lz { namespace detail {
                 std::copy(b, e, std::inserter(cont, cont.begin()));
             }
             else {
+                // use execution policies
                 std::copy(std::forward<Execution>(execution), b, e, cont.begin());
             }
 
             return cont;
         }
-
-#else // ^^^ has execution vvv ! has execution
-
-        template<class Container, class... Args>
-        Container copyContainer(Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
-            Container cont(std::forward<Args>(args)...);
-            reserve(cont);
-            std::copy(b, e, std::inserter(cont, cont.begin()));
-            return cont;
-        }
-
-#endif // end has execution
-
-    public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-
-    private:
-        template<class KeySelectorFunc>
-        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-
-#ifdef LZ_HAS_EXECUTION
 
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
@@ -134,8 +110,15 @@ namespace lz { namespace detail {
             }
             return array;
         }
-
 #else // ^^^ has execution vvv ! has execution
+
+        template<class Container, class... Args>
+        Container copyContainer(Args&& ... args) const {
+            Container cont(std::forward<Args>(args)...);
+            reserve(cont);
+            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
+            return cont;
+        }
 
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
@@ -153,13 +136,28 @@ namespace lz { namespace detail {
         }
 
 #endif // end has execution
+    private:
+        template<class KeySelectorFunc>
+        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+
+        LzIterator _begin{};
+        LzIterator _end{};
 
     public:
-        virtual Iterator begin() const = 0;
+        virtual LzIterator begin() const {
+            return _begin;
+        };
 
-        virtual Iterator end() const = 0;
+        virtual LzIterator end() const {
+            return _end;
+        };
 
         BasicIteratorView() = default;
+
+        BasicIteratorView(const LzIterator begin, const LzIterator end):
+            _begin(begin),
+            _end(end)
+        {}
 
         virtual ~BasicIteratorView() = default;
 
@@ -175,7 +173,6 @@ namespace lz { namespace detail {
          * auto allocator = std::allocator<int>();
          * auto set = lazyIterator.to<std::set>(allocator);
          * ```
-         * @tparam Container Is automatically deduced.
          * @param execution The execution policy. Must be one of `std::execution`'s tags.
          * @tparam Args Additional arguments, automatically deduced.
          * @param args Additional arguments, for e.g. an allocator.
@@ -184,15 +181,17 @@ namespace lz { namespace detail {
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
         Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
+            internal::verifyIteratorAndPolicies(execution, begin());
 
             if constexpr (IsSequencedPolicyV<Execution>) {
-                using OutputIter = std::insert_iterator<Cont>;
                 return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
             else {
                 using OutputIter = typename Cont::iterator;
-                static_assert(IsForwardOrStrongerV<OutputIter> && IsForwardOrStrongerV<Iterator>,
-                              "Both iterator types must be forward iterator or higher. Use std::execution::seq instead.");
+                // Check if the output container is also a forward or stronger iterator, only check if we are using a non seq policy
+                // GCC throws a very verbose error
+                static_assert(IsForwardOrStrongerV<OutputIter>, "Output iterator must be forward iterator or higher. Use "
+                                                                "std::execution::seq instead.");
                 return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
         }
@@ -212,7 +211,6 @@ namespace lz { namespace detail {
          * @brief Creates a new `std::vector<value_type, Allocator>`.
          * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
          * by this function.
-         * @tparam Allocator Is automatically deduced.
          * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
@@ -244,8 +242,7 @@ namespace lz { namespace detail {
          */
         template<class Execution = std::execution::sequenced_policy>
         std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
-            static_assert(IsParallelPolicyV<Execution> || IsSequencedPolicyV<Execution>,
-                          "This function cannot be vectorized. Prefer to use std::execution::par/seq.");
+            internal::verifyIteratorAndPolicies(exec, begin());
 
             std::string string;
             if constexpr (IsSequencedPolicyV<Execution>) {
@@ -282,7 +279,6 @@ namespace lz { namespace detail {
          * auto allocator = std::allocator<int>();
          * auto set = lazyIterator.to<std::set>(allocator);
          * ```
-         * @tparam Container Is automatically deduced.
          * @tparam Args Additional arguments, automatically deduced.
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
@@ -306,7 +302,6 @@ namespace lz { namespace detail {
          * @brief Creates a new `std::vector<value_type, Allocator>`.
          * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
          * by this function.
-         * @tparam Allocator Is automatically deduced.
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
@@ -346,7 +341,6 @@ namespace lz { namespace detail {
 
             return string;
         }
-
 #endif
 
         /**
@@ -363,7 +357,6 @@ namespace lz { namespace detail {
          * // 'd' : "def"
          * // 'g' : "ghi"
          * ```
-         * @tparam KeySelectorFunc Is automatically deduced.
          * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
          * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
          * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
@@ -400,7 +393,6 @@ namespace lz { namespace detail {
          * // 'd' : "def"
          * // 'g' : "ghi"
          * ```
-         * @tparam KeySelectorFunc Is automatically deduced.
          * @tparam Hasher The hash function, `std::hash<Key>` is used by default
          * @tparam KeyEquality Key equality checker. `std::equal_to<Key>` is used by default.
          * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
@@ -430,9 +422,9 @@ namespace lz { namespace detail {
          * @param it The iterator to print.
          * @return The stream object by reference.
          */
-        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
             return o << it.toString(" ");
         }
     };
-}} // Namespace lz::detail
-#endif
+}} // Namespace lz::internal
+#endif // end LZ_BASIC_ITERATOR_VIEW_HPP

@@ -16,7 +16,7 @@ namespace lz {
     template<class, class>
     class StringSplitter;
 
-    namespace detail {
+    namespace internal {
         template<class String>
         struct SplitViewIteratorHelper {
             std::string delimiter{};

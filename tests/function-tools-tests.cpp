@@ -1,13 +1,15 @@
 #include "Lz/FunctionTools.hpp"
 #include "Lz/Range.hpp"
-
-
 #include "catch.hpp"
+#include <cctype>
+
 #include <cctype>
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
     std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+
+
 
     SECTION("Mean") {
         double avg = lz::mean(ints);
@@ -148,11 +150,43 @@ TEST_CASE("Function tools") {
         CHECK(lz::reverse(s).toString() == "olleh");
     }
 
-	SECTION("Transpose") {
-        std::vector<std::vector<int>> vecs = {
-        	{1, 2, 3, 4}, {5, 6, 7, 8}
-        };
+#ifdef LZ_HAS_CXX_17
+    SECTION("Concat as string view") {
+        std::string world = "world ";
 
-        CHECK(lz::transposeToVector(vecs) == std::vector<std::array<int, 2>>{ { 1, 5 }, { 2, 6 }, { 3, 7 }, { 4, 8 }});
+        auto concat = lz::concatAsStringView("hello ", world, "what's ", "Up");
+        CHECK(concat.toString() == "hello world what's Up");
+    }
+#endif
+
+    SECTION("Last, first, length, isEmpty") {
+        std::vector<int> vec = {1, 3, 5, 7, 9};
+        auto filterEven = lz::filter(vec, [](const int i) { return i % 2 == 0; });
+        auto filterUneven = lz::filter(vec, [](const int i) { return i % 2 != 0; });
+
+        CHECK(lz::length(filterEven) == 0);
+        CHECK(lz::isEmpty(filterEven));
+        CHECK(static_cast<std::size_t>(lz::length(filterUneven)) == vec.size());
+
+        CHECK(lz::first(filterUneven) == 1);
+        CHECK(lz::last(filterUneven) == 9);
+
+        CHECK(lz::firstOr(filterEven, 10) == 10);
+        CHECK(lz::lastOr(filterEven, 10) == 10); 
+
+        CHECK(lz::firstOr(filterUneven, 10) == 1);
+        CHECK(lz::lastOr(filterUneven, 10) == 9);
+
+        CHECK(!lz::hasOne(filterUneven));
+        CHECK(lz::hasMany(filterUneven));
+
+        std::string splitter = "hello world";
+        auto s = lz::split(splitter, " ").toVector();
+    }
+
+    SECTION("Contains") {
+        std::string s = "hello";
+        CHECK(lz::contains(s, 'h'));
+        CHECK(!lz::contains(s, 'x'));
     }
 }

@@ -6,15 +6,15 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<class T>
     struct RepeatIteratorHelper {
         mutable T toRepeat{};
         bool isWhileTrueLoop{};
 
-        RepeatIteratorHelper(T toRepeat, bool isWhileTrueLoop) :
+        RepeatIteratorHelper(T toRepeat, const std::size_t amount) :
             toRepeat(std::move(toRepeat)),
-            isWhileTrueLoop(isWhileTrueLoop)
+            isWhileTrueLoop(amount == std::numeric_limits<std::size_t>::max())
         {}
 
         RepeatIteratorHelper() = default;
@@ -22,7 +22,7 @@ namespace lz { namespace detail {
 
     template<class T>
     class RepeatIterator {
-        const RepeatIteratorHelper<T>* _iterHelper = RepeatIterator<T>();
+        const RepeatIteratorHelper<T>* _iterHelper{};
         std::size_t _iterator{};
 
     public:

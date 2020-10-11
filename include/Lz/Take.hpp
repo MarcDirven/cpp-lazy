@@ -7,19 +7,14 @@
 
 
 namespace lz {
-    template<class Iterator>
-    class Take final : public detail::BasicIteratorView<Iterator> {
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    class Take final : public internal::BasicIteratorView<Iterator> {
     public:
         using iterator = Iterator;
         using const_iterator = Iterator;
 
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
+        using value_type = internal::ValueType<Iterator>;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
          * returns false, the iterator stops.
@@ -30,11 +25,8 @@ namespace lz {
          */
         template<class Function>
         Take(const Iterator begin, const Iterator end, const Function predicate) :
-            _begin(begin),
-            _end(end) {
-            if (_begin != _end) {
-                _begin = !predicate(*_begin) ? end : _begin;
-            }
+            internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end)
+        {
         }
 
         /**
@@ -44,27 +36,11 @@ namespace lz {
          * @param end The ending of the iterator.
          */
         Take(const Iterator begin, const Iterator end, std::nullptr_t) :
-            _begin(begin),
-            _end(end) {
+            internal::BasicIteratorView<iterator>(begin, end)
+        {
         }
 
         Take() = default;
-
-        /**
-         * @brief Returns the beginning of the iterator.
-         * @return The beginning of the iterator.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the iterator.
-         * @return The ending of the iterator.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     // Start of group
@@ -80,10 +56,8 @@ namespace lz {
 
     /**
      * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
-     * returns false, the iterator stops. Its `begin()` function returns a random access iterator.
+     * returns false, the iterator stops. Its `begin()` function returns an iterator.
      * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
-     * @tparam Iterator Is automatically deduced.
-     * @tparam Function Is automatically deduced.
      * @param begin The beginning of the iterator.
      * @param end The beginning of the iterator.
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
@@ -98,9 +72,7 @@ namespace lz {
 
     /**
      * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
-     * Its `begin()` function returns a random access iterator.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Function Is automatically deduced.
+     * Its `begin()` function returns an iterator.
      * @param iterable An object that has methods `begin()` and `end()`.
      * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
      * false, the iterator stops.
@@ -114,9 +86,8 @@ namespace lz {
 
     /**
      * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a
-     * random access iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
+     * an iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
      * iterator object.
-     * @tparam Iterator Is automatically deduced.
      * @param begin The beginning of the 'view'.
      * @param end The ending of the 'view'.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
@@ -131,22 +102,20 @@ namespace lz {
      * @brief This function takes an iterable and slices `amount` from the beginning of the array. Essentially it is
      * equivalent to [`iterable.begin(), iterable.begin() + amount`). Its `begin()` function returns a random
      * access iterator.
-     * @tparam Iterable Is automatically deduced.
      * @param iterable An iterable with method `begin()`.
      * @param amount The amount of elements to take from the beginning of the `iterable`.
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::take(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<detail::IterType<Iterable>> take(Iterable&& iterable, const std::size_t amount) {
-        auto begin = std::begin(iterable);
+    Take<internal::IterTypeFromIterable < Iterable>> take(Iterable&& iterable, const std::size_t amount) {
+        const auto begin = std::begin(iterable);
         return takeRange(begin, std::next(begin, amount));
     }
 
     /**
      * @brief This function slices an iterable. It is equivalent to [`begin() + from, begin() + to`).
-     * Its `begin()` function returns a random access iterator.
-     * @tparam Iterable Is automatically deduced.
+     * Its `begin()` function returns an iterator.
      * @param iterable An iterable with method `begin()`.
      * @param from The offset from the beginning of the iterable.
      * @param to The offset from the beginning to take. `from` must be higher than `to`.
@@ -154,8 +123,8 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<detail::IterType<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
-        auto begin = std::begin(iterable);
+    Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
+        const auto begin = std::begin(iterable);
         return takeRange(std::next(begin, from), std::next(begin, to));
     }
 
@@ -163,8 +132,6 @@ namespace lz {
      * @brief Creates a Take iterator view object.
      * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
      * no more values are being skipped.
-     * @tparam Iterator Is automatically deduced.
-     * @tparam Function Is automatically deduced. Must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
@@ -183,14 +150,12 @@ namespace lz {
      * @brief Creates a Take iterator view object.
      * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
      * no more values are being skipped.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Function Is automatically deduced. Must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @param iterable The sequence with the values that can be iterated over.
      * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
      * @return A Take iterator view object.
      */
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-	Take<detail::IterType<Iterable>> dropWhile(Iterable&& iterable, Function&& predicate) {
+	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function&& predicate) {
         return dropWhileRange(std::begin(iterable), std::end(iterable), predicate);
     }
 	
