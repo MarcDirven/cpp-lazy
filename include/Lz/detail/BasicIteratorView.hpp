@@ -38,11 +38,6 @@ namespace lz { namespace detail {
         public:
             static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
-
-#ifdef LZ_HAS_CXX14
-        template<class T>
-        constexpr bool HasReserveV = HasReserve<T>::value;
-#endif // end has cxx 14
     }
 
 
