@@ -19,7 +19,7 @@
 #ifdef LZ_HAS_CXX17
   #define LZ_INLINE_VAR inline
 #else // ^^^ has cxx 17 vvv !has cxx 17
-  #define LZ_INLINE_VARZ
+  #define LZ_INLINE_VAR
 #endif // lz has cxx17
 
 #include <cassert>
