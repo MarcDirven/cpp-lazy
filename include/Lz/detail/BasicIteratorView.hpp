@@ -42,7 +42,10 @@ namespace lz { namespace internal {
 
     template<class LzIterator>
     class BasicIteratorView {
+    public:
+        using value_type = internal::ValueType<LzIterator>;
 
+    private:
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
         template<class MapType, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen) const {
@@ -136,7 +139,7 @@ namespace lz { namespace internal {
         }
 
 #endif // end has execution
-    private:
+
         template<class KeySelectorFunc>
         using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
 
