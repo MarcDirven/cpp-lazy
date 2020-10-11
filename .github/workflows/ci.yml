@@ -12,14 +12,15 @@ on:
   workflow_dispatch: ~
 
 env:
-  CMAKE_CONFIG_TYPE: Debug
+  CMAKE_CONFIG_TYPE: Release
   CTEST_OUTPUT_ON_FAILURE: 1
 
 jobs:
-  tests:
+  gcc:
     strategy:
       matrix:
-        install: [YES, NO]
+        version: ['4.8', 5, 6, 7, 8, 9, 10]
+        standard: [11, 14, 17]
 
     runs-on: ubuntu-latest
 
@@ -29,26 +30,37 @@ jobs:
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
 
+      - name: Add repository for GCC 10
+        if: matrix.version == 10
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+
+      - name: Install GCC ${{ matrix.version }}
+        run: sudo apt-get install -y
+          gcc-${{ matrix.version }} g++-${{ matrix.version }}
+
       - name: Configure (install)
-        if: matrix.install == 'YES'
+        env:
+          CC: gcc-${{ matrix.version }}
+          CXX: g++-${{ matrix.version }}
         run: cmake -S . -B build/install
-          -D CMAKE_BUILD_TYPE:STRING=Debug
-          -D CPP-LAZY_USE_INSTALLED_FMT:BOOL=NO
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
+          -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
-        if: matrix.install == 'YES'
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
 
       - name: Install
-        if: matrix.install == 'YES'
         run: cmake --install build/install
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D CMAKE_BUILD_TYPE:STRING=Debug
+          -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
-          -D TEST_INSTALLED_VERSION:BOOL=${{ matrix.install }}
+          -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
@@ -57,6 +69,92 @@ jobs:
       - name: Run tests
         working-directory: build/tests
         run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+
+  clang:
+    strategy:
+      matrix:
+        version: ['5.0', '6.0', 8, 9, 10]
+        standard: [11, 14, 17]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: friendlyanon/fetch-core-count@v1
+        id: cores
+
+      - name: Install Clang ${{ matrix.version }}
+        run: sudo apt-get install -y clang-${{ matrix.version }}
+
+      - name: Configure (install)
+        env:
+          CC: clang-${{ matrix.version }}
+          CXX: clang-${{ matrix.version }}
+        run: cmake -S . -B build/install
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
+          -D CMAKE_BUILD_TYPE:STRING=Release
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+
+      - name: Build (install)
+        run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Install
+        run: cmake --install build/install
+
+      - name: Configure tests
+        run: cmake -S tests -B build/tests
+          -D CMAKE_BUILD_TYPE:STRING=Release
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
+          -D TEST_INSTALLED_VERSION:BOOL=YES
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+
+      - name: Build tests
+        run: cmake --build build/tests -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Run tests
+        working-directory: build/tests
+        run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+
+  msvc:
+    strategy:
+      matrix:
+        os: [windows-2016, windows-2019]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: friendlyanon/fetch-core-count@v1
+        id: cores
+
+      - name: Configure (install)
+        run: cmake -S . -B build/install
+          -D CMAKE_BUILD_TYPE:STRING=Release
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+
+      - name: Build (install)
+        run: cmake --build build/install --config Release
+          -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Install
+        run: cmake --install build/install --config Release
+
+      - name: Configure tests
+        run: cmake -S tests -B build/tests
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
+          -D TEST_INSTALLED_VERSION:BOOL=YES
+          -D CMAKE_INSTALL_PREFIX=build/prefix
+
+      - name: Build tests
+        run: cmake --build build/tests --config Release
+          -j ${{ steps.cores.outputs.plus_one }}
+
+      - name: Run tests
+        working-directory: build/tests
+        run: ctest -C Release -VV -j ${{ steps.cores.outputs.plus_one }}
 
   examples:
     runs-on: ubuntu-latest
@@ -69,7 +167,7 @@ jobs:
 
       - name: Configure
         run: cmake -S examples -B build/examples
-          -D CMAKE_BUILD_TYPE:STRING=Debug
+          -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
         run: cmake --build build/examples -j ${{ steps.cores.outputs.plus_one }}
