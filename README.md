@@ -399,17 +399,6 @@ myString = lz::reverse(myString).toString();
 
 int summed = lz::sumTo(50000); // 1 + 2 + 3 + 4 + 5 + ... 50'000
 // summed == 1250025000
-
-for (std::tuple<int, int> tup : lz::transpose(vecs)) {
-	// std::cout << std::get<0>(tup) << std::get<1>(tup) << '\n'
-
-	// 1 5
-	// 2 6
-	// 3 7
-	// 4 8
-}
-std::vector<std::array<int, 2>> transposed = lz::transposeToVector(vecs);
-// transposed == std::vector<std::array<int, 2>>{ { 1, 5 }, { 2, 6 }, { 3, 7 }, { 4, 8 }});
 ```
 
 # To containers, easy!
