@@ -18,7 +18,7 @@ versions have not been checked)
 - Supported compiler versions:
   - &gt;= GCC 5 (GCC 4.8 is still WIP)
   - &gt;= clang 5
-  - &gt;Visual Studio 15 2017; MSVC 19.16.27043.0
+  - &gt;=Visual Studio 15 2017; MSVC 19.16.27043.0
 
 # Current supported iterators & examples
 The iterators are (with some exceptions) by reference. All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
