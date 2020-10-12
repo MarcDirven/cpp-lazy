@@ -4,6 +4,7 @@
 #define LZ_REPEAT_ITERATOR_HPP
 
 #include <iterator>
+#include <limits>
 
 
 namespace lz { namespace internal {
