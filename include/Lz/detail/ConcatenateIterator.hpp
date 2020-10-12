@@ -11,7 +11,7 @@
 #include "LzTools.hpp"
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
 	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
 	namespace {
         template<class Tuple, std::size_t I, class = void>
@@ -113,7 +113,7 @@ namespace lz { namespace detail {
                         MinIs<Tuple, I - 1>()(iterators, begin, end, distance == 0 ? 1 : offset - distance);
                     }
                     else {
-                        std::get<I>(iterators) = std::prev(std::get<I>(iterators), offset);
+                        std::advance(std::get<I>(iterators), -offset);
                     }
                 }
             }
@@ -133,7 +133,7 @@ namespace lz { namespace detail {
                 if (std::distance(currentBegin, current) < offset) {
                     throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
                 }
-                current = std::prev(current, offset);
+                std::advance(current, -offset);
             }
         };
 
@@ -149,10 +149,12 @@ namespace lz { namespace detail {
                 auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
                 if (distance > offset) {
-                    currentIterator = std::next(currentIterator, offset);
+                    std::advance(currentIterator, offset);
                 }
                 else {
-                    currentIterator = currentEnd;
+                    // Moves to end
+                    const auto toEndDistance = std::distance(currentIterator, currentEnd);
+                    std::advance(currentIterator, toEndDistance);
                     PlusIs<Tuple, I + 1>()(iterators, end, offset - distance);
                 }
             }
@@ -175,7 +177,7 @@ namespace lz { namespace detail {
         IterTuple _begin{};
         IterTuple _end{};
 
-        using FirstTupleIterator = std::iterator_traits<TupleElement<0, decltype(_iterators)>>;
+        using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
     public:
         using value_type = typename FirstTupleIterator::value_type;

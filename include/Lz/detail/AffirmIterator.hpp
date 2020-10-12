@@ -6,7 +6,7 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<class Exception, class Iterator, class Function>
     class AffirmIterator {
         using IteratorTraits = std::iterator_traits<Iterator>;

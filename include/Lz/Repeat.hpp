@@ -9,15 +9,14 @@
 
 namespace lz {
     template<class T>
-    class Repeat final : public detail::BasicIteratorView<detail::RepeatIterator<T>> {
+    class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
     public:
-        using iterator = detail::RepeatIterator<T>;
+        using iterator = internal::RepeatIterator<T>;
         using value_type = T;
 
     private:
-        detail::RepeatIteratorHelper<T> _iteratorHelper{};
-        iterator _begin{};
-        iterator _end{};
+        internal::RepeatIteratorHelper<T> _iteratorHelper{};
+        std::size_t _amount{};
 
     public:
         /**
@@ -25,11 +24,11 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        Repeat(T toRepeat, const std::size_t amount):
-            _iteratorHelper(std::move(toRepeat), amount == std::numeric_limits<std::size_t>::max()),
-            _begin(&_iteratorHelper, 0),
-            _end(&_iteratorHelper, amount)
-            {
+        explicit Repeat(T toRepeat, const std::size_t amount):
+            internal::BasicIteratorView<iterator>(iterator(), iterator()),
+            _iteratorHelper(std::move(toRepeat), amount),
+            _amount(amount)
+        {
         }
 
         Repeat() = default;
@@ -39,7 +38,7 @@ namespace lz {
          * @return The beginning of the sequence.
          */
         iterator begin() const override {
-            return _begin;
+            return iterator(&_iteratorHelper, 0);
         }
 
         /**
@@ -47,7 +46,7 @@ namespace lz {
          * @return The ending of the sequence.
          */
         iterator end() const override {
-            return _end;
+            return iterator(&_iteratorHelper, _amount);
         }
     };
 
@@ -60,7 +59,6 @@ namespace lz {
     /**
      * @brief Returns `toRepeat`, `amount` of times. If amount is left empty, it never stops and is interpreted as a
      * `while-true` loop.
-     * @tparam T Is automatically deduced by the compiler.
      * @param toRepeat The value to repeat `amount` times.
      * @param amount The amount of times to repeat the loop, returning `toRepeat`.
      * @return A repeat object, containing the random access iterator.

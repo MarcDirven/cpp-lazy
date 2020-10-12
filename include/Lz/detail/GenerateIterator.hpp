@@ -8,7 +8,7 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     class GenerateIterator {
     public:

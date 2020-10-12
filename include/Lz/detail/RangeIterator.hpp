@@ -6,7 +6,7 @@
 #include <iterator>
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<LZ_CONCEPT_ARITHMETIC Arithmetic>
     class RangeIterator {
         Arithmetic _iterator{};

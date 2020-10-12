@@ -8,7 +8,7 @@
 
 #include "fmt/format.h"
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
 	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
 	namespace {
         template<class T>
@@ -194,6 +194,6 @@ namespace lz { namespace detail {
             return !(*this < other);
         }
     };
-}} // end lz::detail
+}} // end lz::internal
 
 #endif

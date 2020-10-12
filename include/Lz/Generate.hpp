@@ -9,17 +9,12 @@
 
 namespace lz {
     template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-    class Generate final : public detail::BasicIteratorView<detail::GenerateIterator<GeneratorFunc>> {
+    class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {
     public:
-        using iterator = detail::GenerateIterator<GeneratorFunc>;
+        using iterator = internal::GenerateIterator<GeneratorFunc>;
         using const_iterator = iterator;
         using value_type = typename std::iterator_traits<iterator>::value_type;
 
-    private:
-        iterator _begin{};
-        iterator _end{};
-
-    public:
         /**
          * @brief Generator constructor.
          * @details Creates a generator object. Executes `func` `amount` of times, and returns the value of this
@@ -29,28 +24,12 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(const GeneratorFunc& func, const std::size_t amount):
-            _begin(0, func, amount == std::numeric_limits<std::size_t>::max()),
-            _end(amount, func, amount == std::numeric_limits<std::size_t>::max())
+            internal::BasicIteratorView<iterator>(iterator(0, func, amount == std::numeric_limits<std::size_t>::max()),
+                                                  iterator(amount, func, amount == std::numeric_limits<std::size_t>::max()))
         {
         }
 
         Generate() = default;
-
-        /**
-        * @brief Returns the beginning of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-        * @brief Returns the ending of the map iterator object.
-        * @return A bidirectional iterator MapIterator.
-        */
-        iterator end() const override {
-            return _end;
-        }
     };
 
     /**
@@ -67,7 +46,6 @@ namespace lz {
      * size_t amount = 4;
      * auto vector = lz::generate([&a]() { return a++; }, amount).toVector();
      * // vector yields: { 0, 1, 2, 3 }
-     * @tparam GeneratorFunc Is automatically deduced.
      * @param generatorFunc The function to execute `amount` of times. The return value of the function is the type
      * that is generated.
      * @param amount The amount of times to execute `generatorFunc`.

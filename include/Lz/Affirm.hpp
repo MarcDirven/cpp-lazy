@@ -9,17 +9,14 @@
 
 namespace lz {
     template<class Exception, class Iterator, class Function>
-    class Affirm final : public detail::BasicIteratorView<detail::AffirmIterator<Exception, Iterator, Function>> {
+    class Affirm final : public internal::BasicIteratorView<internal::AffirmIterator<Exception, Iterator, Function>> {
     public:
-        using iterator = detail::AffirmIterator<Exception, Iterator, Function>;
+        using iterator = internal::AffirmIterator<Exception, Iterator, Function>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
     private:
-        iterator _begin{};
-        iterator _end{};
-
-        using FunctionReturnType = detail::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
+        using FunctionReturnType = internal::FunctionReturnType<Function, decltype(*std::declval<Iterator>())>;
         static_assert(std::is_same<FunctionReturnType, bool>::value, "function predicate must return bool");
 
     public:
@@ -31,29 +28,13 @@ namespace lz {
          * @param predicate The function that checks whether the iterator has met the condition(s). If false is returned, the exception
          * `exception` is thrown.
          */
-        Affirm(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) :
-            _begin(begin, predicate, exception),
-    		_end(end, predicate, std::forward<Exception>(exception)) {
+        Affirm(const Iterator begin, const Iterator end, const Exception& exception, const Function& predicate) :
+            internal::BasicIteratorView<iterator>(iterator(begin, predicate, exception), iterator(end, predicate, exception))
+        {
         }
     	
 
         Affirm() = default;
-
-        /**
-         * @brief Returns the beginning of the sequence.
-         * @return The beginning of the sequence.
-         */
-        iterator begin() const override {
-            return _begin;
-        }
-
-        /**
-         * @brief Returns the ending of the sequence.
-         * @return The ending of the sequence.
-         */
-        iterator end() const override {
-            return _end;
-        }
     };
     /**
     * @addtogroup ItFns
@@ -77,9 +58,6 @@ namespace lz {
      *      }
      *      ++beg;
      * }
-     * @tparam Exception Is automatically deduced.
-     * @tparam Iterator Is automatically deduced.
-     * @tparam Function Is automatically deduced.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @param exception Something throwable. In C++ everything is throwable.
@@ -111,9 +89,7 @@ namespace lz {
      *      }
      *      ++beg;
      * }
-     * @tparam Exception Is automatically deduced.
-     * @tparam Iterable Is automatically deduced.
-     * @tparam Function Is automatically deduced.
+     * ```
      * @param iterable The iterable sequence.
      * @param exception Something throwable. In C++ everything is throwable.
      * @param predicate The predicate. If true is returned from the function, the value is returned from the iterator.
@@ -121,7 +97,7 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterable, class Function>
-    Affirm<Exception, detail::IterType<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
+    Affirm<Exception, internal::IterTypeFromIterable<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
         return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
     }
 

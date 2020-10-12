@@ -8,14 +8,14 @@
 #include "LzTools.hpp"
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR... Iterators>
     class ZipIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = std::tuple<typename std::iterator_traits<Iterators>::value_type...>;
+        using value_type = std::tuple<internal::ValueType<Iterators>...>;
         using difference_type = std::ptrdiff_t;
-        using reference = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
+        using reference = std::tuple<internal::RefType<Iterators>...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
@@ -42,15 +42,13 @@ namespace lz { namespace detail {
         template<std::size_t... I>
         void plusIs(IndexSequence<I...>, const difference_type differenceType) {
             const std::initializer_list<int> expand = {
-                (std::get<I>(_iterators) = std::next(std::get<I>(_iterators), differenceType), 0)...};
+                (std::advance(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
         void minIs(IndexSequence<I...>, const difference_type differenceType) {
-            const std::initializer_list<int> expand = {
-                (std::get<I>(_iterators) = std::prev(std::get<I>(_iterators), differenceType), 0)...};
-            static_cast<void>(expand);
+            plusIs(MakeIndexSequenceForThis(), -differenceType);
         }
 
         template<std::size_t... I>

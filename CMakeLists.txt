@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(cpp-lazy
         VERSION 2.0.0
         DESCRIPTION
-        "A fast C++14/17/20 header only library for lazy evaluation and function tools"
+        "A fast C++11/14/17/20 header only library for lazy evaluation and function tools"
         HOMEPAGE_URL "https://github.com/MarcDirven/cpp-lazy"
         LANGUAGES CXX)
 
@@ -26,7 +26,7 @@ else()
     include(FetchContent)
     FetchContent_Declare(fmt
             GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-            GIT_TAG a581e9e5d83673fefbecb7cc6ea2514af83f77c8
+            GIT_TAG 7e56b6b6cb021a3b4fc1310e53fac76069410840
             UPDATE_DISCONNECTED YES)
     FetchContent_MakeAvailable(fmt)
 endif()

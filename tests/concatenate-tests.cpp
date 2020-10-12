@@ -3,7 +3,6 @@
 #include <Lz/Concatenate.hpp>
 #include <list>
 
-
 TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality]") {
     std::string a = "hello ";
     std::string b = "world";

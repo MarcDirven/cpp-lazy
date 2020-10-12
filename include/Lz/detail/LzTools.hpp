@@ -3,39 +3,48 @@
 #ifndef LZ_LZ_TOOLS_HPP
 #define LZ_LZ_TOOLS_HPP
 
-#define LZ_CURRENT_VERSION "2.0.0"
 #include <tuple>
 
+#ifdef __has_include
+  #define CPP_LAZY_HAS_INCLUDE(FILE) __has_include(FILE)
+#else
+  #define CPP_LAZY_HAS_INCLUDE(FILE) 0
+#endif
+
+#if (defined(__GNUC__)) && !(defined(__clang__))
+  #define LZ_GCC_VERSION __GNUC__
+#endif
+
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
-#define LZ_HAS_CXX11
+  #define LZ_HAS_CXX11
 #elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
-#define LZ_HAS_CXX11
+  #define LZ_HAS_CXX11
 #endif // end has cxx 11
 
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
-#define LZ_HAS_CXX14
+  #define LZ_HAS_CXX14
 #endif // end has cxx 14
 
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
-#define LZ_HAS_CXX17
+  #define LZ_HAS_CXX17
 #endif // Has cxx 17
 
 #if __cplusplus > 201703L || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
-#define LZ_HAS_CXX_20
+  #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
-#if __has_include(<execution>) && defined(LZ_HAS_CXX17)
-#define LZ_HAS_EXECUTION
-#include <execution>
+#if CPP_LAZY_HAS_INCLUDE(<execution>) && defined(LZ_HAS_CXX17)
+  #define LZ_HAS_EXECUTION
+  #include <execution>
 #endif // has execution
 
-#if __has_include(<string_view>) && defined(LZ_HAS_CXX17)
-#define LZ_HAS_STRING_VIEW
+#if CPP_LAZY_HAS_INCLUDE(<string_view>) && defined(LZ_HAS_CXX17)
+  #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
-#if __has_include(<concepts>) && (defined(LZ_HAS_CXX_20))
-#define LZ_HAS_CONCEPTS
-#include <concepts>
+#if CPP_LAZY_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20))
+  #define LZ_HAS_CONCEPTS
+  #include <concepts>
 #endif // has concepts
 
 #ifdef LZ_HAS_CONCEPTS
@@ -52,6 +61,12 @@ namespace lz {
         { std::end(i) } -> std::bidirectional_iterator;
     };
 
+    template<class I>
+    concept RandomAccesIterable = requires(I i) {
+        { std::begin(i) } -> std::random_access_iterator;
+        { std::end(i) } -> std::random_access_iterator;
+    };
+
     template<class A, class B>
     concept LessThanComparable = requires(A a, B b) {
         { a < b } -> std::convertible_to<bool>;
@@ -66,6 +81,8 @@ namespace lz {
 #define LZ_CONCEPT_INVOCABLE              std::invocable
 #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
 #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
+#define LZ_CONCEPT_RA_ITERATOR            std::random_acess_iterator
+#define LZ_CONCEPT_RA_ITERABLE            std::random_acess_iterator
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
@@ -78,6 +95,8 @@ namespace lz {
 #define LZ_CONCEPT_ITERABLE               class
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
+#define LZ_CONCEPT_RA_ITERATOR            class
+#define LZ_CONCEPT_RA_ITERABLE            class
 
 #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif  // lz has concepts
@@ -87,7 +106,7 @@ namespace lz {
 #define LZ_FILE_LINE __FILE__ ": " LZ_TO_STRING(__LINE__)
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class T>
     struct IsSequencedPolicy {
@@ -112,15 +131,12 @@ namespace lz { namespace detail {
     template<class T>
     constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
 
-    template<class T>
-    constexpr bool IsParallelPolicyV = IsParallelPolicy<T>::value;
-
     template<class Execution, class Iterator>
     constexpr void verifyIteratorAndPolicies(Execution, Iterator) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
 
-        if constexpr (!detail::IsSequencedPolicyV<Execution>) {
-            static_assert(detail::IsForwardOrStrongerV<Iterator>,
+        if constexpr (!internal::IsSequencedPolicyV<Execution>) {
+            static_assert(internal::IsForwardOrStrongerV<Iterator>,
                 "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
         }
     }
@@ -135,10 +151,10 @@ namespace lz { namespace detail {
     struct IndexSequence {};
 
     template<std::size_t N, std::size_t... Rest>
-    struct IndexSequenceHelper : public IndexSequenceHelper<N - 1U, N - 1U, Rest...> {};
+    struct IndexSequenceHelper : public IndexSequenceHelper<N - 1, N - 1, Rest...> {};
 
     template<std::size_t... Next>
-    struct IndexSequenceHelper<0U, Next...> {
+    struct IndexSequenceHelper<0, Next...> {
         using Type = IndexSequence<Next...>;
     };
 
@@ -187,14 +203,36 @@ namespace lz { namespace detail {
         }
     };
 
+    template<typename Same, typename First, typename... More>
+    struct IsAllSame {
+        static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
+    };
+
+    template<typename Same, typename First>
+    struct IsAllSame<Same, First> : std::is_same<Same, First> {
+    };
+
+    template<class T>
+    struct IsRandomAccess {
+        static constexpr bool value = !std::is_same<std::input_iterator_tag, T>::value &&
+        !std::is_same<std::output_iterator_tag, T>::value && !std::is_same<std::forward_iterator_tag, T>::value &&
+        !std::is_same<std::bidirectional_iterator_tag, T>::value;
+    };
+
     template<class Iterable>
-    using IterType = Decay<decltype(std::begin(std::declval<Iterable>()))>;
+    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
 
     template<class Iterator>
-    using ValueTypeIterator = typename std::iterator_traits<Iterator>::value_type;
+    using ValueType = typename std::iterator_traits<Iterator>::value_type;
 
-    template<class Iterable>
-    using ValueTypeIterable = ValueTypeIterator<IterType<Iterable>>;
+    template<class Iterator>
+    using PointerType = typename std::iterator_traits<Iterator>::pointer;
+
+    template<class Iterator>
+    using RefType = typename std::iterator_traits<Iterator>::reference;
+
+    template<class Iterator>
+    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
 
     template<class Function, class... Args>
     using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
@@ -203,6 +241,6 @@ namespace lz { namespace detail {
     inline bool isEven(const Arithmetic value) {
         return (value & 1) == 0;
     }
-}} // end lz::detail
+}} // end lz::internal
 
 #endif

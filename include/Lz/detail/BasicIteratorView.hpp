@@ -15,7 +15,7 @@
 #include "LzTools.hpp"
 
 
-namespace lz { namespace detail {
+namespace lz { namespace internal {
     // ReSharper disable once CppUnnamedNamespaceInHeaderFile
     namespace {
         template<typename T>
@@ -36,20 +36,25 @@ namespace lz { namespace detail {
             }
         	
         public:
-            static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
+            static constexpr bool value = sizeof(test<T>(nullptr)) == sizeof(char);
         };
-
-#ifdef LZ_HAS_CXX14
-        template<class T>
-        constexpr bool HasReserveV = HasReserve<T>::value;
-#endif // end has cxx 14
     }
 
-    template<class Iterator>
+    template<class LzIterator>
     class BasicIteratorView {
+    public:
+        using value_type = internal::ValueType<LzIterator>;
+
+    private:
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        template<class MapType, class KeySelectorFunc>
+        MapType createMap(const KeySelectorFunc keyGen) const {
+            MapType map;
+#else
         template<class MapType, class Allocator, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
+#endif
             std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
                 return std::make_pair(keyGen(value), value);
             });
@@ -58,7 +63,7 @@ namespace lz { namespace detail {
 
         template<std::size_t N>
         void verifyRange() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<Iterator>::difference_type>(N);
+            constexpr auto size = static_cast<typename std::iterator_traits<LzIterator>::difference_type>(N);
 
             if (std::distance(begin(), end()) > size) {
                 throw std::invalid_argument(LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
@@ -74,11 +79,10 @@ namespace lz { namespace detail {
         EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
-
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
+            const LzIterator b = begin();
+            const LzIterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
 
@@ -89,34 +93,12 @@ namespace lz { namespace detail {
                 std::copy(b, e, std::inserter(cont, cont.begin()));
             }
             else {
+                // use execution policies
                 std::copy(std::forward<Execution>(execution), b, e, cont.begin());
             }
 
             return cont;
         }
-
-#else // ^^^ has execution vvv ! has execution
-
-        template<class Container, class... Args>
-        Container copyContainer(Args&& ... args) const {
-            const Iterator b = begin();
-            const Iterator e = end();
-            Container cont(std::forward<Args>(args)...);
-            reserve(cont);
-            std::copy(b, e, std::inserter(cont, cont.begin()));
-            return cont;
-        }
-
-#endif // end has execution
-
-    public:
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-
-    private:
-        template<class KeySelectorFunc>
-        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-
-#ifdef LZ_HAS_EXECUTION
 
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
@@ -131,25 +113,54 @@ namespace lz { namespace detail {
             }
             return array;
         }
-
 #else // ^^^ has execution vvv ! has execution
+
+        template<class Container, class... Args>
+        Container copyContainer(Args&& ... args) const {
+            Container cont(std::forward<Args>(args)...);
+            reserve(cont);
+            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
+            return cont;
+        }
 
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
             verifyRange<N>();
+#if defined(LZ_GCC_VERSION) && (LZ_GCC_VERSION < 5)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
             std::array<value_type, N> array{};
+#if defined(LZ_GCC_VERSION) && (LZ_GCC_VERSION < 5)
+  #pragma GCC diagnostic pop
+#endif
             std::copy(begin(), end(), array.begin());
             return array;
         }
 
 #endif // end has execution
 
-    public:
-        virtual Iterator begin() const = 0;
+        template<class KeySelectorFunc>
+        using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
 
-        virtual Iterator end() const = 0;
+        LzIterator _begin{};
+        LzIterator _end{};
+
+    public:
+        virtual LzIterator begin() const {
+            return _begin;
+        };
+
+        virtual LzIterator end() const {
+            return _end;
+        };
 
         BasicIteratorView() = default;
+
+        BasicIteratorView(const LzIterator begin, const LzIterator end):
+            _begin(begin),
+            _end(end)
+        {}
 
         virtual ~BasicIteratorView() = default;
 
@@ -165,7 +176,6 @@ namespace lz { namespace detail {
          * auto allocator = std::allocator<int>();
          * auto set = lazyIterator.to<std::set>(allocator);
          * ```
-         * @tparam Container Is automatically deduced.
          * @param execution The execution policy. Must be one of `std::execution`'s tags.
          * @tparam Args Additional arguments, automatically deduced.
          * @param args Additional arguments, for e.g. an allocator.
@@ -174,15 +184,17 @@ namespace lz { namespace detail {
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
         Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
+            internal::verifyIteratorAndPolicies(execution, begin());
 
             if constexpr (IsSequencedPolicyV<Execution>) {
-                using OutputIter = std::insert_iterator<Cont>;
                 return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
             else {
                 using OutputIter = typename Cont::iterator;
-                static_assert(IsForwardOrStrongerV<OutputIter> && IsForwardOrStrongerV<Iterator>,
-                              "Both iterator types must be forward iterator or higher. Use std::execution::seq instead.");
+                // Check if the output container is also a forward or stronger iterator, only check if we are using a non seq policy
+                // GCC throws a very verbose error
+                static_assert(IsForwardOrStrongerV<OutputIter>, "Output iterator must be forward iterator or higher. Use "
+                                                                "std::execution::seq instead.");
                 return copyContainer<Cont>(execution, std::forward<Args>(args)...);
             }
         }
@@ -202,7 +214,6 @@ namespace lz { namespace detail {
          * @brief Creates a new `std::vector<value_type, Allocator>`.
          * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
          * by this function.
-         * @tparam Allocator Is automatically deduced.
          * @param exec The execution policy. Must be one of `std::execution`'s tags.
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
@@ -234,8 +245,7 @@ namespace lz { namespace detail {
          */
         template<class Execution = std::execution::sequenced_policy>
         std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
-            static_assert(IsParallelPolicyV<Execution> || IsSequencedPolicyV<Execution>,
-                          "This function cannot be vectorized. Prefer to use std::execution::par/seq.");
+            internal::verifyIteratorAndPolicies(exec, begin());
 
             std::string string;
             if constexpr (IsSequencedPolicyV<Execution>) {
@@ -272,7 +282,6 @@ namespace lz { namespace detail {
          * auto allocator = std::allocator<int>();
          * auto set = lazyIterator.to<std::set>(allocator);
          * ```
-         * @tparam Container Is automatically deduced.
          * @tparam Args Additional arguments, automatically deduced.
          * @param args Additional arguments, for e.g. an allocator.
          * @return An arbitrary container specified by the entered template parameter.
@@ -296,7 +305,6 @@ namespace lz { namespace detail {
          * @brief Creates a new `std::vector<value_type, Allocator>`.
          * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
          * by this function.
-         * @tparam Allocator Is automatically deduced.
          * @param alloc The allocator.
          * @return A new `std::vector<value_type, Allocator>`.
          */
@@ -336,7 +344,6 @@ namespace lz { namespace detail {
 
             return string;
         }
-
 #endif
 
         /**
@@ -353,7 +360,6 @@ namespace lz { namespace detail {
          * // 'd' : "def"
          * // 'g' : "ghi"
          * ```
-         * @tparam KeySelectorFunc Is automatically deduced.
          * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
          * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
          * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
@@ -364,10 +370,17 @@ namespace lz { namespace detail {
             class Compare = std::less<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        toMap(const KeySelectorFunc keyGen) const {
+            using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
+            return createMap<Map>(keyGen);
+#else // ^^^gcc < 5 vvv gcc >= 5
         toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
             return createMap<Map>(keyGen, allocator);
+#endif // end lz gcc version < 5
         }
+
 
         /**
          * @brief Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`.
@@ -383,7 +396,6 @@ namespace lz { namespace detail {
          * // 'd' : "def"
          * // 'g' : "ghi"
          * ```
-         * @tparam KeySelectorFunc Is automatically deduced.
          * @tparam Hasher The hash function, `std::hash<Key>` is used by default
          * @tparam KeyEquality Key equality checker. `std::equal_to<Key>` is used by default.
          * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
@@ -396,9 +408,15 @@ namespace lz { namespace detail {
             class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
             class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
         std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
+#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        toUnorderedMap(const KeySelectorFunc keyGen) const {
+            using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
+            return createMap<UnorderedMap>(keyGen);
+#else // ^^^gcc < 5 vvv gcc >= 5
         toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
             using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
             return createMap<UnorderedMap>(keyGen, allocator);
+#endif // end lz gcc version < 5
         }
 
         /**
@@ -407,9 +425,9 @@ namespace lz { namespace detail {
          * @param it The iterator to print.
          * @return The stream object by reference.
          */
-        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<Iterator>& it) {
+        friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
             return o << it.toString(" ");
         }
     };
-}} // Namespace lz::detail
-#endif
+}} // Namespace lz::internal
+#endif // end LZ_BASIC_ITERATOR_VIEW_HPP

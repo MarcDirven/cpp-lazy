@@ -10,7 +10,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class Map;
 
-    namespace detail {
+    namespace internal {
 
         template<LZ_CONCEPT_ITERATOR Iterator, class Function>
         class MapIterator {
@@ -41,7 +41,7 @@ namespace lz {
                 return _function(*_iterator);
             }
 
-            FakePointerProxy <reference> operator->() const {
+            FakePointerProxy<reference> operator->() const {
                 return FakePointerProxy<decltype(**this)>(**this);
             }
 
