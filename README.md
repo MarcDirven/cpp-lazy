@@ -15,6 +15,10 @@ versions have not been checked)
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 - Little overhead
+- Supported compiler versions:
+  - >= GCC 5 (GCC 4.8 is still WIP)
+  - >= clang 5
+  - Visual Studio 15 2017; MSVC 19.16.27043.0
 
 # Current supported iterators & examples
 The iterators are (with some exceptions) by reference. All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
