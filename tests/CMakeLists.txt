@@ -64,8 +64,6 @@ target_include_directories(LazyTests
         PRIVATE
         "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/catch>")
 
-set(CMAKE_EXE_LINKER_FLAGS "-static")
-
 target_link_libraries(LazyTests PRIVATE cpp-lazy::cpp-lazy)
 
 enable_testing()
