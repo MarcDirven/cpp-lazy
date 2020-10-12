@@ -789,9 +789,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(const Iterator begin, const Iterator end, const Compare compare) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
-        if (len == 0) {
-            throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
-        }
+        assert(len > 0 && "the length of the sequence cannot be 0");
 
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
