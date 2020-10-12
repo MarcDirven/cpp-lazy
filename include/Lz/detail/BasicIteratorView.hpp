@@ -126,12 +126,12 @@ namespace lz { namespace internal {
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
             verifyRange<N>();
-#if (__GNUC__) && !(defined(__clang__)) && (__GNUC__ < 5)
+#if defined(LZ_GCC_VERSION) && (LZ_GCC_VERSION < 5)
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
             std::array<value_type, N> array{};
-#if (__GNUC__) && !(defined(__clang__)) && (__GNUC__ < 5)
+#if defined(LZ_GCC_VERSION) && (LZ_GCC_VERSION < 5)
   #pragma GCC diagnostic pop
 #endif
             std::copy(begin(), end(), array.begin());
