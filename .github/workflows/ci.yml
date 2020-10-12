@@ -19,7 +19,7 @@ jobs:
   gcc:
     strategy:
       matrix:
-        version: ['4.8', 5, 6, 7, 8, 9, 10]
+        version: [5, 6, 7, 8, 9, 10]
         standard: [11, 14, 17]
 
     runs-on: ubuntu-latest
