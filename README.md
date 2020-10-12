@@ -519,6 +519,12 @@ auto random = lz::random(0, 32, n);
 if (std::find(random.begin(), random.end(), 6) != random.end()) {
  // do something
 }
+
+// or
+
+if (lz::contains(random, 6)) {
+  // do something
+}
 ```
 So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate 
 any memory and has very little overhead.
