@@ -26,8 +26,8 @@ namespace lz {
          */
         explicit Repeat(T toRepeat, const std::size_t amount):
             internal::BasicIteratorView<iterator>(iterator(), iterator()),
-            _amount(amount),
-            _iteratorHelper(std::move(toRepeat), amount)
+            _iteratorHelper(std::move(toRepeat), amount),
+            _amount(amount)
         {
         }
 
