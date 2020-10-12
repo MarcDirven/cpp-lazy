@@ -35,7 +35,6 @@ jobs:
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
-
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
           gcc-${{ matrix.version }} g++-${{ matrix.version }}
@@ -45,10 +44,10 @@ jobs:
           CC: gcc-${{ matrix.version }}
           CXX: g++-${{ matrix.version }}
         run: cmake -S . -B build/install
-          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -58,7 +57,6 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -94,9 +92,9 @@ jobs:
           CXX: clang-${{ matrix.version }}
         run: cmake -S . -B build/install
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
-          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -106,7 +104,6 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -146,7 +143,6 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D BUILD_SHARED_LIBS=FALSE
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
