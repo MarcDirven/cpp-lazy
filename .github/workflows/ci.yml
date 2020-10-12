@@ -58,6 +58,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
+          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -105,6 +106,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
+          -D BUILD_SHARED_LIBS=FALSE
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -144,6 +146,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
+          -D BUILD_SHARED_LIBS=FALSE
           -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
