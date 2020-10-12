@@ -464,8 +464,7 @@ namespace lz {
     internal::RefType<Iterator> last(Iterator begin, const Iterator end) {
         assert(!lz::isEmpty(begin, end) && "sequence cannot be empty in order to get the last element");
         const internal::DiffType<Iterator> len = lz::length(begin, end);
-        std::advance(begin, len - 1);
-        return *begin;
+        return *std::next(begin, len - 1);
     }
 
     /**
