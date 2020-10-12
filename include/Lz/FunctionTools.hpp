@@ -440,6 +440,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
     internal::RefType<Iterator> first(const Iterator begin, const Iterator end) {
         assert(!lz::isEmpty(begin, end) && "sequence cannot be empty in order to get the first element");
+        static_cast<void>(end);
         return *begin;
     }
 
