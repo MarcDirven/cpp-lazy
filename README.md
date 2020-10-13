@@ -122,6 +122,8 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
 
+Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
+
 ## Including
 ```cpp
 #include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
@@ -130,8 +132,6 @@ int main() {
   // use e.g. lz::filter
 }
 ```
-
-Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Side note
 If you want to re-overwrite or default construct the iterator/view object, use a `std::function` instead of a lambda 
