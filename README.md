@@ -19,6 +19,7 @@ versions have not been checked)
   - &gt;= GCC 5 (GCC 4.8 is still WIP)
   - &gt;= clang 5
   - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
+- Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
 
 # Current supported iterators & examples
 The iterators are (with some exceptions) by reference. All iterators contain a `ostream<<` operator to print all the values of the iterator. This is also compatible with 
@@ -543,14 +544,30 @@ support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString
 However, both libraries will have its advantages and disadvantages.
 
 # Installation
-Clone the repository using `git clone --recurse-submodules https://github.com/MarcDirven/cpp-lazy` or 
-`git submodule init && git submodule update` (after regular cloning) and add to `CMakeLists.txt` the following:
+## Using `FetchContent`
+Add to your CMakeLists.txt the following:
+```cmake
+include(FetchContent)
+FetchContent_Declare(cpp-lazy
+        GIT_REPOSITORY https://github.com/MarcDirven/cpp-lazy
+        GIT_TAG 9abf914f2b5421a61098294f4955a3e8f5e220a6 # Or another tag
+        UPDATE_DISCONNECTED YES)
+FetchContent_MakeAvailable(cpp-lazy)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
+```
+
+## Using `git clone`
+Clone the repository using `git clone https://github.com/MarcDirven/cpp-lazy/` and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
+
+## Including
 ```cpp
 #include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
 
@@ -558,6 +575,7 @@ int main() {
   // use e.g. lz::filter
 }
 ```
+
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
 # Side note
