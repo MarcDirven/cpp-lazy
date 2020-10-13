@@ -334,19 +334,19 @@ size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s)
 std::string toFind = "hel";
 std::string def = "default";
 
-toFind = lz::findOrDefault(s, toFind, def);
+toFind = lz::firstOrDefault(s, toFind, def);
 // toFind == "default"
 
 toFind = "hello";
-toFind = lz::findOrDefault(s, toFind, def);
+toFind = lz::firstOrDefault(s, toFind, def);
 // toFind == "hello"
 
-toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
     return s.find('\'') != std::string::npos; // ' is present in the sequence
 }, def);
 // toFind == "what's"
 
-toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
     return s.find('z') != std::string::npos; // z is not present in the sequence
 }, "default");
 // toFind == "default"
