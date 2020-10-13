@@ -6,122 +6,110 @@
 
 #include "LzTools.hpp"
 
-namespace lz {
+namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-    class Map;
+    class MapIterator {
+        Iterator _iterator{};
+        Function _function;
 
-    namespace internal {
+    public:
+        using value_type = FunctionReturnType<Function, decltype(*_iterator)>;
+        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
+        using difference_type = std::ptrdiff_t;
+        using reference = value_type;
+        using pointer = FakePointerProxy<reference>;
 
-        template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-        class MapIterator {
-            Iterator _iterator{};
-            using FnParamType = decltype(*_iterator);
-            using FnReturnType = FunctionReturnType<Function, FnParamType>;
-            Function _function;
+        MapIterator(const Iterator iterator, const Function& function) :  // NOLINT(modernize-pass-by-value)
+            _iterator(iterator),
+            _function(function) {
+        }
 
+        MapIterator() = default;
 
-            friend class Map<Iterator, Function>;
+        value_type operator*() const {
+            return _function(*_iterator);
+        }
 
+        FakePointerProxy<reference> operator->() const {
+            return FakePointerProxy<decltype(**this)>(**this);
+        }
 
-        public:
-            using value_type = FnReturnType;
-            using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-            using difference_type = std::ptrdiff_t;
-            using reference = value_type;
-            using pointer = FakePointerProxy<reference>;
+        MapIterator& operator++() {
+            ++_iterator;
+            return *this;
+        }
 
-            MapIterator(const Iterator iterator, const Function& function) :  // NOLINT(modernize-pass-by-value)
-                _iterator(iterator),
-                _function(function) {
-            }
+        MapIterator operator++(int) {
+            MapIterator tmp(*this);
+            ++*this;
+            return tmp;
+        }
 
-            MapIterator() = default;
+        MapIterator& operator--() {
+            --_iterator;
+            return *this;
+        }
 
-            value_type operator*() const {
-                return _function(*_iterator);
-            }
+        MapIterator operator--(int) {
+            MapIterator tmp(*this);
+            --*this;
+            return tmp;
+        }
 
-            FakePointerProxy<reference> operator->() const {
-                return FakePointerProxy<decltype(**this)>(**this);
-            }
+        MapIterator& operator+=(const difference_type offset) {
+            _iterator += offset;
+            return *this;
+        }
 
-            MapIterator& operator++() {
-                ++_iterator;
-                return *this;
-            }
+        MapIterator& operator-=(const difference_type offset) {
+            _iterator -= offset;
+            return *this;
+        }
 
-            MapIterator operator++(int) {
-                MapIterator tmp(*this);
-                ++*this;
-                return tmp;
-            }
+        MapIterator operator+(const difference_type offset) const {
+            MapIterator tmp(*this);
+            tmp += offset;
+            return tmp;
+        }
 
-            MapIterator& operator--() {
-                --_iterator;
-                return *this;
-            }
+        MapIterator operator-(const difference_type offset) const {
+            MapIterator tmp(*this);
+            tmp -= offset;
+            return tmp;
+        }
 
-            MapIterator operator--(int) {
-                MapIterator tmp(*this);
-                --*this;
-                return tmp;
-            }
+        difference_type operator-(const MapIterator& other) const {
+            return _iterator - other._iterator;
+        }
 
-            MapIterator& operator+=(const difference_type offset) {
-                _iterator += offset;
-                return *this;
-            }
+        reference operator[](const difference_type offset) const {
+            return *(*this + offset);
+        }
 
-            MapIterator& operator-=(const difference_type offset) {
-                _iterator -= offset;
-                return *this;
-            }
+        bool operator==(const MapIterator& other) const {
+            return !(*this != other);
+        }
 
-            MapIterator operator+(const difference_type offset) const {
-                MapIterator tmp(*this);
-                tmp += offset;
-                return tmp;
-            }
+        bool operator!=(const MapIterator& other) const {
+            return _iterator != other._iterator;
+        }
 
-            MapIterator operator-(const difference_type offset) const {
-                MapIterator tmp(*this);
-                tmp -= offset;
-                return tmp;
-            }
+        bool operator<(const MapIterator& other) const {
+            return _iterator < other._iterator;
+        }
 
-            difference_type operator-(const MapIterator& other) const {
-                return _iterator - other._iterator;
-            }
+        bool operator>(const MapIterator& other) const {
+            return other < *this;
+        }
 
-            reference operator[](const difference_type offset) const {
-                return *(*this + offset);
-            }
+        bool operator<=(const MapIterator& other) const {
+            return !(other < *this);
+        }
 
-            bool operator==(const MapIterator& other) const {
-                return !(*this != other);
-            }
-
-            bool operator!=(const MapIterator& other) const {
-                return _iterator != other._iterator;
-            }
-
-            bool operator<(const MapIterator& other) const {
-                return _iterator < other._iterator;
-            }
-
-            bool operator>(const MapIterator& other) const {
-                return other < *this;
-            }
-
-            bool operator<=(const MapIterator& other) const {
-                return !(other < *this);
-            }
-
-            bool operator>=(const MapIterator& other) const {
-                return !(*this < other);
-            }
-        };
-    }
-}
+        bool operator>=(const MapIterator& other) const {
+            return !(*this < other);
+        }
+    };
+}} // end lz::internal
 
 #endif
