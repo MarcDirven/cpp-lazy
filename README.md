@@ -133,66 +133,6 @@ toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
 // toFind == def
 ```
 
-# To containers, easy!
-Every sequence created by the `lz` library, has the following functions: `toVector`, `to`, `toArray`, `toMap` and 
-`toUnorderedMap`. Examples:
-```cpp
-char c = 'a';
-auto generator = lz::generate([&c]() {
-    return c++;
-}, 4);
-
-// To vector:
-auto vec = generator.toVector();
-for (char c : vec) {
-    std::cout << c << '\n';
-}
-// Yields:
-// a
-// b
-// c
-// d
-std::cout << '\n';
-c = 'a';
-
-// To set
-auto set = generator.to<std::set>();
-for (char c : set) {
-    std::cout << c << '\n';
-}
-// Yields:
-// a
-// b
-// c
-// d
-std::cout << '\n';
-c = 'a';
-
-// To list
-auto list = generator.to<std::list>();
-for (char c : set) {
-    std::cout << c << '\n';
-}
-// Yields:
-// a
-// b
-// c
-// d
-std::cout << '\n';
-c = 'a';
-
-// To map
-std::map<char, char> map = generator.toMap([](const char c) { return static_cast<char>(c + 1); });
-for (std::pair<char, char> pair : map) {
-    std::cout << pair.first << ' ' << pair.second << '\n';
-}
-// Yields:
-// b a
-// c b
-// d c
-// e d
-```
-
 # What is lazy and why would I use it?
 Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this
 library, all the iterators are lazy evaluated. Suppose you want to have a sequence of `n` random numbers. You could 
