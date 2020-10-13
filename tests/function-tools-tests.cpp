@@ -5,11 +5,10 @@
 
 #include <cctype>
 
+
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
     std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
-
-
 
     SECTION("Mean") {
         double avg = lz::mean(ints);
@@ -62,6 +61,14 @@ TEST_CASE("Function tools") {
     SECTION("Pairwise") {
         auto x = lz::pairwise(ints).toVector();
         CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
+    }
+
+    SECTION("zipWith") {
+        auto x = {1, 2, 3, 4};
+        auto y = {1.1, 2.2, 3.3, 4.4};
+        auto zipped = lz::zipWith([](int i, double j) { return i * j; }, x, y);
+        auto expected = {1 * 1.1, 2 * 2.2, 3 * 3.3, 4 * 4.4};
+        CHECK(std::equal(zipped.begin(), zipped.end(), expected.begin()));
     }
 
     SECTION("As") {

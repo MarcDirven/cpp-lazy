@@ -69,6 +69,13 @@ namespace lz {
             }
         };
 
+        struct TupleExpander {
+            template<class Fn, class Tuple, std::size_t... I>
+            auto operator()(const Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
+                return fn(std::get<I>(tuple)...);
+            }
+        };
+
         template<class T>
         auto begin(T&& t) -> decltype(std::begin(t)) {
             return std::begin(t);
@@ -297,6 +304,70 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
     auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
         return lz::pairwise(std::begin(iterable), std::end(iterable));
+    }
+
+    /**
+     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
+     * For eg: func(*it1, *it2, *it3). Example:
+     * ```cpp
+     * std::vector<int> ints = {1, 2, 3, 4};
+     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+     *
+     * auto beg = std::make_tuple(ints.begin(), doubles.begin());
+     * auto end = std::make_tuple(ints.end(), doubles.end());
+     *
+     * auto zipped = lz::zipWithRange([](int i, double f) { return static_cast<double>(i) * f; }, beg, end);
+     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
+     * ```
+     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
+     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
+     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all iterators each iteration.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return A Map zip iterator that can be iterated over.
+     */
+    template<class Fn, class... Iterators, class ValueType = typename lz::Zip<Iterators...>::value_type
+#ifdef LZ_HAS_CXX11
+        , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
+#endif // end lz has cxx 11
+    >
+    auto zipWithRange(const Fn fn, const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end)
+#ifdef LZ_HAS_CXX11
+    -> lz::Map<lz::internal::ZipIterator<Iterators...>, std::function<RetVal(ValueType)>>
+#endif // end lz has cxx 11
+    {
+        lz::Zip<Iterators...> zipper = lz::zipRange(begin, end);
+#ifdef LZ_HAS_CXX11
+        std::function<RetVal(ValueType)> f = [fn](const ValueType& tuple) {
+            return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+        };
+        return lz::map(zipper, f);
+#else // ^^^lz has cxx 11 vvv lz has > cxx 11
+        return lz::map(zipper, [fn](const ValueType& tuple) {
+            return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+        });
+#endif // end lz has cxx 11
+    }
+
+    /**
+     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
+     * For eg: func(*it1, *it2, *it3). Example:
+     * ```cpp
+     * std::vector<int> ints = {1, 2, 3, 4};
+     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+     * auto zipped = lz::zipWith([](int i, double f) { return static_cast<double>(i) * f; }, ints, doubles);
+     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
+     * ```
+     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
+     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
+     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all containers each iteration.
+     * @param iterables The iterables to perform the function over.
+     * @return A Map zip iterator that can be iterated over.
+     */
+    template<class Fn, class... Iterables>
+    auto zipWith(const Fn fn, Iterables&&... iterables) ->
+    decltype(lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...))) {
+        return lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     /**
@@ -992,8 +1063,10 @@ namespace lz {
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
-        const Iterator pos = std::find(ReverseIterator(end), ReverseIterator(begin), toFind);
-        return static_cast<CastType>(pos == end ? defaultValue : *pos);
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
     }
 
     /**
@@ -1022,8 +1095,10 @@ namespace lz {
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
-        const Iterator pos = std::find_if(ReverseIterator(end), ReverseIterator(begin), predicate);
-        return static_cast<CastType>(pos == end ? defaultValue : *pos);
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
     }
 
     /**
