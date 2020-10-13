@@ -477,6 +477,13 @@ namespace lz {
         return lz::last(std::begin(iterable), std::end(iterable));
     }
 
+    /**
+     * Returns the last element. Asserts if the sequence is empty.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence.
+     * @param defaultValue The value to return if `iterable` is empty.
+     * @return Either the first element of `iterable` or `value` if the sequence is empty.
+     */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
     internal::ValueType<Iterator> firstOr(const Iterator begin, const Iterator end, const T& defaultValue) {
         return lz::isEmpty(begin, end) ? defaultValue : lz::first(begin, end);
