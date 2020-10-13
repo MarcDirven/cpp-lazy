@@ -11,7 +11,7 @@ object has many `std::execution::*` overloads. This library uses one dependency 
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions; at least `gcc` versions => `5.4.0` & `clang` => `7.0.0` (previous 
 versions have not been checked)
-- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
+- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W3` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 - Little overhead
