@@ -5,11 +5,10 @@
 
 #include <cctype>
 
+
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
     std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
-
-
 
     SECTION("Mean") {
         double avg = lz::mean(ints);
@@ -64,36 +63,61 @@ TEST_CASE("Function tools") {
         CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
     }
 
+    SECTION("zipWith") {
+        auto x = {1, 2, 3, 4};
+        auto y = {1.1, 2.2, 3.3, 4.4};
+        auto zipped = lz::zipWith([](int i, double j) { return i * j; }, x, y);
+        auto expected = {1 * 1.1, 2 * 2.2, 3 * 3.3, 4 * 4.4};
+        CHECK(std::equal(zipped.begin(), zipped.end(), expected.begin()));
+    }
+
     SECTION("As") {
         auto floats = lz::as<float>(ints).toVector();
         CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
         CHECK(floats == std::vector<float>{1., 2., 3., 4.});
     }
 
-    SECTION("Find or default") {
+    SECTION("First or default") {
         std::vector<std::string> s = {"hello world!", "what's up"};
         std::string toFind = "hel";
         std::string def = "default";
 
-        toFind = lz::findOrDefault(s, toFind, def);
+        toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "default");
 
-        def = "default";
         toFind = "hello world!";
-        toFind = lz::findOrDefault(s, toFind, def);
+        toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "hello world!");
 
         def = ' ';
-        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+        toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
             return s.find('!') != std::string::npos;
         }, def);
         CHECK(toFind == "hello world!");
-        CHECK(!def.empty());
 
-        toFind = lz::findOrDefaultIf(s, [](const std::string& s) {
+        toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
             return s.find('z') != std::string::npos;
         }, "default");
         CHECK(toFind == "default");
+    }
+
+    SECTION("Last or default") {
+        std::vector<std::string> s = {"hello 'world", "what's up"};
+        std::string toFind = "hel";
+        std::string def = "default";
+
+        toFind = lz::lastOrDefault(s, toFind, def);
+        CHECK(toFind == def);
+
+        toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
+            return s.find('\'') != std::string::npos;
+        }, def);
+        CHECK(toFind == "what's up");
+
+        toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
+            return lz::contains(s, 'q');
+        }, def);
+        CHECK(toFind == def);
     }
 
     SECTION("Position") {

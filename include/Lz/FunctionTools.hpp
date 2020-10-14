@@ -69,6 +69,13 @@ namespace lz {
             }
         };
 
+        struct TupleExpander {
+            template<class Fn, class Tuple, std::size_t... I>
+            auto operator()(const Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
+                return fn(std::get<I>(tuple)...);
+            }
+        };
+
         template<class T>
         auto begin(T&& t) -> decltype(std::begin(t)) {
             return std::begin(t);
@@ -300,6 +307,70 @@ namespace lz {
     }
 
     /**
+     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
+     * For eg: func(*it1, *it2, *it3). Example:
+     * ```cpp
+     * std::vector<int> ints = {1, 2, 3, 4};
+     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+     *
+     * auto beg = std::make_tuple(ints.begin(), doubles.begin());
+     * auto end = std::make_tuple(ints.end(), doubles.end());
+     *
+     * auto zipped = lz::zipWithRange([](int i, double f) { return static_cast<double>(i) * f; }, beg, end);
+     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
+     * ```
+     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
+     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
+     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all iterators each iteration.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return A Map zip iterator that can be iterated over.
+     */
+    template<class Fn, class... Iterators, class ValueType = typename lz::Zip<Iterators...>::value_type
+#ifdef LZ_HAS_CXX11
+        , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
+#endif // end lz has cxx 11
+    >
+    auto zipWithRange(const Fn fn, const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end)
+#ifdef LZ_HAS_CXX11
+    -> lz::Map<lz::internal::ZipIterator<Iterators...>, std::function<RetVal(ValueType)>>
+#endif // end lz has cxx 11
+    {
+        lz::Zip<Iterators...> zipper = lz::zipRange(begin, end);
+#ifdef LZ_HAS_CXX11
+        std::function<RetVal(ValueType)> f = [fn](const ValueType& tuple) {
+            return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+        };
+        return lz::map(zipper, f);
+#else // ^^^lz has cxx 11 vvv lz has > cxx 11
+        return lz::map(zipper, [fn](const ValueType& tuple) {
+            return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+        });
+#endif // end lz has cxx 11
+    }
+
+    /**
+     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
+     * For eg: func(*it1, *it2, *it3). Example:
+     * ```cpp
+     * std::vector<int> ints = {1, 2, 3, 4};
+     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
+     * auto zipped = lz::zipWith([](int i, double f) { return static_cast<double>(i) * f; }, ints, doubles);
+     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
+     * ```
+     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
+     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
+     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all containers each iteration.
+     * @param iterables The iterables to perform the function over.
+     * @return A Map zip iterator that can be iterated over.
+     */
+    template<class Fn, class... Iterables>
+    auto zipWith(const Fn fn, Iterables&&... iterables) ->
+    decltype(lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...))) {
+        return lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+    }
+
+    /**
      * Returns a view object of which its iterators are reversed.
      * @param begin The beginning of the sequence. Must have at least std::bidirectional_iterator_tag.
      * @param end The ending of the sequence. Must have at least std::bidirectional_iterator_tag.
@@ -477,6 +548,13 @@ namespace lz {
         return lz::last(std::begin(iterable), std::end(iterable));
     }
 
+    /**
+     * Returns the last element. Asserts if the sequence is empty.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence.
+     * @param defaultValue The value to return if `iterable` is empty.
+     * @return Either the first element of `iterable` or `value` if the sequence is empty.
+     */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
     internal::ValueType<Iterator> firstOr(const Iterator begin, const Iterator end, const T& defaultValue) {
         return lz::isEmpty(begin, end) ? defaultValue : lz::first(begin, end);
@@ -485,14 +563,21 @@ namespace lz {
     /**
      * Gets the first element of the sequence, or `value` if the sequence is empty.
      * @param iterable The iterable to get the first value of, or `value` in case it is empty.
-     * @param value The value to return if `iterable` is empty.
+     * @param defaultValue The value to return if `iterable` is empty.
      * @return Either the first element of `iterable` or `value` if the sequence is empty.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOr(const Iterable& iterable, const T& value) {
-        return lz::firstOr(std::begin(iterable), std::end(iterable), value);
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOr(const Iterable& iterable, const T& defaultValue) {
+        return lz::firstOr(std::begin(iterable), std::end(iterable), defaultValue);
     }
 
+    /**
+     * This function returns the last element. If the sequence is empty, it returns `value`.
+     * @param begin The beginning of the sequence
+     * @param end The ending of the sequence.
+     * @param value The value to return if `iterable` is empty.
+     * @return Either the last element of `iterable` or `value` if the sequence is empty.
+     */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
     internal::ValueType<Iterator> lastOr(const Iterator begin, const Iterator end, const T& value) {
         return lz::isEmpty(begin, end) ? value : lz::last(begin, end);
@@ -624,7 +709,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T, class U>
     internal::ValueType<Iterator>
-    findOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
+	firstOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         return static_cast<ValueType>(std::find(execution, begin, end, toFind) == end ? defaultValue : toFind);
     }
@@ -638,9 +723,9 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class U>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> findOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
                                                                                 const Execution execution = std::execution::seq) {
-        return lz::findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+        return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
     /**
@@ -655,7 +740,7 @@ namespace lz {
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class T>
-    internal::ValueType<Iterator> findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
+    internal::ValueType<Iterator> firstOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
                                                           T&& defaultValue, const Execution execution) {
         using ValueType = internal::ValueType<Iterator>;
         const Iterator pos = std::find_if(execution, begin, end, predicate);
@@ -674,10 +759,81 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>>
-    findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
+    firstOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
                     const Execution execution = std::execution::seq) {
-        return lz::findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+        return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
+
+
+
+    /**
+	 * Searches for the last occurrence for `toFind` in (end, begin]. If no such such element exists, `defaultValue` is returned.
+	 * @param begin The beginning of the sequence.
+	 * @param end The ending of the sequence.
+	 * @param toFind The value to find.
+	 * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+	 * @return Either the last occurrence of `toFind` in [begin, end) or `defaultValue` if no such element exists.
+	 */
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
+    internal::ValueType<Iterator> lastOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue, 
+												const Execution execution = std::execution::seq) {
+        using CastType = internal::ValueType<Iterator>;
+        using ReverseIterator = std::reverse_iterator<Iterator>;
+
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find(execution, endReverse, beginReverse, toFind);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+    }
+
+    /**
+     * Searches for the last occurrence for `toFind` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param iterable The sequence to search.
+     * @param toFind The value to find.
+     * @param defaultValue The value to return when no element `toFind` exists in `iterable`
+     * @return Either the last occurrence of `toFind` in `iterable` or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class U, class Execution = std::execution::sequenced_policy>
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
+																				const Execution execution = std::execution::seq) {
+        return lz::lastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+    }
+
+    /**
+     * Searches for the last occurrence of predicate `predicate` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate The search predicate in [begin, end). Must return bool.
+     * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+     * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    internal::ValueType<Iterator> lastOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
+												  T&& defaultValue, const Execution execution = std::execution::seq) {
+        using CastType = internal::ValueType<Iterator>;
+        using ReverseIterator = std::reverse_iterator<Iterator>;
+
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find_if(execution, endReverse, beginReverse, predicate);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+    }
+
+    /**
+     * Searches for the last occurrence of predicate `predicate` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param iterable The sequence to search.
+     * @param predicate The search predicate in [begin, end). Must return bool.
+     * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+     * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
+																				  T&& defaultValue, 
+																				  const Execution execution = std::execution::seq) {
+        return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+    }
+
+	
 
     /**
      * Searches [begin, end) for val, and returns its corresponding index, or lz::npos if no such value exists.
@@ -844,7 +1000,7 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U>
-    internal::ValueType<Iterator> findOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue) {
+    internal::ValueType<Iterator> firstOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue) {
         using CastType = internal::ValueType<Iterator>;
         return static_cast<CastType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
     }
@@ -857,8 +1013,8 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class U>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> findOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue) {
-        return lz::findOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue) {
+        return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
     }
 
     /**
@@ -872,8 +1028,8 @@ namespace lz {
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate>
-    internal::ValueType<Iterator> findOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
-                                                  T&& defaultValue) {
+    internal::ValueType<Iterator> firstOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
+                                                   T&& defaultValue) {
         using CastType = internal::ValueType<Iterator>;
         const Iterator pos = std::find_if(begin, end, predicate);
         return static_cast<CastType>(pos == end ? defaultValue : *pos);
@@ -889,9 +1045,73 @@ namespace lz {
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> findOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
                                                                                   T&& defaultValue) {
-        return lz::findOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
+        return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
+    }
+
+    /**
+     * Searches for the last occurrence for `toFind` in (end, begin]. If no such such element exists, `defaultValue` is returned.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param toFind The value to find.
+     * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+     * @return Either the last occurrence of `toFind` in [begin, end) or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class U>
+    internal::ValueType<Iterator> lastOrDefault(const Iterator begin, const Iterator end, T&& toFind, U&& defaultValue) {
+        using CastType = internal::ValueType<Iterator>;
+        using ReverseIterator = std::reverse_iterator<Iterator>;
+
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+    }
+
+    /**
+     * Searches for the last occurrence for `toFind` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param iterable The sequence to search.
+     * @param toFind The value to find.
+     * @param defaultValue The value to return when no element `toFind` exists in `iterable`
+     * @return Either the last occurrence of `toFind` in `iterable` or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class U>
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue) {
+        return lz::lastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
+    }
+
+    /**
+     * Searches for the last occurrence of predicate `predicate` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate The search predicate in [begin, end). Must return bool.
+     * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+     * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate>
+    internal::ValueType<Iterator> lastOrDefaultIf(const Iterator begin, const Iterator end, const UnaryPredicate predicate,
+                                                  T&& defaultValue) {
+        using CastType = internal::ValueType<Iterator>;
+        using ReverseIterator = std::reverse_iterator<Iterator>;
+
+        ReverseIterator endReverse(end);
+        ReverseIterator beginReverse(begin);
+        const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
+        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+    }
+
+    /**
+     * Searches for the last occurrence of predicate `predicate` in `iterable`. If no such such element exists, `defaultValue` is returned.
+     * @param iterable The sequence to search.
+     * @param predicate The search predicate in [begin, end). Must return bool.
+     * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
+     * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
+                                                                                  T&& defaultValue) {
+        return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
     /**

@@ -56,8 +56,16 @@ target_compile_features(LazyTests PRIVATE cxx_std_11)
 
 target_compile_options(LazyTests
         PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
+        $<$<CXX_COMPILER_ID:MSVC>:/W3 /permissive->
         $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-Wa,-mbig-obj" "HAS_MBIG_OBJ")
+    if (${HAS_MBIG_OBJ})
+        add_definitions("-Wa,-mbig-obj")
+    endif ()
+endif ()
 
 target_include_directories(LazyTests
         SYSTEM # Prevent warnings from Catch2
