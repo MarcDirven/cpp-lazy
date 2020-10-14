@@ -85,6 +85,7 @@ TEST_CASE("Function tools") {
         toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "default");
 
+        toFind = "hello world!";
         toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "hello world!");
 
