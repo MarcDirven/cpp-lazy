@@ -85,8 +85,6 @@ TEST_CASE("Function tools") {
         toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "default");
 
-        def = "default";
-        toFind = "hello world!";
         toFind = lz::firstOrDefault(s, toFind, def);
         CHECK(toFind == "hello world!");
 
@@ -103,15 +101,12 @@ TEST_CASE("Function tools") {
     }
 
     SECTION("Last or default") {
-        std::vector<std::string> s = {"hello world", "what's up"};
+        std::vector<std::string> s = {"hello 'world", "what's up"};
         std::string toFind = "hel";
         std::string def = "default";
 
         toFind = lz::lastOrDefault(s, toFind, def);
         CHECK(toFind == def);
-
-        toFind = "what's up";
-        CHECK(toFind == "what's up");
 
         toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
             return s.find('\'') != std::string::npos;
