@@ -302,7 +302,7 @@ namespace lz {
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-    auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
+    Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
         return lz::pairwise(std::begin(iterable), std::end(iterable));
     }
 
@@ -1072,7 +1072,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
-                                                                                  T&& defaultValue) {
+                                                                                   T&& defaultValue) {
         return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
