@@ -28,8 +28,8 @@ namespace lz {
          * @param predicate The function that checks whether the iterator has met the condition(s). If false is returned, the exception
          * `exception` is thrown.
          */
-        Affirm(const Iterator begin, const Iterator end, const Exception& exception, const Function& predicate) :
-            internal::BasicIteratorView<iterator>(iterator(begin, predicate, exception), iterator(end, predicate, exception))
+        Affirm(const Iterator begin, const Iterator end, const Exception& exception, Function predicate) :
+            internal::BasicIteratorView<iterator>(iterator(begin, std::move(predicate), exception), iterator(end, predicate, exception))
         {
         }
     	
@@ -67,8 +67,8 @@ namespace lz {
      */
     template<class Exception, class Iterator, class Function>
     Affirm<Exception, Iterator, Function>
-    affirmRange(const Iterator begin, const Iterator end, Exception&& exception, const Function& predicate) {
-        return Affirm<Exception, Iterator, Function>(begin, end, std::forward<Exception>(exception), predicate);
+    affirmRange(const Iterator begin, const Iterator end, Exception&& exception, Function predicate) {
+        return Affirm<Exception, Iterator, Function>(begin, end, std::forward<Exception>(exception), std::move(predicate));
     }
 
     /**
@@ -97,8 +97,9 @@ namespace lz {
      * @return An Affirm view object, that can be iterated over
      */
     template<class Exception, class Iterable, class Function>
-    Affirm<Exception, internal::IterTypeFromIterable<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception, const Function& predicate) {
-        return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), predicate);
+    Affirm<Exception, internal::IterTypeFromIterable<Iterable>, Function> affirm(Iterable&& iterable, Exception&& exception,
+                                                                                 Function predicate) {
+        return affirmRange(std::begin(iterable), std::end(iterable), std::forward<Exception>(exception), std::move(predicate));
     }
 
     // End of group

@@ -19,9 +19,9 @@ namespace lz { namespace internal {
         using reference = value_type;
         using pointer = FakePointerProxy<reference>;
 
-        MapIterator(const Iterator iterator, const Function& function) :  // NOLINT(modernize-pass-by-value)
+        MapIterator(const Iterator iterator, Function function) :  // NOLINT(modernize-pass-by-value)
             _iterator(iterator),
-            _function(function) {
+            _function(std::move(function)) {
         }
 
         MapIterator() = default;

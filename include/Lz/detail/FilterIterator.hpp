@@ -36,12 +36,12 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
         FilterIterator(const Iterator begin, const Iterator end, const Function& function, const Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
-        FilterIterator(const Iterator begin, const Iterator end, const Function& function)  // NOLINT(modernize-pass-by-value)
+        FilterIterator(const Iterator begin, const Iterator end, Function function)  // NOLINT(modernize-pass-by-value)
 #endif // end has execution
     :
             _iterator(begin),
             _end(end),
-            _predicate(function)
+            _predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end has execution
@@ -91,7 +91,7 @@ namespace lz { namespace internal {
         }
 
         bool operator!=(const FilterIterator& other) const {
-            return _iterator != other._end;
+            return _iterator != other._iterator;
         }
 
         bool operator==(const FilterIterator& other) const {
