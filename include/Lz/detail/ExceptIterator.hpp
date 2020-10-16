@@ -107,7 +107,7 @@ namespace lz { namespace internal {
         }
 
         bool operator!=(const ExceptIterator& other) const {
-            return _iterator != other._end;
+            return _iterator != other._iterator;
         }
 
         bool operator==(const ExceptIterator& other) const {
