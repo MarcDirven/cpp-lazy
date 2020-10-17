@@ -7,9 +7,10 @@
 TEST_CASE("Affirm basic tests", "[Affirm][Basic functionality]") {
     std::vector<int> vec = {1, 2, 3, 4, 5};
     constexpr const char* message = "something went wrong";
-    auto affirm = lz::affirm(vec, std::logic_error(message), [](const int i) {
+    std::function<bool(int)> f = [](const int i) {
         return i != 3;
-    });
+    };
+    auto affirm = lz::affirm(vec, std::logic_error(message), f);
     auto iterator = affirm.begin();
 
     SECTION("Should not throw") {

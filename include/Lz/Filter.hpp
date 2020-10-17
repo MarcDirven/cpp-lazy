@@ -44,8 +44,8 @@ namespace lz {
          * @param end End of the iterator.
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
-        Filter(const Iterator begin, const Iterator end, const Function& function) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, function), iterator(end, end, function))
+        Filter(const Iterator begin, const Iterator end, Function function) :
+            internal::BasicIteratorView<iterator>(iterator(begin, end, std::move(function)), iterator(end, end, function))
         {
         }
 #endif
@@ -97,10 +97,10 @@ namespace lz {
      * over.
      */
     template<class Function, class Iterator>
-    Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, const Function& predicate) {
-        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
-                      "function must return bool");
-        return Filter<Iterator, Function>(begin, end, predicate);
+    Filter<Iterator, Function> filterRange(const Iterator begin, const Iterator end, Function predicate) {
+        static_assert(std::is_convertible<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
+                      "function return type must be convertible to a bool");
+        return Filter<Iterator, Function>(begin, end, std::move(predicate));
     }
 
     /**
@@ -113,8 +113,8 @@ namespace lz {
      * over using `for (auto... lz::filter(...))`.
      */
     template<class Function, class Iterable>
-    Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, const Function& predicate) {
-        return filterRange(std::begin(iterable), std::end(iterable), predicate);
+    Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, Function predicate) {
+        return filterRange(std::begin(iterable), std::end(iterable), std::move(predicate));
     }
 #endif // end lz has execution
     // End of group

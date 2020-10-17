@@ -302,7 +302,7 @@ namespace lz {
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-    auto pairwise(Iterable&& iterable) -> Zip<Iterator, Iterator> {
+    Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
         return lz::pairwise(std::begin(iterable), std::end(iterable));
     }
 
@@ -331,7 +331,7 @@ namespace lz {
         , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
 #endif // end lz has cxx 11
     >
-    auto zipWithRange(const Fn fn, const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end)
+    auto zipWithRange(Fn fn, const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<lz::internal::ZipIterator<Iterators...>, std::function<RetVal(ValueType)>>
 #endif // end lz has cxx 11
@@ -341,7 +341,7 @@ namespace lz {
         std::function<RetVal(ValueType)> f = [fn](const ValueType& tuple) {
             return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
         };
-        return lz::map(zipper, f);
+        return lz::map(zipper, std::move(f));
 #else // ^^^lz has cxx 11 vvv lz has > cxx 11
         return lz::map(zipper, [fn](const ValueType& tuple) {
             return internal::TupleExpander()(fn, tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
@@ -364,10 +364,19 @@ namespace lz {
      * @param iterables The iterables to perform the function over.
      * @return A Map zip iterator that can be iterated over.
      */
-    template<class Fn, class... Iterables>
-    auto zipWith(const Fn fn, Iterables&&... iterables) ->
-    decltype(lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...))) {
-        return lz::zipWithRange(fn, std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+    template<class Fn, class... Iterables
+#ifdef LZ_HAS_CXX11
+        , class ZipIter = lz::internal::ZipIterator<internal::IterTypeFromIterable<Iterables>...>,
+        class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>,
+        class ValueType = typename Iter::value_type
+#endif // end lz has cxx 11
+        >
+    auto zipWith(Fn fn, Iterables&&... iterables)
+#ifdef LZ_HAS_CXX11
+    -> lz::Map<ZipIter, std::function<RetVal(ValueType)>>
+#endif // end lz has cxx 11
+    {
+        return lz::zipWithRange(std::move(fn), std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     /**
@@ -607,12 +616,12 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
-	filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
+	filterMap(const Iterator begin, const Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
               const Execution execPolicy = std::execution::seq) {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
 
-        Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc, execPolicy);
-        return lz::map(filterView, mapFunc);
+        Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, std::move(filterFunc), execPolicy);
+        return lz::map(filterView, std::move(mapFunc));
     }
 
     /**
@@ -626,9 +635,28 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<Execution, internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-	filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc,
-              const Execution execution = std::execution::seq) {
-        return lz::filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc, execution);
+	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, const Execution execution = std::execution::seq) {
+        return lz::filterMap(std::begin(iterable), std::end(iterable), std::move(filterFunc), std::move(mapFunc), execution);
+    }
+
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
+    auto select(const Iterator begin, const Iterator end, const SelectorIterator beginSelector, const SelectorIterator endSelector,
+                const Execution execution = std::execution::seq) {
+        static_assert(std::is_copy_assignable<SelectorIterator>::value, "selector iterator/iterable must be copy assignable");
+
+        using Zipper = lz::Zip<Iterator, SelectorIterator>;
+        using ZipIter = typename Zipper::iterator;
+        using RefTuple = internal::RefType<ZipIter>;
+
+        Zipper zipper = lz::zipRange(std::make_tuple(begin, beginSelector), std::make_tuple(end, endSelector));
+        return lz::filterMap(zipper,
+                             [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
+                             [](const RefTuple& tuple) -> internal::RefType<Iterator> { return std::get<0>(tuple); }, execution);
+    }
+
+    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
+    auto selectFrom(Iterable&& iterable, SelectorIterable&& selectors, const Execution execution = std::execution::seq) {
+        return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors), execution);
     }
 
     /**
@@ -763,8 +791,6 @@ namespace lz {
                     const Execution execution = std::execution::seq) {
         return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
-
-
 
     /**
 	 * Searches for the last occurrence for `toFind` in (end, begin]. If no such such element exists, `defaultValue` is returned.
@@ -1046,7 +1072,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate,
-                                                                                  T&& defaultValue) {
+                                                                                   T&& defaultValue) {
         return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
@@ -1222,9 +1248,9 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<internal::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>
-	filterMap(const Iterator begin, const Iterator end, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
-        Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, filterFunc);
-        return lz::map(filterView, mapFunc);
+	filterMap(const Iterator begin, const Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
+        Filter<Iterator, UnaryFilterFunc> filterView = filterRange(begin, end, std::move(filterFunc));
+        return lz::map(filterView, std::move(mapFunc));
     }
 
     /**
@@ -1237,8 +1263,58 @@ namespace lz {
      */
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-	filterMap(Iterable&& iterable, const UnaryFilterFunc& filterFunc, const UnaryMapFunc& mapFunc) {
-        return lz::filterMap(std::begin(iterable), std::end(iterable), filterFunc, mapFunc);
+	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
+        return lz::filterMap(std::begin(iterable), std::end(iterable), std::move(filterFunc), std::move(mapFunc));
+    }
+
+
+    template<class Iterator, class SelectorIterator
+#ifdef LZ_HAS_CXX11
+        , class Zipper = lz::Zip<Iterator, SelectorIterator>,
+        class ZipIter = typename Zipper::iterator,
+        class RefTuple = internal::RefType<ZipIter>
+#endif // end lz has cxx11
+        >
+    auto select(const Iterator begin, const Iterator end, const SelectorIterator beginSelector, const SelectorIterator endSelector)
+#ifdef LZ_HAS_CXX11
+     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
+                std::function<internal::RefType<Iterator>(RefTuple)>>
+#endif // end lz has cxx11
+    {
+        static_assert(std::is_copy_assignable<SelectorIterator>::value, "selector iterator/iterable must be copy assignable");
+        using Zipper = lz::Zip<Iterator, SelectorIterator>;
+        Zipper zipper = lz::zipRange(std::make_tuple(begin, beginSelector), std::make_tuple(end, endSelector));
+
+#ifndef LZ_HAS_CXX11
+        using ZipIter = typename Zipper::iterator;
+        using RefTuple = internal::RefType<ZipIter>;
+
+        return lz::filterMap(zipper,
+                             [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
+                             [](const RefTuple& tuple) -> internal::RefType<Iterator> { return std::get<0>(tuple); });
+#else // ^^^ cxx > 11, vvv cxx == 11
+        std::function<bool(RefTuple)> f = [](const RefTuple& tuple) { return static_cast<bool>(std::get<1>(tuple)); };
+        std::function<internal::RefType<Iterator>(RefTuple)> m =
+            [](const RefTuple& tuple) -> internal::RefType<Iterator> { return std::get<0>(tuple); };
+        return lz::filterMap(zipper, std::move(f), std::move(m));
+#endif
+    }
+
+    template<class Iterable, class SelectorIterable
+#ifdef LZ_HAS_CXX11
+        , class Iterator = internal::IterTypeFromIterable<Iterable>,
+        class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
+        class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
+        class RefTuple = internal::RefType<ZipIter>
+#endif // end lz has cxx11
+        >
+    auto selectFrom(Iterable&& iterable, SelectorIterable&& selectors)
+#ifdef LZ_HAS_CXX11
+    -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
+               std::function<internal::RefType<Iterator>(RefTuple)>>
+#endif // end lz has cxx11
+    {
+        return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors));
     }
 
 #endif // End LZ_HAS_EXECUTION

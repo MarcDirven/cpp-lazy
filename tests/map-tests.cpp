@@ -32,7 +32,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
     SECTION("Should be by reference") {
         std::size_t count = 0;
-    	std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t)->std::string& {
+    	std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t) ->std::string& {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         };

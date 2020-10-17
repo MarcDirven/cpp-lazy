@@ -67,7 +67,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     Take<Iterator> takeWhileRange(const Iterator begin, const Iterator end, const Function predicate) {
-        return Take<Iterator>(begin, end, predicate);
+        return Take<Iterator>(begin, end, std::move(predicate));
     }
 
     /**
@@ -80,8 +80,8 @@ namespace lz {
      * `for (auto... lz::takeWhile(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-    auto takeWhile(Iterable&& iterable, const Function predicate) -> Take<decltype(std::begin(iterable))> {
-        return takeWhileRange(std::begin(iterable), std::end(iterable), predicate);
+    auto takeWhile(Iterable&& iterable, Function predicate) -> Take<decltype(std::begin(iterable))> {
+        return takeWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate));
     }
 
     /**

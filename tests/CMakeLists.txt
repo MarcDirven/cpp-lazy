@@ -61,7 +61,7 @@ target_compile_options(LazyTests
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag("-Wa,-mbig-obj" "HAS_MBIG_OBJ")
+    check_cxx_compiler_flag(-Wa,-mbig-obj "HAS_MBIG_OBJ")
     if (${HAS_MBIG_OBJ})
         add_definitions("-Wa,-mbig-obj")
     endif ()

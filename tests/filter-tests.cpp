@@ -10,7 +10,8 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
     std::array<int, size> array{1, 2, 3};
 
     SECTION("Should filter out element") {
-        auto filter = lz::filter(array, [](int element) { return element != 3; });
+        std::function<bool(int)> f = [](int element) { return element != 3; };
+        auto filter = lz::filter(array, f);
         auto it = filter.begin();
 
         int expected = array[0];
