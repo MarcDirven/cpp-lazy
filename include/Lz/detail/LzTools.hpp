@@ -33,16 +33,16 @@
   #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
-#if CPP_LAZY_HAS_INCLUDE(<execution>) && defined(LZ_HAS_CXX17)
+#if CPP_LAZY_HAS_INCLUDE(<execution>) && defined(LZ_HAS_CXX17) && (defined(__cpp_lib_execution))
   #define LZ_HAS_EXECUTION
   #include <execution>
 #endif // has execution
 
-#if CPP_LAZY_HAS_INCLUDE(<string_view>) && defined(LZ_HAS_CXX17)
+#if CPP_LAZY_HAS_INCLUDE(<string_view>) && defined(LZ_HAS_CXX17) && (defined(__cpp_lib_string_view))
   #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
-#if CPP_LAZY_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20))
+#if CPP_LAZY_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
   #define LZ_HAS_CONCEPTS
   #include <concepts>
 #endif // has concepts
@@ -67,6 +67,18 @@ namespace lz {
         { std::end(i) } -> std::random_access_iterator;
     };
 
+    template<class I>
+    concept ContiguousIterable = requires(I i) {
+        { std::begin(i) } -> std::contiguous_iterator;
+        { std::end(i) } -> std::contiguous_iterator;
+    };
+
+    template<class I>
+    concept RandomAccesOrHigherIterable = ContiguousIterable<I> || RandomAccesIterable<I>;
+
+    template<class I>
+    concept RandomAccesOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
+
     template<class A, class B>
     concept LessThanComparable = requires(A a, B b) {
         { a < b } -> std::convertible_to<bool>;
@@ -74,6 +86,8 @@ namespace lz {
 
     template<class I>
     concept Arithmetic = std::is_arithmetic_v<I>;
+
+
 } // End namespace lz
 
 #define LZ_CONCEPT_ARITHMETIC             lz::Arithmetic
@@ -81,8 +95,8 @@ namespace lz {
 #define LZ_CONCEPT_INVOCABLE              std::invocable
 #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
 #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
-#define LZ_CONCEPT_RA_ITERATOR            std::random_acess_iterator
-#define LZ_CONCEPT_RA_ITERABLE            std::random_acess_iterator
+#define LZ_CONCEPT_RA_ITERATOR            RandomAccesOrHigherIterator
+#define LZ_CONCEPT_RA_ITERABLE            RandomAccesOrHigherIterable
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
 #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
