@@ -11,7 +11,7 @@ TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]")
 
     SECTION("Should filter out element") {
         std::function<bool(int)> f = [](int element) { return element != 3; };
-        auto filter = lz::filter(array, f);
+        auto filter = lz::filter(array, std::move(f));
         auto it = filter.begin();
 
         int expected = array[0];
@@ -39,7 +39,7 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     constexpr std::size_t size = 3;
     std::array<int, size> array{1, 2, 3};
     std::function<bool(int)> f = [](int i) { return i != 3; };
-    auto filter = lz::filter(array, f);
+    auto filter = lz::filter(array, std::move(f));
     auto it = filter.begin();
 
     SECTION("Operator++") {
