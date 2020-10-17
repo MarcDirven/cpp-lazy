@@ -655,7 +655,7 @@ namespace lz {
     }
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
-    auto selectFrom(Iterable&& iterable, SelectorIterable&& selectors, const Execution execution = std::execution::seq) {
+    auto select(Iterable&& iterable, SelectorIterable&& selectors, const Execution execution = std::execution::seq) {
         return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors), execution);
     }
 
@@ -1308,7 +1308,7 @@ namespace lz {
         class RefTuple = internal::RefType<ZipIter>
 #endif // end lz has cxx11
         >
-    auto selectFrom(Iterable&& iterable, SelectorIterable&& selectors)
+    auto select(Iterable&& iterable, SelectorIterable&& selectors)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                std::function<internal::RefType<Iterator>(RefTuple)>>

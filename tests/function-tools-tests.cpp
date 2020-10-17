@@ -1,10 +1,8 @@
 #include "Lz/FunctionTools.hpp"
 #include "Lz/Range.hpp"
 #include "catch.hpp"
-#include <cctype>
 
 #include <cctype>
-
 
 TEST_CASE("Function tools") {
     std::vector<int> ints = {1, 2, 3, 4};
@@ -212,5 +210,13 @@ TEST_CASE("Function tools") {
         std::string s = "hello";
         CHECK(lz::contains(s, 'h'));
         CHECK(!lz::contains(s, 'x'));
+    }
+
+    SECTION("select") {
+        auto range = lz::range(10);
+        std::function<bool(int)> f = [](int i) { return i % 2 == 0; };
+        auto selector = lz::map(range, f);
+        auto selected = lz::select(range, selector);
+        CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
 }
