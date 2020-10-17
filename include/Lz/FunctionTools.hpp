@@ -1308,7 +1308,7 @@ namespace lz {
         class RefTuple = internal::RefType<ZipIter>
 #endif // end lz has cxx11
         >
-    auto selectFrom(Iterable&& iterable, SelectorIterable&& selectors)
+    auto select(Iterable&& iterable, SelectorIterable&& selectors)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                std::function<internal::RefType<Iterator>(RefTuple)>>
