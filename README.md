@@ -105,7 +105,7 @@ Add to your CMakeLists.txt the following:
 include(FetchContent)
 FetchContent_Declare(cpp-lazy
         GIT_REPOSITORY https://github.com/MarcDirven/cpp-lazy
-        GIT_TAG 9abf914f2b5421a61098294f4955a3e8f5e220a6 # Or another tag
+        GIT_TAG ... # Commit hash
         UPDATE_DISCONNECTED YES)
 FetchContent_MakeAvailable(cpp-lazy)
 
