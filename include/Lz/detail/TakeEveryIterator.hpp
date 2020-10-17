@@ -32,7 +32,7 @@ namespace lz {
         using reference = typename IterTraits::reference;
         using pointer = typename IterTraits::pointer;
 
-        TakeEveryIterator(const Iterator iterator, const Iterator end, const std::size_t offset, const std::size_t distance) :
+        TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
             _iterator(iterator),
             _end(end),
             _offset(offset),

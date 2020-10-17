@@ -56,16 +56,15 @@ namespace lz { namespace internal {
         ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-        ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-                       const IteratorToExcept toExceptEnd, const Execution execution) :
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,IteratorToExcept toExceptEnd,
+                       const Execution execution) :
 #else // ^^^ has execution vvv ! has execution
-        ExceptIterator(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-            const IteratorToExcept toExceptEnd) :
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) :
 #endif // end has execution
             _iterator(begin),
             _end(end),
-            _toExceptBegin(toExceptBegin),
-            _toExceptEnd(toExceptEnd)
+            _toExceptBegin(std::move(toExceptBegin)),
+            _toExceptEnd(std::move(toExceptEnd))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end has execution

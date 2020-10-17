@@ -195,7 +195,7 @@ namespace lz { namespace internal {
         }
 
     public:
-        ConcatenateIterator(const IterTuple& iterators, const IterTuple& begin, const IterTuple& end) :  // NOLINT(modernize-pass-by-value)
+        ConcatenateIterator(IterTuple iterators, IterTuple begin, IterTuple end) :
             _iterators(iterators),
             _begin(begin),
             _end(end) {

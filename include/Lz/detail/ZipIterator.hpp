@@ -76,8 +76,8 @@ namespace lz { namespace internal {
         }
 
     public:
-        explicit ZipIterator(const std::tuple<Iterators...>& iterators) :  // NOLINT(modernize-pass-by-value)
-            _iterators(iterators) {
+        explicit ZipIterator(std::tuple<Iterators...> iterators) :  // NOLINT(modernize-pass-by-value)
+            _iterators(std::move(iterators)) {
         }
 
         ZipIterator() = default;

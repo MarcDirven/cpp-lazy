@@ -24,7 +24,7 @@ namespace lz {
          * @param toRepeat The value to repeat `amount` times.
          * @param amount The amount of times to repeat the loop, returning `toRepeat`.
          */
-        explicit Repeat(T toRepeat, const std::size_t amount):
+        Repeat(T toRepeat, const std::size_t amount):
             internal::BasicIteratorView<iterator>(iterator(), iterator()),
             _iteratorHelper(std::move(toRepeat), amount),
             _amount(amount)
@@ -58,7 +58,7 @@ namespace lz {
 
     /**
      * @brief Returns `toRepeat`, `amount` of times. If amount is left empty, it never stops and is interpreted as a
-     * `while-true` loop.
+     * `while-true` loop. The repeat view object may not outlive its iterator i.e. they must have the same lifetime.
      * @param toRepeat The value to repeat `amount` times.
      * @param amount The amount of times to repeat the loop, returning `toRepeat`.
      * @return A repeat object, containing the random access iterator.

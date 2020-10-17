@@ -34,9 +34,9 @@ namespace lz { namespace internal {
 
     public:
 #ifdef LZ_HAS_EXECUTION
-        FilterIterator(const Iterator begin, const Iterator end, const Function& function, const Execution execution)
+        FilterIterator(Iterator begin, Iterator end, Function function, const Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
-        FilterIterator(const Iterator begin, const Iterator end, Function function)  // NOLINT(modernize-pass-by-value)
+        FilterIterator(Iterator begin, Iterator end, Function function)  // NOLINT(modernize-pass-by-value)
 #endif // end has execution
     :
             _iterator(begin),

@@ -24,7 +24,7 @@ namespace lz {
          * @param delimiter The delimiter to separate the previous and the next values in the sequence.
          * @param difference The difference between `begin` and `end`
          */
-        Join(const Iterator begin, const Iterator end, std::string delimiter, typename iterator::difference_type difference) :
+        Join(Iterator begin, Iterator end, std::string delimiter, typename iterator::difference_type difference) :
             internal::BasicIteratorView<iterator>(iterator(begin, delimiter, true, difference),
                                                   iterator(end, delimiter, false, difference))
         {
@@ -59,8 +59,8 @@ namespace lz {
      * @return A Join iterator view object.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    Join<Iterator> joinRange(const Iterator begin, const Iterator end, std::string delimiter) {
-        return Join<Iterator>(begin, end, std::move(delimiter), std::distance(begin, end) * 2 - 1);
+    Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
+        return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), std::distance(begin, end) * 2 - 1);
     }
 
     /**

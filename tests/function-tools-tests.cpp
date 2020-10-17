@@ -74,8 +74,8 @@ TEST_CASE("Function tools") {
         CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
         CHECK(floats == std::vector<float>{1., 2., 3., 4.});
     }
-
     SECTION("First or default") {
+
         std::vector<std::string> s = {"hello world!", "what's up"};
         std::string toFind = "hel";
         std::string def = "default";

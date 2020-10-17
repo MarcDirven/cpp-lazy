@@ -24,7 +24,7 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(GeneratorFunc func, const std::size_t amount):
-            internal::BasicIteratorView<iterator>(iterator(0, std::move(func), amount == std::numeric_limits<std::size_t>::max()),
+            internal::BasicIteratorView<iterator>(iterator(0, func, amount == std::numeric_limits<std::size_t>::max()),
                                                   iterator(amount, func, amount == std::numeric_limits<std::size_t>::max()))
         {
         }

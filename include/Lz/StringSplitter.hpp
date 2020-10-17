@@ -25,8 +25,8 @@ namespace lz {
          * @param str The string to split.
          * @param delimiter The delimiter to split on.
          */
-        StringSplitter(String&& str, std::string&& delimiter) :
-            _splitIteratorHelper(std::move(delimiter), std::forward<String>(str))
+        StringSplitter(const String& str, std::string&& delimiter) :
+            _splitIteratorHelper(std::move(delimiter), str)
         {
         }
 
@@ -66,6 +66,7 @@ namespace lz {
      * @brief This is a lazy evaluated string splitter function. If not using C++17 or higher, you can use `std::move`
      * to safely move the substring, that is returned by the
      * `StringSplitter<SubString>::const_iterator::operator*`. Its `begin()` and `end()` return an input iterator.
+     * The StringSplitter view object may not outlive its iterator i.e. they must have the same lifetime.
      * @tparam SubString The type that gets returned when the `StringSplitter<SubString>::const_iterator::operator*` is
      * called. Can be specified, but if C++17 or higher is defined, `std::string_view` is used, otherwise `std::string`.
      * @param str The string to split.
@@ -73,8 +74,8 @@ namespace lz {
      * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::split(...))`.
      */
-    StringSplitter<SubString, String> split(String&& str, std::string delimiter) {
-        return StringSplitter<SubString, String>(std::forward<String>(str), std::move(delimiter));
+    StringSplitter<SubString, String> split(const String& str, std::string delimiter) {
+        return StringSplitter<SubString, String>(str, std::move(delimiter));
     }
 
     // End of group

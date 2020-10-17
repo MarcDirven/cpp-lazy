@@ -32,13 +32,13 @@ namespace lz {
          * @param toExceptEnd The ending of the actual elements to except.
          */
 #ifdef LZ_HAS_EXECUTION
-        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd,
-            const Execution execPolicy) :
+        Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
+               const Execution execPolicy) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, execPolicy),
                                                   iterator(end, end, toExceptBegin, toExceptEnd, execPolicy))
         {}
 #else // ^^^ has execution vvv ! has execution
-        Except(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin, const IteratorToExcept toExceptEnd) :
+        Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd),
                                                   iterator(end, end, toExceptBegin, toExceptEnd))
     	{}
@@ -68,13 +68,14 @@ namespace lz {
       */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept>
     LZ_REQUIRES_LESS_THAN(internal::ValueType<Iterator>, internal::ValueType<IteratorToExcept>)
-    Except<Execution, Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end,const IteratorToExcept toExceptBegin,
-                                                              const IteratorToExcept toExceptEnd, const Execution execPolicy) {
+    Except<Execution, Iterator, IteratorToExcept> exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,
+                                                              IteratorToExcept toExceptEnd, const Execution execPolicy) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
                                                                          "or higher for std::sort");
 #endif // end lz has concepts
-        return Except<Execution, Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd, execPolicy);
+        return Except<Execution, Iterator, IteratorToExcept>(std::move(begin), std::move(end), std::move(toExceptBegin),
+                                                             std::move(toExceptEnd), execPolicy);
     }
 
     /**
@@ -109,11 +110,12 @@ namespace lz {
       * @return An Except view object.
       */
     template<class Iterator, class IteratorToExcept>
-    Except<Iterator, IteratorToExcept> exceptRange(const Iterator begin, const Iterator end, const IteratorToExcept toExceptBegin,
-        const IteratorToExcept toExceptEnd) {
+    Except<Iterator, IteratorToExcept> exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,
+                                                   IteratorToExcept toExceptEnd) {
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
                                                                          "or higher for std::sort");
-        return Except<Iterator, IteratorToExcept>(begin, end, toExceptBegin, toExceptEnd);
+        return Except<Iterator, IteratorToExcept>(std::move(begin), std::move(end), std::move(toExceptBegin),
+                                                  std::move(toExceptEnd));
     }
 
      /**

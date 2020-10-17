@@ -33,9 +33,9 @@ namespace lz { namespace internal {
         using reference = typename IterTraits::reference;
 
 #ifdef LZ_HAS_EXECUTION
-        UniqueIterator(const Iterator begin, const Iterator end, const Execution execution)
+        UniqueIterator(Iterator begin, Iterator end, const Execution execution)
 #else // ^^^ lz has execution vvv ! lz has execution
-        UniqueIterator(const Iterator begin, const Iterator end)
+        UniqueIterator(Iterator begin, Iterator end)
 #endif // end lz has execution
         :
             _iterator(begin),
