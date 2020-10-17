@@ -27,7 +27,7 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     std::function<std::size_t()> f = [&counter]() {
         return counter++;
     };
-    auto generator = lz::generate(f, amount);
+    auto generator = lz::generate(std::move(f), amount);
     auto begin = generator.begin();
 
     SECTION("Operator++") {

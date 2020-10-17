@@ -214,9 +214,9 @@ TEST_CASE("Function tools") {
 
     SECTION("select") {
         auto range = lz::range(10);
-        std::function<bool(int)> f = [](int i) { return i % 2 == 0; };
-        auto selector = lz::map(range, f);
-        auto selected = lz::select(range, selector);
+        std::function<bool(int)> even = [](int i) { return i % 2 == 0; };
+        auto selectors = lz::map(range, std::move(even));
+        auto selected = lz::select(range, selectors);
         CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
 }

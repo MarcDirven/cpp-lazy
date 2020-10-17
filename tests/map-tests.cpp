@@ -36,7 +36,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         };
-        auto map = lz::map(array, f);
+        auto map = lz::map(array, std::move(f));
 
         for (auto&& _ : map) {
             static_cast<void>(_);
@@ -56,7 +56,7 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
         return t.testFieldStr;
     };
-    auto map = lz::map(array, f);
+    auto map = lz::map(array, std::move(f));
     auto it = map.begin();
 
     SECTION("Operator++") {
