@@ -33,12 +33,12 @@ namespace lz {
          * @param end The ending of the sequence.
          */
 #ifdef LZ_HAS_EXECUTION
-        Unique(const Iterator begin, const Iterator end, const Execution e) :
+        Unique(Iterator begin, Iterator end, const Execution e) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, e), iterator(end, end, e))
         {
         }
 #else
-        Unique(const Iterator begin, const Iterator end) :
+        Unique(Iterator begin, Iterator end) :
             internal::BasicIteratorView<iterator>(iterator(begin, end), iterator(end, end))
         {
         }
@@ -65,12 +65,12 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERATOR Iterator>
     LZ_REQUIRES_LESS_THAN(Iterator, Iterator)
-    Unique<Execution, Iterator> uniqueRange(const Iterator begin, const Iterator end, const Execution execPolicy = std::execution::seq) {
+    Unique<Execution, Iterator> uniqueRange(Iterator begin, Iterator end, const Execution execPolicy = std::execution::seq) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator or higher for "
                                                                  "std::sort");
 #endif // end lz has concepts
-        return Unique<Execution, Iterator>(begin, end, execPolicy);
+        return Unique<Execution, Iterator>(std::move(begin), std::move(end), execPolicy);
     }
 
     /**
@@ -97,10 +97,10 @@ namespace lz {
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<class Iterator>
-    Unique<Iterator> uniqueRange(const Iterator begin, const Iterator end) {
+    Unique<Iterator> uniqueRange(Iterator begin, Iterator end) {
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator"
                                                                  "or higher for std::sort");
-        return Unique<Iterator>(begin, end);
+        return Unique<Iterator>(std::move(begin), std::move(end));
     }
 
     /**

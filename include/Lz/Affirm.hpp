@@ -28,11 +28,11 @@ namespace lz {
          * @param predicate The function that checks whether the iterator has met the condition(s). If false is returned, the exception
          * `exception` is thrown.
          */
-        Affirm(const Iterator begin, const Iterator end, const Exception& exception, Function predicate) :
-            internal::BasicIteratorView<iterator>(iterator(begin, std::move(predicate), exception), iterator(end, predicate, exception))
+        Affirm(Iterator begin, Iterator end, Exception exception, Function predicate) :
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), predicate, exception),
+                                                  iterator(std::move(end), predicate, exception))
         {
         }
-    	
 
         Affirm() = default;
     };
@@ -67,8 +67,9 @@ namespace lz {
      */
     template<class Exception, class Iterator, class Function>
     Affirm<Exception, Iterator, Function>
-    affirmRange(const Iterator begin, const Iterator end, Exception&& exception, Function predicate) {
-        return Affirm<Exception, Iterator, Function>(begin, end, std::forward<Exception>(exception), std::move(predicate));
+    affirmRange(Iterator begin, Iterator end, Exception&& exception, Function predicate) {
+        return Affirm<Exception, Iterator, Function>(std::move(begin), std::move(end), std::forward<Exception>(exception),
+                                                     std::move(predicate));
     }
 
     /**

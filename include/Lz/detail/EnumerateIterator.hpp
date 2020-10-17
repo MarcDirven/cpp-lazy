@@ -21,9 +21,9 @@ namespace lz { namespace internal {
         using reference = std::pair<IntType, typename IterTraits::reference>;
         using pointer = FakePointerProxy<reference>;
 
-        EnumerateIterator(const IntType start, const Iterator iterator) :
+        EnumerateIterator(const IntType start, Iterator iterator) :
             _index(start),
-            _iterator(iterator) {
+            _iterator(std::move(iterator)) {
         }
 
         EnumerateIterator() = default;

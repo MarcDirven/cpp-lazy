@@ -157,9 +157,9 @@ namespace lz { namespace internal {
 
         BasicIteratorView() = default;
 
-        BasicIteratorView(const LzIterator begin, const LzIterator end):
-            _begin(begin),
-            _end(end)
+        BasicIteratorView(LzIterator begin, LzIterator end):
+            _begin(std::move(begin)),
+            _end(std::move(end))
         {}
 
         virtual ~BasicIteratorView() = default;

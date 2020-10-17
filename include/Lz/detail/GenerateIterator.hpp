@@ -26,7 +26,7 @@ namespace lz { namespace internal {
     public:
         GenerateIterator() = default;
 
-        GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :  // NOLINT(modernize-pass-by-value)
+        GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :
             _current(start),
             _generator(std::move(generatorFunc)),
             _isWhileTrueLoop(isWhileTrueLoop)

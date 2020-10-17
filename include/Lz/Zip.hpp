@@ -29,7 +29,7 @@ namespace lz {
          * @param begin The beginning of all the containers
          * @param end The ending of all the containers
          */
-        explicit Zip(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) :
+        explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
             internal::BasicIteratorView<iterator>(iterator(begin), iterator(end))
 
         {
@@ -45,8 +45,8 @@ namespace lz {
      */
 
     template<LZ_CONCEPT_ITERATOR... Iterators>
-    Zip<Iterators...> zipRange(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end) {
-        return Zip<Iterators...>(begin, end);
+    Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+        return Zip<Iterators...>(std::move(begin), std::move(end));
     }
 
     /**

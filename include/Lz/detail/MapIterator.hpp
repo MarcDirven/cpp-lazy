@@ -13,14 +13,14 @@ namespace lz { namespace internal {
         Function _function;
 
     public:
-        using value_type = FunctionReturnType<Function, decltype(*_iterator)>;
+        using value_type = FunctionReturnType<Function, RefType<Iterator>>;
         using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
         using difference_type = std::ptrdiff_t;
         using reference = value_type;
         using pointer = FakePointerProxy<reference>;
 
-        MapIterator(const Iterator iterator, Function function) :  // NOLINT(modernize-pass-by-value)
-            _iterator(iterator),
+        MapIterator(Iterator iterator, Function function) :
+            _iterator(std::move(iterator)),
             _function(std::move(function)) {
         }
 

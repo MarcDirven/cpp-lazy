@@ -23,7 +23,7 @@ namespace lz {
          * @param offset The offset to add each iteration, aka the amount of elements to skip.
          * @param distance The distance between `begin` and `end`.
          */
-        TakeEvery(const Iterator begin, const Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
+        TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, offset, distance), iterator(end, end, offset, distance))
         {
         }
@@ -50,7 +50,7 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    TakeEvery<Iterator> takeEveryRange(const Iterator begin, const Iterator end, const std::size_t offset, const std::size_t start = 0) {
+    TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const std::size_t offset, const std::size_t start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset, std::distance(begin, end));
     }
 

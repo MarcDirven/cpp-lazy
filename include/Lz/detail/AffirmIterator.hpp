@@ -24,8 +24,8 @@ namespace lz { namespace internal {
         Function _function{};
 
     public:
-        AffirmIterator(const Iterator iterator, Function function, Exception exception) :
-            _iterator(iterator),
+        AffirmIterator(Iterator iterator, Function function, Exception exception) :
+            _iterator(std::move(iterator)),
             _exception(std::move(exception)),
     		_function(std::move(function))
     	{

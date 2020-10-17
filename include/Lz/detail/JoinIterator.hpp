@@ -57,8 +57,8 @@ namespace lz { namespace internal {
         difference_type _distance{};
 
     public:
-        JoinIterator(const Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
-            _iterator(iterator),
+        JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
+            _iterator(std::move(iterator)),
             _delimiter(std::move(delimiter)),
             _isIteratorTurn(isIteratorTurn),
             _distance(distance) {}

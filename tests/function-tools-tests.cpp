@@ -213,6 +213,7 @@ TEST_CASE("Function tools") {
     }
 
     SECTION("select") {
+        fmt::print("{}\n", __cplusplus);
         auto range = lz::range(10);
         std::function<bool(int)> even = [](int i) { return i % 2 == 0; };
         auto selectors = lz::map(range, std::move(even));
