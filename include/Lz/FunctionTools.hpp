@@ -316,7 +316,7 @@ namespace lz {
      * auto beg = std::make_tuple(ints.begin(), doubles.begin());
      * auto end = std::make_tuple(ints.end(), doubles.end());
      *
-     * auto zipped = lz::zipWithRange([](int i, double f) { return static_cast<double>(i) * f; }, beg, end);
+     * auto zipped = lz::mapManyRange([](int i, double f) { return static_cast<double>(i) * f; }, beg, end);
      * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
      * ```
      * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
@@ -331,7 +331,7 @@ namespace lz {
         , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
 #endif // end lz has cxx 11
     >
-    auto zipWithRange(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
+    auto mapManyRange(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<lz::internal::ZipIterator<Iterators...>, std::function<RetVal(ValueType)>>
 #endif // end lz has cxx 11
@@ -345,7 +345,7 @@ namespace lz {
 
         return lz::map(zipper, std::move(partialFunc));
 #else // ^^^lz has cxx 11 vvv lz has > cxx 11
-        return lz::map(zipper, [f = std::move(fn)](const ValueType& tuple) {
+        return lz::map(std::move(zipper), [f = std::move(fn)](const ValueType& tuple) {
             return internal::TupleExpander()(std::move(f), tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
         });
 #endif // end lz has cxx 11
@@ -357,7 +357,7 @@ namespace lz {
      * ```cpp
      * std::vector<int> ints = {1, 2, 3, 4};
      * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
-     * auto zipped = lz::zipWith([](int i, double f) { return static_cast<double>(i) * f; }, ints, doubles);
+     * auto zipped = lz::mapMany([](int i, double f) { return static_cast<double>(i) * f; }, ints, doubles);
      * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
      * ```
      * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
@@ -373,12 +373,12 @@ namespace lz {
         class ValueType = typename Iter::value_type
 #endif // end lz has cxx 11
         >
-    auto zipWith(Fn fn, Iterables&&... iterables)
+    auto mapMany(Fn fn, Iterables&&... iterables)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<ZipIter, std::function<RetVal(ValueType)>>
 #endif // end lz has cxx 11
     {
-        return lz::zipWithRange(std::move(fn), std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+        return lz::mapManyRange(std::move(fn), std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
     }
 
     /**

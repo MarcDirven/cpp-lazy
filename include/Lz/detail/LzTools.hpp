@@ -29,16 +29,16 @@
   #define LZ_HAS_CXX17
 #endif // Has cxx 17
 
-#if __cplusplus > 201703L || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
+#if (__cplusplus > 201703L) || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
   #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
-#if CPP_LAZY_HAS_INCLUDE(<execution>) && defined(LZ_HAS_CXX17) && (defined(__cpp_lib_execution))
+#if CPP_LAZY_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX17) && (defined(__cpp_lib_execution)))
   #define LZ_HAS_EXECUTION
   #include <execution>
 #endif // has execution
 
-#if CPP_LAZY_HAS_INCLUDE(<string_view>) && defined(LZ_HAS_CXX17) && (defined(__cpp_lib_string_view))
+#if CPP_LAZY_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX17) && (defined(__cpp_lib_string_view)))
   #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
