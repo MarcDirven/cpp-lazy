@@ -96,7 +96,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<class Iterator>
+    template<LZ_CONCEPT_RA_ITERATOR Iterator>
     Unique<Iterator> uniqueRange(Iterator begin, Iterator end) {
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator"
                                                                  "or higher for std::sort");
@@ -109,7 +109,7 @@ namespace lz {
      * @param iterable The iterable sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
-    template<class Iterable>
+    template<LZ_CONCEPT_RA_ITERABLE Iterable>
     Unique<internal::IterTypeFromIterable<Iterable>> unique(Iterable&& iterable) {
         return uniqueRange(std::begin(iterable), std::end(iterable));
     }
