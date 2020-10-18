@@ -282,31 +282,6 @@ namespace lz {
     }
 
     /**
-     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
-     * @param begin The beginning of the sequence.
-     * @param end The ending of the sequence.
-     * @return A zip iterator that accesses two adjacent elements of one container.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
-        Iterator next = begin;
-        if (begin != end) {
-            std::advance(next, 1);
-        }
-        return lz::zipRange(std::make_tuple(begin, next), std::make_tuple(end, end));
-    }
-
-    /**
-     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
-     * @param iterable A container/iterable.
-     * @return A zip iterator that accesses two adjacent elements of one container.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-    Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
-        return lz::pairwise(std::begin(iterable), std::end(iterable));
-    }
-
-    /**
      * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
      * For eg: func(*it1, *it2, *it3). Example:
      * ```cpp
@@ -326,7 +301,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A Map zip iterator that can be iterated over.
      */
-    template<class Fn, class... Iterators, class ValueType = typename lz::Zip<Iterators...>::value_type
+    template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class ValueType = typename lz::Zip<Iterators...>::value_type
 #ifdef LZ_HAS_CXX11
         , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
 #endif // end lz has cxx 11
@@ -366,13 +341,13 @@ namespace lz {
      * @param iterables The iterables to perform the function over.
      * @return A Map zip iterator that can be iterated over.
      */
-    template<class Fn, class... Iterables
+    template<class Fn, LZ_CONCEPT_ITERABLE... Iterables
 #ifdef LZ_HAS_CXX11
         , class ZipIter = lz::internal::ZipIterator<internal::IterTypeFromIterable<Iterables>...>,
         class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>,
         class ValueType = typename Iter::value_type
 #endif // end lz has cxx 11
-        >
+    >
     auto mapMany(Fn fn, Iterables&&... iterables)
 #ifdef LZ_HAS_CXX11
     -> lz::Map<ZipIter, std::function<RetVal(ValueType)>>
@@ -603,6 +578,28 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, class T>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOr(const Iterable& iterable, const T& value) {
         return lz::lastOr(std::begin(iterable), std::end(iterable), value);
+    }
+
+    /**
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return A zip iterator that accesses two adjacent elements of one container.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
+        assert(lz::hasMany(begin, end) && "length of the sequence must be greater than or equal to 2");
+        return lz::zipRange(std::make_tuple(begin, std::next(begin)), std::make_tuple(end, end));
+    }
+
+    /**
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
+     * @param iterable A container/iterable.
+     * @return A zip iterator that accesses two adjacent elements of one container.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
+    Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
+        return lz::pairwise(std::begin(iterable), std::end(iterable));
     }
 
 #ifdef LZ_HAS_EXECUTION
@@ -1294,8 +1291,7 @@ namespace lz {
                                      std::make_tuple(std::move(end), std::move(endSelector)));
 
 #ifndef LZ_HAS_CXX11
-        using ZipIter = typename Zipper::iterator;
-        using RefTuple = internal::RefType<ZipIter>;
+        using RefTuple = internal::RefType<typename Zipper::iterator>;
 
         return lz::filterMap(std::move(zipper),
                              [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
