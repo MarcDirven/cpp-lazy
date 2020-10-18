@@ -3,7 +3,6 @@
 #ifndef LZ_JOIN_ITERATOR_HPP
 #define LZ_JOIN_ITERATOR_HPP
 
-#include <iterator>
 #include "LzTools.hpp"
 
 #include "fmt/format.h"

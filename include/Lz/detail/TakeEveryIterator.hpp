@@ -3,7 +3,6 @@
 #ifndef LZ_TAKE_EVERY_ITERATOR_HPP
 #define LZ_TAKE_EVERY_ITERATOR_HPP
 
-#include <iterator>
 #include "LzTools.hpp"
 
 

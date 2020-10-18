@@ -4,6 +4,7 @@
 #define LZ_LZ_TOOLS_HPP
 
 #include <tuple>
+#include <iterator>
 
 #ifdef __has_include
   #define CPP_LAZY_HAS_INCLUDE(FILE) __has_include(FILE)

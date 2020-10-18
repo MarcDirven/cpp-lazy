@@ -3,7 +3,6 @@
 #ifndef LZ_ZIP_ITERATOR_HPP
 #define LZ_ZIP_ITERATOR_HPP
 
-#include <iterator>
 #include <algorithm>
 #include "LzTools.hpp"
 
