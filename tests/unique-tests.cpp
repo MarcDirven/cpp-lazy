@@ -1,6 +1,6 @@
 #include <Lz/Unique.hpp>
 #include <list>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality]") {
     std::array<int, 4> arr = {3, 2, 3, 1};

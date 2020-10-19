@@ -2,7 +2,7 @@
 
 #include <Lz/Generate.hpp>
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {

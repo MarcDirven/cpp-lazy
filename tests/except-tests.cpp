@@ -2,7 +2,7 @@
 #include <Lz/Range.hpp>
 #include <list>
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <iostream>
 
 

@@ -2,22 +2,16 @@ cmake_minimum_required(VERSION 3.14)
 
 project(LazyTests LANGUAGES CXX)
 
-# ---- Download Catch2 header ----
-# TODO: actually use proper Catch2 integration
-# See: https://github.com/catchorg/Catch2/blob/master/docs/cmake-integration.md
-
 set(CPP-LAZY_CATCH_VERSION "2.12.2" CACHE STRING "Version of Catch2 to use for testing")
+Include(FetchContent)
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v${CPP-LAZY_CATCH_VERSION})
+FetchContent_MakeAvailable(Catch2)
 
-# Update only when the version downloaded does not match the cache variable
-if(NOT CPP-LAZY_CATCH_VERSION_DOWNLOADED VERSION_EQUAL CPP-LAZY_CATCH_VERSION)
-    file(DOWNLOAD
-            "https://github.com/catchorg/Catch2/releases/download/v${CPP-LAZY_CATCH_VERSION}/catch.hpp"
-            "${PROJECT_BINARY_DIR}/catch/catch.hpp")
-    set(CPP-LAZY_CATCH_VERSION_DOWNLOADED "${CPP-LAZY_CATCH_VERSION}" CACHE INTERNAL "" FORCE)
-endif()
 
 # ---- Import root project ----
-
 option(TEST_INSTALLED_VERSION "Import the library using find_package" OFF)
 if(TEST_INSTALLED_VERSION)
     find_package(cpp-lazy REQUIRED CONFIG)
@@ -31,7 +25,6 @@ else()
 endif()
 
 # ---- Tests ----
-
 add_executable(LazyTests
         affirm-tests.cpp
         concatenate-tests.cpp
@@ -52,7 +45,7 @@ add_executable(LazyTests
         unique-tests.cpp
         zip-tests.cpp)
 
-target_compile_features(LazyTests PRIVATE cxx_std_11)
+target_compile_features(LazyTests PRIVATE cxx_std_20)
 
 target_compile_options(LazyTests
         PRIVATE
@@ -67,12 +60,7 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     endif ()
 endif ()
 
-target_include_directories(LazyTests
-        SYSTEM # Prevent warnings from Catch2
-        PRIVATE
-        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/catch>")
-
-target_link_libraries(LazyTests PRIVATE cpp-lazy::cpp-lazy)
+target_link_libraries(LazyTests PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
 
 enable_testing()
 

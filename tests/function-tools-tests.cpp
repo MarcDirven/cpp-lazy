@@ -1,6 +1,6 @@
 #include "Lz/FunctionTools.hpp"
 #include "Lz/Range.hpp"
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 #include <cctype>
 

@@ -8,7 +8,6 @@ project(cpp-lazy
         LANGUAGES CXX)
 
 # ---- Warning guard ----
-
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(cpp-lazy_warning_guard "SYSTEM")
 if(cpp-lazy_INCLUDE_WITHOUT_SYSTEM)
@@ -16,7 +15,6 @@ if(cpp-lazy_INCLUDE_WITHOUT_SYSTEM)
 endif()
 
 # ---- Import {fmt} ----
-
 option(CPP-LAZY_USE_INSTALLED_FMT "Import {fmt} using find_package" NO)
 if(CPP-LAZY_USE_INSTALLED_FMT)
     find_package(fmt 7 REQUIRED CONFIG)
@@ -32,7 +30,6 @@ else()
 endif()
 
 # ---- Declare library ----
-
 add_library(cpp-lazy INTERFACE)
 add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
@@ -46,7 +43,6 @@ target_include_directories(cpp-lazy
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
 # ---- Install ----
-
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
@@ -55,7 +51,7 @@ set(cpp-lazy_include_directory "${CMAKE_INSTALL_INCLUDEDIR}/${cpp-lazy_directory
 
 install(TARGETS cpp-lazy
         EXPORT cpp-lazyTargets
-        INCLUDES #
+        INCLUDES
         DESTINATION "${cpp-lazy_include_directory}")
 
 write_basic_package_version_file(
@@ -64,8 +60,7 @@ write_basic_package_version_file(
         COMPATIBILITY SameMajorVersion
         ARCH_INDEPENDENT)
 
-set(cpp-lazy_install_cmakedir
-        "${CMAKE_INSTALL_LIBDIR}/cmake/${cpp-lazy_directory}")
+set(cpp-lazy_install_cmakedir "${CMAKE_INSTALL_LIBDIR}/cmake/${cpp-lazy_directory}")
 
 install(EXPORT cpp-lazyTargets
         NAMESPACE cpp-lazy::
