@@ -100,7 +100,7 @@ namespace lz {
 #else // ^^^ has execution vvv ! has execution
      /**
       * @brief This function returns a view to the ExceptIterator. If elements are changed in `toExcept` after
-      * calling begin(), this iterator will not be able to do it correctly.
+      * calling begin(), this iterator will not be able to do it correctly. This iterator has a complexity of O(N log N).
       * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
       * [`toExceptBegin`, `toExceptEnd).
       * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
@@ -119,15 +119,17 @@ namespace lz {
     }
 
      /**
-         * @brief This function returns a view to the random access ExceptIterator.
-         * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
-         * and has an `operator<`. If elements are changed in `toExcept` after calling begin(), this iterator will not be able to do it correctly.
-         * @param iterable The iterable to except elements from contained by `toExcept`.
-         * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
-         * @return An Except view object.
-         */
+     * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
+     * calling begin(), this iterator will not be able to do it correctly. This iterator has a complexity of O(N log N).
+     * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
+     * and has an `operator<`.
+     * @param iterable The iterable to except elements from contained by `toExcept`.
+     * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
+     * @return An Except view object.
+     */
     template<class Iterable, class IterableToExcept>
-    Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>> except(Iterable&& iterable, IterableToExcept&& toExcept) {
+    Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>>
+    except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));
     }
 #endif // end has execution

@@ -50,7 +50,7 @@ namespace lz {
     template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERATOR Iterator>
     Enumerate<Iterator, IntType> enumerateRange(Iterator begin, Iterator end, const IntType start = 0) {
 #ifndef LZ_HAS_CONCEPTS
-        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for integrals only");
+        static_assert(std::is_arithmetic<IntType>::value, "the template parameter IntType is meant for arithmetics only");
 #endif
         return Enumerate<Iterator, IntType>(std::move(begin), std::move(end), start);
     }
