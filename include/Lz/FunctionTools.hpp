@@ -69,12 +69,22 @@ namespace lz {
             }
         };
 
-        struct TupleExpander {
-            template<class Fn, class Tuple, std::size_t... I>
-            auto operator()(const Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
-                return fn(std::get<I>(tuple)...);
-            }
-        };
+#ifndef LZ_HAS_CXX17
+        template<class Fn, class Tuple, std::size_t... I>
+        auto applyImpl(const Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
+            return fn(std::get<I>(std::forward<Tuple>(tuple))...);
+        }
+#endif
+
+        template<class Fn, class Tuple>
+        auto apply(Fn fn, Tuple&& tuple) {
+#ifdef LZ_HAS_CXX17
+            return std::apply(std::move(fn), std::forward<Tuple>(tuple));
+#else
+            return applyImpl(std::move(fn), std::forward<Tuple>(tuple), MakeIndexSequence<std::tuple_size<Decay<Tuple>>::value>());
+#endif
+        }
+
 
         template<class T>
         auto begin(T&& t) -> decltype(std::begin(t)) {
@@ -301,9 +311,10 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return A Map zip iterator that can be iterated over.
      */
-    template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class ValueType = typename lz::Zip<Iterators...>::value_type
+    template<class Fn, LZ_CONCEPT_ITERATOR... Iterators
 #ifdef LZ_HAS_CXX11
-        , class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
+        , class ValueType = typename lz::Zip<Iterators...>::value_type,
+        class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
 #endif // end lz has cxx 11
     >
     auto mapManyRange(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
@@ -314,14 +325,15 @@ namespace lz {
         lz::Zip<Iterators...> zipper = lz::zipRange(std::move(begin), std::move(end));
 #ifdef LZ_HAS_CXX11
         // Workaround for C++11 moving (functor) objects into the lambda capture list
+        // auto return types are not allowed in C++11, specify it as a std::function instead
         std::function<RetVal(ValueType)> partialFunc = std::bind([](const ValueType& tuple, Fn fn) {
-            return internal::TupleExpander()(std::move(fn), tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+            return internal::apply(std::move(fn), tuple);
         }, std::placeholders::_1, std::move(fn));
 
         return lz::map(zipper, std::move(partialFunc));
 #else // ^^^lz has cxx 11 vvv lz has > cxx 11
-        return lz::map(std::move(zipper), [f = std::move(fn)](const ValueType& tuple) {
-            return internal::TupleExpander()(std::move(f), tuple, internal::MakeIndexSequence<sizeof...(Iterators)>());
+        return lz::map(std::move(zipper), [fn = std::move(fn)](auto&& tuple) {
+            return internal::apply(std::move(fn), std::forward<decltype(tuple)>(tuple));
         });
 #endif // end lz has cxx 11
     }
@@ -366,9 +378,7 @@ namespace lz {
     Take<std::reverse_iterator<Iterator>> reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
         using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
-        static_assert(std::is_same<IterCat, std::bidirectional_iterator_tag>::value ||
-            std::is_same<IterCat, std::random_access_iterator_tag>::value,
-            "the type of the iterator must be bidirectional or stronger");
+        static_assert(internal::IsBidirectionalOrStronger<IterCat>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
         using ReverseIterator = std::reverse_iterator<Iterator>;
         return lz::takeRange(ReverseIterator(std::move(end)), ReverseIterator(std::move(begin)));
