@@ -23,9 +23,9 @@ namespace lz {
          * @param amount The amount of times to execute. If `amount` is equal to `std::numeric_limits<size_t>::max()`
          * it is interpreted as a `while-true` loop.
          */
-        Generate(GeneratorFunc func, const std::size_t amount):
-            internal::BasicIteratorView<iterator>(iterator(0, func, amount == std::numeric_limits<std::size_t>::max()),
-                                                  iterator(amount, func, amount == std::numeric_limits<std::size_t>::max()))
+        Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop):
+            internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop),
+                                                  iterator(amount, func, isWhileTrueLoop))
         {
         }
 
@@ -53,7 +53,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
     Generate<GeneratorFunc> generate(GeneratorFunc generatorFunc, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
-        return Generate<GeneratorFunc>(std::move(generatorFunc), amount);
+        return Generate<GeneratorFunc>(std::move(generatorFunc), amount, amount == std::numeric_limits<std::size_t>::max());
     }
 
 
