@@ -15,7 +15,7 @@ versions have not been checked)
 - STL compatible
 - Little overhead
 - Supported compiler versions:
-  - &gt;= GCC 5 (GCC 4.8 is still WIP)
+  - &gt;= GCC 5 (GCC 4.8 is still WIP, it does compile but no tests in .workflow are done yet)
   - &gt;= clang 5
   - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
 - Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
