@@ -4,6 +4,7 @@
 #define LZ_LZ_TOOLS_HPP
 
 #include <tuple>
+#include <iterator>
 
 #ifdef __has_include
   #define CPP_LAZY_HAS_INCLUDE(FILE) __has_include(FILE)
@@ -218,19 +219,24 @@ namespace lz { namespace internal {
     };
 
     template<typename Same, typename First, typename... More>
-    struct IsAllSame {
-        static const bool value = std::is_same<Same, First>::value && IsAllSame<First, More...>::value;
+    struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
     };
 
     template<typename Same, typename First>
     struct IsAllSame<Same, First> : std::is_same<Same, First> {
     };
 
+
     template<class T>
-    struct IsRandomAccess {
-        static constexpr bool value = !std::is_same<std::input_iterator_tag, T>::value &&
-        !std::is_same<std::output_iterator_tag, T>::value && !std::is_same<std::forward_iterator_tag, T>::value &&
-        !std::is_same<std::bidirectional_iterator_tag, T>::value;
+    struct IsBidirectionalOrStronger : std::integral_constant<bool,
+        !std::is_same<T, std::input_iterator_tag>::value &&
+        !std::is_same<T, std::output_iterator_tag>::value &&
+        !std::is_same<T, std::forward_iterator_tag>::value> {
+    };
+
+    template<class T>
+    struct IsRandomAccess : std::integral_constant<bool,
+        IsBidirectionalOrStronger<T>::value && !std::is_same<std::bidirectional_iterator_tag, T>::value> {
     };
 
     template<class Iterable>

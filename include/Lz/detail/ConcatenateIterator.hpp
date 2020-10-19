@@ -3,12 +3,10 @@
 #ifndef LZ_CONCATENATE_ITERATOR_HPP
 #define LZ_CONCATENATE_ITERATOR_HPP
 
-#include <iterator>
+#include "LzTools.hpp"
+
 #include <numeric>
 #include <stdexcept>
-#include <tuple>
-
-#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {

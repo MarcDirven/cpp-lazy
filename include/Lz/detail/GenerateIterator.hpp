@@ -5,8 +5,6 @@
 
 #include "LzTools.hpp"
 
-#include <iterator>
-
 
 namespace lz { namespace internal {
     template<LZ_CONCEPT_INVOCABLE GeneratorFunc>

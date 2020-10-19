@@ -7,8 +7,8 @@
 
 #include "LzTools.hpp"
 
-#if CPP_LAZY_HAS_INCLUDE(<string_view>) && __cplusplus >= 201703L
-#include <string_view>
+#ifdef LZ_HAS_STRING_VIEW
+  #include <string_view>
 #endif
 
 
