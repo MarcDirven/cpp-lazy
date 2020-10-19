@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <Lz/Join.hpp>
 #include <iostream>
 #include <sstream>
