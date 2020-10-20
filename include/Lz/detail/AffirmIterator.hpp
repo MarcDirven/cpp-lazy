@@ -33,6 +33,16 @@ namespace lz { namespace internal {
 
         AffirmIterator() = default;
 
+        AffirmIterator(const AffirmIterator&) = default;
+
+        AffirmIterator& operator=(const AffirmIterator& o) {
+            _iterator = o._iterator;
+            _exception = o._exception;
+            this->_function.~Function();
+            ::new (&this->_function) Function(o._function);
+            return *this;
+        }
+
         reference operator*() const {
             if (!_function(*_iterator)) {
                 throw _exception;

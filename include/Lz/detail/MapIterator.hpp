@@ -26,6 +26,15 @@ namespace lz { namespace internal {
 
         MapIterator() = default;
 
+        MapIterator(const MapIterator&) = default;
+
+        MapIterator& operator=(const MapIterator& o) {
+            _iterator = o._iterator;
+            this->_function.~Function();
+            ::new (&this->_function) Function(o._function);
+            return *this;
+        }
+
         value_type operator*() const {
             return _function(*_iterator);
         }
