@@ -65,7 +65,8 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
-    TakeEvery<internal::IterTypeFromIterable<Iterable>> takeEvery(Iterable&& iterable, const std::size_t offset, const std::size_t start = 0) {
+    TakeEvery<internal::IterTypeFromIterable<Iterable>> takeEvery(Iterable&& iterable, const std::size_t offset,
+                                                                  const std::size_t start = 0) {
         return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
     }
 

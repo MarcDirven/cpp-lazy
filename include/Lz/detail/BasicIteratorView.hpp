@@ -46,11 +46,11 @@ namespace lz { namespace internal {
         using value_type = internal::ValueType<LzIterator>;
 
     private:
-#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+#if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
         template<class MapType, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen) const {
             MapType map;
-#else
+#else // end GCC 4.[0, 9], i.e. 4.8, 4.7, 4.6... 4.0
         template<class MapType, class Allocator, class KeySelectorFunc>
         MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
             MapType map(allocator);
