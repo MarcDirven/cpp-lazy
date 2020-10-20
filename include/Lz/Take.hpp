@@ -4,7 +4,7 @@
 #define LZ_TAKE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-
+#include <cassert>
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -80,7 +80,7 @@ namespace lz {
      * `for (auto... lz::takeWhile(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-    auto takeWhile(Iterable&& iterable, Function predicate) -> Take<decltype(std::begin(iterable))> {
+    Take<internal::IterTypeFromIterable<Iterable>> takeWhile(Iterable&& iterable, Function predicate) {
         return takeWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate));
     }
 
@@ -94,8 +94,9 @@ namespace lz {
      * `for (auto... lz::takeRange(...))`.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    Take<Iterator> takeRange(Iterator begin, Iterator end) {
-        return takeWhileRange(std::move(begin), std::move(end), nullptr);
+    Take<Iterator> takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
+        assert(amount <= std::distance(begin, end) && "cannot access elements after end");
+        return takeWhileRange(std::move(begin), std::next(begin, amount), nullptr);
     }
 
     /**
@@ -107,10 +108,10 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::take(...))`.
      */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<internal::IterTypeFromIterable<Iterable>> take(Iterable&& iterable, const std::size_t amount) {
+    template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
+    Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
         const auto begin = std::begin(iterable);
-        return takeRange(begin, std::next(begin, amount));
+        return takeRange(begin, std::end(iterable), amount);
     }
 
     /**
@@ -122,10 +123,12 @@ namespace lz {
      * @return A Take object that can be converted to an arbitrary container or can be iterated over using
      * `for (auto... lz::slice(...))`.
      */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const std::size_t from, const std::size_t to) {
+    template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
+    Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
+                                                         const internal::DiffType<IterType> to) {
+        assert(to >= from && "parameter `to` cannot be more than `from`");
         const auto begin = std::begin(iterable);
-        return takeRange(std::next(begin, from), std::next(begin, to));
+        return takeRange(std::next(begin, from), std::end(iterable), to - from);
     }
 
     /**
@@ -139,7 +142,7 @@ namespace lz {
      */
 	template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
-        using ValueType = typename std::iterator_traits<Iterator>::value_type;
+        using ValueType = internal::ValueType<Iterator>;
 #ifdef LZ_HAS_CXX11
         begin = std::find_if(std::move(begin), end, std::bind([](const ValueType& value, Function pred) {
             return !pred(value);
@@ -149,7 +152,7 @@ namespace lz {
             return !pred(value);
 		});
 #endif
-        return takeRange(std::move(begin), std::move(end));
+        return takeRange(begin, end, std::distance(begin, end));
     }
 
     /**
