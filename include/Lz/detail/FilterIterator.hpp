@@ -60,6 +60,16 @@ namespace lz { namespace internal {
 
         FilterIterator() = default;
 
+        FilterIterator(const FilterIterator&) = default;
+
+        FilterIterator& operator=(const FilterIterator& o) {
+            _iterator = o._iterator;
+            _end = o._end;
+            this->_predicate.~Function();
+            ::new (&this->_predicate) Function(o._predicate);
+            return *this;
+        }
+
         reference operator*() const {
             return *_iterator;
         }
