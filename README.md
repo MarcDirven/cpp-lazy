@@ -133,25 +133,6 @@ int main() {
 }
 ```
 
-# Side note
-If you want to re-overwrite or default construct the iterator/view object, use a `std::function` instead of a lambda 
-function. Example:
-```cpp
-// OK
-std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
-    return t.testFieldStr;
-};
-auto map = lz::map(array, f);
-auto it = map.begin();
-it = map.end();
-
-// Not OK
-auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
-auto it = map.begin();
-// it = map.end(); error, attempting to reference deleted function operator= for lambda
-
-```
-
 # Benchmarks cpp-lazy
 The time is equal to one iteration. Compiled with: winlibs-x86_64-posix-seh-gcc-10.2.1-snapshot20200912-mingw-w64-7.0.0-r1
 
