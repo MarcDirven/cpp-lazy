@@ -42,6 +42,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR... Iterators>
     Concatenate<Iterators...> concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
         static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
+        static_assert(internal::IsAllSame<internal::ValueType<Iterators>...>::value, "value types of iterators do no match");
         return Concatenate<Iterators...>(std::move(begin), std::move(end));
     }
 
