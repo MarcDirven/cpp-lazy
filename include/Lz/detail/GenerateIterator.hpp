@@ -28,8 +28,8 @@ namespace lz { namespace internal {
 
         GenerateIterator& operator=(const GenerateIterator& o) {
             _current = o._current;
-            this->_function.~Function();
-            ::new (&this->_function) GeneratorFunc(o._generator);
+            this->_generator.~GeneratorFunc();
+            ::new (&this->_generator) GeneratorFunc(o._generator);
             _isWhileTrueLoop = o._isWhileTrueLoop;
             return *this;
         }
