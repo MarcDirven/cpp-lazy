@@ -381,7 +381,7 @@ namespace lz {
         static_assert(internal::IsBidirectionalOrStronger<IterCat>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
         using ReverseIterator = std::reverse_iterator<Iterator>;
-        return lz::takeRange(ReverseIterator(std::move(end)), ReverseIterator(std::move(begin)));
+        return lz::takeRange(ReverseIterator(end), ReverseIterator(begin), std::distance(begin, end));
     }
     /**
      * Returns a view object of which its iterators are reversed.

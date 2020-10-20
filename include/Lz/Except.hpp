@@ -109,7 +109,7 @@ namespace lz {
       * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
       * @return An Except view object.
       */
-    template<class Iterator, class IteratorToExcept>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept>
     Except<Iterator, IteratorToExcept> exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,
                                                    IteratorToExcept toExceptEnd) {
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
@@ -127,7 +127,7 @@ namespace lz {
      * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
      * @return An Except view object.
      */
-    template<class Iterable, class IterableToExcept>
+    template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept>
     Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>>
     except(Iterable&& iterable, IterableToExcept&& toExcept) {
         return exceptRange(std::begin(iterable), std::end(iterable), std::begin(toExcept), std::end(toExcept));

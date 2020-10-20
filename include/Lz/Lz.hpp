@@ -23,4 +23,4 @@
 // Take.hpp
 // Concatenate.hpp
 
-#endif
+#endif // LZ_LZ_HPP
