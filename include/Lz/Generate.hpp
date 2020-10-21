@@ -13,7 +13,7 @@ namespace lz {
     public:
         using iterator = internal::GenerateIterator<GeneratorFunc>;
         using const_iterator = iterator;
-        using value_type = typename std::iterator_traits<iterator>::value_type;
+        using value_type = typename iterator::value_type;
 
         /**
          * @brief Generator constructor.

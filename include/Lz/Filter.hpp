@@ -73,7 +73,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Execution, Iterator, Function>
     filterRange(Iterator begin, Iterator end, Function predicate, const Execution execution = std::execution::seq) {
-        static_assert(std::is_same<internal::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
                       "function must return bool");
         internal::verifyIteratorAndPolicies(execution, begin);
         return Filter<Execution, Iterator, Function>(std::move(begin), std::move(end), std::move(predicate), execution);
