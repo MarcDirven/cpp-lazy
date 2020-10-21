@@ -158,7 +158,103 @@ namespace lz {
             return lz::lastOr(*this, defaultValue);
         }
 
+        template<class T, class BinaryFunction>
+        T foldl(T&& init, BinaryFunction function) const {
+            return std::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+        }
+
+        template<class T, class BinaryFunction>
+        T foldr(T&& init, BinaryFunction function) const {
+            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
+            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+        }
+
+        value_type sum() const {
+            return this->foldl(static_cast<value_type>(0), std::plus<value_type>());
+        }
+
 #ifdef LZ_HAS_EXECUTION
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> filter(UnaryPredicate predicate,
+                                                                            const Execution exec = std::execution::seq) const {
+            using FilterView = lz::Filter<Iterator, UnaryPredicate, Execution>;
+            FilterView view = lz::filter(*this, std::move(predicate), exec);
+            return lz::toIter(std::move(view));
+        }
+
+        template<class IterableToExcept, class Execution = std::execution::sequenced_policy>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution>>
+        except(IterableToExcept&& toExcept, const Execution exec = std::execution::seq) const {
+            using ExceptView = lz::Except<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution>;
+            ExceptView view = lz::except(*this, toExcept, exec);
+            return lz::toIter(std::move(view));
+        }
+        template<class Execution = std::execution::sequenced_policy>
+        IterView<internal::UniqueIterator<Iterator, Execution>> unique(const Execution exec = std::execution::seq) const {
+            lz::Unique<Iterator, Execution> view = lz::unique(*this, exec);
+            return lz::toIter(std::move(view));
+        }
+
+        template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
+        IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
+        filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc, const Execution exec = std::execution::seq) const {
+            using MapFilterView = lz::Map<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>;
+            MapFilterView view = lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc), exec);
+            return lz::toIter(std::move(view));
+        }
+
+        template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
+        auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) {
+            auto filterMapView = lz::filterMap(*this, selectors, exec);
+            return lz::toIter(std::move(filterMapView));
+        }
+
+        template<class T, class U, class Execution = std::execution::sequenced_policy>
+        value_type firstOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
+            return lz::firstOrDefault(*this, toFind, defaultValue, exec);
+        }
+
+        template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
+        value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
+            return lz::firstOrDefault(*this, std::move(predicate), defaultValue, exec);
+        }
+
+        template<class T, class U, class Execution = std::execution::sequenced_policy>
+        value_type lastOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
+            return lz::lastOrDefault(*this, toFind, defaultValue, exec);
+        }
+
+        template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
+        value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
+            return lz::lastOrDefault(*this, std::move(predicate), defaultValue, exec);
+        }
+
+        template<class T, class Execution = std::execution::sequenced_policy>
+        difference_type indexOf(const T& value, const Execution exec = std::execution::seq) const {
+            return lz::indexOf(*this, value, exec);
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        difference_type indexOf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+            return lz::indexOfIf(*this, std::move(predicate), exec);
+        }
+
+        template<class T, class Execution = std::execution::sequenced_policy>
+        bool contains(const T& value, const Execution exec = std::execution::seq) const {
+            return lz::contains(*this, value, exec);
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        bool containsIf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+            return lz::containsIf(*this, std::move(predicate), exec);
+        }
+
+        template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
+        IterView<Iterator>& forEach(UnaryFunc func, const Execution exec = std::execution::seq) {
+            std::for_each(exec, Base::begin(), Base::end(), std::move(func));
+            return *this;
+        }
+
 #else // ^^^ lz has execution vvv ! lz has execution
         template<class UnaryPredicate>
         IterView<internal::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
@@ -206,7 +302,6 @@ namespace lz {
             auto filterMapView = lz::filterMap(*this, selectors);
             return lz::toIter(std::move(filterMapView));
         }
-#endif // end lz has execution
 
         template<class T, class U>
         value_type firstOrDefault(T&& toFind, U&& defaultValue) const {
@@ -258,6 +353,13 @@ namespace lz {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
             return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
         }
+
+        template<class UnaryFunc>
+        IterView<Iterator>& forEach(UnaryFunc func) const {
+            std::for_each(Base::begin(), Base::end(), std::move(func));
+            return *this;
+        }
+#endif // end lz has execution
     };
 
     template<LZ_CONCEPT_ITERABLE Iterable>
