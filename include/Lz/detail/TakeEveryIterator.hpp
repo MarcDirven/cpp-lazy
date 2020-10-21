@@ -124,7 +124,7 @@ namespace lz {
         }
 
         bool operator!=(const TakeEveryIterator& other) const {
-            return _iterator < other._iterator;
+            return std::distance(_iterator, other._iterator) >= _offset;
         }
 
         bool operator<(const TakeEveryIterator& other) const {

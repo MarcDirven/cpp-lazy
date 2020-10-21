@@ -46,7 +46,7 @@ TEST_CASE("Function tools") {
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
 
-#ifndef LZ_HAS_CXX_17
+#if (__cplusplus < 201703L) || ((defined(_MSVC_LANG) && (_MSVC_LANG < 201703L)))
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
         size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
@@ -61,21 +61,13 @@ TEST_CASE("Function tools") {
         CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
     }
 
-    SECTION("mapMany") {
-        auto x = {1, 2, 3, 4};
-        auto y = {1.1, 2.2, 3.3, 4.4};
-        auto zipped = lz::mapMany([](int i, double j) { return i * j; }, x, y);
-        auto expected = {1 * 1.1, 2 * 2.2, 3 * 3.3, 4 * 4.4};
-        CHECK(std::equal(zipped.begin(), zipped.end(), expected.begin()));
-    }
-
     SECTION("As") {
         auto floats = lz::as<float>(ints).toVector();
         CHECK(std::is_same<typename decltype(floats)::value_type, float>::value);
         CHECK(floats == std::vector<float>{1., 2., 3., 4.});
     }
-    SECTION("First or default") {
 
+    SECTION("First or default") {
         std::vector<std::string> s = {"hello world!", "what's up"};
         std::string toFind = "hel";
         std::string def = "default";

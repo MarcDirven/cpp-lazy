@@ -92,7 +92,7 @@ namespace lz { namespace internal {
             return *this;
         }
 
-        JoinIterator& operator++() const {
+        JoinIterator& operator++(int) {
             JoinIterator tmp(*this);
             ++* this;
             return tmp;

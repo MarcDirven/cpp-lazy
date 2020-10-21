@@ -131,6 +131,41 @@ namespace lz {
         return takeRange(std::next(begin, from), std::end(iterable), to - from);
     }
 
+#ifdef LZ_HAS_EXECUTION
+    /**
+     * @brief Creates a Take iterator view object.
+     * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
+     * no more values are being skipped.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @param exec The execution policy. Must be one of std::execution::*
+     * @return A Take iterator view object.
+     */
+	template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
+	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate, const Execution exec = std::execution::seq) {
+        using ValueType = internal::ValueType<Iterator>;
+        begin = std::find_if(exec, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
+            return !pred(value);
+		});
+        return takeRange(begin, end, std::distance(begin, end));
+    }
+
+    /**
+     * @brief Creates a Take iterator view object.
+     * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
+     * no more values are being skipped.
+     * @param iterable The sequence with the values that can be iterated over.
+     * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
+     * @param exec The execution policy. Must be one of std::execution::*
+     * @return A Take iterator view object.
+     */
+	template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
+	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
+                                                             const Execution exec = std::execution::seq) {
+        return dropWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate), exec);
+    }
+#else // ^^^ lz has execution vvv lz ! has execution
     /**
      * @brief Creates a Take iterator view object.
      * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
@@ -147,11 +182,11 @@ namespace lz {
         begin = std::find_if(std::move(begin), end, std::bind([](const ValueType& value, Function pred) {
             return !pred(value);
 		}, std::placeholders::_1, std::move(predicate)));
-#else
+#else // ^^^lz has cxx 11 vvv lz cxx > 11
         begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
             return !pred(value);
 		});
-#endif
+#endif // end lz has cxx 11
         return takeRange(begin, end, std::distance(begin, end));
     }
 
@@ -168,7 +203,7 @@ namespace lz {
         return dropWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate));
     }
 	
-
+#endif // end lz has execution
     // End of group
     /**
      * @}

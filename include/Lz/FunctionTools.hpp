@@ -71,7 +71,7 @@ namespace lz {
 
 #ifndef LZ_HAS_CXX17
         template<class Fn, class Tuple, std::size_t... I>
-        auto applyImpl(const Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
+        auto applyImpl(Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
             return fn(std::get<I>(std::forward<Tuple>(tuple))...);
         }
 #endif
@@ -84,7 +84,6 @@ namespace lz {
             return applyImpl(std::move(fn), std::forward<Tuple>(tuple), MakeIndexSequence<std::tuple_size<Decay<Tuple>>::value>());
 #endif
         }
-
 
         template<class T>
         auto begin(T&& t) -> decltype(std::begin(t)) {
@@ -292,83 +291,6 @@ namespace lz {
     }
 
     /**
-     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
-     * For eg: func(*it1, *it2, *it3). Example:
-     * ```cpp
-     * std::vector<int> ints = {1, 2, 3, 4};
-     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
-     *
-     * auto beg = std::make_tuple(ints.begin(), doubles.begin());
-     * auto end = std::make_tuple(ints.end(), doubles.end());
-     *
-     * auto zipped = lz::mapManyRange([](int i, double f) { return static_cast<double>(i) * f; }, beg, end);
-     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
-     * ```
-     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
-     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
-     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all iterators each iteration.
-     * @param begin The beginning of the sequence.
-     * @param end The ending of the sequence.
-     * @return A Map zip iterator that can be iterated over.
-     */
-    template<class Fn, LZ_CONCEPT_ITERATOR... Iterators
-#ifdef LZ_HAS_CXX11
-        , class ValueType = typename lz::Zip<Iterators...>::value_type,
-        class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>
-#endif // end lz has cxx 11
-    >
-    auto mapManyRange(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
-#ifdef LZ_HAS_CXX11
-    -> lz::Map<lz::internal::ZipIterator<Iterators...>, std::function<RetVal(ValueType)>>
-#endif // end lz has cxx 11
-    {
-        lz::Zip<Iterators...> zipper = lz::zipRange(std::move(begin), std::move(end));
-#ifdef LZ_HAS_CXX11
-        // Workaround for C++11 moving (functor) objects into the lambda capture list
-        // auto return types are not allowed in C++11, specify it as a std::function instead
-        std::function<RetVal(ValueType)> partialFunc = std::bind([](const ValueType& tuple, Fn fn) {
-            return internal::apply(std::move(fn), tuple);
-        }, std::placeholders::_1, std::move(fn));
-
-        return lz::map(zipper, std::move(partialFunc));
-#else // ^^^lz has cxx 11 vvv lz has > cxx 11
-        return lz::map(std::move(zipper), [fn = std::move(fn)](auto&& tuple) {
-            return internal::apply(std::move(fn), std::forward<decltype(tuple)>(tuple));
-        });
-#endif // end lz has cxx 11
-    }
-
-    /**
-     * This function returns a Map<Zip> iterator that, when iterated over, applies a function to all iterators passed.
-     * For eg: func(*it1, *it2, *it3). Example:
-     * ```cpp
-     * std::vector<int> ints = {1, 2, 3, 4};
-     * std::vector<double> doubles = {1.2, 2.5, 3.3, 4.5};
-     * auto zipped = lz::mapMany([](int i, double f) { return static_cast<double>(i) * f; }, ints, doubles);
-     * fmt::print("{}\n", zipped); // prints: 1.2 5 9.89 18
-     * ```
-     * @param fn The function to apply to the containers simultaneously. Must have the correct function order. E.g. when iterating over
-     * a container of floats and ints, the function must look like: `f(int, float)` and when iterating over a container of ints and floats
-     * (the other way around) the function must look like `f(float, int)`. So the function takes a value from all containers each iteration.
-     * @param iterables The iterables to perform the function over.
-     * @return A Map zip iterator that can be iterated over.
-     */
-    template<class Fn, LZ_CONCEPT_ITERABLE... Iterables
-#ifdef LZ_HAS_CXX11
-        , class ZipIter = lz::internal::ZipIterator<internal::IterTypeFromIterable<Iterables>...>,
-        class RetVal = internal::FunctionReturnType<Fn, internal::ValueType<Iterators>...>,
-        class ValueType = typename Iter::value_type
-#endif // end lz has cxx 11
-    >
-    auto mapMany(Fn fn, Iterables&&... iterables)
-#ifdef LZ_HAS_CXX11
-    -> lz::Map<ZipIter, std::function<RetVal(ValueType)>>
-#endif // end lz has cxx 11
-    {
-        return lz::mapManyRange(std::move(fn), std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
-    }
-
-    /**
      * Returns a view object of which its iterators are reversed.
      * @param begin The beginning of the sequence. Must have at least std::bidirectional_iterator_tag.
      * @param end The ending of the sequence. Must have at least std::bidirectional_iterator_tag.
@@ -553,7 +475,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
     internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
-        return lz::isEmpty(begin, end) ? defaultValue : lz::first(begin, end);
+        return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : lz::first(begin, end);
     }
 
     /**
@@ -576,7 +498,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T>
     internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
-        return lz::isEmpty(begin, end) ? value : lz::last(begin, end);
+        return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : lz::last(begin, end);
     }
 
     /**
