@@ -158,21 +158,6 @@ namespace lz {
             return lz::lastOr(*this, defaultValue);
         }
 
-        template<class T, class BinaryFunction>
-        T foldl(T&& init, BinaryFunction function) const {
-            return std::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
-        }
-
-        template<class T, class BinaryFunction>
-        T foldr(T&& init, BinaryFunction function) const {
-            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
-        }
-
-        value_type sum() const {
-            return this->foldl(static_cast<value_type>(0), std::plus<value_type>());
-        }
-
 #ifdef LZ_HAS_EXECUTION
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> filter(UnaryPredicate predicate,
@@ -205,8 +190,8 @@ namespace lz {
 
         template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
         auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) {
-            auto filterMapView = lz::filterMap(*this, selectors, exec);
-            return lz::toIter(std::move(filterMapView));
+            auto selected = lz::select(*this, selectors, exec);
+            return lz::toIter(std::move(selected));
         }
 
         template<class T, class U, class Execution = std::execution::sequenced_policy>
@@ -255,6 +240,22 @@ namespace lz {
             return *this;
         }
 
+        template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
+        T foldl(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
+            return std::reduce(exec, Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+        }
+
+        template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
+        T foldr(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
+            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
+            return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+        }
+
+        template<class Execution = std::execution::sequenced_policy>
+        value_type sum(const Execution exec = std::execution::seq) const {
+            return this->foldl(static_cast<value_type>(0), std::plus<value_type>(), exec);
+        }
+
 #else // ^^^ lz has execution vvv ! lz has execution
         template<class UnaryPredicate>
         IterView<internal::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
@@ -296,11 +297,11 @@ namespace lz {
 #ifdef LZ_HAS_CXX11
         -> IterView<internal::MapIterator<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,
                                                                    std::function<bool(RefTuple)>>,
-                                           std::function<internal::RefType<Iterator>(RefTuple)>>>
+                                          std::function<internal::RefType<Iterator>(RefTuple)>>>
 #endif // end lz has cxx11
         {
-            auto filterMapView = lz::filterMap(*this, selectors);
-            return lz::toIter(std::move(filterMapView));
+            auto select = lz::select(*this, selectors);
+            return lz::toIter(std::move(select));
         }
 
         template<class T, class U>
@@ -358,6 +359,21 @@ namespace lz {
         IterView<Iterator>& forEach(UnaryFunc func) const {
             std::for_each(Base::begin(), Base::end(), std::move(func));
             return *this;
+        }
+
+        template<class T, class BinaryFunction>
+        T foldl(T&& init, BinaryFunction function) const {
+            return std::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+        }
+
+        template<class T, class BinaryFunction>
+        T foldr(T&& init, BinaryFunction function) const {
+            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
+            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+        }
+
+        value_type sum() const {
+            return this->foldl(static_cast<value_type>(0), std::plus<value_type>());
         }
 #endif // end lz has execution
     };
