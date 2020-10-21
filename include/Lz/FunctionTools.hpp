@@ -64,7 +64,7 @@ namespace lz {
         template<class To>
         struct ConvertFn {
             template<class From>
-            To operator()(const From& f) const {
+            To operator()(From&& f) const {
                 return static_cast<To>(f);
             }
         };
@@ -326,7 +326,6 @@ namespace lz {
     template<class T, LZ_CONCEPT_ITERATOR Iterator>
     Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
         using ValueTypeIterator = internal::ValueType<Iterator>;
-        static_assert(std::is_convertible<ValueTypeIterator, T>::value, "the value type of the container is not convertible to To");
         return lz::mapRange(std::move(begin), std::move(end), internal::ConvertFn<T>());
     }
 

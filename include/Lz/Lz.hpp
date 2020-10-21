@@ -57,8 +57,7 @@ namespace lz {
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         concat(Iterables&&... iterables) const {
-            using ConcatView = lz::Concatenate<internal::IterTypeFromIterable<Iterables>...>;
-            ConcatView view = lz::concat(*this, iterables...);
+            auto view = lz::concat(*this, iterables...);
             return lz::toIter(std::move(view));
         }
 
@@ -103,9 +102,8 @@ namespace lz {
         }
 
         template<LZ_CONCEPT_ITERABLE... Iterables>
-        IterView<internal::ZipIterator<internal::IterTypeFromIterable<Iterables>>...> zip(Iterables&&... iterables) const {
-            using ZipView = lz::Zip<internal::IterTypeFromIterable<Iterables>...>;
-            ZipView view = lz::zip(*this, iterables...);
+        IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...> zip(Iterables&&... iterables) const {
+            auto view = lz::zip(*this, iterables...);
             return lz::toIter(std::move(view));
         }
 
