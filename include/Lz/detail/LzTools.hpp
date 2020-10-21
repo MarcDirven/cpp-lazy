@@ -213,8 +213,8 @@ namespace lz { namespace internal {
             _t(t) {
         }
 
-        T* operator->() {
-            return &_t;
+        decltype(std::addressof(_t)) operator->() {
+            return std::addressof(_t);
         }
     };
 
