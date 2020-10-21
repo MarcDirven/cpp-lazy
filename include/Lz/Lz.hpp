@@ -253,7 +253,7 @@ namespace lz {
 
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(const Execution exec = std::execution::seq) const {
-            return this->foldl(static_cast<value_type>(0), std::plus<value_type>(), exec);
+            return this->foldl(value_type(), std::plus<value_type>(), exec);
         }
 
 #else // ^^^ lz has execution vvv ! lz has execution
