@@ -20,8 +20,6 @@ namespace lz {
         std::size_t _current{};
         std::size_t _distance{};
 
-
-        friend class TakeEvery<Iterator>;
         using IterTraits = std::iterator_traits<Iterator>;
 
     public:
