@@ -96,7 +96,8 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
     Take<Iterator> takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
         assert(amount <= std::distance(begin, end) && "cannot access elements after end");
-        return takeWhileRange(std::move(begin), std::next(begin, amount), nullptr);
+        static_cast<void>(end);
+        return takeWhileRange(begin, std::next(begin, amount), nullptr);
     }
 
     /**
@@ -112,6 +113,29 @@ namespace lz {
     Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
         const auto begin = std::begin(iterable);
         return takeRange(begin, std::end(iterable), amount);
+    }
+
+    /**
+     * Drops an amount of items, starting from begin.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param amount The amount of items to drop, which is equivalent to next(begin, amount)
+     * @return A Take iterator where the first `amount` items have been dropped.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    Take<Iterator> dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
+        return takeRange(std::next(begin, amount), end, std::distance(begin, end) - amount);
+    }
+
+    /**
+     * Drops an amount of items, starting from begin.
+     * @param iterable The iterable to drop from.
+     * @param amount The amount of items to drop, which is equivalent to next(begin, amount)
+     * @return A Take iterator where the first `amount` items have been dropped.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
+    Take<IterType> drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
+        return dropRange(std::begin(iterable), std::end(iterable), amount);
     }
 
     /**

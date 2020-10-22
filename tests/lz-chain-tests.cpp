@@ -21,6 +21,7 @@ TEST_CASE("Iterator chaining") {
     bool isAllSame = lz::toIter(arr)
         .affirm(std::string("Sequence is not 1"), [](int i) { return i == 1; })
         .take(size)
+        .drop(0)
         .takeWhile([](int i) { return i == 1; })
         .dropWhile([](int i) { return i != 1; })
         .enumerate()
