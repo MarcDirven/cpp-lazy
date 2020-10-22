@@ -124,20 +124,16 @@ namespace lz {
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class T>
-    struct IsSequencedPolicy {
-        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>;
+    struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
     };
 
     template<class T>
-    struct IsParallelPolicy {
-        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>;
+    struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
     };
 
-    template<class T>
-    struct IsForwardOrStronger {
-        using IterCat = typename std::iterator_traits<T>::iterator_category;
-        static constexpr bool value = !std::is_same_v<IterCat, std::input_iterator_tag> &&
-            !std::is_same_v<IterCat, std::output_iterator_tag>;
+    template<class T, class IterCat = typename std::iterator_traits<T>::iterator_category>
+    struct IsForwardOrStronger : public std::bool_constant<
+        !std::is_same_v<IterCat, std::input_iterator_tag> && !std::is_same_v<IterCat, std::output_iterator_tag>> {
     };
 
     template<class T>
@@ -158,9 +154,8 @@ namespace lz { namespace internal {
 
     template<class Execution, class Iterator>
 	constexpr bool checkForwardAndPolicies() {
-        constexpr bool isSequencedPolicy = internal::IsSequencedPolicyV<Execution>;
         internal::verifyIteratorAndPolicies<Execution, Iterator>();
-        return isSequencedPolicy;
+        return internal::IsSequencedPolicyV<Execution>;
     }
 
 #endif // LZ_HAS_EXECUTION
