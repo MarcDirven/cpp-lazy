@@ -548,10 +548,8 @@ namespace lz {
     Map<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
               const Execution execPolicy = std::execution::seq) {
-        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::...");
-
-        Filter<Execution, Iterator, UnaryFilterFunc> filterView = filterRange(std::move(begin), std::move(end),
-                                                                              std::move(filterFunc), execPolicy);
+        Filter<Execution, Iterator, UnaryFilterFunc> filterView = lz::filterRange(std::move(begin), std::move(end),
+                                                                                  std::move(filterFunc), execPolicy);
         return lz::map(std::move(filterView), std::move(mapFunc));
     }
 
@@ -610,11 +608,23 @@ namespace lz {
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
 
-        std::nth_element(execution, begin, midIter, end, compare);
+        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            static_cast<void>(execution);
+            std::nth_element(begin, midIter, end, compare);
+        }
+        else {
+            std::nth_element(execution, begin, midIter, end, compare);
+        }
 
         if (internal::isEven(len)) {
-            const Iterator leftHalf = std::max_element(execution, begin, midIter);
-            return (static_cast<double>(*leftHalf) + *midIter) / 2.;
+            if constexpr (internal::IsSequencedPolicyV<Execution>) {
+                const Iterator leftHalf = std::max_element(begin, midIter);
+                return (static_cast<double>(*leftHalf) + *midIter) / 2.;
+            }
+            else {
+                const Iterator leftHalf = std::max_element(execution, begin, midIter);
+                return (static_cast<double>(*leftHalf) + *midIter) / 2.;
+            }
         }
         return *midIter;
     }
@@ -671,8 +681,13 @@ namespace lz {
     internal::ValueType<Iterator>
 	firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
-        return static_cast<ValueType>(std::find(execution, begin, end, toFind) == end ?
-        defaultValue : toFind);
+        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            static_cast<void>(execution);
+            return static_cast<ValueType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
+        }
+        else {
+            return static_cast<ValueType>(std::find(execution, begin, end, toFind) == end ? defaultValue : toFind);
+        }
     }
 
     /**
@@ -704,8 +719,15 @@ namespace lz {
     internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
                                                    T&& defaultValue, const Execution execution) {
         using ValueType = internal::ValueType<Iterator>;
-        const Iterator pos = std::find_if(execution, begin, end, predicate);
-        return static_cast<ValueType>(pos == end ? defaultValue : *pos);
+        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            static_cast<void>(execution);
+            const Iterator pos = std::find_if(begin, end, predicate);
+            return static_cast<ValueType>(pos == end ? defaultValue : *pos);
+        }
+        else {
+            const Iterator pos = std::find_if(execution, begin, end, predicate);
+            return static_cast<ValueType>(pos == end ? defaultValue : *pos);
+        }
     }
 
     /**
@@ -736,13 +758,23 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue,
 												const Execution execution = std::execution::seq) {
+        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
-        const ReverseIterator pos = std::find(execution, endReverse, beginReverse, toFind);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+
+        if constexpr (isSequencedPolicy) {
+            static_cast<void>(execution);
+            const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
+            return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+        }
+        else {
+            const ReverseIterator pos = std::find(execution, endReverse, beginReverse, toFind);
+            return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+        }
     }
 
     /**
@@ -769,13 +801,23 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
 												  T&& defaultValue, const Execution execution = std::execution::seq) {
+        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
-        const ReverseIterator pos = std::find_if(execution, endReverse, beginReverse, predicate);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+
+        if constexpr (isSequencedPolicy) {
+            static_cast<void>(execution);
+            const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
+            return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+        }
+        else {
+            const ReverseIterator pos = std::find_if(execution, endReverse, beginReverse, predicate);
+            return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+        }
     }
 
     /**
@@ -802,8 +844,17 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
     std::size_t indexOf(Iterator begin, Iterator end, const T& val, const Execution execution = std::execution::seq) {
-        const Iterator pos = std::find(execution, begin, end, val);
-        return pos == end ? npos : static_cast<size_t>(std::distance(begin, pos));
+        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+
+        if constexpr (isSequencedPolicy) {
+            static_cast<void>(execution);
+            const Iterator pos = std::find(begin, end, val);
+            return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
+        }
+        else {
+            const Iterator pos = std::find(execution, begin, end, val);
+            return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
+        }
     }
 
     /**
@@ -828,8 +879,17 @@ namespace lz {
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
     std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, const Execution execution = std::execution::seq) {
-        const Iterator pos = std::find_if(execution, begin, end, predicate);
-        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
+        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+
+        if constexpr (isSequencedPolicy) {
+            static_cast<void>(execution);
+            const Iterator pos = std::find_if(begin, end, predicate);
+            return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
+        }
+        else {
+            const Iterator pos = std::find_if(execution, begin, end, predicate);
+            return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
+        }
     }
 
     /**
@@ -852,7 +912,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
     bool contains(Iterator begin, Iterator end, const T& value, const Execution exec = std::execution::seq) {
-        return std::find(exec, begin, end, value) != end;
+        return lz::indexOf(begin, end, value, exec) != lz::npos;
     }
 
     /**
@@ -863,7 +923,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class Execution = std::execution::sequenced_policy>
     bool contains(const Iterable& iterable, const T& value, const Execution exec = std::execution::seq) {
-        return contains(std::begin(iterable), std::end(iterable), value, exec);
+        return lz::contains(std::begin(iterable), std::end(iterable), value, exec);
     }
 
     /**
@@ -875,7 +935,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
     bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, const Execution exec = std::execution::seq) {
-        return std::find_if(exec, begin, end, predicate) != end;
+        return lz::indexOfIf(begin, end, predicate, exec) != lz::npos;
     }
 
     /**
@@ -887,7 +947,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
     bool containsIf(const Iterable& iterable, BinaryPredicate predicate, const Execution exec = std::execution::seq) {
-        return containsIf(std::begin(iterable), std::end(iterable), predicate, exec);
+        return lz::containsIf(std::begin(iterable), std::end(iterable), predicate, exec);
     }
 #else // ^^^ Lz has execution vvv !Lz has execution
 

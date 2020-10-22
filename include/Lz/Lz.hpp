@@ -242,18 +242,57 @@ namespace lz {
 
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
         T foldl(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
-            return std::reduce(exec, Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+            if constexpr (isSequencedPolicy) {
+                return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+            }
+            else {
+                return std::reduce(exec, Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+            }
         }
 
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
         T foldr(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+            if constexpr (isSequencedPolicy) {
+                return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+            }
+            else {
+                return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+            }
         }
 
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(const Execution exec = std::execution::seq) const {
             return this->foldl(value_type(), std::plus<value_type>(), exec);
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        bool all(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+            if constexpr (isSequencedPolicy) {
+                return std::all_of(Base::begin(), Base::end(), std::move(predicate));
+            }
+            else {
+                return std::all_of(exec, Base::begin(), Base::end(), std::move(predicate));
+            }
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        bool any(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+            if constexpr (isSequencedPolicy) {
+                return std::any_of(Base::begin(), Base::end(), std::move(predicate));
+            }
+            else {
+                return std::any_of(exec, Base::begin(), Base::end(), std::move(predicate));
+            }
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        bool none(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
+            return !this->all(std::move(predicate), exec);
         }
 
 #else // ^^^ lz has execution vvv ! lz has execution

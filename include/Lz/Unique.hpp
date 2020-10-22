@@ -70,6 +70,7 @@ namespace lz {
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator or higher for "
                                                                  "std::sort");
 #endif // end lz has concepts
+        internal::verifyIteratorAndPolicies<Execution, Iterator>();
         return Unique<Execution, Iterator>(std::move(begin), std::move(end), execPolicy);
     }
 
