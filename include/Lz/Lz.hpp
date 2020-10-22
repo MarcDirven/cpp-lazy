@@ -241,7 +241,7 @@ namespace lz {
         }
 
         template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
-        IterView<Iterator>& forEach(UnaryFunc func, const Execution exec = std::execution::seq) {
+        const IterView<Iterator>& forEach(UnaryFunc func, const Execution exec = std::execution::seq) const {
             std::for_each(exec, Base::begin(), Base::end(), std::move(func));
             return *this;
         }
@@ -399,19 +399,8 @@ namespace lz {
             return lz::containsIf(*this, std::move(predicate));
         }
 
-        template<class T, class BinaryFunction>
-        T foldl(T&& init, BinaryFunction function) const {
-            return std::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
-        }
-
-        template<class T, class BinaryFunction>
-        T foldr(T&& init, BinaryFunction function) const {
-            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
-        }
-
         template<class UnaryFunc>
-        IterView<Iterator>& forEach(UnaryFunc func) const {
+        const IterView<Iterator>& forEach(UnaryFunc func) const {
             std::for_each(Base::begin(), Base::end(), std::move(func));
             return *this;
         }
@@ -428,7 +417,22 @@ namespace lz {
         }
 
         value_type sum() const {
-            return this->foldl(static_cast<value_type>(0), std::plus<value_type>());
+            return this->foldl(value_type(), std::plus<value_type>());
+        }
+
+        template<class UnaryPredicate>
+        bool all(UnaryPredicate predicate) {
+            return std::all_of(Base::begin(), Base::end(), std::move(predicate));
+        }
+
+        template<class UnaryPredicate>
+        bool any(UnaryPredicate predicate) {
+            return std::any_of(Base::begin(), Base::end(), std::move(predicate));
+        }
+
+        template<class UnaryPredicate>
+        bool none(UnaryPredicate predicate) {
+            return !this->all(std::move(predicate));
         }
 #endif // end lz has execution
     };
