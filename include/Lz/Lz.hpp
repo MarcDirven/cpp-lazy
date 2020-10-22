@@ -31,7 +31,7 @@ namespace lz {
     IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable);
 
     template<LZ_CONCEPT_ITERATOR Iterator>
-    IterView<Iterator> toIter(Iterator begin, Iterator end);
+    IterView<Iterator> toIterRange(Iterator begin, Iterator end);
 
     template<LZ_CONCEPT_ITERATOR Iterator>
     class IterView final : public internal::BasicIteratorView<Iterator> {
@@ -442,13 +442,23 @@ namespace lz {
 #endif // end lz has execution
     };
 
+    /**
+     * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
+     * @param iterable The iterable to view over.
+     * @return An iterator view object.
+     */
     template<LZ_CONCEPT_ITERABLE Iterable>
     IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
-        return lz::toIter(std::begin(iterable), std::end(iterable));
+        return lz::toIterRange(std::begin(iterable), std::end(iterable));
     }
 
+    /**
+     * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
+     * @param iterable The iterable to view over.
+     * @return An iterator view object.
+     */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    IterView<Iterator> toIter(Iterator begin, Iterator end) {
+    IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
         return lz::IterView<Iterator>(std::move(begin), std::move(end));
     }
 }
