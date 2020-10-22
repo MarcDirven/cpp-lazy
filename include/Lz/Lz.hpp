@@ -91,6 +91,11 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        IterView<Iterator> drop(const difference_type amount) const {
+            lz::Take<Iterator> view = lz::drop(*this, amount);
+            return lz::toIter(std::move(view));
+        }
+
         IterView<Iterator> slice(const difference_type from, const difference_type to) const {
             lz::Take<Iterator> view = lz::slice(*this, from, to);
             return lz::toIter(std::move(view));
