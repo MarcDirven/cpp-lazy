@@ -50,7 +50,8 @@ namespace lz {
      * @return A TakeEvery object.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const std::size_t offset, const std::size_t start = 0) {
+    TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
+                                       const internal::DiffType<Iterator> start = 0) {
         return TakeEvery<Iterator>(std::next(begin, start), end, offset, std::distance(begin, end));
     }
 
@@ -64,9 +65,9 @@ namespace lz {
      * @param start The start indexOf, optional. Can be used to skip the first element as well.
      * @return A TakeEvery object.
      */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    TakeEvery<internal::IterTypeFromIterable<Iterable>> takeEvery(Iterable&& iterable, const std::size_t offset,
-                                                                  const std::size_t start = 0) {
+    template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
+    TakeEvery<Iterator> takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset,
+                                  const internal::DiffType<Iterator> start = 0) {
         return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
     }
 

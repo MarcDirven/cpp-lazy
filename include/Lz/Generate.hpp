@@ -13,7 +13,7 @@ namespace lz {
     public:
         using iterator = internal::GenerateIterator<GeneratorFunc>;
         using const_iterator = iterator;
-        using value_type = typename std::iterator_traits<iterator>::value_type;
+        using value_type = typename iterator::value_type;
 
         /**
          * @brief Generator constructor.
@@ -24,8 +24,7 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop):
-            internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop),
-                                                  iterator(amount, func, isWhileTrueLoop))
+            internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop))
         {
         }
 

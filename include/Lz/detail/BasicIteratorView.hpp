@@ -63,7 +63,7 @@ namespace lz { namespace internal {
 
         template<std::size_t N>
         void verifyRange() const {
-            constexpr auto size = static_cast<typename std::iterator_traits<LzIterator>::difference_type>(N);
+            constexpr auto size = static_cast<internal::DiffType<LzIterator>>(N);
 
             if (std::distance(begin(), end()) > size) {
                 throw std::invalid_argument(LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
@@ -81,20 +81,21 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, LzIterator>();
             const LzIterator b = begin();
             const LzIterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
 
             // Prevent static assertion
-            if constexpr (IsSequencedPolicyV<Execution>) {
+            if constexpr (isSequencedPolicy) {
                 static_cast<void>(execution);
                 // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
                 std::copy(b, e, std::inserter(cont, cont.begin()));
             }
             else {
                 // use execution policies
-                std::copy(std::forward<Execution>(execution), b, e, cont.begin());
+                std::copy(execution, b, e, cont.begin());
             }
 
             return cont;
@@ -102,10 +103,12 @@ namespace lz { namespace internal {
 
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
+            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, LzIterator>();
             verifyRange<N>();
             std::array<value_type, N> array{};
 
-            if constexpr (IsSequencedPolicyV<Execution>) {
+            if constexpr (isSequencedPolicy) {
+                static_cast<void>(execution);
                 std::copy(begin(), end(), array.begin());
             }
             else {
@@ -184,19 +187,7 @@ namespace lz { namespace internal {
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
         Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
-            internal::verifyIteratorAndPolicies(execution, begin());
-
-            if constexpr (IsSequencedPolicyV<Execution>) {
-                return copyContainer<Cont>(execution, std::forward<Args>(args)...);
-            }
-            else {
-                using OutputIter = typename Cont::iterator;
-                // Check if the output container is also a forward or stronger iterator, only check if we are using a non seq policy
-                // GCC throws a very verbose error
-                static_assert(IsForwardOrStrongerV<OutputIter>, "Output iterator must be forward iterator or higher. Use "
-                                                                "std::execution::seq instead.");
-                return copyContainer<Cont>(execution, std::forward<Args>(args)...);
-            }
+            return copyContainer<Cont>(execution, std::forward<Args>(args)...);
         }
 
         /**
@@ -245,21 +236,19 @@ namespace lz { namespace internal {
          */
         template<class Execution = std::execution::sequenced_policy>
         std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
-            internal::verifyIteratorAndPolicies(exec, begin());
+            constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, LzIterator>();
 
             std::string string;
-            if constexpr (IsSequencedPolicyV<Execution>) {
+            auto formatFun = [delimiter, this](const value_type& v) {
+                return fmt::format("{}{}", v, delimiter);
+            };
+            if constexpr (isSequenced) {
+                static_cast<void>(exec);
                 // Prevent static assertion and/or weird errors when parallel policy is passed
-                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(),
-                                               [delimiter, this](const value_type& v) {
-                                                   return fmt::format("{}{}", v, delimiter);
-                                               });
+                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(), formatFun);
             }
             else {
-                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(),
-                                               [delimiter, this](const value_type& v) {
-                                                   return fmt::format("{}{}", v, delimiter);
-                                               });
+                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(), formatFun);
             }
 
             const std::size_t delimiterLength = delimiter.length();

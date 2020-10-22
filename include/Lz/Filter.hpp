@@ -73,9 +73,9 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Execution, Iterator, Function>
     filterRange(Iterator begin, Iterator end, Function predicate, const Execution execution = std::execution::seq) {
-        static_assert(std::is_same<internal::FunctionReturnType<Function, typename std::iterator_traits<Iterator>::value_type>, bool>::value,
+        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
                       "function must return bool");
-        internal::verifyIteratorAndPolicies(execution, begin);
+        internal::verifyIteratorAndPolicies<Execution, Iterator>();
         return Filter<Execution, Iterator, Function>(std::move(begin), std::move(end), std::move(predicate), execution);
     }
 
@@ -96,7 +96,7 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Function, class Iterator>
+    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Iterator, Function> filterRange(Iterator begin, Iterator end, Function predicate) {
         static_assert(std::is_convertible<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
                       "function return type must be convertible to a bool");
@@ -112,7 +112,7 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class Function, class Iterable>
+    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
     Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, Function predicate) {
         return filterRange(std::begin(iterable), std::end(iterable), std::move(predicate));
     }

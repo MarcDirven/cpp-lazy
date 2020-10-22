@@ -8,20 +8,20 @@
 
 
 namespace lz { namespace internal {
-    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL Arithmetic>
     class EnumerateIterator {
-        IntType _index;
+        Arithmetic _index;
         Iterator _iterator;
 
         using IterTraits = std::iterator_traits<Iterator>;
     public:
         using iterator_category = typename IterTraits::iterator_category;
-        using value_type = std::pair<IntType, typename IterTraits::value_type>;
+        using value_type = std::pair<Arithmetic, typename IterTraits::value_type>;
         using difference_type = typename IterTraits::difference_type;
-        using reference = std::pair<IntType, typename IterTraits::reference>;
+        using reference = std::pair<Arithmetic, typename IterTraits::reference>;
         using pointer = FakePointerProxy<reference>;
 
-        EnumerateIterator(const IntType start, Iterator iterator) :
+        EnumerateIterator(const Arithmetic start, Iterator iterator) :
             _index(start),
             _iterator(std::move(iterator)) {
         }
@@ -61,7 +61,7 @@ namespace lz { namespace internal {
         }
 
         EnumerateIterator& operator+=(const difference_type offset) {
-            _index += static_cast<IntType>(offset);
+            _index += static_cast<Arithmetic>(offset);
             _iterator += offset;
             return *this;
         }
@@ -73,7 +73,7 @@ namespace lz { namespace internal {
         }
 
         EnumerateIterator& operator-=(const difference_type offset) {
-            _index -= static_cast<IntType>(offset);
+            _index -= static_cast<Arithmetic>(offset);
             _iterator -= offset;
             return *this;
         }

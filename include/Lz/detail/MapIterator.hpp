@@ -13,10 +13,10 @@ namespace lz { namespace internal {
         Function _function;
 
     public:
-        using value_type = FunctionReturnType<Function, RefType<Iterator>>;
+        using value_type = Decay<FunctionReturnType<Function, RefType<Iterator>>>;
         using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-        using difference_type = std::ptrdiff_t;
-        using reference = value_type;
+        using difference_type = internal::DiffType<Iterator>;
+        using reference = FunctionReturnType<Function, RefType<Iterator>>;
         using pointer = FakePointerProxy<reference>;
 
         MapIterator(Iterator iterator, Function function) :
@@ -35,7 +35,7 @@ namespace lz { namespace internal {
             return *this;
         }
 
-        value_type operator*() const {
+        reference operator*() const {
             return _function(*_iterator);
         }
 

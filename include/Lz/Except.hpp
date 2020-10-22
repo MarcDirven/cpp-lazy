@@ -74,6 +74,7 @@ namespace lz {
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
                                                                          "or higher for std::sort");
 #endif // end lz has concepts
+        internal::verifyIteratorAndPolicies<Execution, Iterator>();
         return Except<Execution, Iterator, IteratorToExcept>(std::move(begin), std::move(end), std::move(toExceptBegin),
                                                              std::move(toExceptEnd), execPolicy);
     }
