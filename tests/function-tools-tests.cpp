@@ -205,10 +205,10 @@ TEST_CASE("Function tools") {
     }
 
     SECTION("select") {
-        auto range = lz::range(10);
+        auto range = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         std::function<bool(int)> even = [](int i) { return i % 2 == 0; };
         auto selectors = lz::map(range, std::move(even));
-        auto selected = lz::select(range, selectors);
+        auto selected = lz::select(range, std::move(selectors));
         CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
 }
