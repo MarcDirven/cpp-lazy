@@ -55,7 +55,7 @@ static void StringSplitter(benchmark::State& state) {
     auto splitter = lz::split(toSplit, " ");
 
     for (auto _ : state) {
-#ifndef LZ_HAS_CXX17
+#ifndef LZ_HAS_CXX_17
         // making non const causes: benchmark/benchmark.h:322:48: internal compiler error: in assign_temp,
         // at function.c:977
         using StringType = const std::string&;

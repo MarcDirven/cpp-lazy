@@ -16,7 +16,7 @@
 #include "Take.hpp"
 #include "Concatenate.hpp"
 
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
   #define LZ_INLINE_VAR inline
 #else // ^^^ has cxx 17 vvv !has cxx 17
   #define LZ_INLINE_VAR
@@ -69,7 +69,7 @@ namespace lz {
             }
         };
 
-#ifndef LZ_HAS_CXX17
+#ifndef LZ_HAS_CXX_17
         template<class Fn, class Tuple, std::size_t... I>
         auto applyImpl(Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
             return fn(std::get<I>(std::forward<Tuple>(tuple))...);
@@ -78,7 +78,7 @@ namespace lz {
 
         template<class Fn, class Tuple>
         auto apply(Fn fn, Tuple&& tuple) {
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
             return std::apply(std::move(fn), std::forward<Tuple>(tuple));
 #else
             return applyImpl(std::move(fn), std::forward<Tuple>(tuple), MakeIndexSequence<std::tuple_size<Decay<Tuple>>::value>());
@@ -260,7 +260,7 @@ namespace lz {
      * @return The result of the transAccumulate operation.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Init, class SelectorFunc>
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
     [[deprecated("a similar method is defined in <algorithm>; use std::transform_reduce instead")]]
 #endif // end lz has cxx 17
     Init transAccumulate(Iterator begin, Iterator end, Init init, SelectorFunc selectorFunc) {

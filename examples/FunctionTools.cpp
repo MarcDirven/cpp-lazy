@@ -14,7 +14,7 @@ int main() {
 
     std::vector<std::string> s = {"hello", "world", "!"};
 	
-#ifndef LZ_HAS_CXX17
+#if (!defined(LZ_HAS_CXX_17)) && (!defined(LZ_HAS_CXX_20))
     size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
         return i + s.size();
     }); // totalSize == 11
