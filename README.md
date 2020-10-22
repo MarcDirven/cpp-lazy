@@ -20,7 +20,7 @@ versions have not been checked)
   - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
 - Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
 - Clear [Examples](https://github.com/MarcDirven/cpp-lazy/wiki/Examples)
-- Readable using chaining dot (`.map(...).filter(...).enumerate()./* ... */`) notation
+- Readable using chaining dot (`.map([]{}()).filter([]{}()).enumerate()./* ... */`) notation
 
 # What is lazy and why would I use it?
 Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this
