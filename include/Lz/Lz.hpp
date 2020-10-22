@@ -161,7 +161,7 @@ namespace lz {
 #ifdef LZ_HAS_EXECUTION
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> filter(UnaryPredicate predicate,
-                                                                            const Execution exec = std::execution::seq) const {
+                                                                                       const Execution exec = std::execution::seq) const {
             using FilterView = lz::Filter<Iterator, UnaryPredicate, Execution>;
             FilterView view = lz::filter(*this, std::move(predicate), exec);
             return lz::toIter(std::move(view));
@@ -189,9 +189,15 @@ namespace lz {
         }
 
         template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
-        auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) {
+        auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) const {
             auto selected = lz::select(*this, selectors, exec);
             return lz::toIter(std::move(selected));
+        }
+
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        IterView<Iterator> dropWhile(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+            lz::Take<Iterator> view = lz::dropWhile(*this, std::move(predicate), exec);
+            return lz::toIter(std::move(view));
         }
 
         template<class T, class U, class Execution = std::execution::sequenced_policy>
@@ -341,6 +347,12 @@ namespace lz {
         {
             auto select = lz::select(*this, selectors);
             return lz::toIter(std::move(select));
+        }
+
+        template<class UnaryPredicate>
+        IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
+            lz::Take<Iterator> view = lz::dropWhile(*this, std::move(predicate));
+            return lz::toIter(std::move(view));
         }
 
         template<class T, class U>
