@@ -31,7 +31,6 @@ namespace lz {
          */
         explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
             internal::BasicIteratorView<iterator>(iterator(begin), iterator(end))
-
         {
         }
 

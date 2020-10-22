@@ -37,7 +37,7 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
             if constexpr (IsSequencedPolicyV<Execution>) {
                 _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-                        return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
                 });
             }
             else {

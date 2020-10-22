@@ -24,8 +24,7 @@ namespace lz {
          * it is interpreted as a `while-true` loop.
          */
         Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop):
-            internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop),
-                                                  iterator(amount, func, isWhileTrueLoop))
+            internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop))
         {
         }
 
