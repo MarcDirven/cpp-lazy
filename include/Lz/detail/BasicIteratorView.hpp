@@ -108,6 +108,7 @@ namespace lz { namespace internal {
             std::array<value_type, N> array{};
 
             if constexpr (isSequencedPolicy) {
+                static_cast<void>(execution);
                 std::copy(begin(), end(), array.begin());
             }
             else {
@@ -235,21 +236,19 @@ namespace lz { namespace internal {
          */
         template<class Execution = std::execution::sequenced_policy>
         std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
-            internal::verifyIteratorAndPolicies<Execution, LzIterator>();
+            constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, LzIterator>();
 
             std::string string;
-            if constexpr (IsSequencedPolicyV<Execution>) {
+            auto formatFun = [delimiter, this](const value_type& v) {
+                return fmt::format("{}{}", v, delimiter);
+            };
+            if constexpr (isSequenced) {
+                static_cast<void>(exec);
                 // Prevent static assertion and/or weird errors when parallel policy is passed
-                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(),
-                                               [delimiter, this](const value_type& v) {
-                                                   return fmt::format("{}{}", v, delimiter);
-                                               });
+                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(), formatFun);
             }
             else {
-                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(),
-                                               [delimiter, this](const value_type& v) {
-                                                   return fmt::format("{}{}", v, delimiter);
-                                               });
+                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(), formatFun);
             }
 
             const std::size_t delimiterLength = delimiter.length();

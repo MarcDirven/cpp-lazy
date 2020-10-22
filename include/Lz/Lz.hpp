@@ -250,6 +250,7 @@ namespace lz {
         T foldl(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
             constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             if constexpr (isSequencedPolicy) {
+                static_cast<void>(exec);
                 return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
             }
             else {
@@ -262,6 +263,7 @@ namespace lz {
             constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
             if constexpr (isSequencedPolicy) {
+                static_cast<void>(exec);
                 return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
             }
             else {
@@ -278,6 +280,7 @@ namespace lz {
         bool all(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
             constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             if constexpr (isSequencedPolicy) {
+                static_cast<void>(exec);
                 return std::all_of(Base::begin(), Base::end(), std::move(predicate));
             }
             else {
@@ -289,6 +292,7 @@ namespace lz {
         bool any(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
             constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             if constexpr (isSequencedPolicy) {
+                static_cast<void>(exec);
                 return std::any_of(Base::begin(), Base::end(), std::move(predicate));
             }
             else {

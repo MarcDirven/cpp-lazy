@@ -145,9 +145,19 @@ namespace lz {
 	template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate, const Execution exec = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
-        begin = std::find_if(exec, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
-            return !pred(value);
-		});
+        constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
+
+        if constexpr (isSequenced) {
+            static_cast<void>(exec);
+            begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
+                return !pred(value);
+            });
+        }
+        else {
+            begin = std::find_if(exec, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
+                return !pred(value);
+            });
+        }
         return takeRange(begin, end, std::distance(begin, end));
     }
 
