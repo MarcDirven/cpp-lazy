@@ -245,10 +245,10 @@ namespace lz { namespace internal {
             if constexpr (isSequenced) {
                 static_cast<void>(exec);
                 // Prevent static assertion and/or weird errors when parallel policy is passed
-                string = std::transform_reduce(begin(), end(), std::string(), std::plus<>(), formatFun);
+                string = std::transform_reduce(begin(), end(), std::string(), std::plus(), formatFun);
             }
             else {
-                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus<>(), formatFun);
+                string = std::transform_reduce(exec, begin(), end(), std::string(), std::plus(), formatFun);
             }
 
             const std::size_t delimiterLength = delimiter.length();
