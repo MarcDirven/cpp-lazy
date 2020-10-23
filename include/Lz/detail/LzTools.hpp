@@ -143,24 +143,19 @@ namespace lz { namespace internal {
     constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
 
     template<class Execution, class Iterator>
-    constexpr void verifyIteratorAndPolicies() {
+    constexpr bool checkForwardAndPolicies() {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
-
-        if constexpr (!IsSequencedPolicyV<Execution>) {
+        constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
+        if constexpr (!isSequenced) {
             static_assert(internal::IsForwardOrStrongerV<Iterator>,
                 "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
         }
-    }
-
-    template<class Execution, class Iterator>
-	constexpr bool checkForwardAndPolicies() {
-        internal::verifyIteratorAndPolicies<Execution, Iterator>();
-        return internal::IsSequencedPolicyV<Execution>;
+        return isSequenced;
     }
 
 #endif // LZ_HAS_EXECUTION
 
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
     template<bool B, class U = void>
     using EnableIf = typename std::enable_if<B, U>::type;
 
