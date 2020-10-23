@@ -1264,14 +1264,14 @@ namespace lz {
      * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
      */
     template<class Iterator, class SelectorIterator
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         , class Zipper = lz::Zip<Iterator, SelectorIterator>,
         class ZipIter = typename Zipper::iterator,
         class RefTuple = internal::RefType<ZipIter>
 #endif // end lz has cxx11
         >
     auto select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector)
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
      -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                 std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
@@ -1281,7 +1281,7 @@ namespace lz {
         Zipper zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
                                      std::make_tuple(std::move(end), std::move(endSelector)));
 
-#ifndef LZ_HAS_CXX11
+#ifndef LZ_HAS_CXX_11
         using RefTuple = internal::RefType<typename Zipper::iterator>;
 
         return lz::filterMap(std::move(zipper),
@@ -1302,7 +1302,7 @@ namespace lz {
      * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
      */
     template<class Iterable, class SelectorIterable
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         , class Iterator = internal::IterTypeFromIterable<Iterable>,
         class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
         class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
@@ -1310,14 +1310,13 @@ namespace lz {
 #endif // end lz has cxx11
         >
     auto select(Iterable&& iterable, SelectorIterable&& selectors)
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
     {
         return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors));
     }
-
 #endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 

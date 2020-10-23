@@ -17,9 +17,9 @@
 #endif
 
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
-  #define LZ_HAS_CXX11
+  #define LZ_HAS_CXX_11
 #elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
-  #define LZ_HAS_CXX11
+  #define LZ_HAS_CXX_11
 #endif // end has cxx 11
 
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)

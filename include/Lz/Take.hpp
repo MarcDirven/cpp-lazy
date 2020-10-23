@@ -212,7 +212,7 @@ namespace lz {
 	template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
         using ValueType = internal::ValueType<Iterator>;
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         begin = std::find_if(std::move(begin), end, std::bind([](const ValueType& value, Function pred) {
             return !pred(value);
 		}, std::placeholders::_1, std::move(predicate)));
