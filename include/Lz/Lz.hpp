@@ -46,14 +46,6 @@ namespace lz {
             Base(std::move(begin), std::move(end))
         {}
 
-        template<class Exception, class UnaryPredicate>
-        IterView<internal::AffirmIterator<Exception, Iterator, UnaryPredicate>>
-        affirm(Exception&& exception, UnaryPredicate predicate) const {
-            using AffirmView = lz::Affirm<Exception, Iterator, UnaryPredicate>;
-            AffirmView view = lz::affirm(*this, std::forward<Exception>(exception), std::move(predicate));
-            return lz::toIter(std::move(view));
-        }
-
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         concat(Iterables&&... iterables) const {
@@ -340,7 +332,7 @@ namespace lz {
         }
 
         template<class SelectorIterable
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
             , class Iterator = internal::IterTypeFromIterable<Iterable>,
             class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
             class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
@@ -348,7 +340,7 @@ namespace lz {
 #endif // end lz has cxx11
         >
         auto select(SelectorIterable&& selectors)
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         -> IterView<internal::MapIterator<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,
                                                                    std::function<bool(RefTuple)>>,
                                           std::function<internal::RefType<Iterator>(RefTuple)>>>

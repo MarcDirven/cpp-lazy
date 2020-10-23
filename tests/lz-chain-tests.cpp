@@ -19,7 +19,6 @@ TEST_CASE("Iterator chaining") {
 
     arr = lz::repeat(1, size).toArray<size>();
     bool isAllSame = lz::toIter(arr)
-        .affirm(std::string("Sequence is not 1"), [](int i) { return i == 1; })
         .take(size)
         .drop(0)
         .takeWhile([](int i) { return i == 1; })
