@@ -325,7 +325,6 @@ namespace lz {
      */
     template<class T, LZ_CONCEPT_ITERATOR Iterator>
     Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
-        using ValueTypeIterator = internal::ValueType<Iterator>;
         return lz::mapRange(std::move(begin), std::move(end), internal::ConvertFn<T>());
     }
 
@@ -601,6 +600,8 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(Iterator begin, Iterator end, Compare compare, const Execution execution = std::execution::seq) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
+        constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
+
         if (len == 0) {
             throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
         }
@@ -608,7 +609,7 @@ namespace lz {
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
 
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (isSequenced) {
             static_cast<void>(execution);
             std::nth_element(begin, midIter, end, compare);
         }
@@ -617,7 +618,7 @@ namespace lz {
         }
 
         if (internal::isEven(len)) {
-            if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            if constexpr (isSequenced) {
                 const Iterator leftHalf = std::max_element(begin, midIter);
                 return (static_cast<double>(*leftHalf) + *midIter) / 2.;
             }
@@ -681,7 +682,7 @@ namespace lz {
     internal::ValueType<Iterator>
 	firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return static_cast<ValueType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
         }
@@ -719,7 +720,7 @@ namespace lz {
     internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
                                                    T&& defaultValue, const Execution execution) {
         using ValueType = internal::ValueType<Iterator>;
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find_if(begin, end, predicate);
             return static_cast<ValueType>(pos == end ? defaultValue : *pos);
@@ -758,15 +759,13 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue,
 												const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
 
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
             return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
@@ -801,15 +800,13 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
 												  T&& defaultValue, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
 
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
             return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
@@ -844,9 +841,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
     std::size_t indexOf(Iterator begin, Iterator end, const T& val, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find(begin, end, val);
             return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
@@ -879,9 +874,7 @@ namespace lz {
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
     std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find_if(begin, end, predicate);
             return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
