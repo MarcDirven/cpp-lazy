@@ -51,6 +51,9 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
     SECTION("Should drop n elements") {
         auto dropped = lz::drop(array, 2);
         CHECK(dropped.toVector() == std::vector<int>{3, 4, 5, 6, 7, 8, 9, 10});
+
+        dropped = lz::drop(array, 1);
+        CHECK(dropped.toVector() == std::vector<int>{2, 3, 4, 5, 6, 7, 8, 9, 10});
     }
 }
 
