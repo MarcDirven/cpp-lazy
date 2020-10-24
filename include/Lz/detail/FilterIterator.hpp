@@ -36,10 +36,11 @@ namespace lz { namespace internal {
             _iterator = std::find_if(std::next(_iterator, offset), _end, _predicate);
 #endif // end has execution
         }
+
     private:
         Iterator _iterator{};
         Iterator _end{};
-        Function _predicate;
+        FunctionContainer<Function> _predicate{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
 #endif // end has execution
@@ -62,16 +63,6 @@ namespace lz { namespace internal {
         }
 
         FilterIterator() = default;
-
-        FilterIterator(const FilterIterator&) = default;
-
-        FilterIterator& operator=(const FilterIterator& o) {
-            _iterator = o._iterator;
-            _end = o._end;
-            this->_predicate.~Function();
-            ::new (&this->_predicate) Function(o._predicate);
-            return *this;
-        }
 
         reference operator*() const {
             return *_iterator;

@@ -10,7 +10,7 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class MapIterator {
         Iterator _iterator{};
-        Function _function;
+        FunctionContainer<Function> _function{};
 
     public:
         using value_type = Decay<FunctionReturnType<Function, RefType<Iterator>>>;
@@ -25,15 +25,6 @@ namespace lz { namespace internal {
         }
 
         MapIterator() = default;
-
-        MapIterator(const MapIterator&) = default;
-
-        MapIterator& operator=(const MapIterator& o) {
-            _iterator = o._iterator;
-            this->_function.~Function();
-            ::new (&this->_function) Function(o._function);
-            return *this;
-        }
 
         reference operator*() const {
             return _function(*_iterator);
