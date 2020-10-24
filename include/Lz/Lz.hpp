@@ -46,6 +46,7 @@ namespace lz {
             Base(std::move(begin), std::move(end))
         {}
 
+        //! See Concatenate.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         concat(Iterables&&... iterables) const {
@@ -53,6 +54,7 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See Enumerate.hpp for documentation.
         template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
         IterView<internal::EnumerateIterator<Iterator, Arithmetic>> enumerate(const Arithmetic begin = 0) const {
             using EnumView = lz::Enumerate<Iterator, Arithmetic>;
@@ -60,11 +62,13 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See Join.hpp for documentation.
         IterView<internal::JoinIterator<Iterator>> join(std::string delimiter) const {
             lz::Join<Iterator> joiner = lz::join(*this, std::move(delimiter));
             return lz::toIter(std::move(joiner));
         }
 
+        //! See Map.hpp for documentation
         template<class UnaryFunction>
         IterView<internal::MapIterator<Iterator, UnaryFunction>> map(UnaryFunction unaryFunction) const {
             using MapView = lz::Map<Iterator, UnaryFunction>;
@@ -72,38 +76,45 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See Take.hpp for documentation.
         template<class UnaryPredicate>
         IterView<Iterator> takeWhile(UnaryPredicate predicate) const {
             lz::Take<Iterator> view = lz::takeWhile(*this, std::move(predicate));
             return lz::toIter(std::move(view));
         }
 
+        //! See Take.hpp for documentation.
         IterView<Iterator> take(const difference_type amount) const {
             lz::Take<Iterator> view = lz::take(*this, amount);
             return lz::toIter(std::move(view));
         }
 
+        //! See Take.hpp for documentation.
         IterView<Iterator> drop(const difference_type amount) const {
             lz::Take<Iterator> view = lz::drop(*this, amount);
             return lz::toIter(std::move(view));
         }
 
+        //! See Take.hpp for documentation.
         IterView<Iterator> slice(const difference_type from, const difference_type to) const {
             lz::Take<Iterator> view = lz::slice(*this, from, to);
             return lz::toIter(std::move(view));
         }
 
+        //! See Take.hpp for documentation.
         IterView<internal::TakeEveryIterator<Iterator>> takeEvery(const difference_type offset, const difference_type start = 0) const {
             lz::TakeEvery<Iterator> view = lz::takeEvery(*this, offset, start);
             return lz::toIter(std::move(view));
         }
 
+        //! See Zip.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...> zip(Iterables&&... iterables) const {
             auto view = lz::zip(*this, iterables...);
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `as` for documentation.
         template<class T>
         IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {
             using MapAsView = lz::Map<Iterator, internal::ConvertFn<T>>;
@@ -111,59 +122,80 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `reverse` for documentation.
         IterView<std::reverse_iterator<Iterator>> reverse() const {
             lz::Take<std::reverse_iterator<Iterator>> view = lz::reverse(*this);
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `reverse` for documentation.
         IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
             Zip<Iterator, Iterator> view = lz::pairwise(*this);
             return lz::toIter(std::move(view));
         }
 
+        /**
+         * Gets the nth element from this sequence.
+         * @param n The offset.
+         * @return The element referred to by `begin() + n`
+         */
+        reference nth(const difference_type n) const {
+            return *std::next(Base::begin(), n);
+        }
+
+        //! See FunctionTools.hpp `length` for documentation.
         difference_type length() const {
             return lz::length(*this);
         }
 
+        //! See FunctionTools.hpp `isEmpty` for documentation.
         bool isEmpty() const {
             return lz::isEmpty(*this);
         }
 
+        //! See FunctionTools.hpp `hasOne` for documentation.
         bool hasOne() const {
             return lz::hasOne(*this);
         }
 
+        //! See FunctionTools.hpp `hasMany` for documentation.
         bool hasMany() const {
             return lz::hasMany(*this);
         }
 
+        //! See FunctionTools.hpp `first` for documentation.
         reference first() const {
             return lz::first(*this);
         }
 
+        //! See FunctionTools.hpp `last` for documentation.
         reference last() const {
             return lz::last(*this);
         }
 
+        //! See FunctionTools.hpp `firstOr` for documentation.
         template<class T>
         value_type firstOr(const T& defaultValue) const {
             return lz::firstOr(*this, defaultValue);
         }
 
+        //! See FunctionTools.hpp `lastOr` for documentation.
         template<class T>
         value_type lastOr(const T& defaultValue) const {
             return lz::lastOr(*this, defaultValue);
         }
 
 #ifdef LZ_HAS_EXECUTION
+        //! See Filter.hpp for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> filter(UnaryPredicate predicate,
+        IterView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> filter(UnaryPredicate predicate,
                                                                                        const Execution exec = std::execution::seq) const {
-            using FilterView = lz::Filter<Iterator, UnaryPredicate, Execution>;
+            using FilterView = lz::Filter<Execution, Iterator, UnaryPredicate>;
             FilterView view = lz::filter(*this, std::move(predicate), exec);
             return lz::toIter(std::move(view));
         }
 
+        //! See Except.hpp for documentation.
         template<class IterableToExcept, class Execution = std::execution::sequenced_policy>
         IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution>>
         except(IterableToExcept&& toExcept, const Execution exec = std::execution::seq) const {
@@ -171,12 +203,15 @@ namespace lz {
             ExceptView view = lz::except(*this, toExcept, exec);
             return lz::toIter(std::move(view));
         }
+
+        //! See Unique.hpp for documentation.
         template<class Execution = std::execution::sequenced_policy>
         IterView<internal::UniqueIterator<Iterator, Execution>> unique(const Execution exec = std::execution::seq) const {
             lz::Unique<Iterator, Execution> view = lz::unique(*this, exec);
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `filterMap` for documentation.
         template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
         IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
         filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc, const Execution exec = std::execution::seq) const {
@@ -185,68 +220,88 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `select` for documentation.
         template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
         auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) const {
             auto selected = lz::select(*this, selectors, exec);
             return lz::toIter(std::move(selected));
         }
 
+        //! See Take.hpp for documentation
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<Iterator> dropWhile(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             lz::Take<Iterator> view = lz::dropWhile(*this, std::move(predicate), exec);
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `firstOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
         value_type firstOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
             return lz::firstOrDefault(*this, toFind, defaultValue, exec);
         }
 
+        //! See FunctionTools.hpp `firstOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
         value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
             return lz::firstOrDefault(*this, std::move(predicate), defaultValue, exec);
         }
 
+        //! See FunctionTools.hpp `lastOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
         value_type lastOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
             return lz::lastOrDefault(*this, toFind, defaultValue, exec);
         }
 
+        //! See FunctionTools.hpp `lastOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
         value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
             return lz::lastOrDefault(*this, std::move(predicate), defaultValue, exec);
         }
 
+        //! See FunctionTools.hpp `indexOf` for documentation.
         template<class T, class Execution = std::execution::sequenced_policy>
         difference_type indexOf(const T& value, const Execution exec = std::execution::seq) const {
             return lz::indexOf(*this, value, exec);
         }
 
+        //! See FunctionTools.hpp `indexOfIf` for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         difference_type indexOf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             return lz::indexOfIf(*this, std::move(predicate), exec);
         }
 
+        //! See FunctionTools.hpp `contains` for documentation.
         template<class T, class Execution = std::execution::sequenced_policy>
         bool contains(const T& value, const Execution exec = std::execution::seq) const {
             return lz::contains(*this, value, exec);
         }
 
+        //! See FunctionTools.hpp `containsIf` for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         bool containsIf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             return lz::containsIf(*this, std::move(predicate), exec);
         }
 
+        /**
+         * Iterates over the sequence generated so far.
+         * @param func A function to apply over each element. Must have the following signature: `void func(value_type)`
+         * @param exec The execution policy.
+         */
         template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
         const IterView<Iterator>& forEach(UnaryFunc func, const Execution exec = std::execution::seq) const {
             std::for_each(exec, Base::begin(), Base::end(), std::move(func));
             return *this;
         }
 
+        /**
+         * Performs a left fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
+         * `[](value_type init, value_type next) { return init + value_type; }`
+         * @param init The starting value
+         * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
+         */
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
         T foldl(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
             }
@@ -255,11 +310,16 @@ namespace lz {
             }
         }
 
+        /**
+         * Performs a right fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
+         * `[](value_type init, value_type next) { return init + value_type; }`
+         * @param init The starting value
+         * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
+         */
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
         T foldr(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
             }
@@ -268,15 +328,23 @@ namespace lz {
             }
         }
 
+        /**
+         * Sums the sequence generated so far.
+         * @param exec The exectuion policy.
+         */
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(const Execution exec = std::execution::seq) const {
             return this->foldl(value_type(), std::plus<value_type>(), exec);
         }
 
+        /**
+         * Checks if all of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         * @param exec The execution policy.
+         */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         bool all(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::all_of(Base::begin(), Base::end(), std::move(predicate));
             }
@@ -285,10 +353,14 @@ namespace lz {
             }
         }
 
+        /**
+         * Checks if any of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         * @param exec The execution policy.
+         */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         bool any(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::any_of(Base::begin(), Base::end(), std::move(predicate));
             }
@@ -297,12 +369,18 @@ namespace lz {
             }
         }
 
+        /**
+         * Checks if none of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         * @param exec The execution policy.
+         */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         bool none(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
             return !this->all(std::move(predicate), exec);
         }
 
 #else // ^^^ lz has execution vvv ! lz has execution
+        //! See Filter.hpp for documentation
         template<class UnaryPredicate>
         IterView<internal::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
             using FilterView = lz::Filter<Iterator, UnaryPredicate>;
@@ -310,6 +388,7 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See Except.hpp for documentation
         template<class IterableToExcept>
         IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>>>
         except(IterableToExcept&& toExcept) const {
@@ -318,11 +397,13 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See Unique.hpp for documentation
         IterView<internal::UniqueIterator<Iterator>> unique() const {
             lz::Unique<Iterator> view = lz::unique(*this);
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `filterMap` for documentation
         template<class UnaryMapFunc, class UnaryFilterFunc>
         IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>>
         filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc) const {
@@ -331,6 +412,7 @@ namespace lz {
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `select` for documentation
         template<class SelectorIterable
 #ifdef LZ_HAS_CXX_11
             , class Iterator = internal::IterTypeFromIterable<Iterable>,
@@ -350,83 +432,122 @@ namespace lz {
             return lz::toIter(std::move(select));
         }
 
+        //! See Take.hpp for documentation
         template<class UnaryPredicate>
         IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
             lz::Take<Iterator> view = lz::dropWhile(*this, std::move(predicate));
             return lz::toIter(std::move(view));
         }
 
+        //! See FunctionTools.hpp `firstOrDefault` for documentation
         template<class T, class U>
         value_type firstOrDefault(T&& toFind, U&& defaultValue) const {
             return lz::firstOrDefault(*this, toFind, defaultValue);
         }
 
+        //! See FunctionTools.hpp `firstOrDefaultIf` for documentation
         template<class UnaryPredicate, class U>
         value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
             return lz::firstOrDefault(*this, std::move(predicate), defaultValue);
         }
 
+        //! See FunctionTools.hpp `lastOrDefault` for documentation
         template<class T, class U>
         value_type lastOrDefault(T&& toFind, U&& defaultValue) const {
             return lz::lastOrDefault(*this, toFind, defaultValue);
         }
 
+        //! See FunctionTools.hpp `lastOrDefaultIf` for documentation
         template<class UnaryPredicate, class U>
         value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
             return lz::lastOrDefault(*this, std::move(predicate), defaultValue);
         }
 
+        //! See FunctionTools.hpp `indexOf` for documentation
         template<class T>
         difference_type indexOf(const T& value) const {
             return lz::indexOf(*this, value);
         }
 
+        //! See FunctionTools.hpp `indexOfIf` for documentation
         template<class UnaryPredicate>
-        difference_type indexOf(UnaryPredicate predicate) const {
+        difference_type indexOfIf(UnaryPredicate predicate) const {
             return lz::indexOfIf(*this, std::move(predicate));
         }
 
+        //! See FunctionTools.hpp `contains` for documentation
         template<class T>
         bool contains(const T& value) const {
             return lz::contains(*this, value);
         }
 
+        //! See FunctionTools.hpp `containsIf` for documentation
         template<class UnaryPredicate>
         bool containsIf(UnaryPredicate predicate) const {
             return lz::containsIf(*this, std::move(predicate));
         }
 
+        /**
+         * Iterates over the sequence generated so far.
+         * @param func A function to apply over each element. Must have the following signature: `void func(value_type)`
+         */
         template<class UnaryFunc>
         const IterView<Iterator>& forEach(UnaryFunc func) const {
             std::for_each(Base::begin(), Base::end(), std::move(func));
             return *this;
         }
 
+        /**
+         * Performs a left fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
+         * `[](value_type init, value_type next) { return init + value_type; }`
+         * @param init The starting value
+         * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
+         */
         template<class T, class BinaryFunction>
         T foldl(T&& init, BinaryFunction function) const {
             return std::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
         }
 
+        /**
+         * Performs a right fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
+         * `[](value_type init, value_type next) { return init + value_type; }`
+         * @param init The starting value
+         * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
+         */
         template<class T, class BinaryFunction>
         T foldr(T&& init, BinaryFunction function) const {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
             return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
         }
 
+        /**
+         * Sums the sequence generated so far.
+         */
         value_type sum() const {
             return this->foldl(value_type(), std::plus<value_type>());
         }
-
+        /**
+         * Checks if all of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         */
         template<class UnaryPredicate>
         bool all(UnaryPredicate predicate) {
             return std::all_of(Base::begin(), Base::end(), std::move(predicate));
         }
 
+        /**
+         * Checks if any of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         */
         template<class UnaryPredicate>
         bool any(UnaryPredicate predicate) {
             return std::any_of(Base::begin(), Base::end(), std::move(predicate));
         }
 
+        /**
+         * Checks if none of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
+         * @param predicate The function that checks if an element meets a certain condition.
+         */
         template<class UnaryPredicate>
         bool none(UnaryPredicate predicate) {
             return !this->all(std::move(predicate));
