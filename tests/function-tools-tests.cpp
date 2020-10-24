@@ -48,7 +48,6 @@ TEST_CASE("Function tools") {
 
 #if (!defined(LZ_HAS_CXX_17)) && (!defined(LZ_HAS_CXX_20))
     SECTION("Transform accumulate") {
-        fmt::print("{}\n", _MSVC_LANG);
         std::vector<std::string> s = {"hello", "world", "!"};
         size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
             return i + s.size();
