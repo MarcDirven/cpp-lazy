@@ -81,14 +81,13 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
         template<class Container, class... Args, class Execution>
         Container copyContainer(Execution execution, Args&& ... args) const {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, LzIterator>();
             const LzIterator b = begin();
             const LzIterator e = end();
             Container cont(std::forward<Args>(args)...);
             reserve(cont);
 
             // Prevent static assertion
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
                 static_cast<void>(execution);
                 // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
                 std::copy(b, e, std::inserter(cont, cont.begin()));
@@ -103,11 +102,10 @@ namespace lz { namespace internal {
 
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
-            constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, LzIterator>();
             verifyRange<N>();
             std::array<value_type, N> array{};
 
-            if constexpr (isSequencedPolicy) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
                 static_cast<void>(execution);
                 std::copy(begin(), end(), array.begin());
             }
@@ -150,13 +148,21 @@ namespace lz { namespace internal {
         LzIterator _end{};
 
     public:
-        virtual LzIterator begin() const {
+        virtual LzIterator begin() const& {
             return _begin;
-        };
+        }
 
-        virtual LzIterator end() const {
+        virtual LzIterator end() const& {
             return _end;
-        };
+        }
+
+        virtual LzIterator begin() && {
+            return std::move(_begin);
+        }
+
+        virtual LzIterator end() && {
+            return std::move(_end);
+        }
 
         BasicIteratorView() = default;
 
@@ -236,13 +242,11 @@ namespace lz { namespace internal {
          */
         template<class Execution = std::execution::sequenced_policy>
         std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
-            constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, LzIterator>();
-
             std::string string;
             auto formatFun = [delimiter, this](const value_type& v) {
                 return fmt::format("{}{}", v, delimiter);
             };
-            if constexpr (isSequenced) {
+            if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
                 static_cast<void>(exec);
                 // Prevent static assertion and/or weird errors when parallel policy is passed
                 string = std::transform_reduce(begin(), end(), std::string(), std::plus(), formatFun);
