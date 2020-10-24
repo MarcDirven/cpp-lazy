@@ -36,7 +36,7 @@ namespace lz {
          * @brief Returns an input string split iterator to the beginning.
          * @return A input string split iterator to the beginning.
          */
-        const_iterator begin() const override {
+        const_iterator begin() const& override {
             return const_iterator(0, &_splitIteratorHelper);
         }
 
@@ -44,16 +44,17 @@ namespace lz {
          * @brief Returns an input string split iterator to the ending.
          * @return A input string split iterator to the ending.
          */
-        const_iterator end() const override {
+        const_iterator end() const& override {
             return const_iterator(_splitIteratorHelper.string.size(), &_splitIteratorHelper);
         }
     };
+
+    template class StringSplitter<std::string, std::string>;
 
 #ifdef LZ_HAS_STRING_VIEW
     template class StringSplitter<std::string_view, std::string_view>;
     template<class SubString = std::string_view, class String = std::string_view>
 #else
-    template class StringSplitter<std::string, std::string>;
     template<class SubString = std::string, class String = std::string>
 #endif
     // Start of group

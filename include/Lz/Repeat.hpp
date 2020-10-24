@@ -37,7 +37,7 @@ namespace lz {
          * @brief Returns the beginning of the sequence.
          * @return The beginning of the sequence.
          */
-        iterator begin() const override {
+        iterator begin() const& override {
             return iterator(&_iteratorHelper, 0);
         }
 
@@ -45,7 +45,7 @@ namespace lz {
          * @brief Returns the ending of the sequence.
          * @return The ending of the sequence.
          */
-        iterator end() const override {
+        iterator end() const& override {
             return iterator(&_iteratorHelper, _amount);
         }
     };
