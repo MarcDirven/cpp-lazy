@@ -122,6 +122,27 @@ namespace lz {
 
 
 namespace lz { namespace internal {
+    template<class Iterable>
+    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
+
+    template<class Iterator>
+    using ValueType = typename std::iterator_traits<Iterator>::value_type;
+
+    template<class Iterator>
+    using PointerType = typename std::iterator_traits<Iterator>::pointer;
+
+    template<class Iterator>
+    using RefType = typename std::iterator_traits<Iterator>::reference;
+
+    template<class Iterator>
+    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
+
+    template<class Iterator>
+    using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
+
+    template<class Function, class... Args>
+    using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+
 #ifdef LZ_HAS_EXECUTION
     template<class T>
     struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
@@ -131,9 +152,8 @@ namespace lz { namespace internal {
     struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
     };
 
-    template<class T, class IterCat = typename std::iterator_traits<T>::iterator_category>
-    struct IsForwardOrStronger : public std::bool_constant<
-        !std::is_same_v<IterCat, std::input_iterator_tag> && !std::is_same_v<IterCat, std::output_iterator_tag>> {
+    template<class T>
+    struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
     };
 
     template<class T>
@@ -248,36 +268,14 @@ namespace lz { namespace internal {
     struct IsAllSame<Same, First> : std::is_same<Same, First> {
     };
 
-
     template<class T>
-    struct IsBidirectionalOrStronger : std::integral_constant<bool,
-        !std::is_same<T, std::input_iterator_tag>::value &&
-        !std::is_same<T, std::output_iterator_tag>::value &&
-        !std::is_same<T, std::forward_iterator_tag>::value> {
+    struct IsBidirectional :
+        std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
     };
 
     template<class T>
-    struct IsRandomAccess : std::integral_constant<bool,
-        IsBidirectionalOrStronger<T>::value && !std::is_same<std::bidirectional_iterator_tag, T>::value> {
+    struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::random_access_iterator_tag>::value> {
     };
-
-    template<class Iterable>
-    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
-
-    template<class Iterator>
-    using ValueType = typename std::iterator_traits<Iterator>::value_type;
-
-    template<class Iterator>
-    using PointerType = typename std::iterator_traits<Iterator>::pointer;
-
-    template<class Iterator>
-    using RefType = typename std::iterator_traits<Iterator>::reference;
-
-    template<class Iterator>
-    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
-
-    template<class Function, class... Args>
-    using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
 
     template<LZ_CONCEPT_INTEGRAL Arithmetic>
     inline bool isEven(const Arithmetic value) {
