@@ -18,21 +18,11 @@ namespace lz { namespace internal {
 
     private:
         std::size_t _current{};
-        GeneratorFunc _generator{};
+        FunctionContainer<GeneratorFunc> _generator{};
         bool _isWhileTrueLoop{};
 
     public:
         GenerateIterator() = default;
-
-        GenerateIterator(const GenerateIterator&) = default;
-
-        GenerateIterator& operator=(const GenerateIterator& o) {
-            _current = o._current;
-            this->_generator.~GeneratorFunc();
-            ::new (&this->_generator) GeneratorFunc(o._generator);
-            _isWhileTrueLoop = o._isWhileTrueLoop;
-            return *this;
-        }
 
         GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :
             _current(start),

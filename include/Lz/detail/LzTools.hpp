@@ -17,9 +17,9 @@
 #endif
 
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
-  #define LZ_HAS_CXX11
+  #define LZ_HAS_CXX_11
 #elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
-  #define LZ_HAS_CXX11
+  #define LZ_HAS_CXX_11
 #endif // end has cxx 11
 
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
@@ -27,19 +27,19 @@
 #endif // end has cxx 14
 
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
-  #define LZ_HAS_CXX17
+  #define LZ_HAS_CXX_17
 #endif // Has cxx 17
 
 #if (__cplusplus > 201703L) || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
   #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
-#if CPP_LAZY_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX17) && (defined(__cpp_lib_execution)))
+#if CPP_LAZY_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
   #define LZ_HAS_EXECUTION
   #include <execution>
 #endif // has execution
 
-#if CPP_LAZY_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX17) && (defined(__cpp_lib_string_view)))
+#if CPP_LAZY_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
   #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
@@ -124,20 +124,16 @@ namespace lz {
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class T>
-    struct IsSequencedPolicy {
-        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>;
+    struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
     };
 
     template<class T>
-    struct IsParallelPolicy {
-        static constexpr bool value = std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>;
+    struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
     };
 
-    template<class T>
-    struct IsForwardOrStronger {
-        using IterCat = typename std::iterator_traits<T>::iterator_category;
-        static constexpr bool value = !std::is_same_v<IterCat, std::input_iterator_tag> &&
-            !std::is_same_v<IterCat, std::output_iterator_tag>;
+    template<class T, class IterCat = typename std::iterator_traits<T>::iterator_category>
+    struct IsForwardOrStronger : public std::bool_constant<
+        !std::is_same_v<IterCat, std::input_iterator_tag> && !std::is_same_v<IterCat, std::output_iterator_tag>> {
     };
 
     template<class T>
@@ -147,25 +143,19 @@ namespace lz { namespace internal {
     constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
 
     template<class Execution, class Iterator>
-    constexpr void verifyIteratorAndPolicies() {
+    constexpr bool checkForwardAndPolicies() {
         static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
-
-        if constexpr (!IsSequencedPolicyV<Execution>) {
+        constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
+        if constexpr (!isSequenced) {
             static_assert(internal::IsForwardOrStrongerV<Iterator>,
                 "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
         }
-    }
-
-    template<class Execution, class Iterator>
-	constexpr bool checkForwardAndPolicies() {
-        constexpr bool isSequencedPolicy = internal::IsSequencedPolicyV<Execution>;
-        internal::verifyIteratorAndPolicies<Execution, Iterator>();
-        return isSequencedPolicy;
+        return isSequenced;
     }
 
 #endif // LZ_HAS_EXECUTION
 
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
     template<bool B, class U = void>
     using EnableIf = typename std::enable_if<B, U>::type;
 
@@ -222,6 +212,106 @@ namespace lz { namespace internal {
 
         decltype(std::addressof(_t)) operator->() {
             return std::addressof(_t);
+        }
+
+        decltype(std::addressof(_t)) operator->() const {
+            return std::addressof(_t);
+        }
+    };
+
+    template<class Func>
+    class FunctionContainer {
+        Func _func;
+        bool _isConstructed{false};
+
+        explicit FunctionContainer(std::false_type /*isDefaultConstructible*/) {}
+
+        explicit FunctionContainer(std::true_type /*isDefaultConstructible*/):
+            _func(),
+            _isConstructed(true)
+        {}
+
+        template<class F>
+        void construct(F&& f) {
+            ::new (static_cast<void*>(std::addressof(_func))) Func(static_cast<F&&>(f));
+            _isConstructed = true;
+        }
+
+        void move(Func&& f, std::true_type /* isMoveAssignable */) {
+            _func = std::move(f);
+        }
+
+        void move(Func&& f, std::false_type /* isMoveAssignable */) {
+            reset();
+            construct(std::move(f));
+        }
+
+        void reset() {
+            if (_isConstructed) {
+                _func.~Func();
+                _isConstructed = false;
+            }
+        }
+
+        void copy(const Func& f, std::true_type /*isCopyAssignable*/) {
+            _func = f;
+        }
+
+        void copy(const Func& f, std::false_type /*isCopyAssignable*/) {
+            reset();
+            construct(f);
+        }
+
+    public:
+        explicit FunctionContainer(Func func):
+            _func(std::move(func)),
+            _isConstructed(true)
+        {}
+
+        FunctionContainer():
+            FunctionContainer(std::is_default_constructible<Func>())
+        {}
+
+        FunctionContainer(FunctionContainer&& other) noexcept :
+            _func(std::move(other._func)),
+            _isConstructed(true) {
+            other._isConstructed = false;
+        }
+
+        FunctionContainer(const FunctionContainer& other):
+            _func(other._func),
+            _isConstructed(true) {
+        }
+
+        FunctionContainer& operator=(const FunctionContainer& other) {
+            if (_isConstructed && other._isConstructed) {
+                copy(other._func, std::is_copy_assignable<Func>());
+            }
+            else if (other._isConstructed) {
+                construct(other._func);
+            }
+            else if (_isConstructed) {
+                reset();
+            }
+            return *this;
+        }
+
+        FunctionContainer& operator=(FunctionContainer&& other) noexcept {
+            if (_isConstructed && other._isConstructed) {
+                move(std::move(other._func), std::is_move_assignable<Func>());
+            }
+            else if (other._isConstructed) {
+                construct(std::move(other._func));
+            }
+            else if (_isConstructed) {
+                reset();
+            }
+            return *this;
+        }
+
+        template<class... Args>
+        auto operator()(Args&&... args) const -> decltype(_func(args...)) {
+            return _func(std::forward<Args>(args)...);
         }
     };
 

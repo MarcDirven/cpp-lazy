@@ -30,6 +30,7 @@ namespace lz { namespace internal {
     class JoinIterator {
         using IterTraits = std::iterator_traits<Iterator>;
         using ContainerType = typename IterTraits::value_type;
+        using IsContainerTypeString = std::is_same<ContainerType, std::string>;
 
     public:
         using value_type = std::string;
@@ -39,21 +40,46 @@ namespace lz { namespace internal {
             std::is_same<std::string, ContainerType>::value, typename IterTraits::reference, std::string>;
         using pointer = FakePointerProxy<reference>;
 
-        template<class Val = ContainerType>
-        EnableIf<IsFmtIntCompatible<Val>::value, std::string> getFormatted() const {
-            return fmt::format_int(*_iterator).str();
-        }
-
-        template<class Val = ContainerType>
-        EnableIf<!IsFmtIntCompatible<Val>::value, std::string> getFormatted() const {
-            return fmt::format("{}", *_iterator);
-        }
-
     private:
         Iterator _iterator{};
         mutable std::string _delimiter{};
         mutable bool _isIteratorTurn{ true };
         difference_type _distance{};
+
+        std::string getFormatted(std::true_type /* isFmtIntCompatible */) const {
+            return fmt::format_int(*_iterator).str();
+        }
+
+        std::string getFormatted(std::false_type /* isFmtIntCompatible */) const {
+            return fmt::format("{}", *_iterator);
+        }
+
+        reference deref(std::false_type /* isSameContainerTypeString */) const {
+            if (_isIteratorTurn) {
+                return getFormatted(IsFmtIntCompatible<value_type>());
+            }
+            return _delimiter;
+        }
+
+        reference deref(std::true_type /* isSameContainerTypeString */) const {
+            if (_isIteratorTurn) {
+                return *_iterator;
+            }
+            return _delimiter;
+        }
+
+        reference indexOperator(std::true_type /**/, const difference_type offset) const {
+            // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a copy
+            // of the delimiter
+            if (_isIteratorTurn && isEven(offset)) {
+                return *(*this + offset);
+            }
+            return _delimiter;
+        }
+
+        reference indexOperator(std::false_type /**/, const difference_type offset) const {
+            return *(*this + offset);
+        }
 
     public:
         JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
@@ -64,20 +90,8 @@ namespace lz { namespace internal {
 
         JoinIterator() = default;
 
-        template<class Val = ContainerType>
-        EnableIf<!std::is_same<std::string, Val>::value, reference> operator*() const {
-            if (_isIteratorTurn) {
-                return getFormatted();
-            }
-            return _delimiter;
-        }
-
-        template<class Val = ContainerType>
-        EnableIf<std::is_same<std::string, Val>::value, reference> operator*() const {
-            if (_isIteratorTurn) {
-                return *_iterator;
-            }
-            return _delimiter;
+        reference operator*() const {
+            return deref(IsContainerTypeString());
         }
 
         pointer operator->() const {
@@ -129,11 +143,9 @@ namespace lz { namespace internal {
             else {
                 _iterator -= (offset >> 1);
             }
-
             if (!isEven(offset)) {
                 _isIteratorTurn = !_isIteratorTurn;
             }
-
             return *this;
         }
 
@@ -148,19 +160,8 @@ namespace lz { namespace internal {
             return (_iterator - other._iterator) * 2 - 1;
         }
 
-        template<class Val = ContainerType, class = EnableIf<!std::is_same<std::string, Val>::value>>
-        std::string operator[](const difference_type offset) const {
-            return *(*this + offset);
-        }
-
-        template<class Val = ContainerType, class = EnableIf<std::is_same<std::string, Val>::value>>
-        std::string& operator[](const difference_type offset) const {
-            // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a copy
-            // of the delimiter
-            if (_isIteratorTurn && isEven(offset)) {
-                return *(*this + offset);
-            }
-            return _delimiter;
+        reference operator[](const difference_type offset) const {
+            return indexOperator(IsContainerTypeString(), offset);
         }
 
         JoinIterator operator-(const difference_type offset) const {

@@ -46,7 +46,7 @@ TEST_CASE("Function tools") {
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
 
-#if (__cplusplus < 201703L) || ((defined(_MSVC_LANG) && (_MSVC_LANG < 201703L)))
+#if (!defined(LZ_HAS_CXX_17)) && (!defined(LZ_HAS_CXX_20))
     SECTION("Transform accumulate") {
         std::vector<std::string> s = {"hello", "world", "!"};
         size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
@@ -54,7 +54,7 @@ TEST_CASE("Function tools") {
         });
         CHECK(totalSize == 11);
     }
-#endif // end lz has cxx 17
+#endif
 
     SECTION("Pairwise") {
         auto x = lz::pairwise(ints).toVector();

@@ -16,7 +16,7 @@ int main() {
     // 3 3
 
 	// Or, C++17:
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
 	for (auto [a, b] : lz::zip(a, b)) {
 		// process a and b...
 	}

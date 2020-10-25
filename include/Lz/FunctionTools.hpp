@@ -16,7 +16,7 @@
 #include "Take.hpp"
 #include "Concatenate.hpp"
 
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
   #define LZ_INLINE_VAR inline
 #else // ^^^ has cxx 17 vvv !has cxx 17
   #define LZ_INLINE_VAR
@@ -69,7 +69,7 @@ namespace lz {
             }
         };
 
-#ifndef LZ_HAS_CXX17
+#ifndef LZ_HAS_CXX_17
         template<class Fn, class Tuple, std::size_t... I>
         auto applyImpl(Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
             return fn(std::get<I>(std::forward<Tuple>(tuple))...);
@@ -78,7 +78,7 @@ namespace lz {
 
         template<class Fn, class Tuple>
         auto apply(Fn fn, Tuple&& tuple) {
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
             return std::apply(std::move(fn), std::forward<Tuple>(tuple));
 #else
             return applyImpl(std::move(fn), std::forward<Tuple>(tuple), MakeIndexSequence<std::tuple_size<Decay<Tuple>>::value>());
@@ -260,7 +260,7 @@ namespace lz {
      * @return The result of the transAccumulate operation.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Init, class SelectorFunc>
-#ifdef LZ_HAS_CXX17
+#ifdef LZ_HAS_CXX_17
     [[deprecated("a similar method is defined in <algorithm>; use std::transform_reduce instead")]]
 #endif // end lz has cxx 17
     Init transAccumulate(Iterator begin, Iterator end, Init init, SelectorFunc selectorFunc) {
@@ -325,7 +325,6 @@ namespace lz {
      */
     template<class T, LZ_CONCEPT_ITERATOR Iterator>
     Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
-        using ValueTypeIterator = internal::ValueType<Iterator>;
         return lz::mapRange(std::move(begin), std::move(end), internal::ConvertFn<T>());
     }
 
@@ -601,6 +600,8 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(Iterator begin, Iterator end, Compare compare, const Execution execution = std::execution::seq) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
+        constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
+
         if (len == 0) {
             throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
         }
@@ -608,7 +609,7 @@ namespace lz {
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
 
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (isSequenced) {
             static_cast<void>(execution);
             std::nth_element(begin, midIter, end, compare);
         }
@@ -617,7 +618,7 @@ namespace lz {
         }
 
         if (internal::isEven(len)) {
-            if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            if constexpr (isSequenced) {
                 const Iterator leftHalf = std::max_element(begin, midIter);
                 return (static_cast<double>(*leftHalf) + *midIter) / 2.;
             }
@@ -681,7 +682,7 @@ namespace lz {
     internal::ValueType<Iterator>
 	firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return static_cast<ValueType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
         }
@@ -719,7 +720,7 @@ namespace lz {
     internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
                                                    T&& defaultValue, const Execution execution) {
         using ValueType = internal::ValueType<Iterator>;
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find_if(begin, end, predicate);
             return static_cast<ValueType>(pos == end ? defaultValue : *pos);
@@ -758,15 +759,13 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue,
 												const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
 
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
             return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
@@ -801,15 +800,13 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
 												  T&& defaultValue, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
         ReverseIterator endReverse(end);
         ReverseIterator beginReverse(begin);
 
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
             return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
@@ -844,9 +841,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
     std::size_t indexOf(Iterator begin, Iterator end, const T& val, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find(begin, end, val);
             return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
@@ -879,9 +874,7 @@ namespace lz {
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
     std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, const Execution execution = std::execution::seq) {
-        constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
-
-        if constexpr (isSequencedPolicy) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find_if(begin, end, predicate);
             return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
@@ -1264,14 +1257,14 @@ namespace lz {
      * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
      */
     template<class Iterator, class SelectorIterator
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         , class Zipper = lz::Zip<Iterator, SelectorIterator>,
         class ZipIter = typename Zipper::iterator,
         class RefTuple = internal::RefType<ZipIter>
 #endif // end lz has cxx11
         >
     auto select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector)
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
      -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                 std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
@@ -1281,7 +1274,7 @@ namespace lz {
         Zipper zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
                                      std::make_tuple(std::move(end), std::move(endSelector)));
 
-#ifndef LZ_HAS_CXX11
+#ifndef LZ_HAS_CXX_11
         using RefTuple = internal::RefType<typename Zipper::iterator>;
 
         return lz::filterMap(std::move(zipper),
@@ -1302,7 +1295,7 @@ namespace lz {
      * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
      */
     template<class Iterable, class SelectorIterable
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
         , class Iterator = internal::IterTypeFromIterable<Iterable>,
         class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
         class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
@@ -1310,14 +1303,13 @@ namespace lz {
 #endif // end lz has cxx11
         >
     auto select(Iterable&& iterable, SelectorIterable&& selectors)
-#ifdef LZ_HAS_CXX11
+#ifdef LZ_HAS_CXX_11
     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
     {
         return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors));
     }
-
 #endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 

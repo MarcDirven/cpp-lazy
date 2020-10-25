@@ -26,7 +26,6 @@ endif()
 
 # ---- Tests ----
 add_executable(LazyTests
-        affirm-tests.cpp
         concatenate-tests.cpp
         enumerate-tests.cpp
         except-tests.cpp

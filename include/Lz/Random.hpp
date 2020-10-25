@@ -69,12 +69,6 @@ namespace lz {
         return Random<Floating, Distribution>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
     }
 
-	template<class T, class>
-	static internal::EnableIf<!std::is_arithmetic<T>::value>
-	random(const T, const T, const std::size_t) {
-        static_assert(true, "T must be an arithmetic type");
-    }
-
     // End of group
     /**
      * @}
