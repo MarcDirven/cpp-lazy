@@ -4,6 +4,7 @@
 #define LZ_GENERATE_ITERATOR_HPP
 
 #include "LzTools.hpp"
+#include "FunctionContainer.hpp"
 
 
 namespace lz { namespace internal {

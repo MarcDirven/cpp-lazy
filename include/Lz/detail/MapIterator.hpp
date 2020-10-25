@@ -5,6 +5,8 @@
 
 
 #include "LzTools.hpp"
+#include "FunctionContainer.hpp"
+
 
 namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
@@ -14,7 +16,7 @@ namespace lz { namespace internal {
 
     public:
         using value_type = Decay<FunctionReturnType<Function, RefType<Iterator>>>;
-        using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
+        using iterator_category = internal::IterCat<Iterator>;
         using difference_type = internal::DiffType<Iterator>;
         using reference = FunctionReturnType<Function, RefType<Iterator>>;
         using pointer = FakePointerProxy<reference>;
