@@ -60,7 +60,7 @@ namespace lz {
             SplitIterator() = default;
 
             // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
-            Conditional<std::is_same<SubString, std::string>::value, SubString&, SubString> operator*() const {
+            reference operator*() const {
                 if (_last != std::string::npos) {
                     _substring = SubString(&_splitIteratorHelper->string[_currentPos], _last - _currentPos);
                 }
@@ -85,7 +85,6 @@ namespace lz {
             SplitIterator& operator++() {
                 const std::size_t delimLen = _splitIteratorHelper->delimiter.length();
                 const std::size_t stringLen = _splitIteratorHelper->string.length();
-
                 if (_last == std::string::npos) {
                     _currentPos = stringLen;
                 }
@@ -98,7 +97,6 @@ namespace lz {
                     _currentPos = _last + delimLen;
                     _last = _splitIteratorHelper->string.find(_splitIteratorHelper->delimiter, _currentPos);
                 }
-
                 return *this;
             }
 
