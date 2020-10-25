@@ -81,8 +81,9 @@ namespace lz {
 
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
     Filter<Execution, internal::IterTypeFromIterable<Iterable>, Function>
-    filter(Iterable&& iterable, const Function& predicate, const Execution execPolicy = std::execution::seq) {
-        return filterRange(std::begin(iterable), std::end(iterable), predicate, execPolicy);
+    filter(Iterable&& iterable, Function predicate, const Execution execPolicy = std::execution::seq) {
+        return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                           std::move(predicate), execPolicy);
     }
 
 #else // ^^^ has execution vvv ! has execution
@@ -114,7 +115,8 @@ namespace lz {
      */
     template<class Function, LZ_CONCEPT_ITERABLE Iterable>
     Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, Function predicate) {
-        return filterRange(std::begin(iterable), std::end(iterable), std::move(predicate));
+        return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                           std::move(predicate));
     }
 #endif // end lz has execution
     // End of group

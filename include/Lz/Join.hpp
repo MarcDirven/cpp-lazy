@@ -73,7 +73,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
     Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
-        return joinRange(std::begin(iterable), std::end(iterable), std::move(delimiter));
+        return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                         std::move(delimiter));
     }
 
     // End of group

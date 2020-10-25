@@ -55,7 +55,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE... Iterables>
     Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&& ... iterables) {
-        return concatRange(std::make_tuple(std::begin(iterables)...), std::make_tuple(std::end(iterables)...));
+        return concatRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
+                           std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
     }
 
     // End of group

@@ -70,7 +70,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
     Enumerate<internal::IterTypeFromIterable<Iterable>, IntType> enumerate(Iterable&& iterable, const IntType start = 0) {
-        return enumerateRange(std::begin(iterable), std::end(iterable), start);
+        return enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), start);
     }
 
     // End of group

@@ -201,6 +201,26 @@ namespace lz { namespace internal {
     using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
 #endif // end cxx > 11
 
+    template<class Container>
+    constexpr auto begin(Container&& c) -> decltype(std::forward<Container>(c).begin()) {
+        return std::forward<Container>(c).begin();
+    }
+
+    template<class Container>
+    constexpr auto end(Container&& c) -> decltype(std::forward<Container>(c).end()) {
+        return std::forward<Container>(c).end();
+    }
+
+    template<class T, size_t N>
+    constexpr T* begin(T(&array)[N]) noexcept {
+        return array;
+    }
+
+    template<class T, size_t N>
+    constexpr T* end(T(&array)[N]) noexcept {
+        return array + N;
+    }
+
     template<class T>
     class FakePointerProxy {
         T _t;
