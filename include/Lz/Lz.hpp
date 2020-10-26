@@ -321,10 +321,12 @@ namespace lz {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+                return std::reduce(std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+                                   std::move(function));
             }
             else {
-                return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+                return std::reduce(exec, std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+                                   std::move(function));
             }
         }
 
@@ -517,7 +519,8 @@ namespace lz {
         template<class T, class BinaryFunction>
         T foldr(T&& init, BinaryFunction function) const {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
+            return std::accumulate(std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+                                   std::move(function));
         }
 
         /**
@@ -562,7 +565,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable>
     IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
-        return lz::toIterRange(std::begin(iterable), std::end(iterable));
+        return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
     }
 
     /**

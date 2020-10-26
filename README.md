@@ -54,6 +54,7 @@ std::vector<int> randomNumbers;
 std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
 ```
 
+
 That certainly took alot amount of typing. Instead, try this for change:
 ```cpp
 std::vector<int> randomNumbers = lz::random(0, 32, n).toVector();

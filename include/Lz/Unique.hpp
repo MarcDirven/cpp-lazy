@@ -86,7 +86,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable, class It = internal::IterTypeFromIterable<Iterable>>
     LZ_REQUIRES_LESS_THAN(It, It)
     Unique<Execution, It> unique(Iterable&& iterable, const Execution execPolicy = std::execution::seq) {
-        return uniqueRange(std::begin(iterable), std::end(iterable), execPolicy);
+        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), execPolicy);
     }
 
 #else // ^^^ has execution vvv !has execution
@@ -99,7 +99,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_RA_ITERATOR Iterator>
     Unique<Iterator> uniqueRange(Iterator begin, Iterator end) {
-        static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator"
+        static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator "
                                                                  "or higher for std::sort");
         return Unique<Iterator>(std::move(begin), std::move(end));
     }
@@ -112,7 +112,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_RA_ITERABLE Iterable>
     Unique<internal::IterTypeFromIterable<Iterable>> unique(Iterable&& iterable) {
-        return uniqueRange(std::begin(iterable), std::end(iterable));
+        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
     }
 #endif // end has execution
     // End of group

@@ -7,6 +7,8 @@
 #include <algorithm>
 
 #include "LzTools.hpp"
+#include "FunctionContainer.hpp"
+
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION

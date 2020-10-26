@@ -81,7 +81,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Function>
     Take<internal::IterTypeFromIterable<Iterable>> takeWhile(Iterable&& iterable, Function predicate) {
-        return takeWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate));
+        return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                              std::move(predicate));
     }
 
     /**
@@ -111,8 +112,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
     Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
-        const auto begin = std::begin(iterable);
-        return takeRange(begin, std::end(iterable), amount);
+        return takeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
     }
 
     /**
@@ -135,7 +135,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
     Take<IterType> drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
-        return dropRange(std::begin(iterable), std::end(iterable), amount);
+        return dropRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
     }
 
     /**
@@ -151,8 +151,8 @@ namespace lz {
     Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
                                                          const internal::DiffType<IterType> to) {
         assert(to >= from && "parameter `to` cannot be more than `from`");
-        const auto begin = std::begin(iterable);
-        return takeRange(std::next(begin, from), std::end(iterable), to - from);
+        const auto begin = internal::begin(std::forward<Iterable>(iterable));
+        return takeRange(std::next(begin, from), internal::end(std::forward<Iterable>(iterable)), to - from);
     }
 
 #ifdef LZ_HAS_EXECUTION
@@ -195,7 +195,8 @@ namespace lz {
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
 	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
                                                              const Execution exec = std::execution::seq) {
-        return dropWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate), exec);
+        return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                              std::move(predicate), exec);
     }
 #else // ^^^ lz has execution vvv lz ! has execution
     /**
@@ -232,7 +233,8 @@ namespace lz {
      */
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function>
 	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
-        return dropWhileRange(std::begin(iterable), std::end(iterable), std::move(predicate));
+        return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                              std::move(predicate));
     }
 	
 #endif // end lz has execution

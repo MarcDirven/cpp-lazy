@@ -45,6 +45,7 @@ namespace lz { namespace internal {
         mutable std::string _delimiter{};
         mutable bool _isIteratorTurn{ true };
         difference_type _distance{};
+        using IsIntegralFmtCompatible = IsFmtIntCompatible<value_type>;
 
         std::string getFormatted(std::true_type /* isFmtIntCompatible */) const {
             return fmt::format_int(*_iterator).str();
@@ -56,7 +57,7 @@ namespace lz { namespace internal {
 
         reference deref(std::false_type /* isSameContainerTypeString */) const {
             if (_isIteratorTurn) {
-                return getFormatted(IsFmtIntCompatible<value_type>());
+                return getFormatted(IsIntegralFmtCompatible());
             }
             return _delimiter;
         }
@@ -68,7 +69,7 @@ namespace lz { namespace internal {
             return _delimiter;
         }
 
-        reference indexOperator(std::true_type /**/, const difference_type offset) const {
+        reference indexOperator(std::true_type /* isSameContainerTypeString */, const difference_type offset) const {
             // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a copy
             // of the delimiter
             if (_isIteratorTurn && isEven(offset)) {
@@ -77,7 +78,7 @@ namespace lz { namespace internal {
             return _delimiter;
         }
 
-        reference indexOperator(std::false_type /**/, const difference_type offset) const {
+        reference indexOperator(std::false_type /* isSameContainerTypeString */, const difference_type offset) const {
             return *(*this + offset);
         }
 
@@ -128,11 +129,9 @@ namespace lz { namespace internal {
 
         JoinIterator& operator+=(const difference_type offset) {
             _iterator += offset == 1 ? 1 : offset == _distance ? (offset >> 1) + 1 : offset >> 1;
-
             if (!isEven(offset)) {
                 _isIteratorTurn = !_isIteratorTurn;
             }
-
             return *this;
         }
 

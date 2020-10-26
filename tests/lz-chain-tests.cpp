@@ -6,12 +6,16 @@ TEST_CASE("Iterator chaining") {
     constexpr int size = 16;
     std::array<int, size> arr = lz::range(size).toArray<size>();
     std::array<int, size> arr2 = lz::range(size).toArray<size>();
+
+    std::function<int&(int&)> f = [](int& i) -> int& { return i; };
+    std::function<int(std::tuple<int, int> tup)> tupFn = [](std::tuple<int, int> tup) { return std::get<0>(tup); };
+
     int result = lz::toIter(arr)
         .as<int&>()
-        .map([](int& i) -> int& { return i; })
+        .map(std::move(f))
         .forEach([x = 0](int& i) mutable { i = x++;})
         .zip(arr2)
-        .map([](std::tuple<int, int> tup) { return std::get<0>(tup); })
+        .map(std::move(tupFn))
         .concat(arr2)
         .foldl(0, [](int acc, int next) { return acc + next; });
 

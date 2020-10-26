@@ -24,7 +24,7 @@ namespace lz {
          * @param distance The distance between `begin` and `end`.
          */
         TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, offset, distance), iterator(end, end, offset, distance))
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance), iterator(end, end, offset, distance))
         {
         }
 
@@ -68,7 +68,8 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
     TakeEvery<Iterator> takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset,
                                   const internal::DiffType<Iterator> start = 0) {
-        return takeEveryRange(std::begin(iterable), std::end(iterable), offset, start);
+        return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                              offset, start);
     }
 
     // End of group

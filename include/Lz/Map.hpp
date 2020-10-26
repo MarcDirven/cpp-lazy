@@ -62,7 +62,8 @@ namespace lz {
      */
     template<class Function, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::IterTypeFromIterable<Iterable>, Function> map(Iterable&& iterable, Function function) {
-        return mapRange(std::begin(iterable), std::end(iterable), std::move(function));
+        return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        std::move(function));
     }
 
     // End of group

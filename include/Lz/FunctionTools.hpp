@@ -85,11 +85,6 @@ namespace lz {
 #endif
         }
 
-        template<class T>
-        auto begin(T&& t) -> decltype(std::begin(t)) {
-            return std::begin(t);
-        }
-
         const char* begin(const char* s) {
             return s;
         }
@@ -299,8 +294,7 @@ namespace lz {
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
     Take<std::reverse_iterator<Iterator>> reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
-        using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
-        static_assert(internal::IsBidirectionalOrStronger<IterCat>::value, "the type of the iterator must be bidirectional or stronger");
+        static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
         using ReverseIterator = std::reverse_iterator<Iterator>;
         return lz::takeRange(ReverseIterator(end), ReverseIterator(begin), std::distance(begin, end));
@@ -312,7 +306,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
     Take<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>> reverse(Iterable&& iterable) {
-        return lz::reverse(std::begin(iterable), std::end(iterable)); // ADL std::reverse
+        return lz::reverse(internal::begin(std::forward<Iterable>(iterable)),
+                           internal::end(std::forward<Iterable>(iterable))); // ADL std::reverse
     }
 
     /**
@@ -337,7 +332,8 @@ namespace lz {
      */
     template<class T, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
-        return lz::as<T>(std::begin(iterable), std::end(iterable));
+        return lz::as<T>(internal::begin(std::forward<Iterable>(iterable)),
+                         internal::end(std::forward<Iterable>(iterable)));
     }
 
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -529,7 +525,8 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
     Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
-        return lz::pairwise(std::begin(iterable), std::end(iterable));
+        return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)),
+                            internal::end(std::forward<Iterable>(iterable)));
     }
 
 #ifdef LZ_HAS_EXECUTION
@@ -564,7 +561,9 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<Execution, internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, const Execution execution = std::execution::seq) {
-        return lz::filterMap(std::begin(iterable), std::end(iterable), std::move(filterFunc), std::move(mapFunc), execution);
+        return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
+                             internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc), std::move(mapFunc),
+                             execution);
     }
 
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
@@ -585,7 +584,9 @@ namespace lz {
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
     auto select(Iterable&& iterable, SelectorIterable&& selectors, const Execution execution = std::execution::seq) {
-        return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors), execution);
+        return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                      internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)),
+                      execution);
     }
 
     /**
@@ -1245,7 +1246,9 @@ namespace lz {
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
-        return lz::filterMap(std::begin(iterable), std::end(iterable), std::move(filterFunc), std::move(mapFunc));
+        return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
+                             internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc),
+                             std::move(mapFunc));
     }
 
     /**
@@ -1308,7 +1311,8 @@ namespace lz {
                std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
     {
-        return select(std::begin(iterable), std::end(iterable), std::begin(selectors), std::end(selectors));
+        return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                      internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)));
     }
 #endif // End LZ_HAS_EXECUTION
 } // End namespace lz

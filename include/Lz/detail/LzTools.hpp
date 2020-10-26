@@ -122,6 +122,27 @@ namespace lz {
 
 
 namespace lz { namespace internal {
+    template<class Iterable>
+    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
+
+    template<class Iterator>
+    using ValueType = typename std::iterator_traits<Iterator>::value_type;
+
+    template<class Iterator>
+    using PointerType = typename std::iterator_traits<Iterator>::pointer;
+
+    template<class Iterator>
+    using RefType = typename std::iterator_traits<Iterator>::reference;
+
+    template<class Iterator>
+    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
+
+    template<class Iterator>
+    using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
+
+    template<class Function, class... Args>
+    using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+
 #ifdef LZ_HAS_EXECUTION
     template<class T>
     struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
@@ -131,9 +152,8 @@ namespace lz { namespace internal {
     struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
     };
 
-    template<class T, class IterCat = typename std::iterator_traits<T>::iterator_category>
-    struct IsForwardOrStronger : public std::bool_constant<
-        !std::is_same_v<IterCat, std::input_iterator_tag> && !std::is_same_v<IterCat, std::output_iterator_tag>> {
+    template<class T>
+    struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
     };
 
     template<class T>
@@ -201,6 +221,26 @@ namespace lz { namespace internal {
     using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
 #endif // end cxx > 11
 
+    template<class Container>
+    constexpr auto begin(Container&& c) -> decltype(std::forward<Container>(c).begin()) {
+        return std::forward<Container>(c).begin();
+    }
+
+    template<class Container>
+    constexpr auto end(Container&& c) -> decltype(std::forward<Container>(c).end()) {
+        return std::forward<Container>(c).end();
+    }
+
+    template<class T, size_t N>
+    constexpr T* begin(T(&array)[N]) noexcept {
+        return array;
+    }
+
+    template<class T, size_t N>
+    constexpr T* end(T(&array)[N]) noexcept {
+        return array + N;
+    }
+
     template<class T>
     class FakePointerProxy {
         T _t;
@@ -219,101 +259,6 @@ namespace lz { namespace internal {
         }
     };
 
-    template<class Func>
-    class FunctionContainer {
-        Func _func;
-        bool _isConstructed{false};
-
-        explicit FunctionContainer(std::false_type /*isDefaultConstructible*/) {}
-
-        explicit FunctionContainer(std::true_type /*isDefaultConstructible*/):
-            _func(),
-            _isConstructed(true)
-        {}
-
-        template<class F>
-        void construct(F&& f) {
-            ::new (static_cast<void*>(std::addressof(_func))) Func(static_cast<F&&>(f));
-            _isConstructed = true;
-        }
-
-        void move(Func&& f, std::true_type /* isMoveAssignable */) {
-            _func = std::move(f);
-        }
-
-        void move(Func&& f, std::false_type /* isMoveAssignable */) {
-            reset();
-            construct(std::move(f));
-        }
-
-        void reset() {
-            if (_isConstructed) {
-                _func.~Func();
-                _isConstructed = false;
-            }
-        }
-
-        void copy(const Func& f, std::true_type /*isCopyAssignable*/) {
-            _func = f;
-        }
-
-        void copy(const Func& f, std::false_type /*isCopyAssignable*/) {
-            reset();
-            construct(f);
-        }
-
-    public:
-        explicit FunctionContainer(Func func):
-            _func(std::move(func)),
-            _isConstructed(true)
-        {}
-
-        FunctionContainer():
-            FunctionContainer(std::is_default_constructible<Func>())
-        {}
-
-        FunctionContainer(FunctionContainer&& other) noexcept :
-            _func(std::move(other._func)),
-            _isConstructed(true) {
-            other._isConstructed = false;
-        }
-
-        FunctionContainer(const FunctionContainer& other):
-            _func(other._func),
-            _isConstructed(true) {
-        }
-
-        FunctionContainer& operator=(const FunctionContainer& other) {
-            if (_isConstructed && other._isConstructed) {
-                copy(other._func, std::is_copy_assignable<Func>());
-            }
-            else if (other._isConstructed) {
-                construct(other._func);
-            }
-            else if (_isConstructed) {
-                reset();
-            }
-            return *this;
-        }
-
-        FunctionContainer& operator=(FunctionContainer&& other) noexcept {
-            if (_isConstructed && other._isConstructed) {
-                move(std::move(other._func), std::is_move_assignable<Func>());
-            }
-            else if (other._isConstructed) {
-                construct(std::move(other._func));
-            }
-            else if (_isConstructed) {
-                reset();
-            }
-            return *this;
-        }
-
-        template<class... Args>
-        auto operator()(Args&&... args) const -> decltype(_func(args...)) {
-            return _func(std::forward<Args>(args)...);
-        }
-    };
 
     template<typename Same, typename First, typename... More>
     struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
@@ -323,36 +268,14 @@ namespace lz { namespace internal {
     struct IsAllSame<Same, First> : std::is_same<Same, First> {
     };
 
-
     template<class T>
-    struct IsBidirectionalOrStronger : std::integral_constant<bool,
-        !std::is_same<T, std::input_iterator_tag>::value &&
-        !std::is_same<T, std::output_iterator_tag>::value &&
-        !std::is_same<T, std::forward_iterator_tag>::value> {
+    struct IsBidirectional :
+        std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
     };
 
     template<class T>
-    struct IsRandomAccess : std::integral_constant<bool,
-        IsBidirectionalOrStronger<T>::value && !std::is_same<std::bidirectional_iterator_tag, T>::value> {
+    struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::random_access_iterator_tag>::value> {
     };
-
-    template<class Iterable>
-    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
-
-    template<class Iterator>
-    using ValueType = typename std::iterator_traits<Iterator>::value_type;
-
-    template<class Iterator>
-    using PointerType = typename std::iterator_traits<Iterator>::pointer;
-
-    template<class Iterator>
-    using RefType = typename std::iterator_traits<Iterator>::reference;
-
-    template<class Iterator>
-    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
-
-    template<class Function, class... Args>
-    using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
 
     template<LZ_CONCEPT_INTEGRAL Arithmetic>
     inline bool isEven(const Arithmetic value) {
