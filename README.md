@@ -15,11 +15,12 @@ versions have not been checked)
 - STL compatible
 - Little overhead
 - Supported compiler versions:
-  - &gt;= GCC 5 (GCC 4.8 is still WIP)
+  - &gt;= GCC 5 (GCC 4.8 is still WIP, it does compile but no tests in .workflow are done yet)
   - &gt;= clang 5
   - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
 - Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
 - Clear [Examples](https://github.com/MarcDirven/cpp-lazy/wiki/Examples)
+- Readable using chaining dot (`.map([]{}()).filter([]{}()).enumerate()./* ... */`) notation
 
 # What is lazy and why would I use it?
 Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this
@@ -53,11 +54,14 @@ std::vector<int> randomNumbers;
 std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
 ```
 
-Well, that certainly took a lot amount of typing. Instead, try this for change:
+
+That certainly took alot amount of typing. Instead, try this for change:
 ```cpp
-std::vector<int> randomNumbers = lz::random(0, 32 n).toVector();
+std::vector<int> randomNumbers = lz::random(0, 32, n).toVector();
 ```
-But wait... I want to search if the sequence of random numbers contain 6! Well, in 'regular' C++ code that would be:
+> I want to search if the sequence of random numbers contain 6. 
+
+In 'regular' C++ code that would be:
 ```cpp
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -85,8 +89,8 @@ if (lz::contains(random, 6)) {
 So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate 
 any memory and has very little overhead.
 
-## But I like writing loops myself
-Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are 
+## Writing loops yourself
+I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are 
 bigger because you will have to write the whole loop yourself. On average 
 [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain 
 bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop 
@@ -96,7 +100,7 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
 compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not
 support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). 
-However, both libraries will have its advantages and disadvantages.
+However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Installation
 ## Using `FetchContent`
@@ -131,25 +135,6 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 int main() {
   // use e.g. lz::filter
 }
-```
-
-# Side note
-If you want to re-overwrite or default construct the iterator/view object, use a `std::function` instead of a lambda 
-function. Example:
-```cpp
-// OK
-std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
-    return t.testFieldStr;
-};
-auto map = lz::map(array, f);
-auto it = map.begin();
-it = map.end();
-
-// Not OK
-auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
-auto it = map.begin();
-// it = map.end(); error, attempting to reference deleted function operator= for lambda
-
 ```
 
 # Benchmarks cpp-lazy
