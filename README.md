@@ -54,11 +54,13 @@ std::vector<int> randomNumbers;
 std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
 ```
 
-Well, that certainly took alot amount of typing. Instead, try this for change:
+That certainly took alot amount of typing. Instead, try this for change:
 ```cpp
-std::vector<int> randomNumbers = lz::random(0, 32 n).toVector();
+std::vector<int> randomNumbers = lz::random(0, 32, n).toVector();
 ```
-But wait... I want to search if the sequence of random numbers contain 6! Well, in 'regular' C++ code that would be:
+> I want to search if the sequence of random numbers contain 6. 
+
+In 'regular' C++ code that would be:
 ```cpp
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -86,8 +88,8 @@ if (lz::contains(random, 6)) {
 So by using this lazy method, we 'pretend' it's a container, while it actually is not. Therefore it does not allocate 
 any memory and has very little overhead.
 
-## But I like writing loops myself
-Well, I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are 
+## Writing loops yourself
+I understand where you're coming from. You may think it's more readable. But the chances of getting bugs are 
 bigger because you will have to write the whole loop yourself. On average 
 [about 15 – 50 errors per 1000 lines of delivered code](https://labs.sogeti.com/how-many-defects-are-too-many/) contain 
 bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop 
@@ -97,7 +99,7 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
 compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not
 support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). 
-However, both libraries will have its advantages and disadvantages.
+However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Installation
 ## Using `FetchContent`
