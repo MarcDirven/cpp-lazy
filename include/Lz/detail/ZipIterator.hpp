@@ -22,43 +22,43 @@ namespace lz { namespace internal {
         std::tuple<Iterators...> _iterators{};
 
         template<std::size_t... I>
-        reference dereference(const IndexSequence<I...>) const {
+        reference dereference(IndexSequence<I...>) const {
             return reference{*std::get<I>(_iterators)...};
         }
 
         template<std::size_t... I>
-        void increment(const IndexSequence<I...>) {
+        void increment(IndexSequence<I...>) {
             const std::initializer_list<int> expand = {(++std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
-        void decrement(const IndexSequence<I...>) {
+        void decrement(IndexSequence<I...>) {
             const std::initializer_list<int> expand = {(--std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
-        void plusIs(const IndexSequence<I...>, const difference_type differenceType) {
+        void plusIs(IndexSequence<I...>, const difference_type differenceType) {
             const std::initializer_list<int> expand = {
                 (std::advance(std::get<I>(_iterators), differenceType), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
-        void minIs(const IndexSequence<I...>, const difference_type differenceType) {
+        void minIs(IndexSequence<I...>, const difference_type differenceType) {
             plusIs(MakeIndexSequenceForThis(), -differenceType);
         }
 
         template<std::size_t... I>
-        difference_type iteratorMin(const IndexSequence<I...>, const ZipIterator& other) const {
+        difference_type iteratorMin(IndexSequence<I...>, const ZipIterator& other) const {
             const std::initializer_list<difference_type> diff =
                 {static_cast<difference_type>((std::distance(std::get<I>(other._iterators), std::get<I>(_iterators))))...};
             return static_cast<difference_type>(std::min(diff));
         }
 
         template<std::size_t... I>
-        bool lessThan(const IndexSequence<I...>, const ZipIterator& other) const {
+        bool lessThan(IndexSequence<I...>, const ZipIterator& other) const {
             const std::initializer_list<difference_type> distances = {
                 (std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
             return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
@@ -67,7 +67,7 @@ namespace lz { namespace internal {
         }
 
         template<std::size_t... I>
-        bool notEqual(const IndexSequence<I...>, const ZipIterator& other) const {
+        bool notEqual(IndexSequence<I...>, const ZipIterator& other) const {
             const std::initializer_list<bool> boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
             const auto* const end = boolValues.end();
             // Check if false not in boolValues
