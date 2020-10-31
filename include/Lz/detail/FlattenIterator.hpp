@@ -98,7 +98,7 @@ namespace lz { namespace internal {
 
         FlattenWrapper() = default;
 
-        explicit FlattenWrapper(Iterator begin, Iterator end) :
+        FlattenWrapper(Iterator begin, Iterator end) :
             _iterator(begin),
             _end(end) {}
 
@@ -164,7 +164,7 @@ namespace lz { namespace internal {
 
         FlattenIterator() = default;
 
-        explicit FlattenIterator(Iterator begin, Iterator end) :
+        FlattenIterator(Iterator begin, Iterator end) :
             _iterOuter(begin, end) {
             if (!_iterOuter.hasSome()) {
                 return;
@@ -219,7 +219,7 @@ namespace lz { namespace internal {
 
         FlattenIterator() = default;
 
-        explicit FlattenIterator(Iterator begin, Iterator end) :
+        FlattenIterator(Iterator begin, Iterator end) :
             _range(begin, end) {}
 
         bool hasSome() const {

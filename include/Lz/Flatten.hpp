@@ -19,7 +19,7 @@ namespace lz {
     public:
         Flatten() = default;
 
-        explicit Flatten(Iterator begin, Iterator end) :
+        Flatten(Iterator begin, Iterator end) :
             Base(iterator(begin, end), iterator(end, end))
         {}
     };
