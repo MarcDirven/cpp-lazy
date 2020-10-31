@@ -12,6 +12,7 @@ set(examples
         Enumerate
         Except
         Filter
+        Flatten
         FunctionTools
         Generate
         Join
