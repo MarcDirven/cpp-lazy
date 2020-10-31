@@ -28,7 +28,7 @@ namespace lz {
 	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
 	namespace internal { namespace {
         bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const std::size_t startPos,
-                               const std::false_type /* replaceAll */) {
+                               std::false_type /* replaceAll */) {
             const std::size_t oldStringSize = oldString.length();
             const std::size_t newStringSize = newString.length();
 
@@ -45,7 +45,7 @@ namespace lz {
         }
 
         bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, std::size_t startPos,
-                               const std::true_type /* replaceAll */) {
+                               std::true_type /* replaceAll */) {
             if (!stringReplaceImpl(string, oldString, newString, startPos, std::false_type())) {
                 return false;
             }
@@ -69,22 +69,6 @@ namespace lz {
             }
         };
 
-#ifndef LZ_HAS_CXX_17
-        template<class Fn, class Tuple, std::size_t... I>
-        auto applyImpl(Fn fn, Tuple&& tuple, const IndexSequence<I...>) -> decltype(fn(std::get<I>(tuple)...)) {
-            return fn(std::get<I>(std::forward<Tuple>(tuple))...);
-        }
-#endif
-
-        template<class Fn, class Tuple>
-        auto apply(Fn fn, Tuple&& tuple) {
-#ifdef LZ_HAS_CXX_17
-            return std::apply(std::move(fn), std::forward<Tuple>(tuple));
-#else
-            return applyImpl(std::move(fn), std::forward<Tuple>(tuple), MakeIndexSequence<std::tuple_size<Decay<Tuple>>::value>());
-#endif
-        }
-
         const char* begin(const char* s) {
             return s;
         }
@@ -92,46 +76,12 @@ namespace lz {
         const char* end(const char* s) {
             return s + std::strlen(s);
         }
-
-        template<std::size_t N>
-        char* begin(char (&s)[N]) {
-            return s;
-        }
-
-        template<std::size_t N>
-        char* end(char (&s)[N]) {
-            return s + N;
-        }
     }} // namespace internal::<anonymous>
 
     /**
      * This value is returned when indexOf(If) does not find the value specified.
      */
     constexpr LZ_INLINE_VAR std::size_t npos = std::numeric_limits<size_t>::max();
-
-    /**
-     * Gets the mean of a sequence.
-     * @param begin The beginning of the sequence.
-     * @param end The ending of the sequence.
-     * @return The mean of the sequence.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    double mean(Iterator begin, Iterator end) {
-        using ValueType = internal::ValueType<Iterator>;
-        const internal::DiffType<Iterator> distance = std::distance(begin, end);
-        const ValueType sum = std::accumulate(begin, end, ValueType(0));
-        return static_cast<double>(sum) / distance;
-    }
-
-    /**
-     * Gets the mean of a sequence.
-     * @param container The container to calculate the mean of.
-     * @return The mean of the container.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    double mean(const Iterable& container) {
-        return lz::mean(std::begin(container), std::end(container));
-    }
 
     /**
       * Returns a StringSplitter iterator, that splits the string on `'\n'`.
@@ -336,6 +286,12 @@ namespace lz {
                          internal::end(std::forward<Iterable>(iterable)));
     }
 
+    /**
+     * Returns the length of [begin, end)
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return The length of the iterator with type Iterator::difference_type
+     */
     template<LZ_CONCEPT_ITERATOR Iterator>
     internal::DiffType<Iterator> length(Iterator begin, Iterator end) {
         return std::distance(begin, end);
@@ -447,7 +403,8 @@ namespace lz {
     internal::RefType<Iterator> last(Iterator begin, Iterator end) {
         assert(!lz::isEmpty(begin, end) && "sequence cannot be empty in order to get the last element");
         const internal::DiffType<Iterator> len = lz::length(begin, end);
-        return *std::next(begin, len - 1);
+        std::advance(begin, len - 1);
+        return *begin;
     }
 
     /**
@@ -525,11 +482,43 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
     Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
-        return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)),
-                            internal::end(std::forward<Iterable>(iterable)));
+        return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
     }
 
 #ifdef LZ_HAS_EXECUTION
+
+    /**
+     * Gets the mean of a sequence.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param exec The execution policy.
+     * @return The mean of the sequence.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator, class Execution = std::execution::sequenced_policy>
+    double mean(Iterator begin, Iterator end, const Execution exec = std::execution::seq) {
+        using ValueType = internal::ValueType<Iterator>;
+        const internal::DiffType<Iterator> distance = std::distance(begin, end);
+        ValueType sum{};
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+            sum = std::reduce(begin, end);
+        }
+        else {
+            sum = std::reduce(exec, begin, end);
+        }
+        return static_cast<double>(sum) / distance;
+    }
+
+    /**
+     * Gets the mean of a sequence.
+     * @param container The container to calculate the mean of.
+     * @param exec The execution policy
+     * @return The mean of the container.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
+    double mean(const Iterable& container, const Execution exec = std::execution::seq) {
+        return lz::mean(std::begin(container), std::end(container), exec);
+    }
+
     /**
      * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
      * @param begin The beginning of the sequence.
@@ -946,6 +935,31 @@ namespace lz {
 #else // ^^^ Lz has execution vvv !Lz has execution
 
     /**
+     * Gets the mean of a sequence.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @return The mean of the sequence.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    double mean(Iterator begin, Iterator end) {
+        using ValueType = internal::ValueType<Iterator>;
+        const internal::DiffType<Iterator> distance = std::distance(begin, end);
+        const ValueType sum = std::accumulate(begin, end, ValueType(0));
+        return static_cast<double>(sum) / distance;
+    }
+
+    /**
+     * Gets the mean of a sequence.
+     * @param container The container to calculate the mean of.
+     * @return The mean of the container.
+     */
+    template<LZ_CONCEPT_ITERABLE Iterable>
+    double mean(const Iterable& container) {
+        return lz::mean(std::begin(container), std::end(container));
+    }
+
+
+    /**
      * Gets the median of a sequence.
      * @param begin The beginning of the sequence
      * @param end The ending of the sequence
@@ -1246,9 +1260,8 @@ namespace lz {
     template<class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
-        return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
-                             internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc),
-                             std::move(mapFunc));
+        return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                             std::move(filterFunc), std::move(mapFunc));
     }
 
     /**

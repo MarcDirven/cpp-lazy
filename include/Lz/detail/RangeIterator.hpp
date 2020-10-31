@@ -85,31 +85,31 @@ namespace lz { namespace internal {
             return *(*this + offset);
         }
 
-        bool operator!=(const RangeIterator& other) const {
-            if (_step < 0) {
-                return _iterator > other._iterator;
+        friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+            if (a._step < 0) {
+                return a._iterator > b._iterator;
             }
-            return _iterator < other._iterator;
+            return a._iterator < b._iterator;
         }
 
-        bool operator==(const RangeIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+            return !(a != b);
         }
 
-        bool operator<(const RangeIterator& other) const {
-            return _iterator < other._iterator;
+        friend bool operator<(const RangeIterator& a, const RangeIterator& b) {
+            return a._iterator < b._iterator;
         }
 
-        bool operator>(const RangeIterator& other) const {
-            return other < *this;
+        friend bool operator>(const RangeIterator& a, const RangeIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const RangeIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const RangeIterator& a, const RangeIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const RangeIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const RangeIterator& a, const RangeIterator& b) {
+            return !(a < b);
         }
     };
 }}

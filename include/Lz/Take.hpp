@@ -151,8 +151,9 @@ namespace lz {
     Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
                                                          const internal::DiffType<IterType> to) {
         assert(to >= from && "parameter `to` cannot be more than `from`");
-        const auto begin = internal::begin(std::forward<Iterable>(iterable));
-        return takeRange(std::next(begin, from), internal::end(std::forward<Iterable>(iterable)), to - from);
+        auto begin = internal::begin(std::forward<Iterable>(iterable));
+        std::advance(begin, from);
+        return takeRange(begin, internal::end(std::forward<Iterable>(iterable)), to - from);
     }
 
 #ifdef LZ_HAS_EXECUTION

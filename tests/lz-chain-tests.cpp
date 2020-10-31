@@ -27,8 +27,10 @@ TEST_CASE("Iterator chaining") {
         .drop(0)
         .takeWhile([](int i) { return i == 1; })
         .dropWhile([](int i) { return i != 1; })
+        .sort()
         .enumerate()
-        .all([](std::pair<int, int> i) { return i.second == 1; });
+        .all([](auto&& i) { return i.second == 1; });
 
     CHECK(isAllSame);
+
 }

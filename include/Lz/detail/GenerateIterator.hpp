@@ -99,28 +99,28 @@ namespace lz { namespace internal {
             return *(*this + offset);
         }
 
-        bool operator==(const GenerateIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) {
+            return !(a != b);
         }
 
-        bool operator!=(const GenerateIterator& other) const {
-            return _current != other._current;
+        friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
+            return a._current != b._current;
         }
 
-        bool operator<(const GenerateIterator& other) const {
-            return _current < other._current;
+        friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
+            return a._current < b._current;
         }
 
-        bool operator>(const GenerateIterator& other) const {
-            return other < *this;
+        friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const GenerateIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const GenerateIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
+            return !(a < b);
         }
     };
 }}

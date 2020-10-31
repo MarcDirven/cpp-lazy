@@ -149,10 +149,6 @@ namespace lz { namespace internal {
     };
 
     template<class T>
-    struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
-    };
-
-    template<class T>
     struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
     };
 
@@ -260,17 +256,59 @@ namespace lz { namespace internal {
     };
 
 
-    template<typename Same, typename First, typename... More>
+    template<class T, class... Rest>
+    struct ContainsType : std::true_type {
+    };
+
+    template<class T, class First, class... Rest>
+    struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {
+    };
+
+    template<class T>
+    struct ContainsType<T> : std::false_type {
+    };
+
+    template<class... IterTypes>
+    struct LowestIterType {
+        using Type =
+            Conditional<
+                ContainsType<std::output_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
+                Conditional<
+                    ContainsType<std::input_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
+                    Conditional<
+                        ContainsType<std::forward_iterator_tag, IterTypes...>::value, std::forward_iterator_tag,
+                        Conditional<
+                            ContainsType<std::bidirectional_iterator_tag, IterTypes...>::value, std::bidirectional_iterator_tag,
+                            Conditional<
+                                ContainsType<std::random_access_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
+#ifdef LZ_HAS_CXX_20
+                                Conditional<
+                                    ContainsType<std::contiguous_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
+                                    void
+                                > // contiguous_iterator_tag
+#else
+                                void
+#endif
+                            > // random_access_iterator_tag
+                        > // bidirectional_iterator_tag
+                    > // forward_iterator_tag
+                > // input_iterator_tag
+            >; // output_iterator_tag
+    };
+
+
+
+
+    template<class Same, class First, class... More>
     struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
     };
 
-    template<typename Same, typename First>
+    template<class Same, class First>
     struct IsAllSame<Same, First> : std::is_same<Same, First> {
     };
 
     template<class T>
-    struct IsBidirectional :
-        std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
+    struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
     };
 
     template<class T>

@@ -98,12 +98,12 @@ namespace lz { namespace internal {
             return tmp;
         }
 
-        bool operator!=(const UniqueIterator& other) const {
-            return _iterator != other._iterator;
+        friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
+            return a._iterator != b._iterator;
         }
 
-        bool operator==(const UniqueIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
+            return !(a != b);
         }
     };
 }}
