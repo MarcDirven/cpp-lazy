@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <Lz/Flatten.hpp>
+#include <list>
 
 
 TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
