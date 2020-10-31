@@ -316,7 +316,7 @@ namespace lz {
          */
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(const Execution exec = std::execution::seq) const {
-            return this->foldl(value_type(), std::plus(), exec);
+            return this->foldl(value_type(), std::plus<>(), exec);
         }
 
         /**
@@ -385,7 +385,7 @@ namespace lz {
          */
         template<class Execution = std::execution::sequenced_policy>
         const IterView<Iterator>& sort(Execution execution = std::execution::seq) const {
-            return this->sortBy(std::less(), execution);
+            return this->sortBy(std::less<>(), execution);
         }
 
         /**
@@ -413,7 +413,7 @@ namespace lz {
          */
         template<class Execution = std::execution::sequenced_policy>
         bool isSorted(const Execution exec = std::execution::seq) const {
-            return this->isSortedBy(std::less(), exec);
+            return this->isSortedBy(std::less<>(), exec);
         }
 
 #else // ^^^ lz has execution vvv ! lz has execution
@@ -553,7 +553,7 @@ namespace lz {
          * Sums the sequence generated so far.
          */
         value_type sum() const {
-            return this->foldl(value_type(), std::plus());
+            return this->foldl(value_type(), std::plus<>());
         }
 
         /**
@@ -599,7 +599,7 @@ namespace lz {
          * @return A reference to this.
          */
         const IterView<Iterator>& sort() const {
-            return this->sortBy(std::less());
+            return this->sortBy(std::less<>());
         }
 
         /**
@@ -619,7 +619,7 @@ namespace lz {
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
         bool isSorted() const {
-            return this->isSortedBy(std::less());
+            return this->isSortedBy(std::less<>());
         }
 #endif // end lz has execution
     };
