@@ -111,7 +111,7 @@ namespace lz { namespace internal {
                         MinIs<Tuple, I - 1>()(iterators, begin, end, distance == 0 ? 1 : offset - distance);
                     }
                     else {
-                        std::advance(std::get<I>(iterators), -offset);
+                        std::get<I>(iterators) -= offset;
                     }
                 }
             }
@@ -131,7 +131,7 @@ namespace lz { namespace internal {
                 if (std::distance(currentBegin, current) < offset) {
                     throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
                 }
-                std::advance(current, -offset);
+                current -= offset;
             }
         };
 
@@ -147,12 +147,12 @@ namespace lz { namespace internal {
                 auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
                 if (distance > offset) {
-                    std::advance(currentIterator, offset);
+                    currentIterator += offset;
                 }
                 else {
                     // Moves to end
                     const auto toEndDistance = std::distance(currentIterator, currentEnd);
-                    std::advance(currentIterator, toEndDistance);
+                    currentIterator += toEndDistance;
                     PlusIs<Tuple, I + 1>()(iterators, end, offset - distance);
                 }
             }
@@ -182,7 +182,7 @@ namespace lz { namespace internal {
         using difference_type = std::ptrdiff_t;
         using reference = typename FirstTupleIterator::reference;
         using pointer = typename FirstTupleIterator::pointer;
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename LowestIterType<IterCat<Iterators>...>::Type;
 
     private:
         template<std::size_t... I>
@@ -257,32 +257,32 @@ namespace lz { namespace internal {
             return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
         }
 
-        bool operator!=(const ConcatenateIterator& other) const {
-            return NotEqual<IterTuple, 0>()(_iterators, other._iterators);
+        friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return NotEqual<IterTuple, 0>()(a._iterators, b._iterators);
         }
 
-        bool operator==(const ConcatenateIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return !(a != b);
         }
 
         reference operator[](const difference_type offset) const {
             return *(*this + offset);
         }
 
-        bool operator<(const ConcatenateIterator& other) const {
-            return other - *this > 0;
+        friend bool operator<(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return b - a > 0;
         }
 
-        bool operator>(const ConcatenateIterator& other) const {
-            return other < *this;
+        friend bool operator>(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const ConcatenateIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const ConcatenateIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+            return !(a < b);
         }
     };
 }}

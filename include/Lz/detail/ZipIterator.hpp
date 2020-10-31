@@ -11,7 +11,7 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR... Iterators>
     class ZipIterator {
     public:
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = typename LowestIterType<IterCat<Iterators>...>::Type;
         using value_type = std::tuple<internal::ValueType<Iterators>...>;
         using difference_type = std::ptrdiff_t;
         using reference = std::tuple<internal::RefType<Iterators>...>;
@@ -40,8 +40,7 @@ namespace lz { namespace internal {
 
         template<std::size_t... I>
         void plusIs(IndexSequence<I...>, const difference_type differenceType) {
-            const std::initializer_list<int> expand = {
-                (std::advance(std::get<I>(_iterators), differenceType), 0)...};
+            const std::initializer_list<int> expand = { ((std::get<I>(_iterators) += differenceType), 0)... };
             static_cast<void>(expand);
         }
 
@@ -75,7 +74,7 @@ namespace lz { namespace internal {
         }
 
     public:
-        explicit ZipIterator(std::tuple<Iterators...> iterators) :  // NOLINT(modernize-pass-by-value)
+        explicit ZipIterator(std::tuple<Iterators...> iterators) :
             _iterators(std::move(iterators)) {
         }
 
@@ -141,28 +140,28 @@ namespace lz { namespace internal {
             return *(*this + offset);
         }
 
-        bool operator==(const ZipIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
+            return !(a != b);
         }
 
-        bool operator!=(const ZipIterator& other) const {
-            return notEqual(MakeIndexSequenceForThis(), other);
+        friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
+            return a.notEqual(MakeIndexSequenceForThis(), b);
         }
 
-        bool operator<(const ZipIterator& other) const {
-            return lessThan(MakeIndexSequenceForThis(), other);
+        friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
+            return a.lessThan(MakeIndexSequenceForThis(), b);
         }
 
-        bool operator>(const ZipIterator& other) const {
-            return other < *this;
+        friend bool operator>(const ZipIterator& a, const ZipIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const ZipIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const ZipIterator& a, const ZipIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const ZipIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const ZipIterator& a, const ZipIterator& b) {
+            return !(a < b);
         }
     };
 }}
