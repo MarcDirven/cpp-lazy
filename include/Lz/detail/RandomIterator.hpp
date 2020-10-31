@@ -104,28 +104,28 @@ namespace lz { namespace internal {
             return *(*this + offset);
         }
 
-        bool operator!=(const RandomIterator& other) const {
-            return _current != other._current;
+        friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
+            return a._current != b._current;
         }
 
-        bool operator==(const RandomIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
+            return !(a != b);
         }
 
-        bool operator<(const RandomIterator& other) const {
-            return _current < other._current;
+        friend bool operator<(const RandomIterator& a, const RandomIterator& b) {
+            return a._current < b._current;
         }
 
-        bool operator>(const RandomIterator& other) const {
-            return other < *this;
+        friend bool operator>(const RandomIterator& a, const RandomIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const RandomIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const RandomIterator& a, const RandomIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const RandomIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const RandomIterator& a, const RandomIterator& b) {
+            return !(a < b);
         }
     };
 }}

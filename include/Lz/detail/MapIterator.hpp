@@ -88,28 +88,28 @@ namespace lz { namespace internal {
             return *(*this + offset);
         }
 
-        bool operator==(const MapIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const MapIterator& a, const MapIterator& b) {
+            return !(a != b);
         }
 
-        bool operator!=(const MapIterator& other) const {
-            return _iterator != other._iterator;
+        friend bool operator!=(const MapIterator& a, const MapIterator& b) {
+            return a._iterator != b._iterator;
         }
 
-        bool operator<(const MapIterator& other) const {
-            return _iterator < other._iterator;
+        friend bool operator<(const MapIterator& a, const MapIterator& b) {
+            return a._iterator < b._iterator;
         }
 
-        bool operator>(const MapIterator& other) const {
-            return other < *this;
+        friend bool operator>(const MapIterator& a, const MapIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const MapIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const MapIterator& a, const MapIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const MapIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const MapIterator& a, const MapIterator& b) {
+            return !(a < b);
         }
     };
 }} // end lz::internal

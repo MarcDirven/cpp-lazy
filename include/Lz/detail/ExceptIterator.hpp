@@ -105,12 +105,12 @@ namespace lz { namespace internal {
             return tmp;
         }
 
-        bool operator!=(const ExceptIterator& other) const {
-            return _iterator != other._iterator;
+        friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
+            return a._iterator != b._iterator;
         }
 
-        bool operator==(const ExceptIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
+            return !(a != b);
         }
     };
 }} // end lz::internal

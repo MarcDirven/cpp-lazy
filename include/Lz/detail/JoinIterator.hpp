@@ -169,28 +169,28 @@ namespace lz { namespace internal {
             return tmp;
         }
 
-        bool operator==(const JoinIterator& other) const {
-            return _iterator == other._iterator;
+        friend bool operator==(const JoinIterator& a, const JoinIterator& b) {
+            return a._iterator == b._iterator;
         }
 
-        bool operator!=(const JoinIterator& other) const {
-            return !(*this == other);
+        friend bool operator!=(const JoinIterator& a, const JoinIterator& b) {
+            return !(a == b);
         }
 
-        bool operator<(const JoinIterator& other) const {
-            return other - *this > 0;
+        friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
+            return b - a > 0;
         }
 
-        bool operator>(const JoinIterator& other) const {
-            return other < *this;
+        friend bool operator>(const JoinIterator& a, const JoinIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const JoinIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const JoinIterator& a, const JoinIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const JoinIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const JoinIterator& a, const JoinIterator& b) {
+            return !(a < b);
         }
     };
 }} // end lz::internal

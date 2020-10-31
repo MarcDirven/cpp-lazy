@@ -66,12 +66,12 @@ namespace lz { namespace internal {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
-        bool operator!=(const SplitIterator& other) const {
-            return _currentPos != other._currentPos;
+        friend bool operator!=(const SplitIterator& a, const SplitIterator& b) {
+            return a._currentPos != b._currentPos;
         }
 
-        bool operator==(const SplitIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const SplitIterator& a, const SplitIterator& b) {
+            return !(a != b);
         }
 
         SplitIterator& operator++() {

@@ -117,28 +117,28 @@ namespace lz {
             return *(*this + offset);
         }
 
-        bool operator==(const TakeEveryIterator& other) const {
-            return !(*this != other);
+        friend bool operator==(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return !(a != b);
         }
 
-        bool operator!=(const TakeEveryIterator& other) const {
-            return std::distance(_iterator, other._iterator) >= static_cast<difference_type>(_offset);
+        friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return std::distance(a._iterator, b._iterator) >= static_cast<difference_type>(a._offset);
         }
 
-        bool operator<(const TakeEveryIterator& other) const {
-            return _iterator < other._iterator;
+        friend bool operator<(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return a._iterator < b._iterator;
         }
 
-        bool operator>(const TakeEveryIterator& other) const {
-            return other < *this;
+        friend bool operator>(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return b < a;
         }
 
-        bool operator<=(const TakeEveryIterator& other) const {
-            return !(other < *this);
+        friend bool operator<=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return !(b < a);
         }
 
-        bool operator>=(const TakeEveryIterator& other) const {
-            return !(*this < other);
+        friend bool operator>=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+            return !(a < b);
         }
     };
 }}
