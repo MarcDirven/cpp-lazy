@@ -30,6 +30,7 @@ add_executable(LazyTests
         enumerate-tests.cpp
         except-tests.cpp
         filter-tests.cpp
+        flatten-tests.cpp
         function-tools-tests.cpp
         generate-tests.cpp
         join-tests.cpp
