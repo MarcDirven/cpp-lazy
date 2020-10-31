@@ -149,10 +149,6 @@ namespace lz { namespace internal {
     };
 
     template<class T>
-    struct IsParallelPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::parallel_policy>> {
-    };
-
-    template<class T>
     struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
     };
 
