@@ -14,35 +14,38 @@ namespace lz { namespace internal {
         using Type = U;
     };
 
+    template<class T, class U = void>
+    using AliasWrapperT = typename AliasWrapper<T, U>::Type;
+
     template<class T, class Enable = void>
     struct HasValueType : std::false_type {};
 
     template<class T>
-    struct HasValueType<T, typename AliasWrapper<typename T::value_type>::Type> : std::true_type {};
+    struct HasValueType<T, AliasWrapperT<typename T::value_type>> : std::true_type {};
 
     template<class T, class Enable = void>
     struct HasDifferenceType : std::false_type {};
 
     template<class T>
-    struct HasDifferenceType<T, typename AliasWrapper<typename T::reference>::Type> : std::true_type {};
+    struct HasDifferenceType<T, AliasWrapperT<typename T::reference>> : std::true_type {};
 
     template<class T, class Enable = void>
     struct HasPointer : std::false_type {};
 
     template<class T>
-    struct HasPointer<T, typename AliasWrapper<typename T::pointer>::Type> : std::true_type {};
+    struct HasPointer<T, AliasWrapperT<typename T::pointer>> : std::true_type {};
 
     template<class T, class Enable = void>
     struct HasIterCat : std::false_type {};
 
     template<class T>
-    struct HasIterCat<T, typename AliasWrapper<typename T::iterator_category>::Type> : std::true_type {};
+    struct HasIterCat<T, AliasWrapperT<typename T::iterator_category>> : std::true_type {};
 
     template<class T, class Enable = void>
     struct HasReference : std::false_type {};
 
     template<class T>
-    struct HasReference<T, typename AliasWrapper<typename T::reference>::Type> : std::true_type {};
+    struct HasReference<T, AliasWrapperT<typename T::reference>> : std::true_type {};
 
     template<class T>
     struct IsIterator {
@@ -59,16 +62,19 @@ namespace lz { namespace internal {
     };
 
     template<class T>
-    struct IterTraitsOrUnderlyingType<T, typename AliasWrapper<typename T::iterator>::Type> {
+    struct IterTraitsOrUnderlyingType<T, AliasWrapperT<typename T::iterator>> {
         using Type = std::iterator_traits<typename T::iterator>;
     };
+
+    template<class T, class U= void>
+    using IterTraitsOrUnderlyingTypeT = typename IterTraitsOrUnderlyingType<T, U>::Type;
 
     template<class T, bool IsCont>
     struct CountDimsHelper;
 
     template<class T>
     struct CountDimsHelper<T, true> {
-        using Inner = typename IterTraitsOrUnderlyingType<typename T::value_type>::Type;
+        using Inner = IterTraitsOrUnderlyingTypeT<typename T::value_type>;
         static constexpr int value = 1 + CountDimsHelper<Inner, IsIterator<Inner>::value>::value;
     };
 

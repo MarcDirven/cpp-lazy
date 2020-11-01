@@ -182,7 +182,7 @@ namespace lz { namespace internal {
         using difference_type = std::ptrdiff_t;
         using reference = typename FirstTupleIterator::reference;
         using pointer = typename FirstTupleIterator::pointer;
-        using iterator_category = typename LowestIterType<IterCat<Iterators>...>::Type;
+        using iterator_category = LowestIterTypeT<IterCat<Iterators>...>;
 
     private:
         template<std::size_t... I>
