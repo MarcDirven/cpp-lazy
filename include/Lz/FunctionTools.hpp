@@ -76,6 +76,23 @@ namespace lz {
         const char* end(const char* s) {
             return s + std::strlen(s);
         }
+
+        template<class Tuple, class Fn, std::size_t... I>
+        auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>)
+#ifdef LZ_HAS_CXX_11
+        -> std::function<lz::internal::FunctionReturnType<Fn, decltype(std::get<I>(std::declval<Tuple>()))...>(Tuple)>
+#endif
+        {
+#ifdef LZ_HAS_CXX_11
+            return std::bind([](Fn fn, Tuple tuple) {
+                return fn(std::get<I>(std::forward<Tuple>(tuple))...);
+            }, std::move(fn), std::placeholders::_1);
+#else
+            return [fn = std::move(fn)](Tuple tuple) {
+                return fn(std::get<I>(std::forward<Tuple>(tuple))...);
+            };
+#endif
+        }
     }} // namespace internal::<anonymous>
 
     /**
@@ -284,6 +301,52 @@ namespace lz {
     Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
         return lz::as<T>(internal::begin(std::forward<Iterable>(iterable)),
                          internal::end(std::forward<Iterable>(iterable)));
+    }
+
+    /**
+     * Zips n containers and applies (simultaneously) the function given as argument, containing each of the containers' value types.
+     * Signature must look like: `fn(ValueTypeIterable1[, ValueTypeIterable2[, ValueTypeIterable3[, ValueTypeIterable-n[, ...]]]])`
+     * @param fn The function to apply to each elements in all containers.
+     * @param begin The beginning of all the iterables
+     * @param end The ending of all the iterables
+     * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
+     */
+    template<class Fn, LZ_CONCEPT_ITERATOR... Iterators,
+        class Zipper = lz::Zip<Iterators...>,
+        class ValueType = decltype(*std::declval<Zipper>().begin())>
+    auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
+#ifdef LZ_HAS_CXX_11
+    -> lz::Map<typename Zipper::iterator,
+               decltype(internal::makeExpandFn<ValueType>(fn, internal::MakeIndexSequence<sizeof...(Iterators)>()))>
+#endif
+    {
+        Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
+        constexpr std::size_t size = sizeof...(Iterators);
+        auto tupleExpanderFunc = internal::makeExpandFn<ValueType>(std::move(fn), internal::MakeIndexSequence<size>());
+        return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
+    }
+
+    /**
+     * Zips n containers and applies (simultaneously) the function given as argument, containing each of the containers' value types.
+     * Signature must look like: `fn(ValueTypeIterable1[, ValueTypeIterable2[, ValueTypeIterable3[, ValueTypeIterable-n[, ...]]]])`
+     * @param fn The function to apply to each elements in all containers.
+     * @param iterables The iterables.
+     * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
+     */
+    template<class Fn, class... Iterables
+#ifdef LZ_HAS_CXX_11
+        , class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>,
+        class ValueType = decltype(*std::declval<Zipper>().begin())
+#endif
+    >
+    auto zipWith(Fn fn, Iterables&&... iterables)
+#ifdef LZ_HAS_CXX_11
+    -> lz::Map<typename Zipper::iterator,
+               decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))>
+#endif
+    {
+        return lz::zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
+                                          std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
     }
 
     /**

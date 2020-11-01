@@ -107,6 +107,12 @@ namespace lz {
             return lz::toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
         }
 
+        //! See FunctionTools.hpp `zipWith` for documentation
+        template<class Fn, class... Iterables>
+        auto zipWith(Fn fn, Iterables&&... iterables) const -> IterView<decltype(lz::zipWith(fn, iterables...))> {
+            return lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...);
+        }
+
         //! See FunctionTools.hpp `as` for documentation.
         template<class T>
         IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {

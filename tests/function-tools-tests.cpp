@@ -211,4 +211,18 @@ TEST_CASE("Function tools") {
         auto selected = lz::select(range, std::move(selectors));
         CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
+
+    SECTION("Zip with") {
+        std::vector<int> v = {1,2,3};
+        std::vector<int> v2 = {1,2,3};
+
+        auto zipper = lz::zipWith([](int& a, int b) {
+            int tmp = a;
+            a = 0;
+            return tmp + b;
+        }, v, v2).toVector();
+
+        CHECK(zipper == std::vector<int>{2,4,6});
+        CHECK(v == std::vector<int>{0,0,0}); // ref check
+    }
 }
