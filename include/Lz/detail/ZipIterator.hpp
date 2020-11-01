@@ -11,10 +11,10 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR... Iterators>
     class ZipIterator {
     public:
-        using iterator_category = typename LowestIterType<IterCat<Iterators>...>::Type;
-        using value_type = std::tuple<internal::ValueType<Iterators>...>;
+        using iterator_category = LowestIterTypeT<IterCat<Iterators>...>;
+        using value_type = std::tuple<ValueType<Iterators>...>;
         using difference_type = std::ptrdiff_t;
-        using reference = std::tuple<internal::RefType<Iterators>...>;
+        using reference = std::tuple<RefType<Iterators>...>;
         using pointer = FakePointerProxy<reference>;
 
     private:
