@@ -8,14 +8,14 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++14/17/20. The two mai
 # Features
 - C++11/14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
-- Compatible with old(er) compiler versions; at least `gcc` versions => `5.4.0` & `clang` => `7.0.0` (previous 
+- Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `7.0.0` (previous 
 versions have not been checked)
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W3` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
 - STL compatible
 - Little overhead
 - Supported compiler versions:
-  - &gt;= GCC 5 (GCC 4.8 is still WIP, it does compile but no tests in .workflow are done yet)
+  - &gt;= GCC 5 (GCC 4.8 is still WIP, it does compile but no tests in .workflow are executed yet)
   - &gt;= clang 5
   - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
 - Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
