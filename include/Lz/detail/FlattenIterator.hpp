@@ -140,7 +140,7 @@ namespace lz { namespace internal {
         }
     };
 
-    template<typename Iterator, std::size_t N>
+    template<typename Iterator, int N>
     class FlattenIterator {
         using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
 
