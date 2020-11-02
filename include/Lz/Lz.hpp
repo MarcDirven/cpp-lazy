@@ -130,6 +130,13 @@ namespace lz {
             return lz::toIter(lz::pairwise(*this));
         }
 
+        //! See FunctionTools.hpp `trim` for documentation
+        template<class UnaryPredicateFirst, class UnaryPredicateLast>
+        IterView<lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>>
+        trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
+            return lz::trim(*this, std::move(first), std::move(last));
+        }
+
         /**
          * Gets the nth element from this sequence.
          * @param n The offset.
