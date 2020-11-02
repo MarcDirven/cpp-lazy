@@ -148,14 +148,15 @@ namespace lz { namespace internal {
         LzIterator _end{};
 
     public:
-        virtual LzIterator begin() const& {
+        virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
             return _begin;
         }
 
-        virtual LzIterator end() const& {
+        virtual LzIterator end() LZ_CONST_REF_QUALIFIER {
             return _end;
         }
 
+#ifdef LZ_HAS_REF_QUALIFIER
         virtual LzIterator begin() && {
             return std::move(_begin);
         }
@@ -163,7 +164,7 @@ namespace lz { namespace internal {
         virtual LzIterator end() && {
             return std::move(_end);
         }
-
+#endif // end lz has ref qualifier
         BasicIteratorView() = default;
 
         BasicIteratorView(LzIterator begin, LzIterator end):
