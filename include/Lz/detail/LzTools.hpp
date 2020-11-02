@@ -22,6 +22,13 @@
   #define LZ_HAS_CXX_11
 #endif // end has cxx 11
 
+#ifdef __cpp_ref_qualifiers
+  #define LZ_HAS_REF_QUALIFIER
+  #define LZ_CONST_REF_QUALIFIER const&
+#else
+  #define LZ_CONST_REF_QUALIFIER
+#endif
+
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
   #define LZ_HAS_CXX14
 #endif // end has cxx 14

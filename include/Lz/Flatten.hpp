@@ -24,11 +24,22 @@ namespace lz {
         {}
     };
 
+    /**
+     * This function returns a view object that flattens an n-dimensional array.
+     * @param begin The beginning of the iterable.
+     * @param end The ending of the iterable.
+     * @return A flatten view object, where its iterator is a forward iterator.
+     */
     template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
     Flatten<Iterator, Dims> flatten(Iterator begin, Iterator end) {
         return Flatten<Iterator, Dims>(begin, end);
     }
 
+    /**
+     * This function returns a view object that flattens an n-dimensional array.
+     * @param iterable The iterable to flatten.
+     * @return A flatten view object, where its iterator is a forward iterator.
+     */
     template<LZ_CONCEPT_ITERABLE Iterable,
         class Iterator = internal::IterTypeFromIterable<Iterable>,
         int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>

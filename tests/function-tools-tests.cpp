@@ -225,4 +225,11 @@ TEST_CASE("Function tools") {
         CHECK(zipper == std::vector<int>{2,4,6});
         CHECK(v == std::vector<int>{0,0,0}); // ref check
     }
+
+    SECTION("Trimming") {
+        std::string toTrim = "\n\n  Hello world    \t\t";
+        auto f = [](char c) { return std::isspace(c); };
+        auto trimming = lz::trim(toTrim, f, f);
+        CHECK(trimming.toString() == "Hello world");
+    }
 }

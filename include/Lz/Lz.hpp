@@ -60,6 +60,7 @@ namespace lz {
             return lz::toIter(lz::enumerate(*this, begin));
         }
 
+        //! See Flatten.hpp for documentation
         IterView<internal::FlattenIterator<Iterator, internal::CountDims<Iterator>::value - 1>> flatten() const {
             return lz::toIter(lz::flatten(*this));
         }
@@ -127,6 +128,13 @@ namespace lz {
         //! See FunctionTools.hpp `reverse` for documentation.
         IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
             return lz::toIter(lz::pairwise(*this));
+        }
+
+        //! See FunctionTools.hpp `trim` for documentation
+        template<class UnaryPredicateFirst, class UnaryPredicateLast>
+        IterView<lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>>
+        trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
+            return lz::trim(*this, std::move(first), std::move(last));
         }
 
         /**
