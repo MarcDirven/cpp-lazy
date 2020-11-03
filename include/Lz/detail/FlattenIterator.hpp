@@ -105,8 +105,8 @@ namespace lz { namespace internal {
         FlattenWrapper() = default;
 
         FlattenWrapper(Iterator begin, Iterator end) :
-            _iterator(begin),
-            _end(end) {}
+            _iterator(std::move(begin)),
+            _end(std::move(end)) {}
 
         bool hasSome() const {
             return _iterator != _end;
@@ -171,7 +171,7 @@ namespace lz { namespace internal {
         FlattenIterator() = default;
 
         FlattenIterator(Iterator begin, Iterator end) :
-            _iterOuter(begin, end) {
+            _iterOuter(std::move(begin), std::move(end)) {
             if (!_iterOuter.hasSome()) {
                 return;
             }
@@ -226,7 +226,7 @@ namespace lz { namespace internal {
         FlattenIterator() = default;
 
         FlattenIterator(Iterator begin, Iterator end) :
-            _range(begin, end) {}
+            _range(std::move(begin), std::move(end)) {}
 
         bool hasSome() const {
             return _range.hasSome();

@@ -30,8 +30,8 @@ namespace lz {
         using pointer = typename IterTraits::pointer;
 
         TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
-            _iterator(iterator),
-            _end(end),
+            _iterator(std::move(iterator)),
+            _end(std::move(end)),
             _offset(offset),
             _current(iterator == end ? distance : 0),
             _distance(distance) {

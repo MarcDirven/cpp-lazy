@@ -61,15 +61,15 @@ namespace lz { namespace internal {
 #else // ^^^ has execution vvv ! has execution
         ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) :
 #endif // end has execution
-            _iterator(begin),
-            _end(end),
+            _iterator(std::move(begin)),
+            _end(std::move(end)),
             _toExceptBegin(std::move(toExceptBegin)),
             _toExceptEnd(std::move(toExceptEnd))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end has execution
         {
-            if (begin != end) {
+            if (_toExceptBegin != _toExceptEnd) {
 #ifdef LZ_HAS_EXECUTION
                 if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd)) {
                     std::sort(_execution, _toExceptBegin, _toExceptEnd);

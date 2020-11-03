@@ -194,9 +194,9 @@ namespace lz { namespace internal {
 
     public:
         ConcatenateIterator(IterTuple iterators, IterTuple begin, IterTuple end) :
-            _iterators(iterators),
-            _begin(begin),
-            _end(end) {
+            _iterators(std::move(iterators)),
+            _begin(std::move(begin)),
+            _end(std::move(end)) {
         }
 
         ConcatenateIterator() = default;

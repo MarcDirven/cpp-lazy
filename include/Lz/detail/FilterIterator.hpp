@@ -55,8 +55,8 @@ namespace lz { namespace internal {
         FilterIterator(Iterator begin, Iterator end, Function function)
 #endif // end has execution
         :
-            _iterator(begin),
-            _end(end),
+            _iterator(std::move(begin)),
+            _end(std::move(end)),
             _predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
