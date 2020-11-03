@@ -51,7 +51,7 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution dist(0, 32);
 std::vector<int> randomNumbers;
-std::generate(randomNumbers.begin(), randomNumbers.end(), []{ return dist(gen); });
+std::generate(randomNumbers.begin(), randomNumbers.end(), [&dist, &gen]{ return dist(gen); });
 ```
 
 
