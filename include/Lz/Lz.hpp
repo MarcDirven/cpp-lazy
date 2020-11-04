@@ -132,7 +132,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `trim` for documentation
         template<class UnaryPredicateFirst, class UnaryPredicateLast>
-        IterView<lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>>
+        IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
         trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
             return lz::trim(*this, std::move(first), std::move(last));
         }
