@@ -37,31 +37,27 @@ namespace lz { namespace internal {
         UniqueIterator(Iterator begin, Iterator end)
 #endif // end lz has execution
         :
-            _iterator(begin),
-            _end(end)
+            _iterator(std::move(begin)),
+            _end(std::move(end))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end lz has execution
         {
-            if (begin == end) {
+            if (_iterator == _end) {
                 return;
             }
 
 #ifdef LZ_HAS_EXECUTION
-            if (std::is_sorted(_execution, begin, end)) {
+            if (std::is_sorted(_execution, _iterator, _end)) {
                 return;
             }
+            std::sort(_execution, _iterator, _end);
 #else // ^^^ lz has execution vvv ! lz has execution
-            if (std::is_sorted(begin, end)) {
+            if (std::is_sorted(_iterator, _end)) {
                 return;
             }
-#endif // end lz has execution
-
-#ifdef LZ_HAS_EXECUTION
-            std::sort(_execution, begin, end);
-#else // ^^^ lz has execution vvv ! lz has execution
-            std::sort(begin, end);
-#endif // end lz has execution
+            std::sort(_iterator, _end);
+#endif
         }
 
         UniqueIterator() = default;
