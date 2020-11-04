@@ -32,7 +32,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
     Flatten<Iterator, Dims> flatten(Iterator begin, Iterator end) {
-        return Flatten<Iterator, Dims>(begin, end);
+        return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
     }
 
     /**
