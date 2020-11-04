@@ -218,16 +218,16 @@ namespace lz {
      * @param begin The beginning of the sequence
      * @param end The ending of the sequence
      * @param init The starting value.
-     * @param selectorFunc Function that specifies what to add to `init`.
+     * @param binaryPredicate Function that specifies what to add to `init`.
      * @return The result of the transAccumulate operation.
      */
-    template<LZ_CONCEPT_ITERATOR Iterator, class Init, class SelectorFunc>
+    template<LZ_CONCEPT_ITERATOR Iterator, class Init, class BinaryPredicate>
 #ifdef LZ_HAS_CXX_17
     [[deprecated("a similar method is defined in <algorithm>; use std::transform_reduce instead")]]
 #endif // end lz has cxx 17
-    Init transAccumulate(Iterator begin, Iterator end, Init init, SelectorFunc selectorFunc) {
+    Init transAccumulate(Iterator begin, Iterator end, Init init, BinaryPredicate binaryPredicate) {
         for (; begin != end; ++begin) {
-            init = selectorFunc(std::move(init), *begin);
+            init = binaryPredicate(std::move(init), *begin);
         }
         return init;
     }
@@ -244,12 +244,12 @@ namespace lz {
      * ```
      * @param it The container to iterate over.
      * @param init The starting value.
-     * @param selectorFunc Function that specifies what to add to `init`.
+     * @param binaryPredicate Function that specifies what to add to `init`.
      * @return The result of the transAccumulate operation.
      */
-    template<LZ_CONCEPT_ITERABLE Iterable, class Init, class SelectorFunc>
-    Init transAccumulate(const Iterable& it, Init init, SelectorFunc selectorFunc) {
-        return lz::transAccumulate(std::begin(it), std::end(it), std::move(init), std::move(selectorFunc));
+    template<LZ_CONCEPT_ITERABLE Iterable, class Init, class BinaryPredicate>
+    Init transAccumulate(const Iterable& it, Init init, BinaryPredicate binaryPredicate) {
+        return lz::transAccumulate(std::begin(it), std::end(it), std::move(init), std::move(binaryPredicate));
     }
 
     /**
@@ -286,7 +286,7 @@ namespace lz {
      * @param last The unary predicate that trims the last elements while it returns `true`
      * @return An iterator view object.
      */
-    template<class Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
     lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
     trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
         auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
@@ -302,7 +302,7 @@ namespace lz {
      * @param last The unary predicate that trims the last elements while it returns `true`
      * @return An iterator view object.
      */
-    template<class Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
+    template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
     lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
     trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
         return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
