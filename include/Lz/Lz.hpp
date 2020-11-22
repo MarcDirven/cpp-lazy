@@ -334,6 +334,40 @@ namespace lz {
         }
 
         /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @param exec The execution policy.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
+        value_type max(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+                static_cast<void>(exec);
+                return std::max_element(exec, Base::begin(), Base::end(), cmp);
+            }
+            else {
+                return std::max_element(Base::begin(), Base::end(), cmp);
+            }
+        }
+
+        /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @param exec The execution policy.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
+        value_type min(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+                static_cast<void>(exec);
+                return std::min_element(exec, Base::begin(), Base::end(), cmp);
+            }
+            else {
+                return std::min_element(Base::begin(), Base::end(), cmp);
+            }
+        }
+
+        /**
          * Checks if all of the elements meet the condition `predicate`. `predicate` must return a bool and take a `value_type` as parameter.
          * @param predicate The function that checks if an element meets a certain condition.
          * @param exec The execution policy.
@@ -568,6 +602,26 @@ namespace lz {
          */
         value_type sum() const {
             return this->foldl(value_type(), std::plus<>());
+        }
+
+        /**
+         * Gets the max value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @return The max element.
+         */
+        template<class Compare = std::less<>>
+        value_type max(Compare cmp = std::less<>()) const {
+            return std::max_element(Base::begin(), Base::end(), cmp);
+        }
+
+        /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>>
+        value_type min(Compare cmp = std::less<>()) const {
+            return std::min_element(Base::begin(), Base::end(), cmp);
         }
 
         /**
