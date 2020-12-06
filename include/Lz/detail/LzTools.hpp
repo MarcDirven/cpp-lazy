@@ -30,7 +30,7 @@
 #endif
 
 #if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
-  #define LZ_HAS_CXX14
+  #define LZ_HAS_CXX_14
 #endif // end has cxx 14
 
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
