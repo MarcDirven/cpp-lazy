@@ -3,11 +3,11 @@
 #ifndef LZ_LZ_HPP
 #define LZ_LZ_HPP
 
-#include "Lz/Affirm.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
+#include "Lz/LeftJoin.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
 #include "Lz/Repeat.hpp"
@@ -226,6 +226,16 @@ namespace lz {
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<Iterator> dropWhile(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate), exec));
+        }
+
+        //! See LeftJoin.hpp for documentation
+        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
+            class Execution = std::execution::sequenced_policy>
+        LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+            SelectorA, SelectorB, ResultSelector, Execution>
+        leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+                 Execution execution = std::execution::seq) {
+            return lz::leftJoin(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
@@ -513,6 +523,13 @@ namespace lz {
         template<class UnaryPredicate>
         IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate)));
+        }
+
+        //! See LeftJoin.hpp for documentation
+        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
+        LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
+        leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
+            return lz::leftJoin(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation
