@@ -278,38 +278,6 @@ namespace lz {
     }
 
     /**
-     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
-     * `last` returns true for the trimming of the ending.
-     * @param begin The beginning of the sequence.
-     * @param end The ending of the sequence.
-     * @param first The unary predicate that trims the first elements while it returns `true`
-     * @param last The unary predicate that trims the last elements while it returns `true`
-     * @return An iterator view object.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
-    trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
-        auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
-        auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last));
-        return lz::reverse(std::move(takenLast));
-    }
-
-    /**
-     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
-     * `last` returns true for the trimming of the ending.
-     * @param iterable The iterable to trim
-     * @param first The unary predicate that trims the first elements while it returns `true`
-     * @param last The unary predicate that trims the last elements while it returns `true`
-     * @return An iterator view object.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
-    trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
-        return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                        std::move(first), std::move(last));
-    }
-
-    /**
      * Returns an iterator that constructs type To from the given container. E.g. `lz::as<floats>(...begin(), ...end())` constructs
      * floating points from the given values in the container.
      * @tparam T The type to construct from the elements in the given container
@@ -671,6 +639,42 @@ namespace lz {
         return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)),
                       execution);
+    }
+
+    /**
+     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
+     * `last` returns true for the trimming of the ending.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param first The unary predicate that trims the first elements while it returns `true`
+     * @param last The unary predicate that trims the last elements while it returns `true`
+     * @param execution The execution policy. Must be of type std::execution::*
+     * @return An iterator view object.
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast,
+        class Execution = std::execution::sequenced_policy>
+    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+    trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
+        auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first), execution);
+        auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last), execution);
+        return lz::reverse(std::move(takenLast));
+    }
+
+    /**
+     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
+     * `last` returns true for the trimming of the ending.
+     * @param iterable The iterable to trim
+     * @param first The unary predicate that trims the first elements while it returns `true`
+     * @param last The unary predicate that trims the last elements while it returns `true`
+     * @param execution The execution policy. Must be of type std::execution::*
+     * @return An iterator view object.
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast,
+        class Execution = std::execution::sequenced_policy>
+    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+    trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
+        return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        std::move(first), std::move(last), execution);
     }
 
     /**
@@ -1421,6 +1425,38 @@ namespace lz {
     {
         return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)));
+    }
+
+        /**
+     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
+     * `last` returns true for the trimming of the ending.
+     * @param begin The beginning of the sequence.
+     * @param end The ending of the sequence.
+     * @param first The unary predicate that trims the first elements while it returns `true`
+     * @param last The unary predicate that trims the last elements while it returns `true`
+     * @return An iterator view object.
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
+    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+    trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
+        auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
+        auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last));
+        return lz::reverse(std::move(takenLast));
+    }
+
+    /**
+     * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
+     * `last` returns true for the trimming of the ending.
+     * @param iterable The iterable to trim
+     * @param first The unary predicate that trims the first elements while it returns `true`
+     * @param last The unary predicate that trims the last elements while it returns `true`
+     * @return An iterator view object.
+     */
+    template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
+    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+    trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
+        return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        std::move(first), std::move(last));
     }
 #endif // End LZ_HAS_EXECUTION
 } // End namespace lz
