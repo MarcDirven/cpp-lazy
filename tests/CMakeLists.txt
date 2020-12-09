@@ -47,7 +47,7 @@ add_executable(LazyTests
         unique-tests.cpp
         zip-tests.cpp)
 
-target_compile_features(LazyTests PRIVATE cxx_std_20)
+target_compile_features(LazyTests PRIVATE cxx_std_14)
 
 target_compile_options(LazyTests
         PRIVATE
