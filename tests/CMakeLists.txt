@@ -34,6 +34,7 @@ add_executable(LazyTests
         function-tools-tests.cpp
         generate-tests.cpp
         join-tests.cpp
+        join-where-tests.cpp
         lz-chain-tests.cpp
         map-tests.cpp
         random-tests.cpp
@@ -51,7 +52,7 @@ target_compile_features(LazyTests PRIVATE cxx_std_11)
 target_compile_options(LazyTests
         PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W3 /permissive->
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function -Wfatal-errors>)
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     include(CheckCXXCompilerFlag)

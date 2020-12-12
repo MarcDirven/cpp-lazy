@@ -3,11 +3,11 @@
 #ifndef LZ_LZ_HPP
 #define LZ_LZ_HPP
 
-#include "Lz/Affirm.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
+#include "Lz/JoinWhere.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
 #include "Lz/Repeat.hpp"
@@ -132,7 +132,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `trim` for documentation
         template<class UnaryPredicateFirst, class UnaryPredicateLast>
-        IterView<lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>>
+        IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
         trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
             return lz::trim(*this, std::move(first), std::move(last));
         }
@@ -226,6 +226,16 @@ namespace lz {
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<Iterator> dropWhile(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate), exec));
+        }
+
+        //! See JoinWhere.hpp for documentation
+        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
+            class Execution = std::execution::sequenced_policy>
+        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+            SelectorA, SelectorB, ResultSelector, Execution>
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+                 Execution execution = std::execution::seq) {
+            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
@@ -331,6 +341,40 @@ namespace lz {
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(const Execution exec = std::execution::seq) const {
             return this->foldl(value_type(), std::plus<>(), exec);
+        }
+
+        /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @param exec The execution policy.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
+        value_type max(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+                static_cast<void>(exec);
+                return std::max_element(exec, Base::begin(), Base::end(), cmp);
+            }
+            else {
+                return std::max_element(Base::begin(), Base::end(), cmp);
+            }
+        }
+
+        /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @param exec The execution policy.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
+        value_type min(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+                static_cast<void>(exec);
+                return std::min_element(exec, Base::begin(), Base::end(), cmp);
+            }
+            else {
+                return std::min_element(Base::begin(), Base::end(), cmp);
+            }
         }
 
         /**
@@ -481,6 +525,13 @@ namespace lz {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate)));
         }
 
+        //! See JoinWhere.hpp for documentation
+        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
+        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
+            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
+        }
+
         //! See FunctionTools.hpp `firstOrDefault` for documentation
         template<class T, class U>
         value_type firstOrDefault(T&& toFind, U&& defaultValue) const {
@@ -568,6 +619,26 @@ namespace lz {
          */
         value_type sum() const {
             return this->foldl(value_type(), std::plus<>());
+        }
+
+        /**
+         * Gets the max value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @return The max element.
+         */
+        template<class Compare = std::less<>>
+        value_type max(Compare cmp = std::less<>()) const {
+            return std::max_element(Base::begin(), Base::end(), cmp);
+        }
+
+        /**
+         * Gets the min value of the current iterator view.
+         * @param cmp The comparer. operator< is assumed by default.
+         * @return The min element.
+         */
+        template<class Compare = std::less<>>
+        value_type min(Compare cmp = std::less<>()) const {
+            return std::min_element(Base::begin(), Base::end(), cmp);
         }
 
         /**
