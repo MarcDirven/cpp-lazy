@@ -7,7 +7,7 @@
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
-#include "Lz/LeftJoin.hpp"
+#include "Lz/JoinWhere.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
 #include "Lz/Repeat.hpp"
@@ -228,14 +228,14 @@ namespace lz {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate), exec));
         }
 
-        //! See LeftJoin.hpp for documentation
+        //! See JoinWhere.hpp for documentation
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
             class Execution = std::execution::sequenced_policy>
-        LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
             SelectorA, SelectorB, ResultSelector, Execution>
         leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                  Execution execution = std::execution::seq) {
-            return lz::leftJoin(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
+            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
@@ -525,11 +525,11 @@ namespace lz {
             return lz::toIter(lz::dropWhile(*this, std::move(predicate)));
         }
 
-        //! See LeftJoin.hpp for documentation
+        //! See JoinWhere.hpp for documentation
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-        LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
+        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
         leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
-            return lz::leftJoin(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
+            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation

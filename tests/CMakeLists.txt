@@ -34,7 +34,7 @@ add_executable(LazyTests
         function-tools-tests.cpp
         generate-tests.cpp
         join-tests.cpp
-        left-join-tests.cpp
+        join-where-tests.cpp
         lz-chain-tests.cpp
         map-tests.cpp
         random-tests.cpp

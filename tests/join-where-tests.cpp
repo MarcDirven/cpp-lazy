@@ -1,5 +1,6 @@
-#include <Lz/LeftJoin.hpp>
+#include <Lz/JoinWhere.hpp>
 #include <catch2/catch.hpp>
+#include <list>
 
 struct Customer {
     int id;
@@ -11,7 +12,7 @@ struct PaymentBill {
 };
 
 
-TEST_CASE("Left join changing and creating elements", "[LeftJoin][Basic functionality]") {
+TEST_CASE("Left join changing and creating elements", "[JoinWhere][Basic functionality]") {
     std::vector<Customer> customers{
         Customer{25},
         Customer{1},
@@ -28,11 +29,11 @@ TEST_CASE("Left join changing and creating elements", "[LeftJoin][Basic function
         PaymentBill{2523, 53},
     };
 
-    auto joined = lz::leftJoin(customers, paymentBills,
-                               [](const Customer& p) { return p.id; },
-                               [](const PaymentBill& c) { return c.customerId; },
-                               [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
-    
+    auto joined = lz::joinWhere(customers, paymentBills,
+                                [](const Customer& p) { return p.id; },
+                                [](const PaymentBill& c) { return c.customerId; },
+                                [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+
     SECTION("Should initialized with first match") {
         std::tuple<Customer, PaymentBill> match = *joined.begin();
         Customer& customer = std::get<0>(match);
@@ -44,7 +45,7 @@ TEST_CASE("Left join changing and creating elements", "[LeftJoin][Basic function
     }
 }
 
-TEST_CASE("Left join binary operations", "[LeftJoin][Binary ops]") {
+TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
     std::vector<Customer> customers{
         Customer{25},
         Customer{1},
@@ -61,10 +62,10 @@ TEST_CASE("Left join binary operations", "[LeftJoin][Binary ops]") {
         PaymentBill{2523, 53},
     };
 
-    auto joined = lz::leftJoin(customers, paymentBills,
-                               [](const Customer& p) { return p.id; },
-                               [](const PaymentBill& c) { return c.customerId; },
-                               [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+    auto joined = lz::joinWhere(customers, paymentBills,
+                                [](const Customer& p) { return p.id; },
+                                [](const PaymentBill& c) { return c.customerId; },
+                                [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
     auto it = joined.begin();
 
     SECTION("Operator++") {
@@ -84,7 +85,7 @@ TEST_CASE("Left join binary operations", "[LeftJoin][Binary ops]") {
     }
 }
 
-TEST_CASE("LeftJoin to containers", "[LeftJoin][To container]") {
+TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
     std::vector<Customer> customers{
         Customer{25},
         Customer{1},
@@ -101,10 +102,10 @@ TEST_CASE("LeftJoin to containers", "[LeftJoin][To container]") {
         PaymentBill{2523, 53},
     };
 
-    auto joined = lz::leftJoin(customers, paymentBills,
-                               [](const Customer& p) { return p.id; },
-                               [](const PaymentBill& c) { return c.customerId; },
-                               [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+    auto joined = lz::joinWhere(customers, paymentBills,
+                                [](const Customer& p) { return p.id; },
+                                [](const PaymentBill& c) { return c.customerId; },
+                                [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
 
     SECTION("To array") {
         std::array<std::tuple<Customer, PaymentBill>, 4> expected = {

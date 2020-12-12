@@ -15,7 +15,7 @@ namespace lz { namespace internal {
 #else
     template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 #endif
-    class LeftJoinIterator {
+    class JoinWhereIterator {
     private:
         using IterTraitsA = std::iterator_traits<IterA>;
         using IterTraitsB = std::iterator_traits<IterB>;
@@ -89,13 +89,11 @@ namespace lz { namespace internal {
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 
-        LeftJoinIterator() = default;
-
 #ifdef LZ_HAS_CXX_17
         LeftJoinIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                          Execution execution) :
 #else
-        LeftJoinIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
+        JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
 #endif
             _longest(std::distance(iterA, endA) >= std::distance(iterB, endB) ? Longest::IteratorA : Longest::IteratorB),
             _iterA(std::move(iterA)),
@@ -159,6 +157,8 @@ namespace lz { namespace internal {
                 findNext();
             }
 
+        JoinWhereIterator() = default;
+
         reference operator*() const {
             return _resultSelector(*_iterAFound, *_iterBFound);
         }
@@ -167,22 +167,22 @@ namespace lz { namespace internal {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
-        LeftJoinIterator& operator++() {
+        JoinWhereIterator& operator++() {
             findNext();
             return *this;
         }
 
-        LeftJoinIterator operator++(int) {
-            LeftJoinIterator tmp(*this);
+        JoinWhereIterator operator++(int) {
+            JoinWhereIterator tmp(*this);
             ++*this;
             return tmp;
         }
 
-        friend bool operator==(const LeftJoinIterator& a, const LeftJoinIterator& b) {
+        friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
             return a._iterAFound == b._iterA || a._iterBFound == b._iterB;
         }
 
-        friend bool operator!=(const LeftJoinIterator& a, const LeftJoinIterator& b) {
+        friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
             return !(a == b);
         }
     };
