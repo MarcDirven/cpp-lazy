@@ -40,7 +40,7 @@ namespace lz {
 
         JoinWhere() = default;
     };
-    
+
 #ifdef LZ_HAS_CXX_17
     /**
      * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
