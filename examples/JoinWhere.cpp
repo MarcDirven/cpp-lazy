@@ -31,8 +31,8 @@ int main() {
                                 [](const PaymentBill& c) { return c.customerId; },
                                 [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
 
-    for (std::tuple<Customer, PaymentBill> : joined) {
-        fmt::print("{} and {} are the same. The corresponding payment bill id is {}",
-                   std::get<0>(joined).id, std::get<1>(joined).customerId, std::get<1>(0).id);
+    for (std::tuple<Customer, PaymentBill> join : joined) {
+        fmt::print("{} and {} are the same. The corresponding payment bill id is {}\n",
+                   std::get<0>(join).id, std::get<1>(join).customerId, std::get<1>(join).id);
     }
 }
