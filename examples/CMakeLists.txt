@@ -7,7 +7,6 @@ FetchContent_Declare(cpp-lazy SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 FetchContent_MakeAvailable(cpp-lazy)
 
 set(examples
-        Affirm
         Concatenate
         Enumerate
         Except
