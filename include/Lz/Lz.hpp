@@ -233,7 +233,7 @@ namespace lz {
             class Execution = std::execution::sequenced_policy>
         JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
             SelectorA, SelectorB, ResultSelector, Execution>
-        leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                  Execution execution = std::execution::seq) {
             return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
         }
@@ -528,7 +528,7 @@ namespace lz {
         //! See JoinWhere.hpp for documentation
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
         JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
-        leftJoin(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
             return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
         }
 
