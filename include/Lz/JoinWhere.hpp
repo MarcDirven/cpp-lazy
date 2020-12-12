@@ -40,9 +40,25 @@ namespace lz {
 
         JoinWhere() = default;
     };
-
-
+    
 #ifdef LZ_HAS_CXX_17
+    /**
+     * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
+     * The selector for a must be a function with a parameter of type = `*iterA`.
+     * The selector for b must be a function with a parameter of type = `*iterB`.
+     * The selector for the result must be a function with parameters: `fn(decltype(*iterA), decltype(*iterB)`. It may return anything.
+     * @param iterA The beginning of the sequence A to join.
+     * @param endA The ending of the sequence A to join.
+     * @param iterB The beginning of the sequence B to join.
+     * @param endB The ending of the sequence B to join.
+     * @param a A function that returns a key-like value to compare the result of `b` with.
+     * @param b A function that returns a key-like value to compare the result of `a` with.
+     * @param resultSelector A function that takes two parameters as its arguments. The value type of iterator a and the value type
+     * of iterator b. Once a match of `a == b` is found, this function will be called, and a result can be returned, for e.g.
+     * `std::make_tuple(valueTypeA, valueTypeB)`.
+     * @param execution The execution policy to check whether the sequence is sorted and to sort it if not.
+     * @return A join where iterator view object, which can be used to iterate over.
+     */
     template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
     LeftJoin<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
@@ -53,6 +69,22 @@ namespace lz {
             execution);
     }
 
+    /**
+     * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
+     * The selector for a must be a function with a parameter of type = `iterableA[n]`.
+     * The selector for b must be a function with a parameter of type = `iterableB[n]`.
+     * The selector for the result must be a function with parameters: `fn(decltype(iterableA[n]), decltype(iterableB[n])`.
+     *  It may return anything.
+     * @param iterableA The sequence to join with `iterableB`.
+     * @param iterableB The sequence to join with `iterableA`.
+     * @param a A function that returns a key-like value to compare the result of `b` with.
+     * @param b A function that returns a key-like value to compare the result of `a` with.
+     * @param resultSelector A function that takes two parameters as its arguments. The value type of iterable `iterableA` and the
+     * value type of iterable `iterableB`. Once a match of `a == b` is found, this function will be called, and a result can be returned,
+     * for e.g. `std::make_tuple(valueTypeA, valueTypeB)`.
+     * @param execution The execution policy to check whether the sequence is sorted and to sort it if not.
+     * @return A join where iterator view object, which can be used to iterate over.
+     */
     template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
     LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
@@ -64,6 +96,22 @@ namespace lz {
                         std::move(a), std::move(b), std::move(resultSelector), execution);
     }
 #else // ^^^ lz has cxx 17 vvv ! has cxx 17
+    /**
+     * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
+     * The selector for a must be a function with a parameter of type = `*iterA`.
+     * The selector for b must be a function with a parameter of type = `*iterB`.
+     * The selector for the result must be a function with parameters: `fn(decltype(*iterA), decltype(*iterB)`. It may return anything.
+     * @param iterA The beginning of the sequence A to join.
+     * @param endA The ending of the sequence A to join.
+     * @param iterB The beginning of the sequence B to join.
+     * @param endB The ending of the sequence B to join.
+     * @param a A function that returns a key-like value to compare the result of `b` with.
+     * @param b A function that returns a key-like value to compare the result of `a` with.
+     * @param resultSelector A function that takes two parameters as its arguments. The value type of iterator a and the value type
+     * of iterator b. Once a match of `a == b` is found, this function will be called, and a result can be returned, for e.g.
+     * `std::make_tuple(valueTypeA, valueTypeB)`.
+     * @return A join where iterator view object, which can be used to iterate over.
+     */
     template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
     JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector>
     joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
@@ -71,6 +119,21 @@ namespace lz {
             std::move(iterA), std::move(endA), std::move(iterB), std::move(endB), std::move(a), std::move(b), std::move(resultSelector));
     }
 
+    /**
+     * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
+     * The selector for a must be a function with a parameter of type = `iterableA[n]`.
+     * The selector for b must be a function with a parameter of type = `iterableB[n]`.
+     * The selector for the result must be a function with parameters: `fn(decltype(iterableA[n]), decltype(iterableB[n])`.
+     *  It may return anything.
+     * @param iterableA The sequence to join with `iterableB`.
+     * @param iterableB The sequence to join with `iterableA`.
+     * @param a A function that returns a key-like value to compare the result of `b` with.
+     * @param b A function that returns a key-like value to compare the result of `a` with.
+     * @param resultSelector A function that takes two parameters as its arguments. The value type of iterable `iterableA` and the
+     * value type of iterable `iterableB`. Once a match of `a == b` is found, this function will be called, and a result can be returned,
+     * for e.g. `std::make_tuple(valueTypeA, valueTypeB)`.
+     * @return A join where iterator view object, which can be used to iterate over.
+     */
     template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
     JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
     joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
