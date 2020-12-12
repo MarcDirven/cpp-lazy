@@ -15,6 +15,7 @@ set(examples
         FunctionTools
         Generate
         Join
+        JoinWhere
         Map
         Random
         Range
