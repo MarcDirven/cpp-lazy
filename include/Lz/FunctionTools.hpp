@@ -112,7 +112,7 @@ namespace lz {
 #else // ^^^ Lz has string view vvv !lz has string view
     template<class SubString = std::string, class String = std::string>
 #endif // end has string view
-    StringSplitter<SubString, String> lines(String&& string) {
+    StringSplitter<SubString, String> lines(const String& string) {
         return lz::split<SubString, String>(string, "\n");
     }
 
