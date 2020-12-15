@@ -7,6 +7,7 @@
 
 
 namespace lz { namespace internal {
+    // Edited version of https://github.com/mirandaconrado/product-iterator
     template<class... Iterators>
     class CartesianProductIterator {
     public:
