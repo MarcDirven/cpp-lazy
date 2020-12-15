@@ -7,16 +7,17 @@
 #include "detail/JoinWhereIterator.hpp"
 
 namespace lz {
-#ifdef LZ_HAS_CXX_17
+#ifdef LZ_HAS_EXECUTION
     template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
-    class LeftJoin :
-        public internal::BasicIteratorView<internal::LeftJoinIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector,Execution>> {
+    class JoinWhere final :
+        public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector,Execution>> {
 
     public:
-        using iterator = internal::LeftJoinIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
+        using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
     template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
-    class JoinWhere : public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
+    class JoinWhere final :
+        public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
 
     public:
         using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
@@ -25,8 +26,8 @@ namespace lz {
         using value_type = typename iterator::value_type;
 
     public:
-#ifdef LZ_HAS_CXX_17
-        LeftJoin(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+#ifdef LZ_HAS_EXECUTION
+        JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                  Execution execution):
             internal::BasicIteratorView<iterator>(iterator(iterA, endA, iterB, endB, a, b, resultSelector, execution),
                                                   iterator(endA, endA, endB, endB, a, b, resultSelector, execution))
@@ -41,7 +42,7 @@ namespace lz {
         JoinWhere() = default;
     };
 
-#ifdef LZ_HAS_CXX_17
+#ifdef LZ_HAS_EXECUTION
     /**
      * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
      * The selector for a must be a function with a parameter of type = `*iterA`.
@@ -61,10 +62,10 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE IterA, LZ_CONCEPT_ITERABLE IterB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
-    LeftJoin<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
-    leftJoin(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+    JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
+    joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
              Execution execution = std::execution::seq) {
-        return LeftJoin<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>(
+        return JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>(
             std::move(iterA), std::move(endA), std::move(iterB), std::move(endB), std::move(a), std::move(b), std::move(resultSelector),
             execution);
     }
@@ -87,9 +88,9 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE IterableA, LZ_CONCEPT_ITERABLE IterableB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
-    LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+    JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
         SelectorA, SelectorB, ResultSelector, Execution>
-    leftJoin(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+    joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
              Execution execution = std::execution::seq) {
         return leftJoin(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
                         internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),

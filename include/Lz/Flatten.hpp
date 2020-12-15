@@ -7,7 +7,7 @@
 
 namespace lz {
     template<class Iterator, int Dims>
-    class Flatten : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
+    class Flatten final : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
     public:
         using iterator = internal::FlattenIterator<Iterator, Dims>;
         using const_iterator = iterator;
