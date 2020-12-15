@@ -95,7 +95,7 @@ def get_cmake_cxx_version():
 
 
 def main():
-    benchmark_file_path = os.path.join(os.getcwd(), 'cmake-build-release', 'benchmark-iterators.csv')
+    benchmark_file_path = os.path.join(os.getcwd(), 'cmake-build-release-mingw', 'benchmark-iterators.csv')
     cxx_version = get_cmake_cxx_version()
 
     with open(benchmark_file_path) as benchmarks_file:

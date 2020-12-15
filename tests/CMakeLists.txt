@@ -26,6 +26,7 @@ endif()
 
 # ---- Tests ----
 add_executable(LazyTests
+        cartesian-product-tests.cpp
         concatenate-tests.cpp
         enumerate-tests.cpp
         except-tests.cpp

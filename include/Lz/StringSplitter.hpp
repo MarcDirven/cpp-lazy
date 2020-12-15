@@ -14,9 +14,6 @@ namespace lz {
         using const_iterator = internal::SplitIterator<SubString, String>;
         using iterator = const_iterator;
 
-    private:
-        internal::SplitViewIteratorHelper<String> _splitIteratorHelper{};
-
     public:
         using value_type = SubString;
 
@@ -26,27 +23,12 @@ namespace lz {
          * @param delimiter The delimiter to split on.
          */
         StringSplitter(const String& str, std::string&& delimiter) :
-            _splitIteratorHelper(std::move(delimiter), str)
+            internal::BasicIteratorView<iterator>(iterator(0, str, delimiter),
+                                                  iterator(str.size(), str, delimiter))
         {
         }
 
         StringSplitter() = default;
-
-        /**
-         * @brief Returns an input string split iterator to the beginning.
-         * @return A input string split iterator to the beginning.
-         */
-        const_iterator begin() const& override {
-            return const_iterator(0, &_splitIteratorHelper);
-        }
-
-        /**
-         * @brief Returns an input string split iterator to the ending.
-         * @return A input string split iterator to the ending.
-         */
-        const_iterator end() const& override {
-            return const_iterator(_splitIteratorHelper.string.size(), &_splitIteratorHelper);
-        }
     };
 
     template class StringSplitter<std::string, std::string>;

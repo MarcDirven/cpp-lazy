@@ -71,12 +71,12 @@ namespace lz { namespace internal {
         }
 
         template<class Container>
-        EnableIf<HasReserve<Container>::value, void> reserve(Container& container) const {
+        EnableIf<HasReserve<Container>::value> reserve(Container& container) const {
             container.reserve(std::distance(begin(), end()));
         }
 
         template<class Container>
-        EnableIf<!HasReserve<Container>::value, void> reserve(Container&) const {}
+        EnableIf<!HasReserve<Container>::value> reserve(Container&) const {}
 
 #ifdef LZ_HAS_EXECUTION
         template<class Container, class... Args, class Execution>

@@ -3,6 +3,7 @@
 #ifndef LZ_LZ_HPP
 #define LZ_LZ_HPP
 
+#include "Lz/CartesianProduct.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
@@ -135,6 +136,12 @@ namespace lz {
         IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
         trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
             return lz::trim(*this, std::move(first), std::move(last));
+        }
+
+        //! See CartesianProduct.hpp for documentation
+        template<class... Iterables>
+        IterView<CartesianProduct<internal::IterTypeFromIterable<Iterables>...>> cartesian(Iterables&&... iterables) {
+            return lz::toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
         }
 
         /**
@@ -503,7 +510,7 @@ namespace lz {
         //! See FunctionTools.hpp `select` for documentation
         template<class SelectorIterable
 #ifdef LZ_HAS_CXX_11
-            , class Iterator = internal::IterTypeFromIterable<Iterable>,
+            , class It = internal::IterTypeFromIterable<SelectorIterable>,
             class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
             class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
             class RefTuple = internal::RefType<ZipIter>
@@ -511,9 +518,9 @@ namespace lz {
         >
         auto select(SelectorIterable&& selectors)
 #ifdef LZ_HAS_CXX_11
-        -> IterView<internal::MapIterator<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,
+        -> IterView<internal::MapIterator<internal::FilterIterator<internal::ZipIterator<It, SelectorIterator>,
                                                                    std::function<bool(RefTuple)>>,
-                                          std::function<internal::RefType<Iterator>(RefTuple)>>>
+                                          std::function<internal::RefType<It>(RefTuple)>>>
 #endif // end lz has cxx11
         {
             return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)));
@@ -618,7 +625,7 @@ namespace lz {
          * Sums the sequence generated so far.
          */
         value_type sum() const {
-            return this->foldl(value_type(), std::plus<>());
+            return this->foldl(value_type(), std::plus<value_type>());
         }
 
         /**
@@ -626,8 +633,8 @@ namespace lz {
          * @param cmp The comparer. operator< is assumed by default.
          * @return The max element.
          */
-        template<class Compare = std::less<>>
-        value_type max(Compare cmp = std::less<>()) const {
+        template<class Compare = std::less<value_type>>
+        value_type max(Compare cmp = std::less<value_type>()) const {
             return std::max_element(Base::begin(), Base::end(), cmp);
         }
 
@@ -636,8 +643,8 @@ namespace lz {
          * @param cmp The comparer. operator< is assumed by default.
          * @return The min element.
          */
-        template<class Compare = std::less<>>
-        value_type min(Compare cmp = std::less<>()) const {
+        template<class Compare = std::less<value_type>>
+        value_type min(Compare cmp = std::less<value_type>()) const {
             return std::min_element(Base::begin(), Base::end(), cmp);
         }
 
@@ -684,7 +691,7 @@ namespace lz {
          * @return A reference to this.
          */
         const IterView<Iterator>& sort() const {
-            return this->sortBy(std::less<>());
+            return this->sortBy(std::less<value_type>());
         }
 
         /**
@@ -704,7 +711,7 @@ namespace lz {
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
         bool isSorted() const {
-            return this->isSortedBy(std::less<>());
+            return this->isSortedBy(std::less<value_type>());
         }
 #endif // end lz has execution
     };
