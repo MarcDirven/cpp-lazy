@@ -3,6 +3,7 @@
 #ifndef LZ_LZ_HPP
 #define LZ_LZ_HPP
 
+#include "Lz/CartesianProduct.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
@@ -135,6 +136,12 @@ namespace lz {
         IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
         trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
             return lz::trim(*this, std::move(first), std::move(last));
+        }
+
+        //! See CartesianProduct.hpp for documentation
+        template<class... Iterables>
+        IterView<CartesianProduct<internal::IterTypeFromIterable<Iterables>...>> cartesian(Iterables&&... iterables) {
+            return lz::toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
         }
 
         /**
