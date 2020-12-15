@@ -60,7 +60,7 @@ namespace lz {
      * @param execution The execution policy to check whether the sequence is sorted and to sort it if not.
      * @return A join where iterator view object, which can be used to iterate over.
      */
-    template<LZ_CONCEPT_ITERABLE IterA, LZ_CONCEPT_ITERABLE IterB, class SelectorA, class SelectorB, class ResultSelector,
+    template<LZ_CONCEPT_ITERATOR IterA, LZ_CONCEPT_ITERATOR IterB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
     JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
     joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
@@ -92,7 +92,7 @@ namespace lz {
         SelectorA, SelectorB, ResultSelector, Execution>
     joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
              Execution execution = std::execution::seq) {
-        return leftJoin(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
+        return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
                         internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
                         std::move(a), std::move(b), std::move(resultSelector), execution);
     }
