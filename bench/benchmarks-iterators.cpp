@@ -7,6 +7,42 @@
 
 constexpr static size_t SizePolicy = 32;
 
+static void CartesianProduct(benchmark::State& state) {
+    std::array<int, SizePolicy / 8> a{};
+    std::array<char, SizePolicy / 4> b{};
+    auto cartesian = lz::cartesian(a, b);
+
+    for (auto _ : state) {
+        for (auto&& tup : cartesian) {
+            benchmark::DoNotOptimize(tup);
+        }
+    }
+}
+
+static void Flatten(benchmark::State& state) {
+    std::array<std::array<int, SizePolicy / 4>, SizePolicy / 8> arr{};
+    for (auto _ : state) {
+        for (auto&& val : lz::flatten(arr)) {
+            benchmark::DoNotOptimize(val);
+        }
+    }
+}
+
+static void JoinWhere(benchmark::State& state) {
+    std::array<int, SizePolicy / 16> arr = {2, 1};
+    std::array<int, SizePolicy / 2> toJoin = {5, 67, 7, 5, 97, 67, 9, 7, 56, 76, 99, 57, 67, 99, 56, 66};
+    toJoin[lz::first(lz::random<std::size_t>(0, toJoin.size(), 1))] = 2;
+    auto joiner = lz::joinWhere(arr, toJoin,
+                                [](int i) { return i; },
+                                [](int i) { return i; },
+                                [](int a, int b) { return std::make_tuple(a, b);});
+    for (auto _ : state) {
+        for (auto&& val : joiner) {
+            benchmark::DoNotOptimize(val);
+        }
+    }
+}
+
 static void Enumerate(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
     auto enumeration = lz::enumerate(arr);
@@ -261,6 +297,8 @@ static void JoinString(benchmark::State& state) {
     }
 }
 
+BENCHMARK(CartesianProduct);
+BENCHMARK(Flatten);
 BENCHMARK(Concatenate);
 BENCHMARK(DropWhile);
 BENCHMARK(Enumerate);
@@ -269,6 +307,7 @@ BENCHMARK(Filter);
 BENCHMARK(Generate);
 BENCHMARK(JoinInt);
 BENCHMARK(JoinString);
+BENCHMARK(JoinWhere);
 BENCHMARK(Map);
 BENCHMARK(Range);
 BENCHMARK(Random);
