@@ -141,17 +141,17 @@ int main() {
 The time is equal to one iteration. Compiled with: winlibs-x86_64-posix-seh-gcc-10.2.1-snapshot20200912-mingw-w64-7.0.0-r1
 
 C++11
-<div style="text-align:center"><img src="https://i.imgur.com/vs0nBFA.png" /></div>
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B11.png" /></div>
 
 C++14
 
-<div style="text-align:center"><img src="https://i.imgur.com/fkMxRYH.png" /></div>
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B14.png" /></div>
 
 C++17
 
-<div style="text-align:center"><img src="https://i.imgur.com/13CBp0x.png" /></div>
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B17.png" /></div>
 
 C++20
 
-<div style="text-align:center"><img src="https://i.imgur.com/pzb2Lp7.png" /></div>
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B20.png" /></div>
 
