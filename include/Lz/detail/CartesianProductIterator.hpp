@@ -42,7 +42,7 @@ namespace lz { namespace internal {
         }
 
         template<std::size_t... Is>
-        reference dereference(std::index_sequence<Is...>) {
+        reference dereference(IndexSequence<Is...>) {
             return reference(*std::get<Is>(_iterator)...);
         }
 
@@ -56,7 +56,7 @@ namespace lz { namespace internal {
         {}
 
         reference operator*() {
-            return dereference(std::make_index_sequence<sizeof...(Iterators)>());
+            return dereference(MakeIndexSequence<sizeof...(Iterators)>());
         }
 
         CartesianProductIterator& operator++() {

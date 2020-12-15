@@ -24,8 +24,8 @@ namespace lz { namespace internal {
         using RefTypeA = typename IterTraitsA::reference;
         using RefTypeB = typename IterTraitsB::reference;
 
-        using SelectorARetVal = std::decay_t<FunctionReturnType<SelectorA, RefTypeA>>;
-        using SelectorBRetVal = std::decay_t<FunctionReturnType<SelectorB, RefTypeB>>;
+        using SelectorARetVal = Decay<FunctionReturnType<SelectorA, RefTypeA>>;
+        using SelectorBRetVal = Decay<FunctionReturnType<SelectorB, RefTypeB>>;
 
         enum class Longest {
             IteratorA,
@@ -84,7 +84,7 @@ namespace lz { namespace internal {
 
     public:
         using reference = FunctionReturnType<ResultSelector, RefTypeA, RefTypeB>;
-        using value_type = std::decay_t<reference>;
+        using value_type = Decay<reference>;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;

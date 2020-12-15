@@ -1371,10 +1371,9 @@ namespace lz {
      * @param endSelector The selector ending iterator that specifies to select an item in [begin, end) yes or no.
      * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
      */
-    template<class Iterator, class SelectorIterator
+    template<class Iterator, class SelectorIterator, class Zipper = lz::Zip<Iterator, SelectorIterator>
 #ifdef LZ_HAS_CXX_11
-        , class Zipper = lz::Zip<Iterator, SelectorIterator>,
-        class ZipIter = typename Zipper::iterator,
+        , class ZipIter = typename Zipper::iterator,
         class RefTuple = internal::RefType<ZipIter>
 #endif // end lz has cxx11
         >
@@ -1385,7 +1384,6 @@ namespace lz {
 #endif // end lz has cxx11
     {
         static_assert(std::is_copy_assignable<SelectorIterator>::value, "selector iterator/iterable must be copy assignable");
-        using Zipper = lz::Zip<Iterator, SelectorIterator>;
         Zipper zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
                                      std::make_tuple(std::move(end), std::move(endSelector)));
 

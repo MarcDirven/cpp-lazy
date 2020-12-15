@@ -31,7 +31,8 @@ static void Flatten(benchmark::State& state) {
 static void JoinWhere(benchmark::State& state) {
     std::array<int, SizePolicy / 16> arr = {2, 1};
     std::array<int, SizePolicy / 2> toJoin = {5, 67, 7, 5, 97, 67, 9, 7, 56, 76, 99, 57, 67, 99, 56, 66};
-    toJoin[lz::first(lz::random<std::size_t>(0, toJoin.size(), 1))] = 2;
+    auto randomIndex = lz::random<std::size_t>(0, toJoin.size(), 1);
+    toJoin[*randomIndex.begin()] = 2;
     auto joiner = lz::joinWhere(arr, toJoin,
                                 [](int i) { return i; },
                                 [](int i) { return i; },

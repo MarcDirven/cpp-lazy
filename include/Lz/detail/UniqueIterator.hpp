@@ -79,7 +79,7 @@ namespace lz { namespace internal {
                 _iterator = std::adjacent_find(_execution, _iterator, _end, std::less<>());
             }
 #else // ^^^ lz has execution vvv ! lz has execution
-            _iterator = std::adjacent_find(_iterator, _end, std::less<>());
+            _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
 #endif // end lz has execution
 
             if (_iterator != _end) {
