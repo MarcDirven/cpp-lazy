@@ -23,7 +23,7 @@ namespace lz {
          * interpreted as a `while-true` loop.
          * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
          */
-        Random(const Arithmetic min, const Arithmetic max, const std::size_t amount, const bool isWhileTrueLoop) :
+        Random(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
             internal::BasicIteratorView<iterator>(iterator(min, max, 0, isWhileTrueLoop), iterator(min, max, amount, isWhileTrueLoop))
         {
         }
@@ -42,14 +42,14 @@ namespace lz {
       * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device` as seed.
       * @param min The minimum value , included.
       * @param max The maximum value, included.
-      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<size_t>::max()`
+      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
       * it is interpreted as a `while-true` loop.
       * @return A random view object that generates a sequence of random numbers
       */
     template<class Integral, class Distribution = std::uniform_int_distribution<Integral>>
     static internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, Distribution>>
-    random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
-        return Random<Integral, Distribution>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
+    random(const Integral min, const Integral max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t >::max()) {
+        return Random<Integral, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t >::max());
     }
 
     /**
@@ -59,14 +59,14 @@ namespace lz {
      * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device` as seed.
      * @param min The minimum value, included.
      * @param max The maximum value, included.
-     * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<size_t>::max()`
+     * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
      * it is interpreted as a `while-true` loop.
      * @return A random view object that generates a sequence of random doubles.
      */
     template<class Floating, class Distribution = std::uniform_real_distribution<Floating>>
     static internal::EnableIf<std::is_floating_point<Floating>::value, Random<Floating, Distribution>>
-    random(const Floating min, const Floating max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
-        return Random<Floating, Distribution>(min, max, amount, amount == std::numeric_limits<std::size_t>::max());
+    random(const Floating min, const Floating max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t>::max()) {
+        return Random<Floating, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t>::max());
     }
 
     // End of group
