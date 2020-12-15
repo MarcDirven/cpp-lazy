@@ -59,7 +59,7 @@ namespace lz {
      * @param execution The execution policy to check whether the sequence is sorted and to sort it if not.
      * @return A join where iterator view object, which can be used to iterate over.
      */
-    template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector,
+    template<LZ_CONCEPT_ITERABLE IterA, LZ_CONCEPT_ITERABLE IterB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
     LeftJoin<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
     leftJoin(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
@@ -85,7 +85,7 @@ namespace lz {
      * @param execution The execution policy to check whether the sequence is sorted and to sort it if not.
      * @return A join where iterator view object, which can be used to iterate over.
      */
-    template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
+    template<LZ_CONCEPT_ITERABLE IterableA, LZ_CONCEPT_ITERABLE IterableB, class SelectorA, class SelectorB, class ResultSelector,
         class Execution = std::execution::sequenced_policy>
     LeftJoin<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
         SelectorA, SelectorB, ResultSelector, Execution>
