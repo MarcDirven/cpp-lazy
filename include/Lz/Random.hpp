@@ -39,7 +39,7 @@ namespace lz {
      /**
       * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
       * @details This random access iterator view object can be used to generate a sequence of random numbers between
-      * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device` as seed.
+      * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
       * @param min The minimum value , included.
       * @param max The maximum value, included.
       * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
@@ -56,7 +56,7 @@ namespace lz {
      * @brief Returns a random access view object that generates a sequence of floating point doubles, using a uniform
      * distribution.
      * @details This random access iterator view object can be used to generate a sequence of random doubles between
-     * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence (8x) of `std::random_device` as seed.
+     * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
      * @param min The minimum value, included.
      * @param max The maximum value, included.
      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
