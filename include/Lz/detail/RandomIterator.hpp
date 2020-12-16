@@ -24,7 +24,7 @@ namespace lz { namespace internal {
         bool _isWhileTrueLoop{};
 
     public:
-        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t  current, const bool isWhileTrueLoop) :
+        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t current, const bool isWhileTrueLoop) :
             _current(current),
             _min(min),
             _max(max),
