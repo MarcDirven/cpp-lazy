@@ -48,8 +48,8 @@ namespace lz {
       */
     template<class Integral, class Distribution = std::uniform_int_distribution<Integral>>
     static internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, Distribution>>
-    random(const Integral min, const Integral max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t >::max()) {
-        return Random<Integral, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t >::max());
+    random(const Integral min, const Integral max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t>::max()) {
+        return Random<Integral, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t>::max());
     }
 
     /**
