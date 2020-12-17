@@ -22,7 +22,7 @@ TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct
     }
 
     SECTION("Should be correct length") {
-        CHECK(std::distance(cartesian.begin(), cartesian.end()) == vec.size() * chars.size());
+        CHECK(std::distance(cartesian.begin(), cartesian.end()) == static_cast<std::ptrdiff_t>(vec.size() * chars.size()));
     }
 }
 

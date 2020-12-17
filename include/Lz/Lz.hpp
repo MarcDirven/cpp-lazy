@@ -61,11 +61,6 @@ namespace lz {
             return lz::toIter(lz::enumerate(*this, begin));
         }
 
-        //! See Flatten.hpp for documentation
-        IterView<internal::FlattenIterator<Iterator, internal::CountDims<Iterator>::value - 1>> flatten() const {
-            return lz::toIter(lz::flatten(*this));
-        }
-
         //! See Join.hpp for documentation.
         IterView<internal::JoinIterator<Iterator>> join(std::string delimiter) const {
             return lz::toIter(lz::join(*this, std::move(delimiter)));

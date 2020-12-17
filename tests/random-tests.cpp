@@ -22,7 +22,7 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
 }
 
 TEST_CASE("Random binary operations", "[Random][Binary ops]") {
-    constexpr std::size_t size = 5;
+    constexpr std::ptrdiff_t size = 5;
     auto random = lz::random(0., 1., size);
     auto it = random.begin();
 
@@ -46,7 +46,7 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        std::size_t offset = 1;
+        std::ptrdiff_t offset = 1;
         CHECK(std::distance(it + offset, random.end()) == size - offset);
     }
 

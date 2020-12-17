@@ -36,8 +36,8 @@ namespace lz { namespace internal {
         IterA _endA{};
         IterB _iterB{};
         IterB _endB{};
-        IterB _iterBFound{};
         IterA _iterAFound{};
+        IterB _iterBFound{};
         FunctionContainer<SelectorA> _selectorA{};
         FunctionContainer<SelectorB> _selectorB{};
         FunctionContainer<ResultSelector> _resultSelector{};
