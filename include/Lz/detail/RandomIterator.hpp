@@ -9,7 +9,7 @@
 
 
 namespace lz { namespace internal {
-    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
     class RandomIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
@@ -35,7 +35,7 @@ namespace lz { namespace internal {
 
         value_type operator*() const {
             static std::random_device randomEngine;
-            static std::mt19937 generator(randomEngine());
+            static Generator generator(randomEngine());
             Distribution randomNumber(_min, _max);
             return randomNumber(generator);
         }

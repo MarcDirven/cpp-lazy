@@ -55,6 +55,12 @@
   #include <concepts>
 #endif // has concepts
 
+#ifdef __cpp_if_constexpr
+  #define LZ_CONSTEXPR_IF constexpr
+#else
+  #define LZ_CONSTEXPR_IF
+#endif
+
 #ifdef LZ_HAS_CONCEPTS
 namespace lz {
     template<class I>
