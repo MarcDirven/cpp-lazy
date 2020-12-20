@@ -5,6 +5,8 @@
 
 #include "Lz/detail/LzTools.hpp"
 
+#include <numeric>
+
 
 namespace lz { namespace internal {
     // Edited version of https://github.com/mirandaconrado/product-iterator
@@ -46,6 +48,12 @@ namespace lz { namespace internal {
             return reference(*std::get<Is>(_iterator)...);
         }
 
+        template<std::size_t... Is>
+        difference_type length(IndexSequence<Is...>) const {
+            auto lengths = {static_cast<difference_type>(std::distance(std::get<Is>(_iterator), std::get<Is>(_end)))...};
+            return std::accumulate(lengths.begin(), lengths.end(), 1, std::multiplies<difference_type>()); // NOLINT(modernize-use-transparent-functors)
+        }
+
     public:
         CartesianProductIterator() = default;
 
@@ -57,6 +65,10 @@ namespace lz { namespace internal {
 
         reference operator*() {
             return dereference(MakeIndexSequence<sizeof...(Iterators)>());
+        }
+
+        difference_type length() const {
+            return length(MakeIndexSequence<sizeof...(Iterators)>());
         }
 
         CartesianProductIterator& operator++() {

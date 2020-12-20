@@ -8,10 +8,10 @@
 
 
 namespace lz {
-    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution>
-    class Random final : public internal::BasicIteratorView<internal::RandomIterator<Arithmetic, Distribution>> {
+    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
+    class Random final : public internal::BasicIteratorView<internal::RandomIterator<Arithmetic, Distribution, Generator>> {
     public:
-        using iterator = internal::RandomIterator<Arithmetic, Distribution>;
+        using iterator = internal::RandomIterator<Arithmetic, Distribution, Generator>;
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
 
@@ -42,14 +42,17 @@ namespace lz {
       * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
       * @param min The minimum value , included.
       * @param max The maximum value, included.
-      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
+      * @tparam Distribution The distribution for generating the random numbers. `std::uniform_int_distribution` by default.
+      * @tparam Generator The random number generator. `std::mt19937` by default.
+      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::size_t>::max()`
       * it is interpreted as a `while-true` loop.
       * @return A random view object that generates a sequence of random numbers
       */
-    template<class Integral, class Distribution = std::uniform_int_distribution<Integral>>
-    static internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, Distribution>>
-    random(const Integral min, const Integral max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t>::max()) {
-        return Random<Integral, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t>::max());
+    template<class Integral, class Distribution = std::uniform_int_distribution<Integral>, class Generator = std::mt19937>
+    static internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, Distribution, Generator>>
+    random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+        return Random<Integral, Distribution, Generator>(min, max, static_cast<std::ptrdiff_t>(amount),
+                                                         amount == std::numeric_limits<std::size_t>::max());
     }
 
     /**
@@ -57,16 +60,19 @@ namespace lz {
      * distribution.
      * @details This random access iterator view object can be used to generate a sequence of random doubles between
      * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
+     * @tparam Distribution The distribution for generating the random numbers. `std::uniform_real_distribution` by default.
+     * @tparam Generator The random number generator. `std::mt19937` by default.
      * @param min The minimum value, included.
      * @param max The maximum value, included.
-     * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::ptrdiff_t>::max()`
+     * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::size_t>::max()`
      * it is interpreted as a `while-true` loop.
      * @return A random view object that generates a sequence of random doubles.
      */
-    template<class Floating, class Distribution = std::uniform_real_distribution<Floating>>
-    static internal::EnableIf<std::is_floating_point<Floating>::value, Random<Floating, Distribution>>
-    random(const Floating min, const Floating max, const std::ptrdiff_t amount = std::numeric_limits<std::ptrdiff_t>::max()) {
-        return Random<Floating, Distribution>(min, max, amount, amount == std::numeric_limits<std::ptrdiff_t>::max());
+    template<class Floating, class Distribution = std::uniform_real_distribution<Floating>, class Generator = std::mt19937>
+    static internal::EnableIf<std::is_floating_point<Floating>::value, Random<Floating, Distribution, Generator>>
+    random(const Floating min, const Floating max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+        return Random<Floating, Distribution, Generator>(min, max, static_cast<std::ptrdiff_t>(amount),
+                                                         amount == std::numeric_limits<std::size_t>::max());
     }
 
     // End of group

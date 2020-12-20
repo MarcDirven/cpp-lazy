@@ -26,6 +26,16 @@
 // Concatenate.hpp
 
 namespace lz {
+    namespace {
+        template<class>
+        struct IsCartesianProductIterator : std::false_type {
+        };
+
+        template<class T, class... Ts>
+        struct IsCartesianProductIterator<internal::CartesianProductIterator<T, Ts...>> : std::true_type {
+        };
+    }
+
     template<LZ_CONCEPT_ITERATOR>
     class IterView;
 
@@ -44,6 +54,16 @@ namespace lz {
         using value_type = internal::ValueType<Iterator>;
         using reference = internal::RefType<Iterator>;
 
+    private:
+        difference_type lengthImpl(std::true_type /*IsCartesianProductIterator*/) const {
+            return Base::begin().length();
+        }
+
+        difference_type lengthImpl(std::false_type /*IsCartesianProductIterator*/) const {
+            return lz::length(*this);
+        }
+
+    public:
         IterView(Iterator begin, Iterator end):
             Base(std::move(begin), std::move(end))
         {}
@@ -107,7 +127,7 @@ namespace lz {
         //! See FunctionTools.hpp `zipWith` for documentation
         template<class Fn, class... Iterables>
         auto zipWith(Fn fn, Iterables&&... iterables) const -> IterView<decltype(lz::zipWith(fn, iterables...))> {
-            return lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...);
+            return lz::toIter(lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...));
         }
 
         //! See FunctionTools.hpp `as` for documentation.
@@ -130,12 +150,13 @@ namespace lz {
         template<class UnaryPredicateFirst, class UnaryPredicateLast>
         IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
         trim(UnaryPredicateFirst first, UnaryPredicateLast last) const {
-            return lz::trim(*this, std::move(first), std::move(last));
+            return lz::toIter(lz::trim(*this, std::move(first), std::move(last)));
         }
 
         //! See CartesianProduct.hpp for documentation
         template<class... Iterables>
-        IterView<CartesianProduct<internal::IterTypeFromIterable<Iterables>...>> cartesian(Iterables&&... iterables) {
+        IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+        cartesian(Iterables&&... iterables) const {
             return lz::toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
         }
 
@@ -150,7 +171,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `length` for documentation.
         difference_type length() const {
-            return lz::length(*this);
+            return lengthImpl(IsCartesianProductIterator<Iterator>());
         }
 
         //! See FunctionTools.hpp `isEmpty` for documentation.
@@ -233,11 +254,11 @@ namespace lz {
         //! See JoinWhere.hpp for documentation
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
             class Execution = std::execution::sequenced_policy>
-        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
-            SelectorA, SelectorB, ResultSelector, Execution>
+        IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+            SelectorA, SelectorB, ResultSelector, Execution>>
         joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                  Execution execution = std::execution::seq) {
-            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution);
+            return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
@@ -529,9 +550,10 @@ namespace lz {
 
         //! See JoinWhere.hpp for documentation
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-        JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
+        IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+            SelectorA, SelectorB, ResultSelector>>
         joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
-            return lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector));
+            return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
         }
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation
