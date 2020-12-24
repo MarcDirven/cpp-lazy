@@ -93,7 +93,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const EnumerateIterator& a, const EnumerateIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         friend bool operator!=(const EnumerateIterator& a, const EnumerateIterator& b) {
@@ -105,15 +105,15 @@ namespace lz { namespace internal {
         }
 
         friend bool operator>(const EnumerateIterator& a, const EnumerateIterator& b) {
-            return b < a;
+            return b < a; // NOLINT
         }
 
         friend bool operator<=(const EnumerateIterator& a, const EnumerateIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const EnumerateIterator& a, const EnumerateIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}

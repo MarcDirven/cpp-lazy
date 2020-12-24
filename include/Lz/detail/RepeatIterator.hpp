@@ -113,7 +113,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const RepeatIterator& a, const RepeatIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) {
@@ -125,11 +125,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const RepeatIterator& a, const RepeatIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const RepeatIterator& a, const RepeatIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}

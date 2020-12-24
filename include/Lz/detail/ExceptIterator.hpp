@@ -110,7 +110,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
     };
 }} // end lz::internal

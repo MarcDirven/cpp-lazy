@@ -89,7 +89,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const MapIterator& a, const MapIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         friend bool operator!=(const MapIterator& a, const MapIterator& b) {
@@ -105,11 +105,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const MapIterator& a, const MapIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const MapIterator& a, const MapIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }} // end lz::internal

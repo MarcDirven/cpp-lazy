@@ -99,7 +99,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
     };
 }}

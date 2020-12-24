@@ -1,6 +1,4 @@
-//
-// Created by marcd on 05/12/2020.
-//
+#pragma once
 
 #ifndef LZ_LEFT_JOIN_ITERATOR_HPP
 #define LZ_LEFT_JOIN_ITERATOR_HPP
@@ -53,7 +51,7 @@ namespace lz { namespace internal {
                         return _selectorB(b) < val;
                     });
 
-                    if (pos != _endB && !(toFind < _selectorB(*pos))) { // equals
+                    if (pos != _endB && !(toFind < _selectorB(*pos))) { // NOLINT
                         _iterBFound = pos;
                         _iterAFound = _iterA; // Keep track of where we were
                         ++_iterA; // Increment the iterator by one to prevent never ending loop
@@ -70,7 +68,7 @@ namespace lz { namespace internal {
                         return _selectorA(a) < val;
                     });
 
-                    if (pos != _endA && !(toFind < _selectorA(*pos))) { // equals
+                    if (pos != _endA && !(toFind < _selectorA(*pos))) { // NOLINT
                         _iterAFound = pos;
                         _iterBFound = _iterB; // Keep track of where we were
                         ++_iterB; // Increment the iterator by one to prevent never ending loop
@@ -183,7 +181,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
-            return !(a == b);
+            return !(a == b); // NOLINT
         }
     };
 

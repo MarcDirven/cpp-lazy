@@ -100,7 +100,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
@@ -116,11 +116,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}

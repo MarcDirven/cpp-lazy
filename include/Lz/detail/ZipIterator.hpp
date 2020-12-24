@@ -157,11 +157,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const ZipIterator& a, const ZipIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const ZipIterator& a, const ZipIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}
