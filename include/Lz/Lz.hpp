@@ -677,7 +677,7 @@ namespace lz {
          */
         template<class Compare = std::less<value_type>>
         value_type max(Compare cmp = std::less<value_type>()) const {
-            return std::max_element(Base::begin(), Base::end(), cmp);
+            return std::max_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**
@@ -687,7 +687,7 @@ namespace lz {
          */
         template<class Compare = std::less<value_type>>
         value_type min(Compare cmp = std::less<value_type>()) const {
-            return std::min_element(Base::begin(), Base::end(), cmp);
+            return std::min_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**
