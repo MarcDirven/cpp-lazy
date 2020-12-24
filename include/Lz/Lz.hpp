@@ -68,6 +68,8 @@ namespace lz {
             Base(std::move(begin), std::move(end))
         {}
 
+        IterView() = default;
+
         //! See Concatenate.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
