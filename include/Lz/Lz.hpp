@@ -4,10 +4,12 @@
 #define LZ_LZ_HPP
 
 #include "Lz/CartesianProduct.hpp"
+#include "Lz/Chunks.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
+#include "Lz/GroupBy.hpp"
 #include "Lz/JoinWhere.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
@@ -120,15 +122,22 @@ namespace lz {
             return lz::toIter(lz::takeEvery(*this, offset, start));
         }
 
+        //! See Chunks.hpp for documentation
+        IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
+        	return lz::toIter(lz::chunks(*this, chunkSize));
+		}
+
         //! See Zip.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
-        IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...> zip(Iterables&&... iterables) const {
+        IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
+		zip(Iterables&&... iterables) const {
             return lz::toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
         }
 
         //! See FunctionTools.hpp `zipWith` for documentation
         template<class Fn, class... Iterables>
-        auto zipWith(Fn fn, Iterables&&... iterables) const -> IterView<decltype(lz::zipWith(fn, iterables...))> {
+        auto zipWith(Fn fn, Iterables&&... iterables) const ->
+        IterView<decltype(lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...))> {
             return lz::toIter(lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...));
         }
 
