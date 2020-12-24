@@ -262,7 +262,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         reference operator[](const difference_type offset) const {

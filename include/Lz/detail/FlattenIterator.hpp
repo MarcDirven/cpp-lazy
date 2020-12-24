@@ -1,6 +1,4 @@
-//
-// Created by marcd on 28/10/2020.
-//
+#pragma once
 
 #ifndef LZ_FLATTEN_ITERATOR_HPP
 #define LZ_FLATTEN_ITERATOR_HPP
@@ -117,7 +115,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         reference operator*() const {
@@ -188,7 +186,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         reference operator*() const {
@@ -245,7 +243,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         FlattenIterator& operator++() {

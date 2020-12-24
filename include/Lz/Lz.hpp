@@ -4,10 +4,12 @@
 #define LZ_LZ_HPP
 
 #include "Lz/CartesianProduct.hpp"
+#include "Lz/Chunks.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
+#include "Lz/GroupBy.hpp"
 #include "Lz/JoinWhere.hpp"
 #include "Lz/Random.hpp"
 #include "Lz/Range.hpp"
@@ -68,6 +70,8 @@ namespace lz {
             Base(std::move(begin), std::move(end))
         {}
 
+        IterView() = default;
+
         //! See Concatenate.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
         IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
@@ -118,15 +122,22 @@ namespace lz {
             return lz::toIter(lz::takeEvery(*this, offset, start));
         }
 
+        //! See Chunks.hpp for documentation
+        IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
+        	return lz::toIter(lz::chunks(*this, chunkSize));
+		}
+
         //! See Zip.hpp for documentation.
         template<LZ_CONCEPT_ITERABLE... Iterables>
-        IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...> zip(Iterables&&... iterables) const {
+        IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
+		zip(Iterables&&... iterables) const {
             return lz::toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
         }
 
         //! See FunctionTools.hpp `zipWith` for documentation
         template<class Fn, class... Iterables>
-        auto zipWith(Fn fn, Iterables&&... iterables) const -> IterView<decltype(lz::zipWith(fn, iterables...))> {
+        auto zipWith(Fn fn, Iterables&&... iterables) const ->
+        IterView<decltype(lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...))> {
             return lz::toIter(lz::zipWith(std::move(fn), std::forward<Iterables>(iterables)...));
         }
 
@@ -257,9 +268,17 @@ namespace lz {
         IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
             SelectorA, SelectorB, ResultSelector, Execution>>
         joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
-                 Execution execution = std::execution::seq) {
+                 Execution execution = std::execution::seq) const {
             return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
         }
+
+		//! See GroupBy.hpp for documentation
+		template<class KeySelector, class Execution = std::execution::sequenced_policy>
+		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector,
+																	 	   Execution execution = std::execution::seq,
+																	 	   const bool sort = true) const {
+			return lz::toIter(lz::groupBy(*this, std::move(selector), execution, sort));
+		}
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
@@ -552,9 +571,15 @@ namespace lz {
         template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
         IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
             SelectorA, SelectorB, ResultSelector>>
-        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
             return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
         }
+
+		//! See GroupBy.hpp for documentation
+		template<class KeySelector>
+		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector, const bool sort = true) const {
+			return lz::toIter(lz::groupBy(*this, std::move(selector), sort));
+		}
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation
         template<class T, class U>
@@ -652,7 +677,7 @@ namespace lz {
          */
         template<class Compare = std::less<value_type>>
         value_type max(Compare cmp = std::less<value_type>()) const {
-            return std::max_element(Base::begin(), Base::end(), cmp);
+            return std::max_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**
@@ -662,7 +687,7 @@ namespace lz {
          */
         template<class Compare = std::less<value_type>>
         value_type min(Compare cmp = std::less<value_type>()) const {
-            return std::min_element(Base::begin(), Base::end(), cmp);
+            return std::min_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**

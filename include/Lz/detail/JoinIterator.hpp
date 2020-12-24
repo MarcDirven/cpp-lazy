@@ -174,7 +174,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator!=(const JoinIterator& a, const JoinIterator& b) {
-            return !(a == b);
+            return !(a == b); // NOLINT
         }
 
         friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
@@ -186,11 +186,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const JoinIterator& a, const JoinIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const JoinIterator& a, const JoinIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }} // end lz::internal

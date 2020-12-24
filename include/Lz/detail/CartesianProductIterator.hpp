@@ -91,7 +91,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
-            return !(lhs == rhs);
+            return !(lhs == rhs); // NOLINT
         }
     };
 }}

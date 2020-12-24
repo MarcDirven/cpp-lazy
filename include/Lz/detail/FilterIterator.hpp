@@ -93,7 +93,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
     };
 }}
