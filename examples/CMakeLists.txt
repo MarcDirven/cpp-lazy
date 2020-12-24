@@ -8,6 +8,7 @@ FetchContent_MakeAvailable(cpp-lazy)
 
 set(examples
         CartesianProduct
+        Chunks
         Concatenate
         Enumerate
         Except
@@ -15,6 +16,7 @@ set(examples
         Flatten
         FunctionTools
         Generate
+        GroupBy
         Join
         JoinWhere
         Map
