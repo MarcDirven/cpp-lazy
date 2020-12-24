@@ -1,5 +1,6 @@
 #include "Lz/Chunks.hpp"
 #include "catch2/catch.hpp"
+#include <list>
 
 
 TEST_CASE("Chunks changing and creating elements", "[Chunks][Basic functionality]") {

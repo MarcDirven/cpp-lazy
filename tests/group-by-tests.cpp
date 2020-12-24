@@ -1,5 +1,6 @@
 #include <Lz/GroupBy.hpp>
 #include <catch2/catch.hpp>
+#include <list>
 
 
 TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionality]") {
