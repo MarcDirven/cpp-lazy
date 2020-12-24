@@ -13,7 +13,7 @@ namespace lz { namespace internal {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = FunctionReturnType<GeneratorFunc>;
-        using difference_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
         using reference = value_type;
         using pointer = FakePointerProxy<value_type>;
 
@@ -26,7 +26,7 @@ namespace lz { namespace internal {
         GenerateIterator() = default;
 
         GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :
-            _current(start),
+            _current(static_cast<difference_type>(start)),
             _generator(std::move(generatorFunc)),
             _isWhileTrueLoop(isWhileTrueLoop)
         {}
