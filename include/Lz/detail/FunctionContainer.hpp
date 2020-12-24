@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef LZ_FUNCTION_CONTAINER_HPP
 #define LZ_FUNCTION_CONTAINER_HPP
 
@@ -101,7 +103,7 @@ namespace lz { namespace internal {
         }
 
         template<class... Args>
-        auto operator()(Args&& ... args) const -> decltype(_func(args...)) {
+        auto operator()(Args&& ... args) const -> decltype(_func(std::forward<Args>(args)...)) {
             return _func(std::forward<Args>(args)...);
         }
     };

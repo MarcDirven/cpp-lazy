@@ -135,8 +135,28 @@ namespace lz {
 
 
 namespace lz { namespace internal {
+	template<class Container>
+	constexpr auto begin(Container&& c) -> decltype(std::forward<Container>(c).begin()) {
+		return std::forward<Container>(c).begin();
+	}
+
+	template<class Container>
+	constexpr auto end(Container&& c) -> decltype(std::forward<Container>(c).end()) {
+		return std::forward<Container>(c).end();
+	}
+
+	template<class T, size_t N>
+	constexpr T* begin(T(&array)[N]) noexcept {
+		return array;
+	}
+
+	template<class T, size_t N>
+	constexpr T* end(T(&array)[N]) noexcept {
+		return array + N;
+	}
+
     template<class Iterable>
-    using IterTypeFromIterable = decltype(std::begin(std::declval<Iterable>()));
+    using IterTypeFromIterable = decltype(internal::begin(std::forward<Iterable>(std::declval<Iterable>())));
 
     template<class Iterator>
     using ValueType = typename std::iterator_traits<Iterator>::value_type;
@@ -229,27 +249,6 @@ namespace lz { namespace internal {
     template<bool B, class IfTrue, class IfFalse>
     using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
 #endif // end cxx > 11
-
-    template<class Container>
-    constexpr auto begin(Container&& c) -> decltype(std::forward<Container>(c).begin()) {
-        return std::forward<Container>(c).begin();
-    }
-
-    template<class Container>
-    constexpr auto end(Container&& c) -> decltype(std::forward<Container>(c).end()) {
-        return std::forward<Container>(c).end();
-    }
-
-    template<class T, size_t N>
-    constexpr T* begin(T(&array)[N]) noexcept {
-        return array;
-    }
-
-    template<class T, size_t N>
-    constexpr T* end(T(&array)[N]) noexcept {
-        return array + N;
-    }
-
     template<class T>
     class FakePointerProxy {
         T _t;
