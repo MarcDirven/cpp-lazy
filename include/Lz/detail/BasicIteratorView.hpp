@@ -26,12 +26,12 @@ namespace lz { namespace internal {
             };
 
             template<typename U>
-            static char test(SubstituteFailure<U, &U::reserve>*) {
+            static constexpr char test(SubstituteFailure<U, &U::reserve>*) {
                 return 0;
             }
 
             template<typename U>
-            static int test(...) {
+            static constexpr int test(...) {
                 return 0;
             }
         	
@@ -328,7 +328,7 @@ namespace lz { namespace internal {
             std::string string;
 
             for (const value_type& v : *this) {
-                string += fmt::format("{}{}", v, delimiter);
+            	fmt::format_to(std::inserter(string, string.end()), "{}{}", v, delimiter);
             }
 
             const std::size_t delimiterLength = delimiter.length();
