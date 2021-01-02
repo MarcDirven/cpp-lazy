@@ -6,11 +6,12 @@ int main() {
 	auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
 
 	for (auto&& chunk : chunked) {
-		for (const std::string& substring : chunk) {
-			fmt::print("sub string = {}\n", chunked);
+		for (const char c : chunk) {
+			fmt::print("{}", c);
 		}
+		fmt::print('\n');
 	}
 	// Output
-	// sub string = 'hello world'
-	// sub string = ' this is a message'
+	// hello world
+	//  this is a message
 }
