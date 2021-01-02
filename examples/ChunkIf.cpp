@@ -9,7 +9,7 @@ int main() {
 		for (const char c : chunk) {
 			fmt::print("{}", c);
 		}
-		fmt::print('\n');
+		fmt::print("\n");
 	}
 	// Output
 	// hello world
