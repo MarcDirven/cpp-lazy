@@ -51,8 +51,8 @@ namespace lz { namespace internal {
 			_begin(begin),
 			_subRangeBegin(begin == end ? end : begin),
 			_subRangeEnd(begin == end ? end : begin),
-			_chunkSize(chunkSize),
-			_end(end)
+			_end(end),
+			_chunkSize(chunkSize)
 		{
 			if (_begin == _end) { // end iterator
 				return;

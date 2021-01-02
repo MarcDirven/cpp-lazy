@@ -8,6 +8,7 @@ FetchContent_MakeAvailable(cpp-lazy)
 
 set(examples
         CartesianProduct
+        ChunkIf
         Chunks
         Concatenate
         Enumerate

@@ -17,6 +17,7 @@ namespace lz { namespace internal {
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<Arithmetic>;
         using reference = value_type;
+        using result_type = value_type;
 
     private:
         std::ptrdiff_t  _current{};
@@ -38,6 +39,26 @@ namespace lz { namespace internal {
             static Generator generator(randomEngine());
             Distribution randomNumber(_min, _max);
             return randomNumber(generator);
+        }
+
+        static result_type(min)() {
+        	return std::numeric_limits<result_type>::min();
+        }
+
+		static result_type(max)() {
+			return std::numeric_limits<result_type>::max();
+		}
+
+        value_type operator()() const {
+        	return **this;
+        }
+
+        void setMin(value_type min) {
+        	_min = min;
+        }
+
+        void setMax(value_type max) {
+        	_max = max;
         }
 
         pointer operator->() const {

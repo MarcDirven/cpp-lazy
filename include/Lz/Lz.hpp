@@ -4,6 +4,7 @@
 #define LZ_LZ_HPP
 
 #include "Lz/CartesianProduct.hpp"
+#include "Lz/ChunkIf.hpp"
 #include "Lz/Chunks.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
@@ -242,6 +243,13 @@ namespace lz {
         IterView<internal::UniqueIterator<Iterator, Execution>> unique(const Execution exec = std::execution::seq) const {
             return lz::toIter(lz::unique(*this, exec));
         }
+
+        //! See ChunkIf.hpp for documentation
+		template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+		IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>>
+		chunkIf(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
+			return lz::toIter(lz::chunkIf(*this, std::move(predicate), execution));
+		}
 
         //! See FunctionTools.hpp `filterMap` for documentation.
         template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
@@ -534,6 +542,12 @@ namespace lz {
         IterView<internal::UniqueIterator<Iterator>> unique() const {
             return lz::toIter(lz::unique(*this));
         }
+
+        //! See ChunkIf.hpp for documentation
+		template<class UnaryPredicate>
+		IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> chunkIf(UnaryPredicate predicate) const {
+			return lz::toIter(lz::chunkIf(*this, std::move(predicate)));
+		}
 
         //! See FunctionTools.hpp `filterMap` for documentation
         template<class UnaryMapFunc, class UnaryFilterFunc>
