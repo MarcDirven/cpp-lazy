@@ -29,7 +29,7 @@ namespace lz { namespace internal {
         void find(const difference_type offset) {
             std::advance(_iterator, offset);
 #ifdef LZ_HAS_EXECUTION
-            if constexpr (IsSequencedPolicyV<Execution>) { // prevent verbose errors when iter cat < forward
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) // prevent verbose errors when iter cat < forward
                 _iterator = std::find_if(_iterator, _end, _predicate);
             }
             else {
