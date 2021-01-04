@@ -72,7 +72,7 @@ namespace lz { namespace internal {
 
         UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
-			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>())
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 				_iterator = std::adjacent_find(_iterator, _end, std::less<>());
             }
             else {

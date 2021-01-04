@@ -34,7 +34,8 @@ namespace lz { namespace internal {
             ++prev;
 
             if (prev == std::get<I - 1>(_end)) {
-                if (I == 1) {
+            	constexpr bool isOne = I == 1; // Suppress /W4 MVC warning
+                if LZ_CONSTEXPR_IF (isOne) {
                     return;
                 }
 

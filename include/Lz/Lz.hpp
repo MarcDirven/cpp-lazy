@@ -282,7 +282,7 @@ namespace lz {
 
 		//! See GroupBy.hpp for documentation
 		template<class KeySelector, class Execution = std::execution::sequenced_policy>
-		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector,
+		IterView<internal::GroupByIterator<Iterator, KeySelector, Execution>> groupBy(KeySelector selector,
 																	 	   Execution execution = std::execution::seq,
 																	 	   const bool sort = true) const {
 			return lz::toIter(lz::groupBy(*this, std::move(selector), execution, sort));
@@ -467,6 +467,38 @@ namespace lz {
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         bool none(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
             return !this->all(std::move(predicate), exec);
+        }
+
+        /**
+         * Counts how many occurrences of `value` are in this.
+         * @param value The value to count
+         * @return The amount of counted elements equal to `value`.
+         */
+        template<class T, class Execution = std::execution::sequenced_policy>
+        difference_type count(const T& value, Execution execution = std::execution::seq) const {
+        	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        		static_cast<void>(execution);
+        		return std::count(Base::begin(), Base::end(), value);
+        	}
+        	else {
+        		return std::count(execution, Base::begin(), Base::end(), value);
+        	}
+        }
+
+		/**
+		 * Counts how many occurrences times the unary predicate returns true.
+		 * @param predicate The function predicate that must return a bool.
+		 * @return The amount of counted elements.
+		 */
+        template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+        difference_type countIf(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
+        	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        		static_cast<void>(execution);
+        		return std::count_if(Base::begin(), Base::end(), std::move(predicate));
+        	}
+        	else {
+        		return std::count_if(execution, Base::begin(), Base::end(), std::move(predicate));
+        	}
         }
 
         /**
@@ -729,6 +761,26 @@ namespace lz {
         template<class UnaryPredicate>
         bool none(UnaryPredicate predicate) const {
             return !this->all(std::move(predicate));
+        }
+
+        /**
+         * Counts how many occurrences of `value` are in this.
+         * @param value The value to count
+         * @return The amount of counted elements equal to `value`.
+         */
+        template<class T>
+        difference_type count(const T& value) const {
+        	return std::count(Base::begin(), Base::end(), value);
+        }
+
+		/**
+		 * Counts how many occurrences times the unary predicate returns true.
+		 * @param predicate The function predicate that must return a bool.
+		 * @return The amount of counted elements.
+		 */
+        template<class UnaryPredicate>
+        difference_type countIf(UnaryPredicate predicate) const {
+        	return std::count_if(Base::begin(), Base::end(), std::move(predicate));
         }
 
         /**
