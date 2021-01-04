@@ -32,7 +32,7 @@ namespace lz { namespace internal {
 	private:
 		void findNext() {
 #ifdef LZ_HAS_EXECUTION
-			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>())
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 _subRangeEnd = std::find_if(_execution, _subRangeBegin, _end, _predicate);
             }
             else {
