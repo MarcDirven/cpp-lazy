@@ -282,7 +282,7 @@ namespace lz {
 
 		//! See GroupBy.hpp for documentation
 		template<class KeySelector, class Execution = std::execution::sequenced_policy>
-		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector,
+		IterView<internal::GroupByIterator<Iterator, KeySelector, Execution>> groupBy(KeySelector selector,
 																	 	   Execution execution = std::execution::seq,
 																	 	   const bool sort = true) const {
 			return lz::toIter(lz::groupBy(*this, std::move(selector), execution, sort));
