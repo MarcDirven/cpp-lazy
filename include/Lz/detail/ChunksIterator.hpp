@@ -41,7 +41,7 @@ namespace lz { namespace internal {
 
 		using IterTraits = std::iterator_traits<Iterator>;
 	public:
-		using iterator_category = typename IterTraits::iterator_category;
+		using iterator_category = LowestIterTypeT<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>;
 		using value_type = BasicIteratorView<Iterator>;
 		using reference = value_type;
 		using pointer = FakePointerProxy<value_type>;
