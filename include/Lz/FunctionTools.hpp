@@ -67,6 +67,11 @@ namespace lz {
             To operator()(From&& f) const {
                 return static_cast<To>(f);
             }
+
+			template<class From>
+			To operator()(From&& f) {
+				return static_cast<To>(f);
+			}
         };
 
         const char* begin(const char* s) {
@@ -790,7 +795,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class U>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
-                                                                                const Execution execution = std::execution::seq) {
+                                                                                 const Execution execution = std::execution::seq) {
         return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
