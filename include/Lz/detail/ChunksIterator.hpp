@@ -16,7 +16,7 @@ namespace lz { namespace internal {
 		std::size_t _chunkSize{};
 
 		void prevChunk() {
-			auto distance = static_cast<difference_type>(std::distance(_begin, _subRangeBegin));
+			auto distance = std::distance(_begin, _subRangeBegin);
 			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
 
 			if (distance > chunkSizeSigned) {
@@ -28,7 +28,7 @@ namespace lz { namespace internal {
 		}
 
 		void nextChunk() {
-			auto distance = static_cast<difference_type>(std::distance(_subRangeEnd, _end));
+			auto distance = std::distance(_subRangeEnd, _end);
 			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
 
 			if (distance > chunkSizeSigned) {
