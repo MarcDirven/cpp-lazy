@@ -21,7 +21,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 
 #ifndef LZ_HAS_STRING_VIEW
     SECTION("Should be std::string") {
-        CHECK(std::is_same<decltype(*it), std::string&>::value);
+        CHECK(std::is_same<decltype(*it), fmt::string_view>::value);
     }
 #else
     SECTION("Should be std::string_view") {

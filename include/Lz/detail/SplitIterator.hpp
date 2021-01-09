@@ -16,14 +16,13 @@ namespace lz { namespace internal {
     template<class SubString, class String>
     class SplitIterator {
         std::size_t _currentPos{}, _last{};
-        mutable SubString _substring{};
         const String* _string{nullptr};
         std::string _delimiter;
 
     public:
         using iterator_category = std::input_iterator_tag;
         using value_type = SubString;
-        using reference = Conditional<std::is_same<SubString, std::string>::value, SubString&, SubString>;
+        using reference = SubString;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 
@@ -39,15 +38,13 @@ namespace lz { namespace internal {
 
         SplitIterator() = default;
 
-        // Returns a reference to a std::string if C++14, otherwise it returns a std::string_view by value
         reference operator*() const {
             if (_last != std::string::npos) {
-                _substring = SubString(&(*_string)[_currentPos], _last - _currentPos);
+                return SubString(&(*_string)[_currentPos], _last - _currentPos);
             }
             else {
-                _substring = SubString(&(*_string)[_currentPos]);
+                return SubString(&(*_string)[_currentPos]);
             }
-            return _substring;
         }
 
         pointer operator->() const {

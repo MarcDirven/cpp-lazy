@@ -37,7 +37,7 @@ namespace lz {
     template class StringSplitter<std::string_view, std::string_view>;
     template<class SubString = std::string_view, class String = std::string_view>
 #else
-    template<class SubString = std::string, class String = std::string>
+    template<class SubString = fmt::string_view, class String = std::string>
 #endif
     // Start of group
     /**
