@@ -6,12 +6,14 @@
 
 #include <algorithm>
 
+#include "FunctionContainer.hpp"
+
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #else // ^^^ has execution vvv ! has execution
-    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #endif // end has execution
     class ExceptIterator {
         using IterTraits = std::iterator_traits<Iterator>;
@@ -28,6 +30,7 @@ namespace lz { namespace internal {
         Iterator _end{};
         IteratorToExcept _toExceptBegin{};
         IteratorToExcept _toExceptEnd{};
+        FunctionContainer<Compare> _compare{};
 
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
@@ -37,17 +40,17 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                 });
             }
-            else {
+            else { // NOLINT
                 _iterator = std::find_if(_execution, _iterator, _end, [this](const value_type& value) {
-                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                });
             }
 #else // ^^^ has execution vvv ! has execution
             _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-                return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
             });
 #endif // end has execution
         }
@@ -56,27 +59,35 @@ namespace lz { namespace internal {
         ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,IteratorToExcept toExceptEnd,
-                       const Execution execution) :
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare,
+                       Execution execution) :
 #else // ^^^ has execution vvv ! has execution
-        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) :
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
 #endif // end has execution
             _iterator(std::move(begin)),
             _end(std::move(end)),
             _toExceptBegin(std::move(toExceptBegin)),
-            _toExceptEnd(std::move(toExceptEnd))
+            _toExceptEnd(std::move(toExceptEnd)),
+            _compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end has execution
         {
             if (_toExceptBegin != _toExceptEnd) {
 #ifdef LZ_HAS_EXECUTION
-                if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd)) {
-                    std::sort(_execution, _toExceptBegin, _toExceptEnd);
-                }
+				if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+					if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd, _compare)) {
+						std::sort(_execution, _toExceptBegin, _toExceptEnd, _compare);
+					}
+				}
+				else {
+					if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+						std::sort(_toExceptBegin, _toExceptEnd, _compare);
+					}
+				}
 #else // ^^^ has execution vvv ! has execution
-                if (!std::is_sorted(_toExceptBegin, _toExceptEnd)) {
-                    std::sort(_toExceptBegin, _toExceptEnd);
+                if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+                    std::sort(_toExceptBegin, _toExceptEnd, _compare);
                 }
 #endif // end has execution
                 find();

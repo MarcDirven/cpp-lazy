@@ -7,19 +7,20 @@
 
 
 #include "LzTools.hpp"
-
+#include "FunctionContainer.hpp"
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator>
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class SortFunc>
 #else // ^^^ lz has execution vvv ! lz has execution
-    template<LZ_CONCEPT_ITERATOR Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator, class SortFunc>
 #endif // end lz has execution
     class UniqueIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
         Iterator _iterator{};
         Iterator _end{};
+        FunctionContainer<SortFunc> _sortFunc{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution;
 #endif // end lz has execution
@@ -32,13 +33,14 @@ namespace lz { namespace internal {
         using reference = typename IterTraits::reference;
 
 #ifdef LZ_HAS_EXECUTION
-        UniqueIterator(Iterator begin, Iterator end, const Execution execution)
+        UniqueIterator(Iterator begin, Iterator end, SortFunc sortFunc, Execution execution)
 #else // ^^^ lz has execution vvv ! lz has execution
-        UniqueIterator(Iterator begin, Iterator end)
+        UniqueIterator(Iterator begin, Iterator end, SortFunc sortFunc)
 #endif // end lz has execution
         :
             _iterator(std::move(begin)),
-            _end(std::move(end))
+            _end(std::move(end)),
+            _sortFunc(std::move(sortFunc))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end lz has execution
@@ -48,15 +50,23 @@ namespace lz { namespace internal {
             }
 
 #ifdef LZ_HAS_EXECUTION
-            if (std::is_sorted(_execution, _iterator, _end)) {
-                return;
+            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+				if (std::is_sorted(_execution, _iterator, _end, _sortFunc)) {
+					return;
+				}
+				std::sort(_execution, _iterator, _end, _sortFunc);
+			}
+            else {
+				if (std::is_sorted(_iterator, _end, _sortFunc)) {
+					return;
+				}
+				std::sort(_iterator, _end, _sortFunc);
             }
-            std::sort(_execution, _iterator, _end);
 #else // ^^^ lz has execution vvv ! lz has execution
-            if (std::is_sorted(_iterator, _end)) {
+            if (std::is_sorted(_iterator, _end, _sortFunc)) {
                 return;
             }
-            std::sort(_iterator, _end);
+            std::sort(_iterator, _end, _sortFunc);
 #endif
         }
 
@@ -73,13 +83,13 @@ namespace lz { namespace internal {
         UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-				_iterator = std::adjacent_find(_iterator, _end, std::less<>());
+				_iterator = std::adjacent_find(_iterator, _end, _sortFunc);
             }
             else {
-				_iterator = std::adjacent_find(_execution, _iterator, _end, std::less<>());
+				_iterator = std::adjacent_find(_execution, _iterator, _end, _sortFunc);
             }
 #else // ^^^ lz has execution vvv ! lz has execution
-            _iterator = std::adjacent_find(_iterator, _end, std::less<value_type>());
+            _iterator = std::adjacent_find(_iterator, _end, _sortFunc);
 #endif // end lz has execution
 
             if (_iterator != _end) {

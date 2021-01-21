@@ -3,7 +3,6 @@
 #include <list>
 
 #include <catch2/catch.hpp>
-#include <iostream>
 
 
 TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functionality]") {
@@ -34,6 +33,11 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
     SECTION("Is by reference") {
         *it = 0;
         CHECK(*it == array[0]);
+    }
+
+    SECTION("Excepted with >") {
+    	auto exceptGreater = lz::except(array, toExcept, std::greater<int>()); //NOLINT
+    	CHECK(exceptGreater.toArray<3>() == std::array<int, 3>{1, 2, 4});
     }
 }
 

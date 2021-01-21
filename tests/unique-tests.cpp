@@ -19,6 +19,12 @@ TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality
         std::array<int, size> expected = {1, 2, 3};
         CHECK(expected == unique.toArray<size>());
     }
+
+    SECTION("Should be unique too, using >") {
+    	std::array<int, size> expected = {3, 2, 1};
+    	auto unique = lz::unique(expected, std::greater<int>()); // NOLINT
+    	CHECK(expected == unique.toArray<size>());
+    }
 }
 
 TEST_CASE("Unique binary operations", "[Unique][Binary ops]") {
