@@ -50,7 +50,7 @@ namespace lz { namespace internal {
 
     public:
 #ifdef LZ_HAS_EXECUTION
-        FilterIterator(Iterator begin, Iterator end, Function function, const Execution execution)
+        FilterIterator(Iterator begin, Iterator end, Function function, Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
         FilterIterator(Iterator begin, Iterator end, Function function)
 #endif // end has execution
