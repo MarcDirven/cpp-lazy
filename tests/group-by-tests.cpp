@@ -41,9 +41,9 @@ TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionali
 			return l.length() > r.length();
 		});
 #ifdef LZ_HAS_EXECUTION
-		auto g = lz::groupBy(vec, [](const std::string& s) { return s.length(); }, std::execution::seq, false);
+		auto g = lz::groupByDescending(vec, [](const std::string& s) { return s.length(); }, std::execution::seq);
 #else
-		auto g = lz::groupBy(vec, [](const std::string& s) { return s.length(); }, false);
+		auto g = lz::groupByDescending(vec, [](const std::string& s) { return s.length(); });
 #endif
 		static_cast<void>(g);
 		CHECK(std::is_sorted(vec.begin(), vec.end(), [](const std::string& l, const std::string& r) {

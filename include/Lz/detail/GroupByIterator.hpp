@@ -54,10 +54,11 @@ namespace lz { namespace internal {
 
 		GroupByIterator() = default;
 
+		template<class SortFunc>
 #ifdef LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, Execution execution, const bool sort):
+		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc, Execution execution):
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, const bool sort):
+		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc):
 #endif // end LZ_HAS_EXECUTION
 			_subRangeEnd(begin),
 			_subRangeBegin(begin),
@@ -71,13 +72,6 @@ namespace lz { namespace internal {
 				return;
 			}
 
-			if (!sort) {
-				return;
-			}
-
-			auto sortFunc = [this](const IterValueType& a, const IterValueType& b) {
-				return _keySelector(a) < _keySelector(b);
-			};
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 				if (!std::is_sorted(_execution, _subRangeBegin, _end, sortFunc)) {
