@@ -58,11 +58,13 @@ namespace lz {
         using reference = internal::RefType<Iterator>;
 
     private:
-        difference_type lengthImpl(std::true_type /*IsCartesianProductIterator*/) const {
+    	template<class It = Iterator>
+		internal::EnableIf<IsCartesianProductIterator<It>::value, difference_type> lengthImpl() const {
             return Base::begin().length();
         }
 
-        difference_type lengthImpl(std::false_type /*IsCartesianProductIterator*/) const {
+		template<class It = Iterator>
+		internal::EnableIf<!IsCartesianProductIterator<It>::value, difference_type> lengthImpl() const {
             return lz::length(*this);
         }
 
@@ -183,7 +185,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `length` for documentation.
         difference_type length() const {
-            return lengthImpl(IsCartesianProductIterator<Iterator>());
+            return lengthImpl();
         }
 
         //! See FunctionTools.hpp `isEmpty` for documentation.
@@ -227,21 +229,22 @@ namespace lz {
         //! See Filter.hpp for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
         IterView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> filter(UnaryPredicate predicate,
-                                                                                       const Execution exec = std::execution::seq) {
+                                                                                       Execution exec = std::execution::seq) {
             return lz::toIter(lz::filter(std::move(*this), std::move(predicate), exec));
         }
 
         //! See Except.hpp for documentation.
-        template<class IterableToExcept, class Execution = std::execution::sequenced_policy>
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution>>
-        except(IterableToExcept&& toExcept, const Execution exec = std::execution::seq) {
-            return lz::toIter(lz::except(std::move(*this), toExcept, exec));
+        template<class IterableToExcept, class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
+        except(IterableToExcept&& toExcept, Compare compare = Compare(), Execution exec = std::execution::seq) {
+            return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare), exec));
         }
 
         //! See Unique.hpp for documentation.
-        template<class Execution = std::execution::sequenced_policy>
-        IterView<internal::UniqueIterator<Iterator, Execution>> unique(const Execution exec = std::execution::seq) {
-            return lz::toIter(lz::unique(std::move(*this), exec));
+        template<class Execution = std::execution::sequenced_policy, class SortFunc = std::less<>>
+        IterView<internal::UniqueIterator<Iterator, Execution, SortFunc>> unique(SortFunc sortFunc = SortFunc(),
+																	   			 Execution exec = std::execution::seq) {
+            return lz::toIter(lz::unique(std::move(*this), std::move(sortFunc), exec));
         }
 
         //! See ChunkIf.hpp for documentation
@@ -254,19 +257,19 @@ namespace lz {
         //! See FunctionTools.hpp `filterMap` for documentation.
         template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
         IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
-        filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc, const Execution exec = std::execution::seq) {
+        filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc, Execution exec = std::execution::seq) {
             return lz::toIter(lz::filterMap(std::move(*this), std::move(filterFunc), std::move(mapFunc), exec));
         }
 
         //! See FunctionTools.hpp `select` for documentation.
         template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
-        auto select(SelectorIterable&& selectors, const Execution exec = std::execution::seq) {
+        auto select(SelectorIterable&& selectors, Execution exec = std::execution::seq) {
             return lz::toIter(lz::select(std::move(*this), std::forward<SelectorIterable>(selectors), exec));
         }
 
         //! See Take.hpp for documentation
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        IterView<Iterator> dropWhile(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
+        IterView<Iterator> dropWhile(UnaryPredicate predicate, Execution exec = std::execution::seq) {
             return lz::toIter(lz::dropWhile(std::move(*this), std::move(predicate), exec));
         }
 
@@ -289,49 +292,49 @@ namespace lz {
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
-        value_type firstOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
+        value_type firstOrDefault(T&& toFind, U&& defaultValue, Execution exec = std::execution::seq) const {
             return lz::firstOrDefault(*this, toFind, defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `firstOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
-        value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
+        value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, Execution exec = std::execution::seq) const {
             return lz::firstOrDefault(*this, std::move(predicate), defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `lastOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
-        value_type lastOrDefault(T&& toFind, U&& defaultValue, const Execution exec = std::execution::seq) const {
+        value_type lastOrDefault(T&& toFind, U&& defaultValue, Execution exec = std::execution::seq) const {
             return lz::lastOrDefault(*this, toFind, defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `lastOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
-        value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, const Execution exec = std::execution::seq) const {
+        value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, Execution exec = std::execution::seq) const {
             return lz::lastOrDefault(*this, std::move(predicate), defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `indexOf` for documentation.
         template<class T, class Execution = std::execution::sequenced_policy>
-        difference_type indexOf(const T& value, const Execution exec = std::execution::seq) const {
+        difference_type indexOf(const T& value, Execution exec = std::execution::seq) const {
             return lz::indexOf(*this, value, exec);
         }
 
         //! See FunctionTools.hpp `indexOfIf` for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        difference_type indexOf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        difference_type indexOf(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             return lz::indexOfIf(*this, std::move(predicate), exec);
         }
 
         //! See FunctionTools.hpp `contains` for documentation.
         template<class T, class Execution = std::execution::sequenced_policy>
-        bool contains(const T& value, const Execution exec = std::execution::seq) const {
+        bool contains(const T& value, Execution exec = std::execution::seq) const {
             return lz::contains(*this, value, exec);
         }
 
         //! See FunctionTools.hpp `containsIf` for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool containsIf(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        bool containsIf(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             return lz::containsIf(*this, std::move(predicate), exec);
         }
 
@@ -341,7 +344,7 @@ namespace lz {
          * @param exec The execution policy.
          */
         template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
-        IterView<Iterator>& forEach(UnaryFunc func, const Execution exec = std::execution::seq) {
+        IterView<Iterator>& forEach(UnaryFunc func, Execution exec = std::execution::seq) {
             std::for_each(exec, Base::begin(), Base::end(), std::move(func));
             return *this;
         }
@@ -353,7 +356,7 @@ namespace lz {
          * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
          */
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
-        T foldl(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
+        T foldl(T&& init, BinaryFunction function, Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
@@ -370,15 +373,15 @@ namespace lz {
          * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
          */
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
-        T foldr(T&& init, BinaryFunction function, const Execution exec = std::execution::seq) const {
+        T foldr(T&& init, BinaryFunction function, Execution exec = std::execution::seq) const {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::reduce(std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+                return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init),
                                    std::move(function));
             }
             else {
-                return std::reduce(exec, std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+                return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init),
                                    std::move(function));
             }
         }
@@ -388,7 +391,7 @@ namespace lz {
          * @param exec The exectuion policy.
          */
         template<class Execution = std::execution::sequenced_policy>
-        value_type sum(const Execution exec = std::execution::seq) const {
+        value_type sum(Execution exec = std::execution::seq) const {
             return this->foldl(value_type(), std::plus<>(), exec);
         }
 
@@ -399,13 +402,13 @@ namespace lz {
          * @return The min element.
          */
         template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
-        value_type max(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+        value_type max(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::max_element(exec, Base::begin(), Base::end(), cmp);
+                return std::max_element(exec, Base::begin(), Base::end(), std::move(cmp));
             }
             else {
-                return std::max_element(Base::begin(), Base::end(), cmp);
+                return std::max_element(Base::begin(), Base::end(), std::move(cmp));
             }
         }
 
@@ -416,13 +419,13 @@ namespace lz {
          * @return The min element.
          */
         template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
-        value_type min(Compare cmp = std::less<>(), const Execution exec = std::execution::seq) const {
+        value_type min(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::min_element(exec, Base::begin(), Base::end(), cmp);
+                return std::min_element(exec, Base::begin(), Base::end(), std::move(cmp));
             }
             else {
-                return std::min_element(Base::begin(), Base::end(), cmp);
+                return std::min_element(Base::begin(), Base::end(), std::move(cmp));
             }
         }
 
@@ -432,7 +435,7 @@ namespace lz {
          * @param exec The execution policy.
          */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool all(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        bool all(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::all_of(Base::begin(), Base::end(), std::move(predicate));
@@ -448,7 +451,7 @@ namespace lz {
          * @param exec The execution policy.
          */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool any(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        bool any(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
                 return std::any_of(Base::begin(), Base::end(), std::move(predicate));
@@ -464,7 +467,7 @@ namespace lz {
          * @param exec The execution policy.
          */
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool none(UnaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        bool none(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             return !this->all(std::move(predicate), exec);
         }
 
@@ -536,7 +539,7 @@ namespace lz {
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
         template<class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool isSortedBy(BinaryPredicate predicate, const Execution exec = std::execution::seq) const {
+        bool isSortedBy(BinaryPredicate predicate, Execution exec = std::execution::seq) const {
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
             }
@@ -551,7 +554,7 @@ namespace lz {
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
         template<class Execution = std::execution::sequenced_policy>
-        bool isSorted(const Execution exec = std::execution::seq) const {
+        bool isSorted(Execution exec = std::execution::seq) const {
             return this->isSortedBy(std::less<>(), exec);
         }
 
@@ -563,14 +566,15 @@ namespace lz {
         }
 
         //! See Except.hpp for documentation
-        template<class IterableToExcept>
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>>>
-        except(IterableToExcept&& toExcept) {
-            return lz::toIter(lz::except(std::move(*this), toExcept));
+        template<class IterableToExcept, class Compare = std::less<internal::ValueType<IterableToExcept>>>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
+        except(IterableToExcept&& toExcept, Compare compare = Compare()) {
+            return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare)));
         }
 
         //! See Unique.hpp for documentation
-        IterView<internal::UniqueIterator<Iterator>> unique() {
+        template<class SortFunc = std::less<internal::ValueType<Iterator>>>
+        IterView<internal::UniqueIterator<Iterator, SortFunc>> unique(SortFunc sortFunc = SortFunc()) {
             return lz::toIter(lz::unique(std::move(*this)));
         }
 
@@ -704,7 +708,7 @@ namespace lz {
         template<class T, class BinaryFunction>
         T foldr(T&& init, BinaryFunction function) const {
             IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::accumulate(std::move(reverseView).begin(), std::move(reverseView).end(), std::forward<T>(init),
+            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init),
                                    std::move(function));
         }
 
