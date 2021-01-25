@@ -106,6 +106,11 @@ namespace lz { namespace internal {
         auto operator()(Args&& ... args) const -> decltype(_func(std::forward<Args>(args)...)) {
             return _func(std::forward<Args>(args)...);
         }
+
+		template<class... Args>
+		auto operator()(Args&& ... args) -> decltype(_func(std::forward<Args>(args)...)) {
+			return _func(std::forward<Args>(args)...);
+		}
     };
 }}
 #endif // LZ_FUNCTION_CONTAINER_HPP

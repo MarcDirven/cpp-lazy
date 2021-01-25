@@ -46,9 +46,9 @@ namespace lz { namespace internal {
                });
             }
 #else // ^^^ has execution vvv ! has execution
-            _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-                return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
-            });
+			_iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+				return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
+			});
 #endif // end has execution
         }
 
@@ -69,18 +69,26 @@ namespace lz { namespace internal {
             , _execution(execution)
 #endif // end has execution
         {
-            if (_toExceptBegin != _toExceptEnd) {
+            if (_toExceptBegin == _toExceptEnd) {
+				return;
+			}
 #ifdef LZ_HAS_EXECUTION
-                if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd)) {
-                    std::sort(_execution, _toExceptBegin, _toExceptEnd);
-                }
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+				if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd, _compare)) {
+					std::sort(_execution, _toExceptBegin, _toExceptEnd, _compare);
+				}
+			}
+			else {
+				if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+					std::sort(_toExceptBegin, _toExceptEnd, _compare);
+				}
+			}
 #else // ^^^ has execution vvv ! has execution
-                if (!std::is_sorted(_toExceptBegin, _toExceptEnd)) {
-                    std::sort(_toExceptBegin, _toExceptEnd);
-                }
+			if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+				std::sort(_toExceptBegin, _toExceptEnd, _compare);
+			}
 #endif // end has execution
-                find();
-            }
+			find();
         }
 
         reference operator*() const {

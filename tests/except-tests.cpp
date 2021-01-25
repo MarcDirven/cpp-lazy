@@ -22,8 +22,8 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
         std::array<int, es> toLargeExcept = lz::range(static_cast<int>(es)).toArray<es>();
 
         auto ex = lz::except(largeArr, toLargeExcept);
-        for (int _ : ex) {
-            static_cast<void>(_);
+        for (int i : ex) {
+            static_cast<void>(i);
         }
     }
 
