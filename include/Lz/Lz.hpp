@@ -226,22 +226,23 @@ namespace lz {
 #ifdef LZ_HAS_EXECUTION
         //! See Filter.hpp for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        IterView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> filter(UnaryPredicate predicate,
-                                                                                       const Execution exec = std::execution::seq) {
+        IterView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>>
+        filter(UnaryPredicate predicate, const Execution exec = std::execution::seq) {
             return lz::toIter(lz::filter(std::move(*this), std::move(predicate), exec));
         }
 
         //! See Except.hpp for documentation.
-        template<class IterableToExcept, class Execution = std::execution::sequenced_policy>
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution>>
-        except(IterableToExcept&& toExcept, const Execution exec = std::execution::seq) {
-            return lz::toIter(lz::except(std::move(*this), toExcept, exec));
+        template<class IterableToExcept, class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Execution, Compare>>
+        except(IterableToExcept&& toExcept, Compare compare = Compare(), Execution exec = std::execution::seq) {
+            return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare), exec));
         }
 
         //! See Unique.hpp for documentation.
-        template<class Execution = std::execution::sequenced_policy>
-        IterView<internal::UniqueIterator<Iterator, Execution>> unique(const Execution exec = std::execution::seq) {
-            return lz::toIter(lz::unique(std::move(*this), exec));
+        template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
+        IterView<internal::UniqueIterator<Iterator, Execution, Compare>>
+        unique(Compare compare = Compare(), Execution exec = std::execution::seq) {
+            return lz::toIter(lz::unique(std::move(*this), std::move(compare), exec));
         }
 
         //! See ChunkIf.hpp for documentation
@@ -563,15 +564,16 @@ namespace lz {
         }
 
         //! See Except.hpp for documentation
-        template<class IterableToExcept>
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>>>
-        except(IterableToExcept&& toExcept) {
-            return lz::toIter(lz::except(std::move(*this), toExcept));
+        template<class IterableToExcept, class Compare = std::less<internal::ValueType<Iterator>>>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
+        except(IterableToExcept&& toExcept, Compare compare = Compare()) {
+            return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare)));
         }
 
         //! See Unique.hpp for documentation
-        IterView<internal::UniqueIterator<Iterator>> unique() {
-            return lz::toIter(lz::unique(std::move(*this)));
+        template<class Compare = std::less<internal::ValueType<Iterator>>>
+        IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = Compare()) {
+            return lz::toIter(lz::unique(std::move(*this), std::move(compare)));
         }
 
         //! See ChunkIf.hpp for documentation

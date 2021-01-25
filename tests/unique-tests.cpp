@@ -24,6 +24,7 @@ TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality
     	std::array<int, size> expected = {3, 2, 1};
     	auto uniqueGreater = lz::unique(expected, std::greater<int>()); // NOLINT
     	CHECK(expected == uniqueGreater.toArray<size>());
+    	CHECK(std::is_sorted(expected.begin(), expected.end(), std::greater<int>())); // NOLINT
     }
 }
 

@@ -6,12 +6,13 @@
 
 #include <algorithm>
 
+#include "FunctionContainer.hpp"
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #else // ^^^ has execution vvv ! has execution
-    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept>
+    template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #endif // end has execution
     class ExceptIterator {
         using IterTraits = std::iterator_traits<Iterator>;
@@ -28,6 +29,7 @@ namespace lz { namespace internal {
         Iterator _end{};
         IteratorToExcept _toExceptBegin{};
         IteratorToExcept _toExceptEnd{};
+        FunctionContainer<Compare> _compare{};
 
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
@@ -56,15 +58,16 @@ namespace lz { namespace internal {
         ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin,IteratorToExcept toExceptEnd,
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare,
                        const Execution execution) :
 #else // ^^^ has execution vvv ! has execution
-        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd) :
+        ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
 #endif // end has execution
             _iterator(std::move(begin)),
             _end(std::move(end)),
             _toExceptBegin(std::move(toExceptBegin)),
-            _toExceptEnd(std::move(toExceptEnd))
+            _toExceptEnd(std::move(toExceptEnd)),
+            _compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
 #endif // end has execution

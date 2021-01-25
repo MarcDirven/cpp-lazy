@@ -10,17 +10,17 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator>
-    class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator>> {
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
+    class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
 #else
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator>> {
+    template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
+    class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
 #endif
     public:
 #ifdef LZ_HAS_EXECUTION
-        using iterator = internal::UniqueIterator<Execution, Iterator>;
+        using iterator = internal::UniqueIterator<Execution, Iterator, Compare>;
 #else
-        using iterator = internal::UniqueIterator<Iterator>;
+        using iterator = internal::UniqueIterator<Iterator, Compare>;
 #endif
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
@@ -33,13 +33,13 @@ namespace lz {
          * @param end The ending of the sequence.
          */
 #ifdef LZ_HAS_EXECUTION
-        Unique(Iterator begin, Iterator end, const Execution e) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, e), iterator(end, end, e))
+        Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
+            internal::BasicIteratorView<iterator>(iterator(begin, end, compare, e), iterator(end, end, compare, e))
         {
         }
 #else
-        Unique(Iterator begin, Iterator end) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end), iterator(end, end))
+        Unique(Iterator begin, Iterator end, Compare compare) :
+            internal::BasicIteratorView<iterator>(iterator(begin, end, compare), iterator(end, end, compare))
         {
         }
 #endif
@@ -63,15 +63,15 @@ namespace lz {
      * element are done using this policy.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERATOR Iterator>
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(Iterator, Iterator)
-    Unique<Execution, Iterator> uniqueRange(Iterator begin, Iterator end, const Execution execPolicy = std::execution::seq) {
+    Unique<Execution, Iterator, Compare>
+	uniqueRange(Iterator begin, Iterator end, Compare compare = Compare(), Execution execPolicy = std::execution::seq) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator or higher for "
                                                                  "std::sort");
 #endif // end lz has concepts
-        static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
-        return Unique<Execution, Iterator>(std::move(begin), std::move(end), execPolicy);
+        return Unique<Execution, Iterator, Compare>(std::move(begin), std::move(end), std::move(compare), execPolicy);
     }
 
     /**
@@ -83,10 +83,12 @@ namespace lz {
      * element are done using this policy.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable, class It = internal::IterTypeFromIterable<Iterable>>
+    template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable,
+    	class It = internal::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(It, It)
-    Unique<Execution, It> unique(Iterable&& iterable, const Execution execPolicy = std::execution::seq) {
-        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), execPolicy);
+    Unique<Execution, It, Compare> unique(Iterable&& iterable, Compare compare = Compare(), Execution execPolicy = std::execution::seq) {
+        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+						   std::move(compare), execPolicy);
     }
 
 #else // ^^^ has execution vvv !has execution
@@ -97,11 +99,11 @@ namespace lz {
      * @param end The ending of the sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
-    template<LZ_CONCEPT_RA_ITERATOR Iterator>
-    Unique<Iterator> uniqueRange(Iterator begin, Iterator end) {
+    template<LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
+    Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = Compare()) {
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator "
                                                                  "or higher for std::sort");
-        return Unique<Iterator>(std::move(begin), std::move(end));
+        return Unique<Iterator, Compare>(std::move(begin), std::move(end), std::move(compare));
     }
 
     /**
@@ -110,9 +112,10 @@ namespace lz {
      * @param iterable The iterable sequence.
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
-    template<LZ_CONCEPT_RA_ITERABLE Iterable>
-    Unique<internal::IterTypeFromIterable<Iterable>> unique(Iterable&& iterable) {
-        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    template<LZ_CONCEPT_RA_ITERABLE Iterable, class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
+    Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = Compare()) {
+        return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+						   std::move(compare));
     }
 #endif // end has execution
     // End of group
