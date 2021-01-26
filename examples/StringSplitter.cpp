@@ -1,6 +1,13 @@
 #include <Lz/StringSplitter.hpp>
 #include <iostream>
 
+// For fmt string_view
+std::ostream& operator<<(std::ostream& s, fmt::string_view v) {
+	for (const char c : v) {
+		s << c;
+	}
+	return s;
+}
 
 int main() {
     std::string toSplit = "Hello world ";
