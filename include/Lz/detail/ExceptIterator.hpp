@@ -73,7 +73,9 @@ namespace lz { namespace internal {
             , _execution(execution)
 #endif // end has execution
         {
-            if (_toExceptBegin != _toExceptEnd) {
+            if (_toExceptBegin == _toExceptEnd) {
+				return;
+			}
 #ifdef LZ_HAS_EXECUTION
 				if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 					if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd, _compare)) {
@@ -90,8 +92,7 @@ namespace lz { namespace internal {
                     std::sort(_toExceptBegin, _toExceptEnd, _compare);
                 }
 #endif // end has execution
-                find();
-            }
+			find();
         }
 
         reference operator*() const {

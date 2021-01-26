@@ -4,7 +4,6 @@
 
 #include <Lz/Map.hpp>
 
-
 struct TestStruct {
     std::string testFieldStr;
     int testFieldInt;

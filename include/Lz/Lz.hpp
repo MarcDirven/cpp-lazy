@@ -241,10 +241,10 @@ namespace lz {
         }
 
         //! See Unique.hpp for documentation.
-        template<class Execution = std::execution::sequenced_policy, class SortFunc = std::less<>>
-        IterView<internal::UniqueIterator<Iterator, Execution, SortFunc>> unique(SortFunc sortFunc = SortFunc(),
-																	   			 Execution exec = std::execution::seq) {
-            return lz::toIter(lz::unique(std::move(*this), std::move(sortFunc), exec));
+        template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
+        IterView<internal::UniqueIterator<Iterator, Execution, Compare>>
+        unique(Compare compare = Compare(), Execution exec = std::execution::seq) {
+            return lz::toIter(lz::unique(std::move(*this), std::move(compare), exec));
         }
 
         //! See ChunkIf.hpp for documentation
@@ -573,9 +573,9 @@ namespace lz {
         }
 
         //! See Unique.hpp for documentation
-        template<class SortFunc = std::less<internal::ValueType<Iterator>>>
-        IterView<internal::UniqueIterator<Iterator, SortFunc>> unique(SortFunc sortFunc = SortFunc()) {
-            return lz::toIter(lz::unique(std::move(*this)));
+        template<class Compare = std::less<internal::ValueType<Iterator>>>
+        IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = Compare()) {
+            return lz::toIter(lz::unique(std::move(*this), std::move(compare)));
         }
 
         //! See ChunkIf.hpp for documentation

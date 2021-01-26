@@ -32,15 +32,15 @@ namespace lz {
          * @param toExceptEnd The ending of the actual elements to except.
          */
 #ifdef LZ_HAS_EXECUTION
-        Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare,
-               Execution execPolicy) :
+        Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
+			   Compare compare, Execution execPolicy) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, compare, execPolicy),
                                                   iterator(end, end, toExceptBegin, toExceptEnd, compare, execPolicy))
         {}
 #else // ^^^ has execution vvv ! has execution
         Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, compare),
-                                                  iterator(end, end, toExceptBegin, toExceptEnd, compare))
+                                                  iterator(end, end, toExceptEnd, toExceptEnd, compare))
     	{}
 #endif // end has execution
 
@@ -57,7 +57,7 @@ namespace lz {
       * @brief This function returns a view to the random access ExceptIterator.
       * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
       * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
-      * be able to do it correctly.
+      * be able to do it correctly. The second sequence will always be sorted.
       * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
       * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
       * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
@@ -78,14 +78,14 @@ namespace lz {
                                                                          "or higher for std::sort");
 #endif // end lz has concepts
         return Except<Execution, Iterator, IteratorToExcept, Compare>(std::move(begin), std::move(end), std::move(toExceptBegin),
-                                                             std::move(toExceptEnd), std::move(compare), execPolicy);
+                                                             		  std::move(toExceptEnd), std::move(compare), execPolicy);
     }
 
     /**
      * @brief This function returns a view to the ExceptIterator.
      * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
      * [`toExceptBegin`, `toExceptEnd). If elements are changed in `toExcept` after calling begin(), this iterator will not
-     * be able to do it correctly.
+     * be able to do it correctly. The second sequence will always be sorted.
      * @param iterable The iterable to except elements from contained by `toExcept`.
      * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
 	 * @param compare (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
@@ -108,18 +108,19 @@ namespace lz {
       * @brief This function returns a view to the ExceptIterator. If elements are changed in `toExcept` after
       * calling begin(), this iterator will not be able to do it correctly. This iterator has a complexity of O(N log N).
       * @details This iterator can be used to 'remove'/'except' elements in range from [`begin`, `end`) contained by
-      * [`toExceptBegin`, `toExceptEnd).
+      * [`toExceptBegin`, `toExceptEnd). The second sequence will always be sorted.
       * @param begin The beginning of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
       * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
       * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
       * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
+	  * @param compare (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
       * @return An Except view object.
       */
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept,
-        class Compare = std::less<internal::ValueType<IteratorToExcept>>>
+        class Compare = std::less<internal::ValueType<Iterator>>>
     Except<Iterator, IteratorToExcept, Compare>
 	exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare = Compare()) {
-        static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator "
+        static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
                                                                          "or higher for std::sort");
         return Except<Iterator, IteratorToExcept, Compare>(std::move(begin), std::move(end), std::move(toExceptBegin),
 														   std::move(toExceptEnd), std::move(compare));
@@ -127,15 +128,17 @@ namespace lz {
 
      /**
      * @brief This function returns a view to the random access ExceptIterator. If elements are changed in `toExcept` after
-     * calling begin(), this iterator will not be able to do it correctly. This iterator has a complexity of O(N log N).
+     * calling begin(), this iterator will not be able to do it correctly. This iterator has a complexity of O(N log N). The second
+     * sequence will always be sorted.
      * @details This iterator can be used to 'remove'/'except' elements in `iterable` contained by `toExcept`. If `toExcept` is sorted
      * and has an `operator<`.
      * @param iterable The iterable to except elements from contained by `toExcept`.
      * @param toExcept The iterable containing items that must be removed from [`begin`, `end`).
+	 * @param compare (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Except view object.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept,
-        class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<IterableToExcept>>>>
+    	class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
     Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Compare>
     except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = Compare()) {
         return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),

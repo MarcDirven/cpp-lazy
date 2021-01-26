@@ -35,9 +35,17 @@ namespace lz { namespace internal {
             return _generator();
         }
 
+		value_type operator*() {
+			return _generator();
+		}
+
         pointer operator->() const {
             return FakePointerProxy<decltype(**this)>(**this);
         }
+
+		pointer operator->() {
+			return FakePointerProxy<decltype(**this)>(**this);
+		}
 
         GenerateIterator& operator++() {
             if (!_isWhileTrueLoop) {

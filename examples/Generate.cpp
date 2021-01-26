@@ -2,7 +2,6 @@
 #include <vector>
 #include <iostream>
 
-
 int main() {
     int myIncreasingCounter = 0;
     constexpr int amount = 4;
