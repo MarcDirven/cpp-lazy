@@ -61,6 +61,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @param execPolicy The execution policy. Must be one of `std::execution`'s tags. The sorting check, sorting and finding the adjacent
      * element are done using this policy.
+     * @param sortFunc (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<>>
@@ -81,6 +82,7 @@ namespace lz {
      * @param end The ending of the sequence.
      * @param execPolicy The execution policy. Must be one of `std::execution`'s tags. The sorting check, sorting and finding the adjacent
      * element are done using this policy.
+     * @param sortFunc (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable,
@@ -97,6 +99,7 @@ namespace lz {
      * @details Use this iterator view to eventually get an iterator of unique values. The operator< and operator== must be implemented.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
+     * @param sortFunc (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
@@ -110,6 +113,7 @@ namespace lz {
      * @brief Returns an Unique iterator view object.
      * @details Use this iterator view to eventually get an iterator of unique values. The operator< and operator== must be implemented.
      * @param iterable The iterable sequence.
+     * @param sortFunc (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
     template<LZ_CONCEPT_RA_ITERABLE Iterable, class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>

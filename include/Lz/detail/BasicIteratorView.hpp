@@ -192,7 +192,7 @@ namespace lz { namespace internal {
          * @return An arbitrary container specified by the entered template parameter.
          */
         template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-        Container<value_type, Args...> to(const Execution execution = std::execution::seq, Args&& ... args) const {
+        Container<value_type, Args...> to(Execution execution = std::execution::seq, Args&& ... args) const {
             using Cont = Container<value_type, Args...>;
             return copyContainer<Cont>(execution, std::forward<Args>(args)...);
         }
@@ -204,7 +204,7 @@ namespace lz { namespace internal {
         * @return A `std::vector<value_type>` with the sequence.
         */
         template<class Execution = std::execution::sequenced_policy>
-        std::vector<value_type> toVector(const Execution exec = std::execution::seq) const {
+        std::vector<value_type> toVector(Execution exec = std::execution::seq) const {
             return to<std::vector>(exec);
         }
 
@@ -217,7 +217,7 @@ namespace lz { namespace internal {
          * @return A new `std::vector<value_type, Allocator>`.
          */
         template<class Allocator, class Execution = std::execution::sequenced_policy>
-        std::vector<value_type, Allocator> toVector(const Execution exec = std::execution::seq,
+        std::vector<value_type, Allocator> toVector(Execution exec = std::execution::seq,
                                                     const Allocator& alloc = Allocator()) const {
             return to<std::vector>(exec, alloc);
         }
@@ -230,7 +230,7 @@ namespace lz { namespace internal {
          * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
          */
         template<std::size_t N, class Execution = std::execution::sequenced_policy>
-        std::array<value_type, N> toArray(const Execution exec = std::execution::seq) const {
+        std::array<value_type, N> toArray(Execution exec = std::execution::seq) const {
             return copyArray<N>(exec);
         }
 
@@ -242,7 +242,7 @@ namespace lz { namespace internal {
          * @return The converted iterator in string format.
          */
         template<class Execution = std::execution::sequenced_policy>
-        std::string toString(const std::string& delimiter = "", const Execution exec = std::execution::seq) const {
+        std::string toString(const std::string& delimiter = "", Execution exec = std::execution::seq) const {
             std::string string;
             auto formatFun = [delimiter, this](const value_type& v) {
                 return fmt::format("{}{}", v, delimiter);

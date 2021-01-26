@@ -9,7 +9,6 @@
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>

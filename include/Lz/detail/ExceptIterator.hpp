@@ -8,6 +8,7 @@
 
 #include "FunctionContainer.hpp"
 
+
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
     template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
@@ -39,18 +40,18 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                 });
             }
-            else {
+            else { // NOLINT
                 _iterator = std::find_if(_execution, _iterator, _end, [this](const value_type& value) {
-                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value);
+                    return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                });
             }
 #else // ^^^ has execution vvv ! has execution
-			_iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
-				return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
-			});
+            _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
+            });
 #endif // end has execution
         }
 
@@ -59,7 +60,7 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
         ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare,
-                       const Execution execution) :
+                       Execution execution) :
 #else // ^^^ has execution vvv ! has execution
         ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
 #endif // end has execution
@@ -76,20 +77,20 @@ namespace lz { namespace internal {
 				return;
 			}
 #ifdef LZ_HAS_EXECUTION
-			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-				if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd, _compare)) {
-					std::sort(_execution, _toExceptBegin, _toExceptEnd, _compare);
+				if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+					if (!std::is_sorted(_execution, _toExceptBegin, _toExceptEnd, _compare)) {
+						std::sort(_execution, _toExceptBegin, _toExceptEnd, _compare);
+					}
 				}
-			}
-			else {
-				if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
-					std::sort(_toExceptBegin, _toExceptEnd, _compare);
+				else {
+					if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+						std::sort(_toExceptBegin, _toExceptEnd, _compare);
+					}
 				}
-			}
 #else // ^^^ has execution vvv ! has execution
-			if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
-				std::sort(_toExceptBegin, _toExceptEnd, _compare);
-			}
+                if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
+                    std::sort(_toExceptBegin, _toExceptEnd, _compare);
+                }
 #endif // end has execution
 			find();
         }

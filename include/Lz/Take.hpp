@@ -168,7 +168,7 @@ namespace lz {
      * @return A Take iterator view object.
      */
 	template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate, const Execution exec = std::execution::seq) {
+	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution exec = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(exec);
@@ -195,7 +195,7 @@ namespace lz {
      */
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
 	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
-                                                             const Execution exec = std::execution::seq) {
+                                                             Execution exec = std::execution::seq) {
         return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                               std::move(predicate), exec);
     }

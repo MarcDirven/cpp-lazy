@@ -32,7 +32,7 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
 #ifdef LZ_HAS_EXECUTION
-        Filter(Iterator begin, Iterator end, Function function, const Execution execution) :
+        Filter(Iterator begin, Iterator end, Function function, Execution execution) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, function, execution),
                                                   iterator(end, end, function, execution))
         {
@@ -72,7 +72,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Execution, Iterator, Function>
-    filterRange(Iterator begin, Iterator end, Function predicate, const Execution execution = std::execution::seq) {
+    filterRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
         static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
                       "function must return bool");
         static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
@@ -81,7 +81,7 @@ namespace lz {
 
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
     Filter<Execution, internal::IterTypeFromIterable<Iterable>, Function>
-    filter(Iterable&& iterable, Function predicate, const Execution execPolicy = std::execution::seq) {
+    filter(Iterable&& iterable, Function predicate, Execution execPolicy = std::execution::seq) {
         return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            std::move(predicate), execPolicy);
     }

@@ -8,7 +8,7 @@
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    auto generator = lz::generate([&counter]() {
+    auto generator = lz::generate([&counter] {
         return counter++;
     }, amount);
 
@@ -24,7 +24,7 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
 TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    std::function<std::size_t()> f = [&counter]() {
+    std::function<std::size_t()> f = [&counter] {
         return counter++;
     };
     auto generator = lz::generate(std::move(f), amount);
@@ -80,7 +80,7 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
 TEST_CASE("Generate to containers", "[Generate][To container]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    auto generator = lz::generate([&counter]() {
+    auto generator = lz::generate([&counter] {
         return counter++;
     }, amount);
 

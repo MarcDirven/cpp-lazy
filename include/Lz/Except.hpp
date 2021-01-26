@@ -62,6 +62,7 @@ namespace lz {
       * @param end The ending of the iterator to except elements from contained by [`toExceptBegin`, `toExceptEnd).
       * @param toExceptBegin The beginning of the iterator, containing items that must be removed from [`begin`, `end`).
       * @param toExceptEnd The ending of the iterator, containing items that must be removed from [`begin`, `end`).
+      * @param compare (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
       * @param execPolicy The execution policy. Must be one of `std::execution`'s tags. The sorting check, the sorting and finding the
       * elements are done using this policy.
       * @return An Except view object.

@@ -563,7 +563,7 @@ namespace lz {
      * @return The mean of the sequence.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Execution = std::execution::sequenced_policy>
-    double mean(Iterator begin, Iterator end, const Execution exec = std::execution::seq) {
+    double mean(Iterator begin, Iterator end, Execution exec = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         const internal::DiffType<Iterator> distance = std::distance(begin, end);
         ValueType sum{};
@@ -583,7 +583,7 @@ namespace lz {
      * @return The mean of the container.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
-    double mean(const Iterable& container, const Execution exec = std::execution::seq) {
+    double mean(const Iterable& container, Execution exec = std::execution::seq) {
         return lz::mean(std::begin(container), std::end(container), exec);
     }
 
@@ -600,7 +600,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
     Map<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
 	filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
-              const Execution execPolicy = std::execution::seq) {
+              Execution execPolicy = std::execution::seq) {
         Filter<Execution, Iterator, UnaryFilterFunc> filterView = lz::filterRange(std::move(begin), std::move(end),
                                                                                   std::move(filterFunc), execPolicy);
         return lz::map(std::move(filterView), std::move(mapFunc));
@@ -617,7 +617,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
     Map<internal::FilterIterator<Execution, internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
-	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, const Execution execution = std::execution::seq) {
+	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execution = std::execution::seq) {
         return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
                              internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc), std::move(mapFunc),
                              execution);
@@ -625,7 +625,7 @@ namespace lz {
 
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
     auto select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector,
-                const Execution execution = std::execution::seq) {
+                Execution execution = std::execution::seq) {
         static_assert(std::is_copy_assignable<SelectorIterator>::value, "selector iterator/iterable must be copy assignable");
 
         using Zipper = lz::Zip<Iterator, SelectorIterator>;
@@ -640,7 +640,7 @@ namespace lz {
     }
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
-    auto select(Iterable&& iterable, SelectorIterable&& selectors, const Execution execution = std::execution::seq) {
+    auto select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = std::execution::seq) {
         return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)),
                       execution);
@@ -692,7 +692,7 @@ namespace lz {
      * @return The median of the sequence.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare>
-    double median(Iterator begin, Iterator end, Compare compare, const Execution execution = std::execution::seq) {
+    double median(Iterator begin, Iterator end, Compare compare, Execution execution = std::execution::seq) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
         constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
 
@@ -733,7 +733,7 @@ namespace lz {
      * @return The median of the sequence.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class Compare>
-    double median(Iterable& iterable, Compare compare, const Execution execution = std::execution::seq) {
+    double median(Iterable& iterable, Compare compare, Execution execution = std::execution::seq) {
         return lz::median(std::begin(iterable), std::end(iterable), compare, execution);
     }
 
@@ -746,7 +746,7 @@ namespace lz {
      * @return The median of the sequence.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator>
-    double median(Iterator begin, Iterator end, const Execution execution = std::execution::seq) {
+    double median(Iterator begin, Iterator end, Execution execution = std::execution::seq) {
         return lz::median(begin, end, std::less<internal::ValueType<Iterator>>(), execution);
     }
 
@@ -758,7 +758,7 @@ namespace lz {
      * @return The median of the sequence.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable>
-    double median(Iterable& iterable, const Execution execution = std::execution::seq) {
+    double median(Iterable& iterable, Execution execution = std::execution::seq) {
         return lz::median(std::begin(iterable), std::end(iterable),
                           std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>(), execution);
     }
@@ -774,7 +774,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T, class U>
     internal::ValueType<Iterator>
-	firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue, const Execution execution = std::execution::seq) {
+	firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue, Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
@@ -795,7 +795,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class U>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
-                                                                                 const Execution execution = std::execution::seq) {
+                                                                                 Execution execution = std::execution::seq) {
         return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
@@ -812,7 +812,7 @@ namespace lz {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class T>
     internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
-                                                   T&& defaultValue, const Execution execution) {
+                                                   T&& defaultValue, Execution execution = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
@@ -838,7 +838,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>>
     firstOrDefaultIf(const Iterable& iterable, const UnaryPredicate predicate, T&& defaultValue,
-                     const Execution execution = std::execution::seq) {
+                     Execution execution = std::execution::seq) {
         return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
     }
 
@@ -852,7 +852,7 @@ namespace lz {
 	 */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue,
-												const Execution execution = std::execution::seq) {
+												Execution execution = std::execution::seq) {
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
@@ -879,7 +879,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class U, class Execution = std::execution::sequenced_policy>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue,
-																				const Execution execution = std::execution::seq) {
+																				Execution execution = std::execution::seq) {
         return lz::lastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
     }
 
@@ -893,7 +893,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
-												  T&& defaultValue, const Execution execution = std::execution::seq) {
+												  T&& defaultValue, Execution execution = std::execution::seq) {
         using CastType = internal::ValueType<Iterator>;
         using ReverseIterator = std::reverse_iterator<Iterator>;
 
@@ -921,8 +921,8 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     internal::ValueType<internal::IterTypeFromIterable<Iterable>> lastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate,
 																				  T&& defaultValue, 
-																				  const Execution execution = std::execution::seq) {
-        return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+																				  Execution execution = std::execution::seq) {
+        return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue, execution);
     }
 
     /**
@@ -934,7 +934,7 @@ namespace lz {
      * @return The index of `val` or lz::npos of no such value exists.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
-    std::size_t indexOf(Iterator begin, Iterator end, const T& val, const Execution execution = std::execution::seq) {
+    std::size_t indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::execution::seq) {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find(begin, end, val);
@@ -954,7 +954,7 @@ namespace lz {
      * @return The index of `val` or lz::npos of no such value exists.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class To>
-    std::size_t indexOf(const Iterable& iterable, const To& val, const Execution execution = std::execution::seq) {
+    std::size_t indexOf(const Iterable& iterable, const To& val, Execution execution = std::execution::seq) {
         return lz::indexOf(std::begin(iterable), std::end(iterable), val, execution);
     }
 
@@ -967,7 +967,7 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
-    std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, const Execution execution = std::execution::seq) {
+    std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution = std::execution::seq) {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             const Iterator pos = std::find_if(begin, end, predicate);
@@ -986,7 +986,7 @@ namespace lz {
     * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
     */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
-    std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate, const Execution execution = std::execution::seq) {
+    std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = std::execution::seq) {
         return lz::indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
     }
 
@@ -998,7 +998,7 @@ namespace lz {
      * @return True if `iterable` contains `value`, false otherwise.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
-    bool contains(Iterator begin, Iterator end, const T& value, const Execution exec = std::execution::seq) {
+    bool contains(Iterator begin, Iterator end, const T& value, Execution exec = std::execution::seq) {
         return lz::indexOf(begin, end, value, exec) != lz::npos;
     }
 
@@ -1009,7 +1009,7 @@ namespace lz {
      * @return True if `iterable` contains `value`, false otherwise.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class Execution = std::execution::sequenced_policy>
-    bool contains(const Iterable& iterable, const T& value, const Execution exec = std::execution::seq) {
+    bool contains(const Iterable& iterable, const T& value, Execution exec = std::execution::seq) {
         return lz::contains(std::begin(iterable), std::end(iterable), value, exec);
     }
 
@@ -1021,7 +1021,7 @@ namespace lz {
      * @return Returns true if `predicate` returns true, false otherwise.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-    bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, const Execution exec = std::execution::seq) {
+    bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution exec = std::execution::seq) {
         return lz::indexOfIf(begin, end, predicate, exec) != lz::npos;
     }
 
@@ -1033,7 +1033,7 @@ namespace lz {
      * @return Returns true if `predicate` returns true, false otherwise.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-    bool containsIf(const Iterable& iterable, BinaryPredicate predicate, const Execution exec = std::execution::seq) {
+    bool containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution exec = std::execution::seq) {
         return lz::containsIf(std::begin(iterable), std::end(iterable), predicate, exec);
     }
 #else // ^^^ Lz has execution vvv !Lz has execution
