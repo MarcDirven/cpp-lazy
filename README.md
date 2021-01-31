@@ -3,7 +3,7 @@
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view object has many `std::execution::*` overloads. This library uses one dependency library `fmt`, which is automatically configured by CMake.
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view object has many `std::execution::*` overloads. This library uses one dependency library `fmt`, which is automatically configured by CMake.
 
 # Features
 - C++11/14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
