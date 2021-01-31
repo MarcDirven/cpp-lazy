@@ -41,12 +41,12 @@ namespace lz { namespace internal {
             return randomNumber(generator);
         }
 
-        static result_type(min)() {
-        	return std::numeric_limits<result_type>::min();
+        result_type(min)() {
+        	return _min;
         }
 
-		static result_type(max)() {
-			return std::numeric_limits<result_type>::max();
+		result_type(max)() {
+			return _max;
 		}
 
         value_type operator()() const {
