@@ -15,7 +15,7 @@ namespace lz { namespace internal {
     public:
         using iterator_category = std::random_access_iterator_tag;
         using value_type = Arithmetic;
-        using difference_type = Arithmetic;
+        using difference_type = std::ptrdiff_t;
         using pointer = const Arithmetic*;
         using reference = Arithmetic;
 
@@ -57,7 +57,7 @@ namespace lz { namespace internal {
         }
 
         RangeIterator& operator+=(const difference_type offset) {
-            _iterator += (offset * _step);
+            _iterator += (static_cast<Arithmetic>(offset) * _step);
             return *this;
         }
 
@@ -67,7 +67,7 @@ namespace lz { namespace internal {
         }
 
         RangeIterator& operator-=(const difference_type offset) {
-            _iterator -= (offset * _step);
+            _iterator -= (static_cast<Arithmetic>(offset) * _step);
             return *this;
         }
 
