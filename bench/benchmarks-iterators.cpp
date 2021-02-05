@@ -95,7 +95,7 @@ static void StringSplitter(benchmark::State& state) {
 #ifndef LZ_HAS_CXX_17
         // making non const causes: benchmark/benchmark.h:322:48: internal compiler error: in assign_temp,
         // at function.c:977
-        using StringType = const std::string&;
+        using StringType = fmt::string_view;
 #else
         using StringType = const std::string_view;
 #endif
