@@ -23,7 +23,7 @@ namespace lz { namespace internal {
 
     template<class T>
     class RepeatIterator {
-        const RepeatIteratorHelper<T>* _iterHelper{};
+        const RepeatIteratorHelper<T>* _iterHelper{nullptr};
         std::size_t _iterator{};
 
     public:
