@@ -8,24 +8,6 @@
 #include "fmt/format.h"
 
 namespace lz { namespace internal {
-	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
-	namespace {
-        template<class T>
-        struct IsFmtIntCompatible : std::integral_constant<bool,
-            std::is_integral<T>::value &&
-            !std::is_same<T, bool>::value &&
-            !std::is_same<T, char>::value &&
-            !std::is_same<T, unsigned char>::value &&
-            !std::is_same<T, wchar_t>::value&&
-#ifdef LZ_HAS_CXX_20
-            !std::is_same<T, char8_t>::value&&
-#endif
-            !std::is_same<T, char16_t>::value &&
-            !std::is_same<T, char32_t>::value> {
-        };
-    } // end anonymous
-
-
     template<LZ_CONCEPT_ITERATOR Iterator>
     class JoinIterator {
         using IterTraits = std::iterator_traits<Iterator>;
@@ -45,19 +27,10 @@ namespace lz { namespace internal {
         mutable std::string _delimiter{};
         mutable bool _isIteratorTurn{ true };
         difference_type _distance{};
-        using IsIntegralFmtCompatible = IsFmtIntCompatible<value_type>;
-
-        std::string getFormatted(std::true_type /* isFmtIntCompatible */) const {
-            return fmt::format_int(*_iterator).str();
-        }
-
-        std::string getFormatted(std::false_type /* isFmtIntCompatible */) const {
-            return fmt::format("{}", *_iterator);
-        }
 
         reference deref(std::false_type /* isSameContainerTypeString */) const {
             if (_isIteratorTurn) {
-                return getFormatted(IsIntegralFmtCompatible());
+                return fmt::format("{}", *_iterator);
             }
             return _delimiter;
         }
