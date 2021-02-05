@@ -133,6 +133,9 @@ namespace lz {
 #define LZ_TO_STRING(x) LZ_STRINGIFY(x)
 #define LZ_FILE_LINE __FILE__ ": " LZ_TO_STRING(__LINE__)
 
+#include <cassert>
+
+#define LZ_ASSERT(CONDITION, MSG) assert((CONDITION) && (MSG))
 
 namespace lz { namespace internal {
 	template<class Container>

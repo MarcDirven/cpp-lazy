@@ -180,7 +180,7 @@ namespace lz {
         if (upToAndIncluding < 0) {
             return error - sum;
         }
-        assert(from < upToAndIncluding && "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
+        LZ_ASSERT(from < upToAndIncluding, "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
         return sum - error;
     }
 
@@ -446,7 +446,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     internal::RefType<Iterator> first(Iterator begin, Iterator end) {
-        assert(!lz::isEmpty(begin, end) && "sequence cannot be empty in order to get the first element");
+        LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the first element");
         static_cast<void>(end);
         return *begin;
     }
@@ -469,7 +469,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     internal::RefType<Iterator> last(Iterator begin, Iterator end) {
-        assert(!lz::isEmpty(begin, end) && "sequence cannot be empty in order to get the last element");
+        LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
         const internal::DiffType<Iterator> len = lz::length(begin, end);
         std::advance(begin, len - 1);
         return *begin;
@@ -532,14 +532,14 @@ namespace lz {
     }
 
     /**
-     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
+     * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
      * @param begin The beginning of the sequence.
      * @param end The ending of the sequence.
      * @return A zip iterator that accesses two adjacent elements of one container.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
-        assert(lz::hasMany(begin, end) && "length of the sequence must be greater than or equal to 2");
+        LZ_ASSERT(lz::hasMany(begin, end), "length of the sequence must be greater than or equal to 2");
         return lz::zipRange(std::make_tuple(begin, std::next(begin)), std::make_tuple(end, end));
     }
 
@@ -696,9 +696,7 @@ namespace lz {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
         constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
 
-        if (len == 0) {
-            throw std::invalid_argument(LZ_FILE_LINE ": the length of the sequence cannot be 0");
-        }
+        LZ_ASSERT(len == 0, LZ_FILE_LINE ": the length of the sequence cannot be 0");
 
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
@@ -1073,7 +1071,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(Iterator begin, Iterator end, Compare compare) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
-        assert(len > 0 && "the length of the sequence cannot be 0");
+        LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
 
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
@@ -1141,7 +1139,8 @@ namespace lz {
      * @return Either `toFind` or `defaultValue`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class U>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue) {
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>>
+    firstOrDefault(const Iterable& iterable, T&& toFind, U&& defaultValue) {
         return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
     }
 
@@ -1172,8 +1171,8 @@ namespace lz {
      * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
-    internal::ValueType<internal::IterTypeFromIterable<Iterable>> firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate,
-                                                                                   T&& defaultValue) {
+    internal::ValueType<internal::IterTypeFromIterable<Iterable>>
+    firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, T&& defaultValue) {
         return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
     }
 
@@ -1384,7 +1383,7 @@ namespace lz {
         >
     auto select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector)
 #ifdef LZ_HAS_CXX_11
-     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
+     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, std::function<bool(RefTuple)>>,
                 std::function<internal::RefType<Iterator>(RefTuple)>>
 #endif // end lz has cxx11
     {
@@ -1430,7 +1429,7 @@ namespace lz {
                       internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)));
     }
 
-        /**
+    /**
      * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long as
      * `last` returns true for the trimming of the ending.
      * @param begin The beginning of the sequence.

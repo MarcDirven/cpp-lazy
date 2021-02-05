@@ -128,9 +128,7 @@ namespace lz { namespace internal {
                 const TupElem currentBegin = std::get<0>(begin);
 
                 // first iterator is at indexOf begin, and distance bigger than 0
-                if (std::distance(currentBegin, current) < offset) {
-                    throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
-                }
+                LZ_ASSERT(std::distance(currentBegin, current) >= offset, LZ_FILE_LINE ": cannot access elements before begin");
                 current -= offset;
             }
         };

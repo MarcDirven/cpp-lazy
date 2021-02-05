@@ -84,10 +84,6 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
         CHECK(begin > end);
         CHECK(begin >= end);
     }
-
-    SECTION("Should throw") {
-        CHECK_THROWS(concat.begin() - 1);
-    }
 }
 
 

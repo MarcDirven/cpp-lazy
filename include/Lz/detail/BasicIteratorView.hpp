@@ -61,15 +61,6 @@ namespace lz { namespace internal {
             return map;
         }
 
-        template<std::size_t N>
-        void verifyRange() const {
-            constexpr auto size = static_cast<internal::DiffType<LzIterator>>(N);
-
-            if (std::distance(begin(), end()) > size) {
-                throw std::invalid_argument(LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
-            }
-        }
-
         template<class Container>
         EnableIf<HasReserve<Container>::value> reserve(Container& container) const {
             container.reserve(std::distance(begin(), end()));
@@ -102,7 +93,8 @@ namespace lz { namespace internal {
 
         template<std::size_t N, class Execution>
         std::array<value_type, N> copyArray(Execution execution) const {
-            verifyRange<N>();
+            LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
+					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
             std::array<value_type, N> array{};
 
             if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
@@ -126,7 +118,8 @@ namespace lz { namespace internal {
 
         template<std::size_t N>
         std::array<value_type, N> copyArray() const {
-            verifyRange<N>();
+			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
+					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
 #if defined(LZ_GCC_VERSION) && (LZ_GCC_VERSION < 5)
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -268,7 +261,7 @@ namespace lz { namespace internal {
 
         /**
          * @brief Returns an arbitrary container type, of which its constructor signature looks like:
-         * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
+         * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
          * the typedef `value_type`.
          * @details Use this function to convert the iterator to a container. Example:
          * ```cpp
@@ -374,7 +367,6 @@ namespace lz { namespace internal {
             return createMap<Map>(keyGen, allocator);
 #endif // end lz gcc version < 5
         }
-
 
         /**
          * @brief Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`.
