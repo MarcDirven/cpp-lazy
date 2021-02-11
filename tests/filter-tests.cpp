@@ -55,6 +55,12 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     }
 }
 
+#ifdef LZ_HAS_EXECUTION
+  #define LZ_PAR std::execution::par
+#else
+  #define LZ_PAR
+#endif
+
 
 TEST_CASE("Filter to container", "[Filter][To container]") {
     constexpr std::size_t size = 3;
@@ -73,7 +79,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     SECTION("To vector") {
         auto filteredVec = lz::filter(array, [](int i) {
             return i != 3;
-        }).toVector();
+        }).toVector(LZ_PAR);
 
         CHECK(filteredVec.size() == 2);
         CHECK(filteredVec[0] == array[0]);
