@@ -64,7 +64,7 @@ namespace lz { namespace internal {
         using Type = std::iterator_traits<typename T::iterator>;
     };
 
-    template<class T, class U= void>
+    template<class T, class U = void>
     using IterTraitsOrUnderlyingTypeT = typename IterTraitsOrUnderlyingType<T, U>::Type;
 
     template<class T, bool IsCont>
