@@ -696,7 +696,7 @@ namespace lz {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
         constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
 
-        LZ_ASSERT(len == 0, LZ_FILE_LINE ": the length of the sequence cannot be 0");
+		LZ_ASSERT(len > 0, "the length of the sequence cannot be (lower than) 0");
 
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
@@ -1071,7 +1071,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
     double median(Iterator begin, Iterator end, Compare compare) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
-        LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
+        LZ_ASSERT(len > 0, "the length of the sequence cannot be (lower than) 0");
 
         const internal::DiffType<Iterator> mid = len >> 1;
         const Iterator midIter = std::next(begin, mid);
