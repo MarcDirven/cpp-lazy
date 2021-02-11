@@ -61,72 +61,92 @@
   #define LZ_CONSTEXPR_IF
 #endif
 
+#if defined(__has_cpp_attribute)
+  #define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
+#else
+  #define LZ_HAS_ATTRIBUTE(ATTR) 0
+#endif
+
+#if LZ_HAS_ATTRIBUTE(likely)
+  #define LZ_LIKELY [[likely]]
+#else
+  #define LZ_LIKELY
+#endif
+
+
+#if LZ_HAS_ATTRIBUTE(unlikely)
+  #define LZ_UNLIKELY [[unlikely]]
+#else
+  #define LZ_UNLIKELY
+#endif
+
+
 #ifdef LZ_HAS_CONCEPTS
 namespace lz {
-    template<class I>
-    concept BasicIterable = requires(I i) {
-        { std::begin(i) } -> std::input_or_output_iterator;
-        { std::end(i) } -> std::input_or_output_iterator;
-    };
+	template<class I>
+	concept BasicIterable = requires(I i) {
+		{ std::begin(i) } -> std::input_or_output_iterator;
+		{ std::end(i) } -> std::input_or_output_iterator;
+	};
 
-    template<class I>
-    concept BidirectionalIterable = requires(I i) {
-        { std::begin(i) } -> std::bidirectional_iterator;
-        { std::end(i) } -> std::bidirectional_iterator;
-    };
+	template<class I>
+	concept BidirectionalIterable = requires(I i) {
+		{ std::begin(i) } -> std::bidirectional_iterator;
+		{ std::end(i) } -> std::bidirectional_iterator;
+	};
 
-    template<class I>
-    concept RandomAccesIterable = requires(I i) {
-        { std::begin(i) } -> std::random_access_iterator;
-        { std::end(i) } -> std::random_access_iterator;
-    };
+	template<class I>
+	concept RandomAccesIterable = requires(I i) {
+		{ std::begin(i) } -> std::random_access_iterator;
+		{ std::end(i) } -> std::random_access_iterator;
+	};
 
-    template<class I>
-    concept ContiguousIterable = requires(I i) {
-        { std::begin(i) } -> std::contiguous_iterator;
-        { std::end(i) } -> std::contiguous_iterator;
-    };
+	template<class I>
+	concept ContiguousIterable = requires(I i) {
+		{ std::begin(i) } -> std::contiguous_iterator;
+		{ std::end(i) } -> std::contiguous_iterator;
+	};
 
-    template<class I>
-    concept RandomAccesOrHigherIterable = ContiguousIterable<I> || RandomAccesIterable<I>;
+	template<class I>
+	concept RandomAccesOrHigherIterable = ContiguousIterable<I> || RandomAccesIterable<I>;
 
-    template<class I>
-    concept RandomAccesOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
+	template<class I>
+	concept RandomAccesOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
 
-    template<class A, class B>
-    concept LessThanComparable = requires(A a, B b) {
-        { a < b } -> std::convertible_to<bool>;
-    };
+	template<class A, class B>
+	concept LessThanComparable = requires(A a, B b) {
+		{ a < b } -> std::convertible_to<bool>;
+	};
 
-    template<class I>
-    concept Arithmetic = std::is_arithmetic_v<I>;
+	template<class I>
+	concept Arithmetic = std::is_arithmetic_v<I>;
 
 
 } // End namespace lz
 
 #define LZ_CONCEPT_ARITHMETIC             lz::Arithmetic
-#define LZ_CONCEPT_INTEGRAL               std::integral
-#define LZ_CONCEPT_INVOCABLE              std::invocable
-#define LZ_CONCEPT_ITERABLE               lz::BasicIterable
-#define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
-#define LZ_CONCEPT_RA_ITERATOR            RandomAccesOrHigherIterator
-#define LZ_CONCEPT_RA_ITERABLE            RandomAccesOrHigherIterable
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
+  #define LZ_CONCEPT_INTEGRAL               std::integral
+  #define LZ_CONCEPT_INVOCABLE              std::invocable
+  #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
+  #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
+  #define LZ_CONCEPT_RA_ITERATOR            RandomAccesOrHigherIterator
+  #define LZ_CONCEPT_RA_ITERABLE            RandomAccesOrHigherIterable
+  #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
+  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
-#define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
+  #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
 #else  // ^^^ has concepts !has concepts vvv
-#define LZ_CONCEPT_ARITHMETIC             class
-#define LZ_CONCEPT_INTEGRAL               class
-#define LZ_CONCEPT_ITERATOR               class
-#define LZ_CONCEPT_INVOCABLE              class
-#define LZ_CONCEPT_ITERABLE               class
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-#define LZ_CONCEPT_RA_ITERATOR            class
-#define LZ_CONCEPT_RA_ITERABLE            class
+  #define LZ_CONCEPT_ARITHMETIC             class
+  #define LZ_CONCEPT_INTEGRAL               class
+  #define LZ_CONCEPT_ITERATOR               class
+  #define LZ_CONCEPT_INVOCABLE              class
+  #define LZ_CONCEPT_ITERABLE               class
+  #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
+  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
+  #define LZ_CONCEPT_RA_ITERATOR            class
+  #define LZ_CONCEPT_RA_ITERABLE            class
 
-#define LZ_REQUIRES_LESS_THAN(A, B)
+  #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif  // lz has concepts
 
 #define LZ_STRINGIFY(x) #x
@@ -149,193 +169,195 @@ namespace lz { namespace internal {
 	}
 
 	template<class T, size_t N>
-	constexpr T* begin(T(&array)[N]) noexcept {
+	constexpr T* begin(T(& array)[N]) noexcept {
 		return array;
 	}
 
 	template<class T, size_t N>
-	constexpr T* end(T(&array)[N]) noexcept {
+	constexpr T* end(T(& array)[N]) noexcept {
 		return array + N;
 	}
 
-    template<class Iterable>
-    using IterTypeFromIterable = decltype(internal::begin(std::forward<Iterable>(std::declval<Iterable>())));
+	template<class Iterable>
+	using IterTypeFromIterable = decltype(internal::begin(std::forward<Iterable>(std::declval<Iterable>())));
 
-    template<class Iterator>
-    using ValueType = typename std::iterator_traits<Iterator>::value_type;
+	template<class Iterator>
+	using ValueType = typename std::iterator_traits<Iterator>::value_type;
 
-    template<class Iterator>
-    using PointerType = typename std::iterator_traits<Iterator>::pointer;
+	template<class Iterator>
+	using PointerType = typename std::iterator_traits<Iterator>::pointer;
 
-    template<class Iterator>
-    using RefType = typename std::iterator_traits<Iterator>::reference;
+	template<class Iterator>
+	using RefType = typename std::iterator_traits<Iterator>::reference;
 
-    template<class Iterator>
-    using DiffType = typename std::iterator_traits<Iterator>::difference_type;
+	template<class Iterator>
+	using DiffType = typename std::iterator_traits<Iterator>::difference_type;
 
-    template<class Iterator>
-    using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
+	template<class Iterator>
+	using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
 
-    template<class Function, class... Args>
-    using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+	template<class Function, class... Args>
+	using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
 
 #ifdef LZ_HAS_EXECUTION
-    template<class T>
-    struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
-    };
+	template<class T>
+	struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
+	};
 
-    template<class T>
-    struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
-    };
+	template<class T>
+	struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
+	};
 
-    template<class T>
-    constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
+	template<class T>
+	constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
 
-    template<class T>
-    constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
+	template<class T>
+	constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
 
-    template<class Execution, class Iterator>
-    constexpr bool checkForwardAndPolicies() {
-        static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
-        constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
-        if constexpr (!isSequenced) {
-            static_assert(internal::IsForwardOrStrongerV<Iterator>,
-                "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
-        }
-        return isSequenced;
-    }
+	template<class Execution, class Iterator>
+	constexpr bool checkForwardAndPolicies() {
+		static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
+		constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
+		if constexpr (!isSequenced) {
+			static_assert(internal::IsForwardOrStrongerV<Iterator>,
+						  "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+		}
+		return isSequenced;
+	}
 
 #endif // LZ_HAS_EXECUTION
 
 #ifdef LZ_HAS_CXX_11
-    template<bool B, class U = void>
-    using EnableIf = typename std::enable_if<B, U>::type;
+	template<bool B, class U = void>
+	using EnableIf = typename std::enable_if<B, U>::type;
 
-    template<std::size_t...>
-    struct IndexSequence {};
+	template<std::size_t...>
+	struct IndexSequence {};
 
-    template<std::size_t N, std::size_t... Rest>
-    struct IndexSequenceHelper : public IndexSequenceHelper<N - 1, N - 1, Rest...> {};
+	template<std::size_t N, std::size_t... Rest>
+	struct IndexSequenceHelper : public IndexSequenceHelper<N - 1, N - 1, Rest...> {};
 
-    template<std::size_t... Next>
-    struct IndexSequenceHelper<0, Next...> {
-        using Type = IndexSequence<Next...>;
-    };
+	template<std::size_t... Next>
+	struct IndexSequenceHelper<0, Next...> {
+		using Type = IndexSequence<Next...>;
+	};
 
-    template<std::size_t N>
-    using MakeIndexSequence = typename IndexSequenceHelper<N>::Type;
+	template<std::size_t N>
+	using MakeIndexSequence = typename IndexSequenceHelper<N>::Type;
 
-    template<class T>
-    using Decay = typename std::decay<T>::type;
+	template<class T>
+	using Decay = typename std::decay<T>::type;
 
-    template<std::size_t I, class T>
-    using TupleElement = typename std::tuple_element<I, T>::type;
+	template<std::size_t I, class T>
+	using TupleElement = typename std::tuple_element<I, T>::type;
 
-    template<bool B, class IfTrue, class IfFalse>
-    using Conditional = typename std::conditional<B, IfTrue, IfFalse>::type;
+	template<bool B, class IfTrue, class IfFalse>
+	using Conditional = typename std::conditional<B, IfTrue, IfFalse>::type;
 #else // ^^^ has cxx 11 vvv cxx > 11
-    template<bool B, class T = void>
-    using EnableIf = std::enable_if_t<B, T>;
+	template<bool B, class T = void>
+	using EnableIf = std::enable_if_t<B, T>;
 
-    template<std::size_t... N>
-    using IndexSequence = std::index_sequence<N...>;
+	template<std::size_t... N>
+	using IndexSequence = std::index_sequence<N...>;
 
-    template<std::size_t N>
-    using MakeIndexSequence = std::make_index_sequence<N>;
+	template<std::size_t N>
+	using MakeIndexSequence = std::make_index_sequence<N>;
 
-    template<class T>
-    using Decay = std::decay_t<T>;
+	template<class T>
+	using Decay = std::decay_t<T>;
 
-    template<std::size_t I, class T>
-    using TupleElement = std::tuple_element_t<I, T>;
+	template<std::size_t I, class T>
+	using TupleElement = std::tuple_element_t<I, T>;
 
-    template<bool B, class IfTrue, class IfFalse>
-    using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
+	template<bool B, class IfTrue, class IfFalse>
+	using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
 #endif // end cxx > 11
-    template<class T>
-    class FakePointerProxy {
-        T _t;
-
-        using Pointer = decltype(std::addressof(_t));
-    public:
-        explicit FakePointerProxy(const T& t) :
-            _t(t) {
-        }
-
-        Pointer operator->() {
-            return std::addressof(_t);
-        }
-
-        Pointer operator->() const {
-            return std::addressof(_t);
-        }
-    };
 
 
-    template<class T, class... Rest>
-    struct ContainsType : std::true_type {
-    };
+	template<class T>
+	class FakePointerProxy {
+		T _t;
 
-    template<class T, class First, class... Rest>
-    struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {
-    };
+		using Pointer = decltype(std::addressof(_t));
+	public:
+		explicit FakePointerProxy(const T& t) :
+			_t(t) {
+		}
 
-    template<class T>
-    struct ContainsType<T> : std::false_type {
-    };
+		Pointer operator->() {
+			return std::addressof(_t);
+		}
 
-    template<class... IterTypes>
-    struct LowestIterType {
-        using Type =
-            Conditional<
-                ContainsType<std::output_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
-                Conditional<
-                    ContainsType<std::input_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
-                    Conditional<
-                        ContainsType<std::forward_iterator_tag, IterTypes...>::value, std::forward_iterator_tag,
-                        Conditional<
-                            ContainsType<std::bidirectional_iterator_tag, IterTypes...>::value, std::bidirectional_iterator_tag,
-                            Conditional<
-                                ContainsType<std::random_access_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
+		Pointer operator->() const {
+			return std::addressof(_t);
+		}
+	};
+
+
+	template<class T, class... Rest>
+	struct ContainsType : std::true_type {
+	};
+
+	template<class T, class First, class... Rest>
+	struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {
+	};
+
+	template<class T>
+	struct ContainsType<T> : std::false_type {
+	};
+
+	template<class... IterTypes>
+	struct LowestIterType {
+		using Type =
+		Conditional<
+			ContainsType<std::output_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
+			Conditional<
+				ContainsType<std::input_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
+				Conditional<
+					ContainsType<std::forward_iterator_tag, IterTypes...>::value, std::forward_iterator_tag,
+					Conditional<
+						ContainsType<std::bidirectional_iterator_tag, IterTypes...>::value, std::bidirectional_iterator_tag,
+						Conditional<
+							ContainsType<std::random_access_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
 #ifdef LZ_HAS_CXX_20
-                                Conditional<
-                                    ContainsType<std::contiguous_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
-                                    void
-                                > // contiguous_iterator_tag
+							Conditional<
+								ContainsType<std::contiguous_iterator_tag, IterTypes...>::value, std::random_access_iterator_tag,
+								void
+							> // contiguous_iterator_tag
 #else
-                                void
+							void
 #endif
-                            > // random_access_iterator_tag
-                        > // bidirectional_iterator_tag
-                    > // forward_iterator_tag
-                > // input_iterator_tag
-            >; // output_iterator_tag
-    };
+						> // random_access_iterator_tag
+					> // bidirectional_iterator_tag
+				> // forward_iterator_tag
+			> // input_iterator_tag
+		>; // output_iterator_tag
+	};
 
-    template<class... IterTypes>
-    using LowestIterTypeT = typename LowestIterType<IterTypes...>::Type;
+	template<class... IterTypes>
+	using LowestIterTypeT = typename LowestIterType<IterTypes...>::Type;
 
 
-    template<class Same, class First, class... More>
-    struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
-    };
+	template<class Same, class First, class... More>
+	struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
+	};
 
-    template<class Same, class First>
-    struct IsAllSame<Same, First> : std::is_same<Same, First> {
-    };
+	template<class Same, class First>
+	struct IsAllSame<Same, First> : std::is_same<Same, First> {
+	};
 
-    template<class T>
-    struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
-    };
+	template<class T>
+	struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
+	};
 
-    template<class T>
-    struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::random_access_iterator_tag>::value> {
-    };
+	template<class T>
+	struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::random_access_iterator_tag>::value> {
+	};
 
-    template<LZ_CONCEPT_INTEGRAL Arithmetic>
-    inline bool isEven(const Arithmetic value) {
-        return (value & 1) == 0;
-    }
+	template<LZ_CONCEPT_INTEGRAL Arithmetic>
+	inline bool isEven(const Arithmetic value) {
+		return (value & 1) == 0;
+	}
 }} // end lz::internal
 
 #endif
