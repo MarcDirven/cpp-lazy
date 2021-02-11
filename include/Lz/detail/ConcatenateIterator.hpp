@@ -126,6 +126,7 @@ namespace lz { namespace internal {
 
                 TupElem& current = std::get<0>(iterators);
                 const TupElem currentBegin = std::get<0>(begin);
+                static_cast<void>(currentBegin);
 
                 // first iterator is at indexOf begin, and distance bigger than 0
                 LZ_ASSERT(std::distance(currentBegin, current) >= offset, LZ_FILE_LINE ": cannot access elements before begin");
@@ -142,7 +143,7 @@ namespace lz { namespace internal {
 
                 TupElem& currentIterator = std::get<I>(iterators);
                 const TupElem currentEnd = std::get<I>(end);
-                auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
+                const auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
                 if (distance > offset) {
                     currentIterator += offset;
@@ -186,7 +187,7 @@ namespace lz { namespace internal {
         template<std::size_t... I>
         difference_type minus(IndexSequence<I...>, const ConcatenateIterator& other) const {
 	        const std::initializer_list<difference_type> totals = {
-                static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
+                static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(other._iterators))...};
             return std::accumulate(totals.begin(), totals.end(), static_cast<difference_type>(0));
         }
 
@@ -276,11 +277,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}
