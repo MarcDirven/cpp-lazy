@@ -35,10 +35,8 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I, class = void>
         struct NotEqual {
             bool operator()(const Tuple& iterators, const Tuple& end) const {
-                if (std::get<I>(iterators) != std::get<I>(end)) {
-                    return std::get<I>(iterators) != std::get<I>(end);
-                }
-                return NotEqual<Tuple, I + 1>()(iterators, end);
+            	const bool isCurrentIteratorExhausted = std::get<I>(iterators) == std::get<I>(end);
+            	return !isCurrentIteratorExhausted ? !isCurrentIteratorExhausted : NotEqual<Tuple, I + 1>()(iterators, end);
             }
         };
 
@@ -72,12 +70,13 @@ namespace lz { namespace internal {
 
         template<class Tuple, std::size_t I>
         struct MinusMinus {
-            void operator()(Tuple& iterators, Tuple& end) const {
-                if (std::get<I>(iterators) == std::get<I>(end)) {
+            void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
+            	const auto iterBeginLength = std::distance(std::get<I>(iterators), std::get<I>(begin));
+                if (std::abs(iterBeginLength) > 0) {
                     --std::get<I>(iterators);
                 }
                 else {
-                    MinusMinus<Tuple, I - 1>()(iterators, end);
+                    MinusMinus<Tuple, I - 1>()(iterators, begin, end);
                 }
             }
         };
@@ -85,7 +84,7 @@ namespace lz { namespace internal {
 
         template<class Tuple>
         struct MinusMinus<Tuple, 0> {
-            void operator()(Tuple& iterators, Tuple&) const {
+            void operator()(Tuple& iterators, const Tuple&, const Tuple&) const {
                 --std::get<0>(iterators);
             }
         };
@@ -220,7 +219,7 @@ namespace lz { namespace internal {
         }
 
         ConcatenateIterator& operator--() {
-            MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _end);
+            MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end);
             return *this;
         }
 

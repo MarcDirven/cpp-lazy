@@ -43,9 +43,10 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
         --begin;
         CHECK(*begin == 'h');
         ++begin, ++begin, ++begin, ++begin, ++begin, ++begin;
-
         --begin;
         CHECK(*begin == ' ');
+        --begin;
+        CHECK(*begin == 'o');
     }
 
     SECTION("Operator== & operator!=") {
@@ -129,5 +130,14 @@ TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
             std::make_pair(6, 6)
         };
         CHECK(map == expected);
+    }
+
+    SECTION("Sjenked") {
+    	std::array<int, 1> a = {6};
+    	std::array<int, 1> b = {7};
+    	auto c = lz::concat(a, b);
+    	// std::sort(c.begin(), c.end());
+
+    	//fmt::print("{}\n", c);
     }
 }
