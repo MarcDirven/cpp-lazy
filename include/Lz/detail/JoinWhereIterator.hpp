@@ -45,7 +45,7 @@ namespace lz { namespace internal {
 
         void findNext() {
             if (_longest == Longest::IteratorA) {
-                while (_iterA != _endA) {
+            	for (; _iterA != _endA; ++_iterA) {
                     auto&& toFind = _selectorA(*_iterA);
                     const auto pos = std::lower_bound(_iterB, _endB, toFind, [this](const ValueTypeB& b, const SelectorARetVal& val) {
                         return _selectorB(b) < val;
@@ -57,12 +57,11 @@ namespace lz { namespace internal {
                         ++_iterA; // Increment the iterator by one to prevent never ending loop
                         return;
                     }
-                    ++_iterA;
                 }
                 _iterAFound = _endA; // Necessary for operator==
             }
             else {
-                while (_iterB != _endB) {
+            	for (; _iterB != _endB; ++_iterB) {
                     auto&& toFind = _selectorB(*_iterB);
                     const auto pos = std::lower_bound(_iterA, _endA, toFind, [this](const ValueTypeA& a, const SelectorBRetVal& val) {
                         return _selectorA(a) < val;
@@ -74,7 +73,6 @@ namespace lz { namespace internal {
                         ++_iterB; // Increment the iterator by one to prevent never ending loop
                         return;
                     }
-                    ++_iterB;
                 }
                 _iterBFound = _endB; // Necessary for operator==
             }
