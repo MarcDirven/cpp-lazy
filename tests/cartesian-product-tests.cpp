@@ -32,7 +32,7 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
     auto cartesian = lz::cartesian(vec, chars);
 
     SECTION("Operator++") {
-        auto begin = cartesian.begin();
+    	auto begin = cartesian.begin();
         ++begin;
         CHECK(*begin == std::make_tuple(1, 'b'));
         ++begin, ++begin;

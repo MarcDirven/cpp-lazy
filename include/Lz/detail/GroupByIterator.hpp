@@ -20,7 +20,7 @@ namespace lz { namespace internal {
 		Iterator _subRangeEnd{};
 		Iterator _subRangeBegin{};
 		Iterator _end{};
-		FunctionContainer<KeySelector> _keySelector{};
+		mutable FunctionContainer<KeySelector> _keySelector{};
 #ifdef LZ_HAS_EXECUTION
 		Execution _execution{};
 #endif // end LZ_HAS_EXECUTION

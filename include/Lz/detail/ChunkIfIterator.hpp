@@ -16,7 +16,7 @@ namespace lz { namespace internal {
 		Iterator _subRangeBegin{};
 		Iterator _subRangeEnd{};
 		Iterator _end{};
-		FunctionContainer<UnaryPredicate> _predicate{};
+		mutable FunctionContainer<UnaryPredicate> _predicate{};
 #ifdef LZ_HAS_EXECUTION
 		Execution _execution{};
 #endif // LZ_HAS_EXECUTION

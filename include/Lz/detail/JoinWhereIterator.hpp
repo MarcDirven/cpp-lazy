@@ -36,9 +36,9 @@ namespace lz { namespace internal {
         IterB _endB{};
         IterA _iterAFound{};
         IterB _iterBFound{};
-        FunctionContainer<SelectorA> _selectorA{};
-        FunctionContainer<SelectorB> _selectorB{};
-        FunctionContainer<ResultSelector> _resultSelector{};
+		mutable FunctionContainer<SelectorA> _selectorA{};
+		mutable FunctionContainer<SelectorB> _selectorB{};
+		mutable FunctionContainer<ResultSelector> _resultSelector{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
 #endif

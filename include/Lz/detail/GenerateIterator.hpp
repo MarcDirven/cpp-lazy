@@ -8,7 +8,7 @@
 
 
 namespace lz { namespace internal {
-    template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
+    template<class GeneratorFunc>
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
@@ -19,7 +19,7 @@ namespace lz { namespace internal {
 
     private:
         std::size_t _current{};
-        FunctionContainer<GeneratorFunc> _generator{};
+        mutable FunctionContainer<GeneratorFunc> _generator{};
         bool _isWhileTrueLoop{};
 
     public:

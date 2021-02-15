@@ -52,17 +52,15 @@ namespace lz { namespace internal {
         template<std::size_t... I>
         difference_type iteratorMin(IndexSequence<I...>, const ZipIterator& other) const {
             const std::initializer_list<difference_type> diff =
-                {static_cast<difference_type>((std::distance(std::get<I>(other._iterators), std::get<I>(_iterators))))...};
+                { static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(other._iterators)) ...};
             return static_cast<difference_type>(std::min(diff));
         }
 
         template<std::size_t... I>
         bool lessThan(IndexSequence<I...>, const ZipIterator& other) const {
-            const std::initializer_list<difference_type> distances = {
-                (std::distance(std::get<I>(_iterators), std::get<I>(other._iterators)))...};
-            return std::find_if(distances.begin(), distances.end(), [](const difference_type diff) {
-                return diff > 0;
-            }) != distances.end();
+            const std::initializer_list<bool> distances = { (std::get<I>(_iterators) < std::get<I>(other._iterators)) ...};
+			const auto* end = distances.end();
+            return std::find(distances.begin(), end, true) != end;
         }
 
         template<std::size_t... I>
@@ -141,7 +139,7 @@ namespace lz { namespace internal {
         }
 
         friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
-            return !(a != b);
+            return !(a != b); // NOLINT
         }
 
         friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {

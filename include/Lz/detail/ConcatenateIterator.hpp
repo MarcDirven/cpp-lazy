@@ -6,7 +6,6 @@
 #include "LzTools.hpp"
 
 #include <numeric>
-#include <stdexcept>
 
 
 namespace lz { namespace internal {
@@ -35,10 +34,8 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I, class = void>
         struct NotEqual {
             bool operator()(const Tuple& iterators, const Tuple& end) const {
-                if (std::get<I>(iterators) != std::get<I>(end)) {
-                    return std::get<I>(iterators) != std::get<I>(end);
-                }
-                return NotEqual<Tuple, I + 1>()(iterators, end);
+            	const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
+            	return iterHasValue ? iterHasValue : NotEqual<Tuple, I + 1>()(iterators, end);
             }
         };
 
@@ -54,10 +51,7 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I, class = void>
         struct Deref {
             auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
-                if (std::get<I>(iterators) != std::get<I>(end)) {
-                    return *std::get<I>(iterators);
-                }
-                return Deref<Tuple, I + 1>()(iterators, end);
+            	return std::get<I>(iterators) != std::get<I>(end) ? *std::get<I>(iterators) : Deref<Tuple, I + 1>()(iterators, end);
             }
         };
 
@@ -72,12 +66,13 @@ namespace lz { namespace internal {
 
         template<class Tuple, std::size_t I>
         struct MinusMinus {
-            void operator()(Tuple& iterators, Tuple& end) const {
-                if (std::get<I>(iterators) == std::get<I>(end)) {
+            void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
+            	const auto iterBeginLength = std::distance(std::get<I>(iterators), std::get<I>(begin));
+                if (std::abs(iterBeginLength) > 0) {
                     --std::get<I>(iterators);
                 }
                 else {
-                    MinusMinus<Tuple, I - 1>()(iterators, end);
+                    MinusMinus<Tuple, I - 1>()(iterators, begin, end);
                 }
             }
         };
@@ -85,7 +80,7 @@ namespace lz { namespace internal {
 
         template<class Tuple>
         struct MinusMinus<Tuple, 0> {
-            void operator()(Tuple& iterators, Tuple&) const {
+            void operator()(Tuple& iterators, const Tuple&, const Tuple&) const {
                 --std::get<0>(iterators);
             }
         };
@@ -126,11 +121,10 @@ namespace lz { namespace internal {
 
                 TupElem& current = std::get<0>(iterators);
                 const TupElem currentBegin = std::get<0>(begin);
+                static_cast<void>(currentBegin);
 
                 // first iterator is at indexOf begin, and distance bigger than 0
-                if (std::distance(currentBegin, current) < offset) {
-                    throw std::out_of_range(LZ_FILE_LINE ": cannot access elements before begin");
-                }
+                LZ_ASSERT(std::distance(currentBegin, current) >= offset, LZ_FILE_LINE ": cannot access elements before begin");
                 current -= offset;
             }
         };
@@ -144,7 +138,7 @@ namespace lz { namespace internal {
 
                 TupElem& currentIterator = std::get<I>(iterators);
                 const TupElem currentEnd = std::get<I>(end);
-                auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
+                const auto distance = static_cast<DifferenceType>(std::distance(currentIterator, currentEnd));
 
                 if (distance > offset) {
                     currentIterator += offset;
@@ -178,17 +172,17 @@ namespace lz { namespace internal {
         using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
     public:
-        using value_type = typename FirstTupleIterator::value_type;
+        using value_type = typename FirstTupleIterator::value_type; // value_types must all be equal
         using difference_type = std::ptrdiff_t;
-        using reference = typename FirstTupleIterator::reference;
-        using pointer = typename FirstTupleIterator::pointer;
+        using reference = typename FirstTupleIterator::reference; // reference must all be equal
+        using pointer = typename FirstTupleIterator::pointer; // pointer must all be equal
         using iterator_category = LowestIterTypeT<IterCat<Iterators>...>;
 
     private:
         template<std::size_t... I>
         difference_type minus(IndexSequence<I...>, const ConcatenateIterator& other) const {
 	        const std::initializer_list<difference_type> totals = {
-                static_cast<difference_type>(std::distance(std::get<I>(other._iterators), std::get<I>(_iterators)))...};
+                static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(other._iterators))...};
             return std::accumulate(totals.begin(), totals.end(), static_cast<difference_type>(0));
         }
 
@@ -221,7 +215,7 @@ namespace lz { namespace internal {
         }
 
         ConcatenateIterator& operator--() {
-            MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _end);
+            MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end);
             return *this;
         }
 
@@ -278,11 +272,11 @@ namespace lz { namespace internal {
         }
 
         friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-            return !(b < a);
+            return !(b < a); // NOLINT
         }
 
         friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-            return !(a < b);
+            return !(a < b); // NOLINT
         }
     };
 }}

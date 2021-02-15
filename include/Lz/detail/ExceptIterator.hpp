@@ -30,7 +30,7 @@ namespace lz { namespace internal {
         Iterator _end{};
         IteratorToExcept _toExceptBegin{};
         IteratorToExcept _toExceptEnd{};
-        FunctionContainer<Compare> _compare{};
+		mutable FunctionContainer<Compare> _compare{};
 
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};

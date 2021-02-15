@@ -5,6 +5,7 @@
 
 #include "detail/BasicIteratorView.hpp"
 #include <cassert>
+#include <functional>
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -96,7 +97,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
     Take<Iterator> takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
-        assert(amount <= std::distance(begin, end) && "cannot access elements after end");
+        LZ_ASSERT(amount <= std::distance(begin, end), "cannot access elements after end");
         static_cast<void>(end);
         return takeWhileRange(begin, std::next(begin, amount), nullptr);
     }
@@ -150,7 +151,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
     Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
                                                          const internal::DiffType<IterType> to) {
-        assert(to >= from && "parameter `to` cannot be more than `from`");
+        LZ_ASSERT(to >= from, "parameter `to` cannot be more than `from`");
         auto begin = internal::begin(std::forward<Iterable>(iterable));
         std::advance(begin, from);
         return takeRange(begin, internal::end(std::forward<Iterable>(iterable)), to - from);

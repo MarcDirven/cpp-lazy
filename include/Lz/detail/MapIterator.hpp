@@ -12,13 +12,13 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class MapIterator {
         Iterator _iterator{};
-        FunctionContainer<Function> _function{};
+        mutable FunctionContainer<Function> _function{};
 
     public:
-        using value_type = Decay<FunctionReturnType<Function, RefType<Iterator>>>;
+		using reference = decltype(_function(*_iterator));
+        using value_type = Decay<reference>;
         using iterator_category = internal::IterCat<Iterator>;
         using difference_type = internal::DiffType<Iterator>;
-        using reference = FunctionReturnType<Function, RefType<Iterator>>;
         using pointer = FakePointerProxy<reference>;
 
         MapIterator(Iterator iterator, Function function) :
@@ -32,7 +32,7 @@ namespace lz { namespace internal {
             return _function(*_iterator);
         }
 
-        FakePointerProxy<reference> operator->() const {
+        pointer operator->() const {
             return FakePointerProxy<decltype(**this)>(**this);
         }
 
