@@ -12,7 +12,7 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
     class MapIterator {
         Iterator _iterator{};
-        FunctionContainer<Function> _function{};
+        mutable FunctionContainer<Function> _function{};
 
     public:
 		using reference = decltype(_function(*_iterator));

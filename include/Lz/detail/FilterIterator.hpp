@@ -43,7 +43,7 @@ namespace lz { namespace internal {
     private:
         Iterator _iterator{};
         Iterator _end{};
-        FunctionContainer<Function> _predicate{};
+		mutable FunctionContainer<Function> _predicate{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
 #endif // end has execution

@@ -20,7 +20,7 @@ namespace lz { namespace internal {
 
         Iterator _iterator{};
         Iterator _end{};
-        FunctionContainer<Compare> _compare{};
+		mutable FunctionContainer<Compare> _compare{};
 #ifdef LZ_HAS_EXECUTION
         Execution _execution;
 #endif // end lz has execution
