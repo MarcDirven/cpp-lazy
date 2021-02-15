@@ -67,8 +67,7 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I>
         struct MinusMinus {
             void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
-            	const auto iterBeginLength = std::distance(std::get<I>(iterators), std::get<I>(begin));
-                if (std::abs(iterBeginLength) > 0) {
+                if (std::distance(std::get<I>(begin), std::get<I>(iterators)) > 0) {
                     --std::get<I>(iterators);
                 }
                 else {
