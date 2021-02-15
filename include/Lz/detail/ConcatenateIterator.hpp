@@ -6,7 +6,6 @@
 #include "LzTools.hpp"
 
 #include <numeric>
-#include <stdexcept>
 
 
 namespace lz { namespace internal {
@@ -35,8 +34,8 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I, class = void>
         struct NotEqual {
             bool operator()(const Tuple& iterators, const Tuple& end) const {
-            	const bool isCurrentIteratorExhausted = std::get<I>(iterators) == std::get<I>(end);
-            	return !isCurrentIteratorExhausted ? !isCurrentIteratorExhausted : NotEqual<Tuple, I + 1>()(iterators, end);
+            	const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
+            	return iterHasValue ? iterHasValue : NotEqual<Tuple, I + 1>()(iterators, end);
             }
         };
 
@@ -52,10 +51,7 @@ namespace lz { namespace internal {
         template<class Tuple, std::size_t I, class = void>
         struct Deref {
             auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
-                if (std::get<I>(iterators) != std::get<I>(end)) {
-                    return *std::get<I>(iterators);
-                }
-                return Deref<Tuple, I + 1>()(iterators, end);
+            	return std::get<I>(iterators) != std::get<I>(end) ? *std::get<I>(iterators) : Deref<Tuple, I + 1>()(iterators, end);
             }
         };
 
@@ -176,10 +172,10 @@ namespace lz { namespace internal {
         using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
     public:
-        using value_type = typename FirstTupleIterator::value_type;
+        using value_type = typename FirstTupleIterator::value_type; // value_types must all be equal
         using difference_type = std::ptrdiff_t;
-        using reference = typename FirstTupleIterator::reference;
-        using pointer = typename FirstTupleIterator::pointer;
+        using reference = typename FirstTupleIterator::reference; // reference must all be equal
+        using pointer = typename FirstTupleIterator::pointer; // pointer must all be equal
         using iterator_category = LowestIterTypeT<IterCat<Iterators>...>;
 
     private:
