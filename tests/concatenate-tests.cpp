@@ -24,6 +24,14 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
         auto dist = static_cast<std::size_t>(std::distance(concat.begin(), concat.end()));
         CHECK(dist == a.size() + b.size());
     }
+
+    SECTION("Should (be) sort(ed)") {
+    	std::array<int, 10> arr1 = {5, 2, 67, 1235, 654, 23, 6, 1324, 6, 34};
+    	std::array<int, 10> arr2 = {756, 23, 465, 1, 6, 4, 1234, 65, 567, 2};
+    	auto concatted = lz::concat(arr1, arr2);
+    	std::sort(concatted.begin(), concatted.end());
+    	CHECK(std::is_sorted(concatted.begin(), concatted.end()));
+    }
 }
 
 TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
@@ -130,14 +138,5 @@ TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
             std::make_pair(6, 6)
         };
         CHECK(map == expected);
-    }
-
-    SECTION("Sjenked") {
-    	std::array<int, 1> a = {6};
-    	std::array<int, 1> b = {7};
-    	auto c = lz::concat(a, b);
-    	// std::sort(c.begin(), c.end());
-
-    	//fmt::print("{}\n", c);
     }
 }
