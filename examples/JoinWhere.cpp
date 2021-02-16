@@ -10,29 +10,58 @@ struct PaymentBill {
 };
 
 int main() {
-    std::vector<Customer> customers{
-        Customer{25},
-        Customer{1},
-        Customer{39},
-        Customer{103},
-        Customer{99},
-    };
-    std::vector<PaymentBill> paymentBills{
-        PaymentBill{25, 0},
-        PaymentBill{25, 2},
-        PaymentBill{25, 3},
-        PaymentBill{99, 1},
-        PaymentBill{2523, 52},
-        PaymentBill{2523, 53},
-    };
+	std::vector<Customer> customers{
+		Customer{25},
+		Customer{1},
+		Customer{39},
+		Customer{103},
+		Customer{99},
+	};
+	std::vector<PaymentBill> paymentBills{
+		PaymentBill{25, 0},
+		PaymentBill{25, 2},
+		PaymentBill{25, 3},
+		PaymentBill{99, 1},
+		PaymentBill{252, 1},
+		PaymentBill{252, 1},
+	};
 
-    auto joined = lz::joinWhere(customers, paymentBills,
-                                [](const Customer& p) { return p.id; },
-                                [](const PaymentBill& c) { return c.customerId; },
-                                [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+	/* This is not necessary, however, this will improve performance, since the second sequence will always be sorted.
+	 * Use of lz::length(customers) > lz::length(paymentBills) is also possible of course.
+	 * */
+	if (std::distance(customers.begin(), customers.end()) > std::distance(paymentBills.begin(), paymentBills.end())) {
+		auto joined = lz::joinWhere(customers, paymentBills,
+									[](const Customer& p) { return p.id; },
+									[](const PaymentBill& c) { return c.customerId; },
+									[](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
 
-    for (std::tuple<Customer, PaymentBill> join : joined) {
-        fmt::print("{} and {} are the same. The corresponding payment bill id is {}\n",
-                   std::get<0>(join).id, std::get<1>(join).customerId, std::get<1>(join).id);
-    }
+		for (std::tuple<Customer, PaymentBill> join : joined) {
+			fmt::print("{} and {} are the same. The corresponding payment bill id is {}\n",
+					   std::get<0>(join).id, std::get<1>(join).customerId, std::get<1>(join).id);
+		}
+		/* // Output:
+		 25 and 25 are the same. The corresponding payment bill id is 0
+		 25 and 25 are the same. The corresponding payment bill id is 2
+		 25 and 25 are the same. The corresponding payment bill id is 3
+		 99 and 99 are the same. The corresponding payment bill id is 1
+		 */
+	}
+	// paymentBills sequence is larger, sort customers instead
+	else {
+		auto joined = lz::joinWhere(paymentBills, customers,
+									[](const PaymentBill& p) { return p.customerId; },
+									[](const Customer& c) { return c.id; },
+									[](const PaymentBill& p, const Customer& c) { return std::make_tuple(p, c); });
+
+		for (std::tuple<PaymentBill, Customer> join : joined) {
+			fmt::print("{} and {} are the same. The corresponding payment bill id is {}\n",
+					   std::get<1>(join).id, std::get<0>(join).customerId, std::get<0>(join).id);
+		}
+		/* // Output:
+		 25 and 25 are the same. The corresponding payment bill id is 0
+		 25 and 25 are the same. The corresponding payment bill id is 2
+		 25 and 25 are the same. The corresponding payment bill id is 3
+		 99 and 99 are the same. The corresponding payment bill id is 1
+		 */
+	}
 }

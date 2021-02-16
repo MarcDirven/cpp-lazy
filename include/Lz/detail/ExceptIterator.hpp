@@ -39,17 +39,17 @@ namespace lz { namespace internal {
         void find() {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-                _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+                _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
                     return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                 });
             }
             else { // NOLINT
-                _iterator = std::find_if(_execution, _iterator, _end, [this](const value_type& value) {
+                _iterator = std::find_if(_execution, std::move(_iterator), _end, [this](const value_type& value) {
                     return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
                });
             }
 #else // ^^^ has execution vvv ! has execution
-            _iterator = std::find_if(_iterator, _end, [this](const value_type& value) {
+            _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
                 return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
             });
 #endif // end has execution
@@ -105,9 +105,7 @@ namespace lz { namespace internal {
 
         ExceptIterator& operator++() {
             ++_iterator;
-            if (_iterator != _end) {
-                find();
-            }
+            find();
             return *this;
         }
 

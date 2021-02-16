@@ -16,6 +16,10 @@
   #define LZ_GCC_VERSION __GNUC__
 #endif
 
+#if defined(_MSVC_LANG)
+  #define LZ_MSVC
+#endif
+
 #if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
   #define LZ_HAS_CXX_11
 #elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11

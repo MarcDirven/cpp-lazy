@@ -35,11 +35,13 @@ namespace lz { namespace internal {
 
 			FnRetType next = _keySelector(*_subRangeEnd);
 #ifdef LZ_HAS_EXECUTION
-			_subRangeEnd = std::find_if(_execution, ++_subRangeEnd, _end, [this, &next](const IterValueType& v) {
+			++_subRangeEnd;
+			_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 				return !(_keySelector(v) == next);
 			});
 #else
-			_subRangeEnd = std::find_if(++_subRangeEnd, _end, [this, &next](const IterValueType& v) {
+			++_subRangeEnd;
+			_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 				return !(_keySelector(v) == next); // NOLINT
 			});
 #endif

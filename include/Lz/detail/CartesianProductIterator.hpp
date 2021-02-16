@@ -28,6 +28,10 @@ namespace lz { namespace internal {
 		EnableIf<I == 0> next() const {
 		}
 
+#ifdef LZ_MSVC
+  #pragma warning(push)
+  #pragma warning(disable:4127)
+#endif
 		template<std::size_t I>
 		EnableIf<(I > 0)> next() {
 			auto& prev = std::get<I - 1>(_iterator);
@@ -40,7 +44,9 @@ namespace lz { namespace internal {
 				}
 			}
 		}
-
+#ifdef LZ_MSVC
+  #pragma warning(pop)
+#endif
 
 		template<std::size_t... Is>
 		reference dereference(IndexSequence<Is...>) {

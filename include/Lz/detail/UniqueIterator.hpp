@@ -75,13 +75,13 @@ namespace lz { namespace internal {
         UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-				_iterator = std::adjacent_find(_iterator, _end, _compare);
+				_iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
             }
             else {
-				_iterator = std::adjacent_find(_execution, _iterator, _end, _compare);
+				_iterator = std::adjacent_find(_execution, std::move(_iterator), _end, _compare);
             }
 #else // ^^^ lz has execution vvv ! lz has execution
-            _iterator = std::adjacent_find(_iterator, _end, _compare);
+            _iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
 #endif // end lz has execution
 
             if (_iterator != _end) {
