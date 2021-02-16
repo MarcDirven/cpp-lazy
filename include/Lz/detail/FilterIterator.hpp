@@ -26,17 +26,16 @@ namespace lz { namespace internal {
         using pointer = typename IterTraits::pointer;
         using reference = typename IterTraits::reference;
 
-        void find(const difference_type offset) {
-            std::advance(_iterator, offset);
+        void find() {
 #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) { // prevent verbose errors when iter cat < forward
-                _iterator = std::find_if(_iterator, _end, _predicate);
+                _iterator = std::find_if(std::move(_iterator), _end, _predicate);
             }
             else {
-                _iterator = std::find_if(_execution, _iterator, _end, _predicate);
+                _iterator = std::find_if(_execution, std::move(_iterator), _end, _predicate);
             }
 #else // ^^^lz has execution vvv ! lz has execution
-            _iterator = std::find_if(_iterator, _end, _predicate);
+            _iterator = std::find_if(std::move(_iterator), _end, _predicate);
 #endif // end has execution
         }
 
@@ -62,7 +61,7 @@ namespace lz { namespace internal {
             , _execution(execution)
 #endif // end has execution
         {
-            find(0);
+            find();
         }
 
         FilterIterator() = default;
@@ -76,9 +75,8 @@ namespace lz { namespace internal {
         }
 
         FilterIterator& operator++() {
-            if (_iterator != _end) {
-                find(1);
-            }
+			++_iterator;
+			find();
             return *this;
         }
 

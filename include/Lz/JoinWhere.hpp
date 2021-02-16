@@ -34,7 +34,7 @@ namespace lz {
         {}
 #else
         JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector):
-            internal::BasicIteratorView<iterator>(iterator(iterA, endA, iterB, endB, a, b, resultSelector),
+            internal::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
                                                   iterator(endA, endA, endB, endB, a, b, resultSelector))
         {}
 #endif
@@ -102,6 +102,7 @@ namespace lz {
      * The selector for a must be a function with a parameter of type = `*iterA`.
      * The selector for b must be a function with a parameter of type = `*iterB`.
      * The selector for the result must be a function with parameters: `fn(decltype(*iterA), decltype(*iterB)`. It may return anything.
+     * [iterB, endB) will be sorted. Make sure this is the shortest sequence for optimal performance.
      * @param iterA The beginning of the sequence A to join.
      * @param endA The ending of the sequence A to join.
      * @param iterB The beginning of the sequence B to join.
@@ -125,7 +126,8 @@ namespace lz {
      * The selector for a must be a function with a parameter of type = `iterableA[n]`.
      * The selector for b must be a function with a parameter of type = `iterableB[n]`.
      * The selector for the result must be a function with parameters: `fn(decltype(iterableA[n]), decltype(iterableB[n])`.
-     *  It may return anything.
+     * It may return anything.
+     * iterableB will be sorted. Make sure this is the shortest sequence for optimal performance.
      * @param iterableA The sequence to join with `iterableB`.
      * @param iterableB The sequence to join with `iterableA`.
      * @param a A function that returns a key-like value to compare the result of `b` with.
@@ -139,8 +141,8 @@ namespace lz {
     JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
     joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
         return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
-                         internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
-                         std::move(a), std::move(b), std::move(resultSelector));
+            			 internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
+            			 std::move(a), std::move(b), std::move(resultSelector));
     }
 #endif
 
