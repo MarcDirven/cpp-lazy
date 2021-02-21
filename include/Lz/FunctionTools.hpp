@@ -636,7 +636,7 @@ namespace lz {
                                      std::make_tuple(std::move(end), std::move(endSelector)));
         return lz::filterMap(std::move(zipper),
                              [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
-                             [](const RefTuple& tuple) -> internal::RefType<Iterator> { return std::get<0>(tuple); }, execution);
+                             [](const RefTuple& tuple) -> decltype(std::get<0>(tuple)) { return std::get<0>(tuple); }, execution);
     }
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
