@@ -73,7 +73,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Execution, Iterator, Function>
     filterRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
+        static_assert(std::is_same<internal::FunctionReturnType<Function, internal::RefType<Iterator>>, bool>::value,
                       "function must return bool");
         static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
         return Filter<Execution, Iterator, Function>(std::move(begin), std::move(end), std::move(predicate), execution);
@@ -99,7 +99,7 @@ namespace lz {
      */
     template<class Function, LZ_CONCEPT_ITERATOR Iterator>
     Filter<Iterator, Function> filterRange(Iterator begin, Iterator end, Function predicate) {
-        static_assert(std::is_convertible<internal::FunctionReturnType<Function, internal::ValueType<Iterator>>, bool>::value,
+        static_assert(std::is_convertible<internal::FunctionReturnType<Function, internal::RefType<Iterator>>, bool>::value,
                       "function return type must be convertible to a bool");
         return Filter<Iterator, Function>(std::move(begin), std::move(end), std::move(predicate));
     }
