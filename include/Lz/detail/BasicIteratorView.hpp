@@ -106,11 +106,11 @@ namespace lz { namespace internal {
 			return cont;
 		}
 
-		template<std::size_t N, class Execution>
-		std::array<value_type, N> copyArray(Execution execution) const {
+		template<std::size_t N, class T = value_type, class Execution>
+		std::array<T, N> copyArray(Execution execution) const {
 			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
 					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
-			std::array<value_type, N> array{};
+			std::array<T, N> array{};
 
 			if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
 				static_cast<void>(execution);
@@ -132,19 +132,19 @@ namespace lz { namespace internal {
 			return cont;
 		}
 
-		template<std::size_t N>
-		std::array<value_type, N> copyArray() const {
+		template<std::size_t N, class T = value_type>
+		std::array<T, N> copyArray() const {
 			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
 					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
-			auto array = std::array<value_type, N>();
+			auto array = std::array<T, N>();
 			std::copy(begin(), end(), array.begin());
 			return array;
 		}
 
 #endif // end has execution
 
-		template<class KeySelectorFunc>
-		using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+		template<class KeySelectorFunc, class T = value_type>
+		using KeyType = FunctionReturnType<KeySelectorFunc, T>;
 
 		LzIterator _begin{};
 		LzIterator _end{};
@@ -189,25 +189,27 @@ namespace lz { namespace internal {
 		 * auto set = lazyIterator.to<std::set>(allocator);
 		 * ```
 		 * @param execution The execution policy. Must be one of `std::execution`'s tags.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @tparam Args Additional arguments, automatically deduced.
 		 * @param args Additional arguments, for e.g. an allocator.
 		 * @return An arbitrary container specified by the entered template parameter.
 		 */
-		template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-		Container<value_type, Args...> to(Execution execution = std::execution::seq, Args&& ... args) const {
-			using Cont = Container<value_type, Args...>;
+		template<template<class, class...> class Container, class T = value_type, class... Args, class Execution = std::execution::sequenced_policy>
+		Container<T, Args...> to(Execution execution = std::execution::seq, Args&& ... args) const {
+			using Cont = Container<T, Args...>;
 			return copyContainer<Cont>(execution, std::forward<Args>(args)...);
 		}
 
 		/**
 		* @brief Creates a new `std::vector<value_type>` of the sequence.
 		* @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
-		 * @param exec The execution policy. Must be one of `std::execution`'s tags.
+		* @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
+		* @param exec The execution policy. Must be one of `std::execution`'s tags.
 		* @return A `std::vector<value_type>` with the sequence.
 		*/
-		template<class Execution = std::execution::sequenced_policy>
-		std::vector<value_type> toVector(Execution exec = std::execution::seq) const {
-			return to<std::vector>(exec);
+		template<class T = value_type, class Execution = std::execution::sequenced_policy>
+		std::vector<T> toVector(Execution exec = std::execution::seq) const {
+			return to<std::vector, T>(exec);
 		}
 
 		/**
@@ -216,23 +218,25 @@ namespace lz { namespace internal {
 		 * by this function.
 		 * @param exec The execution policy. Must be one of `std::execution`'s tags.
 		 * @param alloc The allocator.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @return A new `std::vector<value_type, Allocator>`.
 		 */
-		template<class Allocator, class Execution = std::execution::sequenced_policy>
-		std::vector<value_type, Allocator> toVector(const Allocator& alloc, Execution exec) const {
-			return to<std::vector>(exec, alloc);
+		template<class T = value_type, class Allocator, class Execution = std::execution::sequenced_policy>
+		std::vector<T, Allocator> toVector(const Allocator& alloc, Execution exec) const {
+			return to<std::vector, T>(exec, alloc);
 		}
 
 		/**
 		 * @brief Creates a new `std::vector<value_type, N>`.
 		 * @tparam N The size of the array.
 		 * @param exec The execution policy. Must be one of `std::execution`'s tags.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @return A new `std::array<value_type, N>`.
 		 * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
 		 */
-		template<std::size_t N, class Execution = std::execution::sequenced_policy>
-		std::array<value_type, N> toArray(Execution exec = std::execution::seq) const {
-			return copyArray<N>(exec);
+		template<std::size_t N, class T = value_type, class Execution = std::execution::sequenced_policy>
+		std::array<T, N> toArray(Execution exec = std::execution::seq) const {
+			return copyArray<N, T>(exec);
 		}
 
 		/**
@@ -293,22 +297,25 @@ namespace lz { namespace internal {
 		 * auto set = lazyIterator.to<std::set>(allocator);
 		 * ```
 		 * @tparam Args Additional arguments, automatically deduced.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @param args Additional arguments, for e.g. an allocator.
 		 * @return An arbitrary container specified by the entered template parameter.
 		 */
-		template<template<class, class...> class Container, class... Args>
-		Container<value_type, Args...> to(Args&& ... args) const {
-			using Cont = Container<value_type, Args...>;
+		template<template<class, class...> class Container, class T = value_type, class... Args>
+		Container<T, Args...> to(Args&& ... args) const {
+			using Cont = Container<T, Args...>;
 			return copyContainer<Cont>(std::forward<Args>(args)...);
 		}
 
 		/**
 		 * @brief Creates a new `std::vector<value_type>` of the sequence.
 		 * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @return A `std::vector<value_type>` with the sequence.
 		 */
-		std::vector<value_type> toVector() const {
-			return to<std::vector>();
+		template<class T = value_type>
+		std::vector<T> toVector() const {
+			return to<std::vector, T>();
 		}
 
 		/**
@@ -316,21 +323,23 @@ namespace lz { namespace internal {
 		 * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
 		 * by this function.
 		 * @param alloc The allocator.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @return A new `std::vector<value_type, Allocator>`.
 		 */
-		template<class Allocator>
-		std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-			return to<std::vector>(alloc);
+		template<class T = value_type, class Allocator>
+		std::vector<T, Allocator> toVector(const Allocator& alloc = Allocator()) const {
+			return to<std::vector, T, Allocator>(alloc);
 		}
 
 		/**
 		 * @brief Creates a new `std::vector<value_type, N>`.
 		 * @tparam N The size of the array.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @return A new `std::array<value_type, N>`.
 		 * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
 		 */
-		template<std::size_t N>
-		std::array<value_type, N> toArray() const {
+		template<std::size_t N, class T = value_type>
+		std::array<T, N> toArray() const {
 			return copyArray<N>();
 		}
 
@@ -380,20 +389,22 @@ namespace lz { namespace internal {
 		 * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
 		 * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
 		 * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @param allocator Optional, can be used for using a custom allocator.
 		 * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
 		 */
 		template<class KeySelectorFunc,
-			class Compare = std::less<KeyType<KeySelectorFunc>>,
-			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
-		std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+			class T = value_type,
+			class Compare = std::less<KeyType<KeySelectorFunc, T>>,
+			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, T>>>
+		std::map<KeyType<KeySelectorFunc>, T, Compare, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
 		toMap(const KeySelectorFunc keyGen) const {
-			using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
+			using Map = std::map<KeyType<KeySelectorFunc>, T, Compare, Allocator>;
 			return createMap<Map>(keyGen);
 #else // ^^^gcc < 5 vvv gcc >= 5
 		toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
-			using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
+			using Map = std::map<KeyType<KeySelectorFunc>, T, Compare, Allocator>;
 			return createMap<Map>(keyGen, allocator);
 #endif // end lz gcc version < 5
 		}
@@ -415,22 +426,24 @@ namespace lz { namespace internal {
 		 * @tparam Hasher The hash function, `std::hash<Key>` is used by default
 		 * @tparam KeyEquality Key equality checker. `std::equal_to<Key>` is used by default.
 		 * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
+		 * @param T The value_type of the map, can be handy when value_type is a reference or pointer and you want to make a copy of it.
 		 * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
 		 * @param allocator Optional, can be used for using a custom allocator.
 		 * @return A `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`
 		 */
 		template<class KeySelectorFunc,
 			class Hasher = std::hash<KeyType<KeySelectorFunc>>,
-			class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
-			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
-		std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
+			class T = value_type,
+			class KeyEquality = std::equal_to<KeyType<KeySelectorFunc, T>>,
+			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, T>>>
+		std::unordered_map<KeyType<KeySelectorFunc>, T, Hasher, KeyEquality, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
 		toUnorderedMap(const KeySelectorFunc keyGen) const {
-			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
+			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, T, Hasher, KeyEquality>;
 			return createMap<UnorderedMap>(keyGen);
 #else // ^^^gcc < 5 vvv gcc >= 5
 		toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
-			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
+			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, T, Hasher, KeyEquality>;
 			return createMap<UnorderedMap>(keyGen, allocator);
 #endif // end lz gcc version < 5
 		}
