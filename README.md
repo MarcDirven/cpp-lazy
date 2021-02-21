@@ -98,9 +98,7 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 
 ## What about `ranges::v3`?
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
-compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not
-support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). 
-However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
+compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Installation
 ## Using `FetchContent`
