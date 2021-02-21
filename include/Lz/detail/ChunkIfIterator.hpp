@@ -21,10 +21,9 @@ namespace lz { namespace internal {
 		Execution _execution{};
 #endif // LZ_HAS_EXECUTION
 
-		using IterTraits = std::iterator_traits<Iterator>;
 	public:
 		using value_type = BasicIteratorView<Iterator>;
-		using difference_type = typename IterTraits::difference_type;
+		using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 		using iterator_category = std::forward_iterator_tag;
 		using reference = value_type;
 		using pointer = FakePointerProxy<reference>;
@@ -53,7 +52,7 @@ namespace lz { namespace internal {
 #endif // LZ_HAS_EXECUTION
 			_subRangeBegin(begin),
 			_subRangeEnd(begin),
-			_end(end),
+			_end(std::move(end)),
 			_predicate(std::move(predicate))
 #ifdef LZ_HAS_EXECUTION
 			, _execution(execution)
