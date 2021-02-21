@@ -6,12 +6,7 @@
 #include "LzTools.hpp"
 
 
-namespace lz {
-    template<LZ_CONCEPT_ITERATOR>
-    class TakeEvery;
-
-    namespace internal {
-
+namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator>
     class TakeEveryIterator {
         Iterator _iterator{};
