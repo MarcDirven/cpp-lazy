@@ -55,8 +55,8 @@ namespace lz { namespace internal {
         }
 
     public:
-        using reference = FunctionReturnType<ResultSelector, RefTypeA, RefTypeB>;
-        using value_type = Decay<reference>;
+        using reference = decltype(_resultSelector(*_iterA, *_iterB));
+        using value_type = reference;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;

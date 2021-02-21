@@ -26,7 +26,7 @@ namespace lz { namespace internal {
 #endif // end LZ_HAS_EXECUTION
 
 		using IterValueType = ValueType<Iterator>;
-		using FnRetType = FunctionReturnType<KeySelector, RefType<Iterator>>;
+		using FnRetType = decltype(_keySelector(*_subRangeBegin));
 
 		void advance() {
 			if (_subRangeEnd == _end) {
@@ -49,9 +49,9 @@ namespace lz { namespace internal {
 
 	public:
 		using iterator_category = std::output_iterator_tag;
-		using value_type = std::pair<FunctionReturnType<KeySelector, RefType<Iterator>>, BasicIteratorView<Iterator>>;
+		using value_type = std::pair<FnRetType, BasicIteratorView<Iterator>>;
 		using reference = value_type;
-		using pointer = FakePointerProxy<value_type>;
+		using pointer = FakePointerProxy<reference>;
 		using difference_type = std::ptrdiff_t;
 
 		GroupByIterator() = default;
