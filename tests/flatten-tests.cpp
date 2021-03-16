@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <Lz/Flatten.hpp>
 #include <list>
+#include "Lz/FunctionTools.hpp"
 
 
 TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
@@ -8,22 +9,26 @@ TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
         std::vector<int> vec = {1,2,3,4};
         auto flattened = lz::flatten(vec);
         CHECK(flattened.toVector() == std::vector<int>{1,2,3,4});
+        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{4, 3, 2, 1});
     }
 
     SECTION("Flatten 2D") {
         std::vector<std::list<int>> nested = {{1,2,3}, {}, {1}, {4,5,6}, {}};
         auto flattened = lz::flatten(nested);
         CHECK(flattened.toVector() == std::vector<int>{1,2,3,1,4,5,6});
+        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{6, 5, 4, 1, 3, 2, 1});
     }
 
     SECTION("Flatten 3D") {
         std::vector<std::vector<std::vector<int>>> vectors = {
-            { { 1,2, 3}, {}, {4} },
-            {},
-            {{ 5, 6 }, {7} , {}}
+			{ {1, 2, 3}, {} },
+			{ {4, 5}, {6}},
+			{ {7}, {}}
         };
+
         auto flattened = lz::flatten(vectors);
         CHECK(flattened.toVector() == std::vector<int>{1,2,3,4,5,6,7});
+        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{7, 6, 5, 4, 3, 2, 1});
     }
 
     SECTION("Should be by ref") {
@@ -50,6 +55,18 @@ TEST_CASE("Flatten binary operations", "[Flatten][Binary ops]") {
         ++begin, ++begin;
         CHECK(*begin == 1);
 
+    }
+
+    SECTION("Operator--") {
+    	auto begin = flattened.begin();
+    	++begin;
+    	CHECK(*begin == 2);
+    	--begin;
+    	CHECK(*begin == 1);
+    	++begin, ++begin, ++begin;
+    	CHECK(*begin == 1);
+    	--begin;
+    	CHECK(*begin == 3);
     }
 
     SECTION("Operator== & operator!=") {
