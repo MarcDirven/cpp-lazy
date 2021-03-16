@@ -99,7 +99,6 @@ namespace lz { namespace internal {
 				static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel algorithms."
 														   " Use std::execution::seq instead");
 				cont.resize(std::distance(begin(), end()));
-				// use execution policies
 				std::copy(execution, b, e, cont.begin());
 			}
 
