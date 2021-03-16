@@ -36,10 +36,8 @@ jobs:
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
       - name: Install GCC ${{ matrix.version }}
-        run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
-          sudo apt-get update
-          sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+        run: sudo apt install -y
+          gcc-${{ matrix.version }} g++-${{ matrix.version }}
 
       - name: Configure (install)
         env:
