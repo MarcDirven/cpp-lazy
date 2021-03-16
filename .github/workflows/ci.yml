@@ -39,8 +39,7 @@ jobs:
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
           sudo apt-get update
-          sudo apt-get install -y
-          gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
 
       - name: Configure (install)
         env:
