@@ -15,7 +15,7 @@ namespace lz { namespace internal {
         using value_type = std::tuple<ValueType<Iterators>...>;
         using difference_type = std::ptrdiff_t;
         using reference = std::tuple<RefType<Iterators>...>;
-        using pointer = FakePointerProxy<reference>;
+        using pointer = std::tuple<PointerType<Iterators>...>;
 
     private:
         using MakeIndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;

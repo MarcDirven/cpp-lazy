@@ -268,8 +268,7 @@ namespace lz {
 #ifndef LZ_HAS_CONCEPTS
         static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
-        using ReverseIterator = std::reverse_iterator<Iterator>;
-        return lz::takeRange(ReverseIterator(end), ReverseIterator(begin), std::distance(begin, end));
+        return lz::takeRange(std::make_reverse_iterator(end), std::make_reverse_iterator(begin), std::distance(begin, end));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -636,7 +635,7 @@ namespace lz {
                                      std::make_tuple(std::move(end), std::move(endSelector)));
         return lz::filterMap(std::move(zipper),
                              [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
-                             [](const RefTuple& tuple) -> internal::RefType<Iterator> { return std::get<0>(tuple); }, execution);
+                             [](const RefTuple& tuple) -> decltype(std::get<0>(tuple)) { return std::get<0>(tuple); }, execution);
     }
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>

@@ -19,7 +19,7 @@ jobs:
   gcc:
     strategy:
       matrix:
-        version: [5, 6, 7, 8, 9, 10]
+        version: [7, 8, 9, 10]
         standard: [11, 14, 17, 20]
 
     runs-on: ubuntu-latest
@@ -30,11 +30,11 @@ jobs:
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
 
-      - name: Add repository for GCC 10
-        if: matrix.version == 10
-        run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo apt-get update
+#      - name: Add repository for GCC 10
+#        if: matrix.version == 10
+#        run: |
+#          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+#          sudo apt-get update
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
           gcc-${{ matrix.version }} g++-${{ matrix.version }}
@@ -72,7 +72,7 @@ jobs:
   clang:
     strategy:
       matrix:
-        version: ['5.0', '6.0', 8, 9, 10]
+        version: [8, 9, 10]
         standard: [11, 14, 17, 20]
 
     runs-on: ubuntu-latest

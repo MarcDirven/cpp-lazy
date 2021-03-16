@@ -12,10 +12,10 @@ namespace lz { namespace internal {
     class GenerateIterator {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = FunctionReturnType<GeneratorFunc>;
+		using reference = FunctionReturnType<GeneratorFunc>;
+        using value_type = reference;
         using difference_type = std::ptrdiff_t;
-        using reference = value_type;
-        using pointer = FakePointerProxy<value_type>;
+        using pointer = FakePointerProxy<reference>;
 
     private:
         std::size_t _current{};
@@ -31,11 +31,11 @@ namespace lz { namespace internal {
             _isWhileTrueLoop(isWhileTrueLoop)
         {}
 
-        value_type operator*() const {
+        reference operator*() const {
             return _generator();
         }
 
-		value_type operator*() {
+		reference operator*() {
 			return _generator();
 		}
 

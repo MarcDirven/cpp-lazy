@@ -4,6 +4,7 @@
 #define LZ_FLATTEN_ITERATOR_HPP
 
 #include "LzTools.hpp"
+#include "fmt/ostream.h"
 
 
 namespace lz { namespace internal {
@@ -87,9 +88,10 @@ namespace lz { namespace internal {
     };
 
     // Improvement of https://stackoverflow.com/a/21076724/8729023
-    template<typename Iterator>
+    template<class Iterator>
     class FlattenWrapper {
-        Iterator _iterator{};
+    	Iterator _begin{};
+        Iterator _current{};
         Iterator _end{};
 
         using IterTraits = std::iterator_traits<Iterator>;
@@ -97,21 +99,26 @@ namespace lz { namespace internal {
         using pointer = typename IterTraits::pointer;
         using reference = typename IterTraits::reference;
         using value_type = typename IterTraits::value_type;
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = LowestIterTypeT<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>;
         using difference_type = typename IterTraits::difference_type;
 
         FlattenWrapper() = default;
 
-        FlattenWrapper(Iterator begin, Iterator end) :
-            _iterator(std::move(begin)),
-            _end(std::move(end)) {}
+        FlattenWrapper(Iterator current, Iterator begin, Iterator end) :
+        	_begin(std::move(begin)),
+			_current(std::move(current)),
+			_end(std::move(end)) {}
 
         bool hasSome() const {
-            return _iterator != _end;
+            return _current != _end;
+        }
+
+        bool hasPrev() const {
+        	return _current != _begin;
         }
 
         friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) {
-            return a._iterator != b._iterator;
+            return a._current != b._current;
         }
 
         friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
@@ -119,15 +126,15 @@ namespace lz { namespace internal {
         }
 
         reference operator*() const {
-            return *_iterator;
+            return *_current;
         }
 
         pointer operator->() const {
-            return &*_iterator;
+            return &*_current;
         }
 
         FlattenWrapper& operator++() {
-            ++_iterator;
+            ++_current;
             return *this;
         }
 
@@ -136,53 +143,66 @@ namespace lz { namespace internal {
             ++* this;
             return tmp;
         }
+
+		FlattenWrapper& operator--() {
+			--_current;
+			return *this;
+		}
+
+		FlattenWrapper operator--(int) {
+			FlattenWrapper tmp(*this);
+			++* this;
+			return tmp;
+		}
     };
 
-    template<typename Iterator, int N>
+    template<class Iterator, int N>
     class FlattenIterator {
         using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
 
-        void advance() {
-            if (_iterInner.hasSome()) {
-                return;
-            }
+	public:
+    	using pointer = typename Inner::pointer;
+		using reference = typename Inner::reference;
+		using value_type = typename Inner::value_type;
+		using iterator_category = LowestIterTypeT<std::bidirectional_iterator_tag, typename Inner::iterator_category>;
+		using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
-            for (++_iterOuter; _iterOuter.hasSome(); ++_iterOuter) {
-                _iterInner = Inner(std::begin(*_iterOuter), std::end(*_iterOuter));
-                if (_iterInner.hasSome()) {
-                    return;
-                }
+	private:
+		void advance() {
+            if (_innerIter.hasSome()) return;
+
+            for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
+				_innerIter = Inner(std::begin(*_outerIter), std::begin(*_outerIter), std::end(*_outerIter));
+                if (_innerIter.hasSome()) return;
             }
-            _iterInner = Inner();
+			_innerIter = Inner();
         }
 
-        FlattenWrapper<Iterator> _iterOuter{};
-        Inner _iterInner{};
+
+        FlattenWrapper<Iterator> _outerIter{};
+        Inner _innerIter{};
 
     public:
-        using pointer = typename Inner::pointer;
-        using reference = typename Inner::reference;
-        using value_type = typename Inner::value_type;
-        using iterator_category = std::forward_iterator_tag;
-        using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-
         FlattenIterator() = default;
 
-        FlattenIterator(Iterator begin, Iterator end) :
-            _iterOuter(std::move(begin), std::move(end)) {
-            if (!_iterOuter.hasSome()) {
-                return;
-            }
-            _iterInner = Inner(std::begin(*_iterOuter), std::end(*_iterOuter));
-            this->advance();
+        FlattenIterator(Iterator it, Iterator begin, Iterator end) :
+			_outerIter(std::move(it), std::move(begin), std::move(end)) {
+			if (_outerIter.hasSome()) {
+				_innerIter = Inner(std::begin(*_outerIter), std::begin(*_outerIter), std::end(*_outerIter));
+				this->advance();
+			}
         }
 
         bool hasSome() const {
-            return _iterOuter.hasSome();
+            return _outerIter.hasSome();
         }
 
+		bool hasPrev() const {
+        	return _innerIter.hasPrev() || _outerIter.hasPrev();
+		}
+
         friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
-            return a._iterOuter != b._iterOuter;
+        	return a._outerIter != b._outerIter || a._innerIter != b._innerIter;
         }
 
         friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
@@ -190,15 +210,15 @@ namespace lz { namespace internal {
         }
 
         reference operator*() const {
-            return *_iterInner;
+            return *_innerIter;
         }
 
         pointer operator->() const {
-            return &*_iterInner;
+            return &*_innerIter;
         }
 
         FlattenIterator& operator++() {
-            ++_iterInner;
+            ++_innerIter;
             this->advance();
             return *this;
         }
@@ -208,27 +228,56 @@ namespace lz { namespace internal {
             ++* this;
             return tmp;
         }
+
+		FlattenIterator& operator--() {
+			if (_innerIter.hasPrev()) {
+				--_innerIter;
+				return *this;
+			}
+
+			while (_outerIter.hasPrev()) {
+				--_outerIter;
+				_innerIter = Inner(std::end(*_outerIter), std::begin(*_outerIter), std::end(*_outerIter));
+				if (_innerIter.hasPrev()) {
+					--_innerIter;
+					return *this;
+				}
+
+			}
+			return *this;
+		}
+
+		FlattenIterator operator--(int) {
+			FlattenIterator tmp(*this);
+			--* this;
+			return tmp;
+		}
     };
 
-    template<typename Iterator>
+    template<class Iterator>
     class FlattenIterator<Iterator, 0> {
         FlattenWrapper<Iterator> _range;
+        using Traits = std::iterator_traits<Iterator>;
 
     public:
-        using pointer = typename std::iterator_traits<Iterator>::pointer;
-        using reference = typename std::iterator_traits<Iterator>::reference;
-        using value_type = typename std::iterator_traits<Iterator>::value_type;
-        using iterator_category = std::forward_iterator_tag;
+        using pointer = typename Traits::pointer;
+        using reference = typename Traits::reference;
+        using value_type = typename Traits::value_type;
+        using iterator_category = LowestIterTypeT<std::bidirectional_iterator_tag, typename Traits::iterator_category>;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
         FlattenIterator() = default;
 
-        FlattenIterator(Iterator begin, Iterator end) :
-            _range(std::move(begin), std::move(end)) {}
+        FlattenIterator(Iterator it, Iterator begin, Iterator end) :
+            _range(std::move(it), std::move(begin), std::move(end)) {}
 
         bool hasSome() const {
             return _range.hasSome();
         }
+
+		bool hasPrev() const {
+			return _range.hasPrev();
+		}
 
         reference operator*() const {
             return *_range;
@@ -256,6 +305,17 @@ namespace lz { namespace internal {
             ++* this;
             return tmp;
         }
+
+		FlattenIterator& operator--() {
+			--_range;
+			return *this;
+		}
+
+		FlattenIterator operator--(int) {
+			FlattenIterator tmp(*this);
+			--* this;
+			return tmp;
+		}
     };
 
 }}

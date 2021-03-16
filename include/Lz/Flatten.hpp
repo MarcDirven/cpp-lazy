@@ -20,7 +20,7 @@ namespace lz {
         Flatten() = default;
 
         Flatten(Iterator begin, Iterator end) :
-            Base(iterator(begin, end), iterator(end, end))
+            Base(iterator(begin, begin, end), iterator(end, begin, end))
         {}
     };
 
@@ -45,6 +45,26 @@ namespace lz {
         int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
     Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
         return flatten<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    }
+
+    /**
+     * Returns the amount of dimensions an iterator has.
+     * @param An iterator object.
+     * @return The amount of dimensions.
+     */
+    template<LZ_CONCEPT_ITERATOR Iterator>
+    constexpr int dimensionsIter(Iterator) {
+    	return internal::CountDims<std::iterator_traits<Iterator>>::value;
+    }
+
+	/**
+	 * Returns the amount of dimensions a sequence has.
+	 * @param An iterable object.
+	 * @return The amount of dimensions.
+	 */
+    template<LZ_CONCEPT_ITERABLE Iterable>
+    constexpr int dimensions(Iterable&& it) {
+    	return dimensionsIter(internal::begin(std::forward<Iterable>(it)));
     }
 }
 
