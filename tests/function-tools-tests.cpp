@@ -147,18 +147,6 @@ TEST_CASE("Function tools") {
         CHECK(dummy.toString(", ") == "1, 2, 3, 4, 5");
     }
 
-    SECTION("String replace") {
-        std::string myString = "picture.jpg";
-        lz::strReplace(myString, ".jpg", ".jpeg");
-        CHECK(myString == "picture.jpeg");
-        CHECK(myString.length() == std::strlen("picture.jpeg"));
-
-        myString = "picture.png.png";
-        lz::strReplaceAll(myString, ".png", ".jpeg");
-        CHECK(myString == "picture.jpeg.jpeg");
-        CHECK(myString.length() == std::strlen("picture.jpeg.jpeg"));
-    }
-
 	SECTION("Reverse") {
         std::string s = "hello";
         CHECK(lz::reverse(s).toString() == "olleh");
@@ -209,7 +197,7 @@ TEST_CASE("Function tools") {
         std::function<bool(int)> even = [](int i) { return i % 2 == 0; };
         auto selectors = lz::map(range, std::move(even));
         auto selected = lz::select(range, std::move(selectors));
-        CHECK(selected.toVector<int>() == std::vector<int>{0, 2, 4, 6, 8});
+        CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
 
     SECTION("Zip with") {
