@@ -37,7 +37,7 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 			++_subRangeEnd;
 			_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
-				return !(_keySelector(v) == next);
+				return !(_keySelector(v) == next); // NOLINT
 			});
 #else
 			++_subRangeEnd;
@@ -49,8 +49,8 @@ namespace lz { namespace internal {
 
 	public:
 		using iterator_category = std::output_iterator_tag;
-		using value_type = std::pair<FnRetType, BasicIteratorView<Iterator>>;
-		using reference = value_type;
+		using value_type = std::pair<Decay<FnRetType>, BasicIteratorView<Iterator>>;
+		using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;;
 		using pointer = FakePointerProxy<reference>;
 		using difference_type = std::ptrdiff_t;
 

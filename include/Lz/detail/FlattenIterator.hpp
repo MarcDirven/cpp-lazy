@@ -178,7 +178,6 @@ namespace lz { namespace internal {
 			_innerIter = Inner();
         }
 
-
         FlattenWrapper<Iterator> _outerIter{};
         Inner _innerIter{};
 
@@ -317,7 +316,6 @@ namespace lz { namespace internal {
 			return tmp;
 		}
     };
-
 }}
 
 #endif // LZ_FLATTEN_ITERATOR_HPP

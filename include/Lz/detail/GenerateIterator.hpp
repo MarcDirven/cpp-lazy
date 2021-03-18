@@ -13,7 +13,7 @@ namespace lz { namespace internal {
     public:
         using iterator_category = std::random_access_iterator_tag;
 		using reference = FunctionReturnType<GeneratorFunc>;
-        using value_type = reference;
+        using value_type = Decay<reference>;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;
 

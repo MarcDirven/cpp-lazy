@@ -29,46 +29,42 @@
 // Concatenate.hpp
 
 namespace lz {
-    namespace {
-        template<class>
-        struct IsCartesianProductIterator : std::false_type {
-        };
-
-        template<class T, class... Ts>
-        struct IsCartesianProductIterator<internal::CartesianProductIterator<T, Ts...>> : std::true_type {
-        };
-    }
-
-    template<LZ_CONCEPT_ITERATOR>
+    template<LZ_CONCEPT_ITERATOR Iterator>
     class IterView;
 
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable);
+	/**
+	 * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
+	 * @param iterable The iterable to view over.
+	 * @return An iterator view object.
+	 */
+	template<LZ_CONCEPT_ITERATOR Iterator>
+	IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
+		return lz::IterView<Iterator>(std::move(begin), std::move(end));
+	}
 
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    IterView<Iterator> toIterRange(Iterator begin, Iterator end);
+	/**
+	 * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
+	 * @param iterable The iterable to view over.
+	 * @return An iterator view object.
+	 */
+	template<LZ_CONCEPT_ITERABLE Iterable>
+	IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
+		return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+	}
 
     template<LZ_CONCEPT_ITERATOR Iterator>
     class IterView final : public internal::BasicIteratorView<Iterator> {
         using Base = internal::BasicIteratorView<Iterator>;
+        using Traits = std::iterator_traits<Iterator>;
 
     public:
-        using difference_type = internal::DiffType<Iterator>;
-        using value_type = internal::ValueType<Iterator>;
-        using reference = internal::RefType<Iterator>;
+		using iterator = Iterator;
+		using const_iterator = iterator;
+		using difference_type = typename iterator::difference_type;
 
-    private:
-    	template<class It = Iterator>
-		internal::EnableIf<IsCartesianProductIterator<It>::value, difference_type> lengthImpl() const {
-            return Base::begin().length();
-        }
+		using value_type = typename iterator::value_type;
+		using reference = typename iterator::reference;
 
-		template<class It = Iterator>
-		internal::EnableIf<!IsCartesianProductIterator<It>::value, difference_type> lengthImpl() const {
-            return lz::length(*this);
-        }
-
-    public:
         IterView(Iterator begin, Iterator end):
             Base(std::move(begin), std::move(end))
         {}
@@ -174,6 +170,12 @@ namespace lz {
             return lz::toIter(lz::cartesian(std::move(*this), std::forward<Iterables>(iterables)...));
         }
 
+        //! See Flatten.hpp for documentation
+        template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
+		IterView<typename internal::FlattenIterator<Iterator, N>::iterator> flatten() {
+			return lz::toIter(lz::flatten(std::move(*this)));
+		}
+
         /**
          * Gets the nth element from this sequence.
          * @param n The offset.
@@ -185,7 +187,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `length` for documentation.
         difference_type length() const {
-            return lengthImpl();
+            return lz::length(*this);
         }
 
         //! See FunctionTools.hpp `isEmpty` for documentation.
@@ -826,26 +828,6 @@ namespace lz {
         }
 #endif // end lz has execution
     };
-
-    /**
-     * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
-     * @param iterable The iterable to view over.
-     * @return An iterator view object.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable>
-    IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
-        return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
-    }
-
-    /**
-     * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
-     * @param iterable The iterable to view over.
-     * @return An iterator view object.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
-        return lz::IterView<Iterator>(std::move(begin), std::move(end));
-    }
 }
 
 #endif // LZ_LZ_HPP

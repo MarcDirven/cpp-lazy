@@ -16,7 +16,7 @@ namespace lz { namespace internal {
 
     public:
 		using reference = decltype(_function(*_iterator));
-        using value_type = reference;
+        using value_type = Decay<reference>;
         using iterator_category = internal::IterCat<Iterator>;
         using difference_type = internal::DiffType<Iterator>;
         using pointer = FakePointerProxy<reference>;
