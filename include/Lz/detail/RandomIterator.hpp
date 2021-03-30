@@ -12,7 +12,7 @@ namespace lz { namespace internal {
     template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
     class RandomIterator {
     public:
-        using iterator_category = std::random_access_iterator_tag;
+        using iterator_category = std::input_iterator_tag;
         using value_type = Arithmetic;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<Arithmetic>;
@@ -41,12 +41,12 @@ namespace lz { namespace internal {
             return randomNumber(generator);
         }
 
-        static result_type(min)() {
-        	return std::numeric_limits<result_type>::min();
+        result_type(min)() {
+        	return _min;
         }
 
-		static result_type(max)() {
-			return std::numeric_limits<result_type>::max();
+		result_type(max)() {
+			return _max;
 		}
 
         value_type operator()() const {
@@ -78,75 +78,12 @@ namespace lz { namespace internal {
             return tmp;
         }
 
-        RandomIterator& operator--() {
-            if (!_isWhileTrueLoop) {
-                --_current;
-            }
-            return *this;
-        }
-
-        RandomIterator operator--(int) {
-            RandomIterator tmp(*this);
-            --*this;
-            return tmp;
-        }
-
-        RandomIterator& operator+=(const difference_type offset) {
-            if (!_isWhileTrueLoop) {
-                _current += offset;
-            }
-            return *this;
-        }
-
-        RandomIterator operator+(const difference_type offset) const {
-            RandomIterator tmp(*this);
-            tmp += offset;
-            return tmp;
-        }
-
-        RandomIterator& operator-=(const difference_type offset) {
-            if (!_isWhileTrueLoop) {
-                _current -= offset;
-            }
-            return *this;
-        }
-
-        RandomIterator operator-(const difference_type offset) const {
-            RandomIterator tmp(*this);
-            tmp -= offset;
-            return tmp;
-        }
-
-        difference_type operator-(const RandomIterator& other) const {
-            return _current - other._current;
-        }
-
-        value_type operator[](const difference_type offset) const {
-            return *(*this + offset);
-        }
-
         friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
             return a._current != b._current;
         }
 
         friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
             return !(a != b); // NOLINT
-        }
-
-        friend bool operator<(const RandomIterator& a, const RandomIterator& b) {
-            return a._current < b._current;
-        }
-
-        friend bool operator>(const RandomIterator& a, const RandomIterator& b) {
-            return b < a;
-        }
-
-        friend bool operator<=(const RandomIterator& a, const RandomIterator& b) {
-            return !(b < a); // NOLINT
-        }
-
-        friend bool operator>=(const RandomIterator& a, const RandomIterator& b) {
-            return !(a < b);
         }
     };
 }}
