@@ -14,11 +14,13 @@ namespace lz { namespace internal {
         Iterator _iterator{};
         mutable FunctionContainer<Function> _function{};
 
+        using IterTraits = std::iterator_traits<Iterator>;
+
     public:
 		using reference = decltype(_function(*_iterator));
         using value_type = Decay<reference>;
-        using iterator_category = internal::IterCat<Iterator>;
-        using difference_type = internal::DiffType<Iterator>;
+        using iterator_category = typename IterTraits::iterator_category;
+        using difference_type = typename IterTraits::difference_type;
         using pointer = FakePointerProxy<reference>;
 
         MapIterator(Iterator iterator, Function function) :
