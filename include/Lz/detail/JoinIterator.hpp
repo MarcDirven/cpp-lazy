@@ -5,7 +5,7 @@
 
 #include "LzTools.hpp"
 
-#include "fmt/format.h"
+#include "fmt/ostream.h"
 
 namespace lz { namespace internal {
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -30,7 +30,10 @@ namespace lz { namespace internal {
 
         reference deref(std::false_type /* isSameContainerTypeString */) const {
             if (_isIteratorTurn) {
-                return fmt::format("{}", *_iterator);
+            	std::string result;
+            	result.reserve(fmt::formatted_size("{}", *_iterator));
+            	fmt::format_to(std::back_inserter(result), "{}", *_iterator);
+                return result;
             }
             return _delimiter;
         }

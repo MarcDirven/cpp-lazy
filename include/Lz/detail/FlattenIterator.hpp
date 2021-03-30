@@ -4,7 +4,6 @@
 #define LZ_FLATTEN_ITERATOR_HPP
 
 #include "LzTools.hpp"
-#include "fmt/ostream.h"
 
 
 namespace lz { namespace internal {
