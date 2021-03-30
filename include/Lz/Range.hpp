@@ -32,22 +32,6 @@ namespace lz {
         }
 
         Range() = default;
-
-        /**
-         * @brief Returns the reverse beginning of the random access Range iterator
-         * @return The reverse beginning of the random access Range iterator
-         */
-        reverse_iterator rbegin() const {
-            return reverse_iterator(Base::begin());
-        }
-
-        /**
-         * @brief Returns the reverse ending of the random access Range iterator
-         * @return The reverse ending of the random access Range iterator
-         */
-        reverse_iterator rend() const {
-            return reverse_iterator(Base::end());
-        }
     };
 
     // Start of group
