@@ -155,11 +155,12 @@ namespace lz {
      * @return A Take view object contains the reverse order of [begin end)
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-    Take<std::reverse_iterator<Iterator>> reverse(Iterator begin, Iterator end) {
+	lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
+	reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
         static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
-        return lz::takeRange(std::make_reverse_iterator(end), std::make_reverse_iterator(begin), std::distance(begin, end));
+        return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -167,9 +168,10 @@ namespace lz {
      * @return A Take view object contains the reverse order of [begin end)
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-    Take<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>> reverse(Iterable&& iterable) {
-        return lz::reverse(internal::begin(std::forward<Iterable>(iterable)),
-                           internal::end(std::forward<Iterable>(iterable))); // ADL std::reverse
+	lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
+	reverse(Iterable&& iterable) {
+		// ADL std::reverse
+        return lz::reverse(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
     }
 
     /**
@@ -1332,7 +1334,7 @@ namespace lz {
      * @return An iterator view object.
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+	lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
     trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
         auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
         auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last));
@@ -1348,7 +1350,7 @@ namespace lz {
      * @return An iterator view object.
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+	lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
     trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
         return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         std::move(first), std::move(last));
