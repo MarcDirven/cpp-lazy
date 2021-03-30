@@ -200,7 +200,7 @@ namespace lz { namespace internal {
 
 		/**
 		* @brief Creates a new `std::vector<value_type>` of the sequence.
-		* @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is used
+		* @details Creates a new vector of the sequence. A default `std::allocator<value_type>`.
 		* @param exec The execution policy. Must be one of `std::execution`'s tags.
 		* @return A `std::vector<value_type>` with the sequence.
 		*/
@@ -291,7 +291,7 @@ namespace lz { namespace internal {
 		 * auto allocator = std::allocator<int>();
 		 * auto set = lazyIterator.to<std::set>(allocator);
 		 * ```
-		 * @tparam Args Additional arguments, automatically deduce
+		 * @tparam Args Additional arguments, automatically deduced
 		 * @param args Additional arguments, for e.g. an allocator.
 		 * @return An arbitrary container specified by the entered template parameter.
 		 */
@@ -303,28 +303,28 @@ namespace lz { namespace internal {
 
 		/**
 		 * @brief Creates a new `std::vector<value_type>` of the sequence.
-		 * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`. is use
+		 * @details Creates a new vector of the sequence. A default `std::allocator<value_type>`.
 		 * @return A `std::vector<value_type>` with the sequence.
 		 */
 		std::vector<value_type> toVector() const {
-			return to<std::vector, value_type>();
+			return to<std::vector>();
 		}
 
 		/**
 		 * @brief Creates a new `std::vector<value_type, Allocator>`.
 		 * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
 		 * by this function.
-		 * @param alloc The allocato
+		 * @param alloc The allocator
 		 * @return A new `std::vector<value_type, Allocator>`.
 		 */
 		template<class Allocator>
 		std::vector<value_type, Allocator> toVector(const Allocator& alloc = Allocator()) const {
-			return to<std::vector, value_type, Allocator>(alloc);
+			return to<std::vector, Allocator>(alloc);
 		}
 
 		/**
 		 * @brief Creates a new `std::vector<value_type, N>`.
-		 * @tparam N The size of the arra
+		 * @tparam N The size of the array
 		 * @return A new `std::array<value_type, N>`.
 		 * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
 		 */
