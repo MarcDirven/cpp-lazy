@@ -352,26 +352,7 @@ namespace lz {
         return lz::first(std::begin(iterable), std::end(iterable));
     }
 
-    /**
-     * Returns the last element. Asserts if the sequence is empty. (Bidirectional and stronger)
-     * @param begin The beginning of the sequence.
-     * @param end The end of the sequence.
-     * @return The last element of the sequence (by reference i.e. type of *iterator).
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator, internal::EnableIf<internal::IsBidirectional<Iterator>::value, bool> = true>
-    internal::RefType<Iterator> last(Iterator begin, Iterator end) {
-        LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-        static_cast<void>(begin);
-        return *--end;
-    }
-
-	/**
-	 * Returns the last element. Asserts if the sequence is empty. (Bidirectional and lower)
-	 * @param begin The beginning of the sequence.
-	 * @param end The end of the sequence.
-	 * @return The last element of the sequence (by reference i.e. type of *iterator).
-	 */
-	template<LZ_CONCEPT_ITERATOR Iterator, internal::EnableIf<!internal::IsBidirectional<Iterator>::value, bool> = true>
+	template<LZ_CONCEPT_ITERATOR Iterator>
 	internal::RefType<Iterator> last(Iterator begin, Iterator end) {
 		LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
 		return *std::next(begin, std::distance(begin, end) - 1);
