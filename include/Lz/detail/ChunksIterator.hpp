@@ -20,10 +20,10 @@ namespace lz { namespace internal {
 			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
 
 			if (distance > chunkSizeSigned) {
-				std::advance(_subRangeBegin, -chunkSizeSigned);
+				_subRangeBegin = std::next(std::move(_subRangeBegin), -chunkSizeSigned);
 			}
 			else {
-				std::advance(_subRangeBegin, -distance);
+				_subRangeBegin = std::next(std::move(_subRangeBegin), -distance);
 			}
 		}
 
@@ -32,10 +32,10 @@ namespace lz { namespace internal {
 			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
 
 			if (distance > chunkSizeSigned) {
-				std::advance(_subRangeEnd, chunkSizeSigned);
+				_subRangeEnd = std::next(std::move(_subRangeEnd), chunkSizeSigned);
 			}
 			else {
-				std::advance(_subRangeEnd, distance);
+				_subRangeEnd = std::next(std::move(_subRangeEnd), distance);
 			}
 		}
 

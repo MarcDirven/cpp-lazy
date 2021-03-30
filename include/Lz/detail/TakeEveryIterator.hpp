@@ -71,7 +71,7 @@ namespace lz { namespace internal {
                 _iterator = _end;
             }
             else {
-                std::advance(_iterator, total);
+            	_iterator = std::next(std::move(_iterator), total);
                 _current += total;
             }
             return *this;
@@ -84,7 +84,7 @@ namespace lz { namespace internal {
                 _iterator = _end;
             }
             else {
-                std::advance(_iterator, -static_cast<difference_type>(total));
+            	_iterator = std::next(std::move(_iterator), -static_cast<difference_type>(total));
                 _current -= total;
             }
             return *this;
