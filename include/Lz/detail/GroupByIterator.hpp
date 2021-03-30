@@ -50,7 +50,7 @@ namespace lz { namespace internal {
 	public:
 		using iterator_category = std::output_iterator_tag;
 		using value_type = std::pair<Decay<FnRetType>, BasicIteratorView<Iterator>>;
-		using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;;
+		using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;
 		using pointer = FakePointerProxy<reference>;
 		using difference_type = std::ptrdiff_t;
 
