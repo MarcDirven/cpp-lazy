@@ -32,44 +32,10 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
         CHECK(prev != *it);
     }
 
-    SECTION("Operator--") {
-        ++it;
-        double prev = *it;
-        --it;
-        CHECK(prev != *it);
-    }
-
     SECTION("Operator== & Operator!=") {
         CHECK(it != random.end());
         it = random.end();
         CHECK(it == random.end());
-    }
-
-    SECTION("Operator+(int), tests += as well") {
-        std::ptrdiff_t offset = 1;
-        CHECK(std::distance(it + offset, random.end()) == size - offset);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        ++it;
-        CHECK(std::distance(it - 1, random.end()) == size);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK(random.end() - it == size);
-        CHECK(std::distance(it, random.end()) == size);
-    }
-
-    SECTION("Operator[]()") {
-        double prev = *it;
-        CHECK(it[1] != prev);
-    }
-
-    SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(it < random.end());
-        CHECK(it + size + 1 > random.end());
-        CHECK(it + size <= random.end());
-        CHECK(it + size >= random.end());
     }
 }
 
