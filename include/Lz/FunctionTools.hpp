@@ -123,7 +123,7 @@ namespace lz {
         if (upToAndIncluding < 0) {
             return error - sum;
         }
-        LZ_ASSERT(from < upToAndIncluding, "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
+        LZ_ASSERT(from < upToAndIncluding, "`from` cannot be smaller than `upToAndIncluding` if both are positive");
         return sum - error;
     }
 
