@@ -107,7 +107,7 @@ namespace lz {
      */
     template<class T>
     T sumTo(const T from, const T upToAndIncluding) {
-        static_assert(std::is_integral<T>::value, "To must be integral type");
+        static_assert(std::is_integral<T>::value, "T must be integral type");
 
         const T fromAbs = std::abs(from);
         const T toAbs = std::abs(upToAndIncluding);
