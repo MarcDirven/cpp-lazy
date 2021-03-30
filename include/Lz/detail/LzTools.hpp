@@ -314,9 +314,9 @@ namespace lz { namespace internal {
 	struct LowestIterType {
 		using Type =
 		Conditional<
-			ContainsType<std::output_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
+			ContainsType<std::output_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
 			Conditional<
-				ContainsType<std::input_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
+				ContainsType<std::input_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
 				Conditional<
 					ContainsType<std::forward_iterator_tag, IterTypes...>::value, std::forward_iterator_tag,
 					Conditional<
