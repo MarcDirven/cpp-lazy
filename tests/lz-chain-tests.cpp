@@ -1,5 +1,6 @@
 #include "Lz/Lz.hpp"
 #include <catch2/catch.hpp>
+#include <algorithm>
 
 template class lz::IterView<lz::Take<std::vector<int>::iterator>::iterator>;
 
@@ -11,8 +12,8 @@ TEST_CASE("Iterator chaining") {
     std::function<int&(int&)> f = [](int& i) -> int& { return i; };
     std::function<int(std::tuple<int, int> tup)> tupFn = [](std::tuple<int, int> tup) { return std::get<0>(tup); };
 
-    int result = lz::toIter(arr)
-        .as<int&>()
+    auto result = lz::toIter(arr)
+       	.as<int&>()
         .map(std::move(f))
         .forEach([x = 0](int& i) mutable { i = x++;})
         .zip(arr2)

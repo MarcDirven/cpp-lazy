@@ -20,11 +20,12 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 		Execution _execution{};
 #endif // LZ_HAS_EXECUTION
+		using IterTraits = std::iterator_traits<Iterator>;
 
 	public:
 		using value_type = BasicIteratorView<Iterator>;
-		using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-		using iterator_category = std::forward_iterator_tag;
+		using difference_type = typename IterTraits::difference_type;
+		using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename IterTraits::iterator_category>;
 		using reference = value_type;
 		using pointer = FakePointerProxy<reference>;
 

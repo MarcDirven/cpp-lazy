@@ -20,7 +20,7 @@ namespace lz { namespace internal {
         using IterTraits = std::iterator_traits<Iterator>;
 
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename IterTraits::iterator_category>;
         using value_type = typename IterTraits::value_type;
         using difference_type = typename IterTraits::difference_type;
         using pointer = typename IterTraits::pointer;

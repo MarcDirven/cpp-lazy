@@ -13,12 +13,6 @@ int main() {
     auto lines = lz::lines(string).toVector(); // lines == std::vector<std::string>{"aa", "bb", "bb"}
 
     std::vector<std::string> s = {"hello", "world", "!"};
-	
-#if (!defined(LZ_HAS_CXX_17)) && (!defined(LZ_HAS_CXX_20))
-    size_t totalSize = lz::transAccumulate(s, 0U, [](size_t i, const std::string& s) {
-        return i + s.size();
-    }); // totalSize == 11
-#endif
 
     std::string toFind = "hel";
     std::string def = "default";
@@ -64,15 +58,6 @@ int main() {
                            [](const char c) { return static_cast<int>(c - '0'); }); // return this
     // f will yield {1, 2, 3, 3, 5}
 
-
-    std::string myString = "picture.jpg";
-    lz::strReplace(myString, ".jpg", ".png");
-    // myString == "picture.png"
-
-    myString = "picture.png.png";
-    lz::strReplaceAll(myString, ".png", ".jpg");
-    // myString == "picture.jpg.jpg"
-
     auto arr = { 1, 2, 3, 4 };
 	for (auto&& vals : lz::pairwise(arr)) {
 		// printing values yields (using std::get):
@@ -80,10 +65,6 @@ int main() {
 		// 2 3
 		// 3 4
 	}
-
-    myString = "picture.png.png";
-    myString = lz::reverse(myString).toString();
-	// myString == gnp.gnp.erutcip
 
     int summed = lz::sumTo(50000); // 1 + 2 + 3 + 4 + 5 + ... 50'000
 	// summed == 1250025000

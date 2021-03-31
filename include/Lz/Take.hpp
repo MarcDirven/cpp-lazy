@@ -153,7 +153,7 @@ namespace lz {
                                                          const internal::DiffType<IterType> to) {
         LZ_ASSERT(to >= from, "parameter `to` cannot be more than `from`");
         auto begin = internal::begin(std::forward<Iterable>(iterable));
-        std::advance(begin, from);
+        begin = std::next(std::move(begin), from);
         return takeRange(begin, internal::end(std::forward<Iterable>(iterable)), to - from);
     }
 

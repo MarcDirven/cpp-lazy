@@ -32,22 +32,6 @@ namespace lz {
         }
 
         Range() = default;
-
-        /**
-         * @brief Returns the reverse beginning of the random access Range iterator
-         * @return The reverse beginning of the random access Range iterator
-         */
-        reverse_iterator rbegin() const {
-            return reverse_iterator(Base::begin());
-        }
-
-        /**
-         * @brief Returns the reverse ending of the random access Range iterator
-         * @return The reverse ending of the random access Range iterator
-         */
-        reverse_iterator rend() const {
-            return reverse_iterator(Base::end());
-        }
     };
 
     // Start of group
@@ -69,14 +53,18 @@ namespace lz {
      */
     template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
     Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+#ifndef LZ_HAS_CONCEPTS
         static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
+#endif
         LZ_ASSERT(step != 0, LZ_FILE_LINE ": with a step size of 0, the sequence can never end");
+#ifndef NDEBUG
         if (start > end) {
-        	LZ_ASSERT(step < 0, LZ_FILE_LINE ": with a start greater than end, the step must be smaller than 0");
+        	LZ_ASSERT(step < 0, LZ_FILE_LINE ": with a `start` greater than `end`, the `step` must be smaller than 0");
         }
         if (end > start) {
-        	LZ_ASSERT(step > 0, LZ_FILE_LINE ": with end greater than start, the step size must be bigger than 0");
+        	LZ_ASSERT(step > 0, LZ_FILE_LINE ": with `end` greater than `start`, the `step` size must be bigger than 0");
         }
+#endif
         return Range<Arithmetic>(start, end, step);
     }
 

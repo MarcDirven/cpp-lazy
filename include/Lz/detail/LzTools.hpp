@@ -100,7 +100,7 @@ namespace lz {
 	};
 
 	template<class I>
-	concept RandomAccesIterable = requires(I i) {
+	concept RandomAccessIterable = requires(I i) {
 		{ std::begin(i) } -> std::random_access_iterator;
 		{ std::end(i) } -> std::random_access_iterator;
 	};
@@ -112,10 +112,10 @@ namespace lz {
 	};
 
 	template<class I>
-	concept RandomAccesOrHigherIterable = ContiguousIterable<I> || RandomAccesIterable<I>;
+	concept RandomAccessOrHigherIterable = ContiguousIterable<I> || RandomAccessIterable<I>;
 
 	template<class I>
-	concept RandomAccesOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
+	concept RandomAccessOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
 
 	template<class A, class B>
 	concept LessThanComparable = requires(A a, B b) {
@@ -128,13 +128,13 @@ namespace lz {
 
 } // End namespace lz
 
-#define LZ_CONCEPT_ARITHMETIC             lz::Arithmetic
+  #define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
   #define LZ_CONCEPT_INTEGRAL               std::integral
   #define LZ_CONCEPT_INVOCABLE              std::invocable
   #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
   #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
-  #define LZ_CONCEPT_RA_ITERATOR            RandomAccesOrHigherIterator
-  #define LZ_CONCEPT_RA_ITERABLE            RandomAccesOrHigherIterable
+  #define LZ_CONCEPT_RA_ITERATOR            RandomAccessOrHigherIterator
+  #define LZ_CONCEPT_RA_ITERABLE            RandomAccessOrHigherIterable
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
@@ -314,9 +314,9 @@ namespace lz { namespace internal {
 	struct LowestIterType {
 		using Type =
 		Conditional<
-			ContainsType<std::output_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
+			ContainsType<std::output_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
 			Conditional<
-				ContainsType<std::input_iterator_tag, IterTypes...>::value, std::output_iterator_tag,
+				ContainsType<std::input_iterator_tag, IterTypes...>::value, std::input_iterator_tag,
 				Conditional<
 					ContainsType<std::forward_iterator_tag, IterTypes...>::value, std::forward_iterator_tag,
 					Conditional<

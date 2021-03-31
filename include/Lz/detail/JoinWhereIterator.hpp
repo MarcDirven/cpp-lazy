@@ -19,14 +19,13 @@ namespace lz { namespace internal {
         using IterTraitsB = std::iterator_traits<IterB>;
         using ValueTypeB = typename IterTraitsB::value_type;
         using RefTypeA = typename IterTraitsA::reference;
-        using RefTypeB = typename IterTraitsB::reference;
 
         using SelectorARetVal = Decay<FunctionReturnType<SelectorA, RefTypeA>>;
 
         IterA _iterA{};
         IterA _endA{};
+		IterB _iterB{};
         IterB _beginB{};
-        IterB _iterB{};
         IterB _endB{};
 		IterB _iterBFound{};
 		mutable FunctionContainer<SelectorA> _selectorA{};
@@ -56,7 +55,7 @@ namespace lz { namespace internal {
 
     public:
         using reference = decltype(_resultSelector(*_iterA, *_iterB));
-        using value_type = reference;
+        using value_type = Decay<reference>;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using pointer = FakePointerProxy<reference>;

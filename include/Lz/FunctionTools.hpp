@@ -27,40 +27,6 @@
 namespace lz {
 	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
 	namespace internal { namespace {
-        bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, const std::size_t startPos,
-                               std::false_type /* replaceAll */) {
-            const std::size_t oldStringSize = oldString.length();
-            const std::size_t newStringSize = newString.length();
-
-            if (oldStringSize == 0 || newStringSize == 0) {
-                return false;
-            }
-
-            if (startPos == std::string::npos) {
-                return false;
-            }
-
-            string.replace(startPos, oldStringSize, newString);
-            return true;
-        }
-
-        bool stringReplaceImpl(std::string& string, const std::string& oldString, const std::string& newString, std::size_t startPos,
-                               std::true_type /* replaceAll */) {
-            if (!stringReplaceImpl(string, oldString, newString, startPos, std::false_type())) {
-                return false;
-            }
-
-            const std::size_t oldStringSize = oldString.length();
-            const std::size_t newStringSize = newString.length();
-            startPos = string.find(oldString, newStringSize + startPos);
-
-            while (startPos != std::string::npos) {
-                string.replace(startPos, oldStringSize, newString);
-                startPos = string.find(oldString, newStringSize + startPos);
-            }
-            return true;
-        }
-		
         template<class To>
         struct ConvertFn {
             template<class From>
@@ -121,29 +87,6 @@ namespace lz {
         return lz::split<SubString, String>(string, "\n");
     }
 
-    /**
-     * Replaces one occurrence of `oldString` in `string` and replaces it with `newString`, and returns whether there was any newString
-     * at all.
-     * @param string The string to modify.
-     * @param oldString The string to replace.
-     * @param newString The new string.
-     * @return `true` if replacing has taken place, `false` otherwise.
-     */
-    inline bool strReplace(std::string& string, const std::string& oldString, const std::string& newString) {
-        return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::false_type());
-    }
-
-    /**
-     * Replaces all occurrences of `oldString` in `string` to `newString`.
-     * @param string The string to modify.
-     * @param oldString The string to replace.
-     * @param newString The new string.
-     * @return `true` if replacing has taken place, `false` otherwise.
-     */
-    inline bool strReplaceAll(std::string& string, const std::string& oldString, const std::string& newString) {
-        return internal::stringReplaceImpl(string, oldString, newString, string.find(oldString), std::true_type());
-    }
-
 #ifdef LZ_HAS_STRING_VIEW
     template<class... Strings>
     auto concatAsStringView(Strings&&... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
@@ -164,7 +107,7 @@ namespace lz {
      */
     template<class T>
     T sumTo(const T from, const T upToAndIncluding) {
-        static_assert(std::is_integral<T>::value, "To must be integral type");
+        static_assert(std::is_integral<T>::value, "T must be integral type");
 
         const T fromAbs = std::abs(from);
         const T toAbs = std::abs(upToAndIncluding);
@@ -180,7 +123,7 @@ namespace lz {
         if (upToAndIncluding < 0) {
             return error - sum;
         }
-        LZ_ASSERT(from < upToAndIncluding, "'from' cannot be smaller than 'upToAndIncluding' if both are positive");
+        LZ_ASSERT(from < upToAndIncluding, "`from` cannot be smaller than `upToAndIncluding` if both are positive");
         return sum - error;
     }
 
@@ -202,59 +145,7 @@ namespace lz {
      */
     template<class Strings, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Strings>>
     Join<Iterator> unlines(Strings&& strings) {
-        static_assert(std::is_same<std::string, internal::ValueType<Iterator>>::value
-#ifdef LZ_HAS_STRING_VIEW
-            || std::is_same<std::string_view, internal::ValueType<Iterator>>::value
-#endif // Lz has string view
-            , "the type of the container should be std::string or std::string_view");
         return lz::join(strings, "\n");
-    }
-
-    /**
-     * This function is defined when C++ version is lower than 17.
-     * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
-     * to sum all string sizes in a container, use:
-     * ```cpp
-     * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transAccumulate(s.begin(), s.end(), 0, [](size_t i, const std::string& rhs) {
-     *      return i + rhs.size();
-     * }); // totalSize = 11
-     * ```
-     * @param begin The beginning of the sequence
-     * @param end The ending of the sequence
-     * @param init The starting value.
-     * @param binaryPredicate Function that specifies what to add to `init`.
-     * @return The result of the transAccumulate operation.
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator, class Init, class BinaryPredicate>
-#ifdef LZ_HAS_CXX_17
-    [[deprecated("a similar method is defined in <algorithm>; use std::transform_reduce instead")]]
-#endif // end lz has cxx 17
-    Init transAccumulate(Iterator begin, Iterator end, Init init, BinaryPredicate binaryPredicate) {
-        for (; begin != end; ++begin) {
-            init = binaryPredicate(std::move(init), *begin);
-        }
-        return init;
-    }
-
-    /**
-     * This function is defined when C++ version is lower than 17.
-     * For every element in the sequence, perform the function `binaryOp(init, *iterator)` where init is the initial value. For example:
-     * to sum all string sizes in a container, use:
-     * ```cpp
-     * std::vector<std::string> s = {"hello", "world", "!"};
-     * size_t totalSize = lz::transAccumulate(s, 0, [](size_t i, const std::string& rhs) {
-     *      return i + rhs.size();
-     * }); // totalSize = 11
-     * ```
-     * @param it The container to iterate over.
-     * @param init The starting value.
-     * @param binaryPredicate Function that specifies what to add to `init`.
-     * @return The result of the transAccumulate operation.
-     */
-    template<LZ_CONCEPT_ITERABLE Iterable, class Init, class BinaryPredicate>
-    Init transAccumulate(const Iterable& it, Init init, BinaryPredicate binaryPredicate) {
-        return lz::transAccumulate(std::begin(it), std::end(it), std::move(init), std::move(binaryPredicate));
     }
 
     /**
@@ -264,11 +155,12 @@ namespace lz {
      * @return A Take view object contains the reverse order of [begin end)
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-    Take<std::reverse_iterator<Iterator>> reverse(Iterator begin, Iterator end) {
+	lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
+	reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
         static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // !Lz has concepts
-        return lz::takeRange(std::make_reverse_iterator(end), std::make_reverse_iterator(begin), std::distance(begin, end));
+        return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -276,9 +168,10 @@ namespace lz {
      * @return A Take view object contains the reverse order of [begin end)
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-    Take<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>> reverse(Iterable&& iterable) {
-        return lz::reverse(internal::begin(std::forward<Iterable>(iterable)),
-                           internal::end(std::forward<Iterable>(iterable))); // ADL std::reverse
+	lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
+	reverse(Iterable&& iterable) {
+		// ADL std::reverse
+        return lz::reverse(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
     }
 
     /**
@@ -325,8 +218,7 @@ namespace lz {
 #endif
     {
         Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
-        constexpr std::size_t size = sizeof...(Iterators);
-        auto tupleExpanderFunc = internal::makeExpandFn<ValueType>(std::move(fn), internal::MakeIndexSequence<size>());
+        auto tupleExpanderFunc = internal::makeExpandFn<ValueType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
         return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
     }
 
@@ -460,19 +352,11 @@ namespace lz {
         return lz::first(std::begin(iterable), std::end(iterable));
     }
 
-    /**
-     * Returns the last element. Asserts if the sequence is empty.
-     * @param begin The beginning of the sequence.
-     * @param end The end of the sequence.
-     * @return The last element of the sequence (by reference i.e. type of *iterator).
-     */
-    template<LZ_CONCEPT_ITERATOR Iterator>
-    internal::RefType<Iterator> last(Iterator begin, Iterator end) {
-        LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-        const internal::DiffType<Iterator> len = lz::length(begin, end);
-        std::advance(begin, len - 1);
-        return *begin;
-    }
+	template<LZ_CONCEPT_ITERATOR Iterator>
+	internal::RefType<Iterator> last(Iterator begin, Iterator end) {
+		LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
+		return *std::next(begin, std::distance(begin, end) - 1);
+	}
 
     /**
      * Returns the last element. Asserts if the sequence is empty.
@@ -565,7 +449,7 @@ namespace lz {
     double mean(Iterator begin, Iterator end, Execution exec = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         const internal::DiffType<Iterator> distance = std::distance(begin, end);
-        ValueType sum{};
+        ValueType sum;
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             sum = std::reduce(begin, end);
         }
@@ -635,7 +519,7 @@ namespace lz {
                                      std::make_tuple(std::move(end), std::move(endSelector)));
         return lz::filterMap(std::move(zipper),
                              [](const RefTuple& tuple) -> bool { return std::get<1>(tuple); },
-                             [](const RefTuple& tuple) -> decltype(std::get<0>(tuple)) { return std::get<0>(tuple); }, execution);
+                             [](const RefTuple& tuple) { return std::get<0>(tuple); }, execution);
     }
 
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
@@ -1126,8 +1010,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U>
     internal::ValueType<Iterator> firstOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue) {
-        using CastType = internal::ValueType<Iterator>;
-        return static_cast<CastType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
+        return static_cast<internal::ValueType<Iterator>>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
     }
 
     /**
@@ -1185,13 +1068,10 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class U>
     internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, T&& toFind, U&& defaultValue) {
-        using CastType = internal::ValueType<Iterator>;
-        using ReverseIterator = std::reverse_iterator<Iterator>;
-
-        ReverseIterator endReverse(end);
-        ReverseIterator beginReverse(begin);
-        const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+        auto endReverse = std::make_reverse_iterator(end);
+        auto beginReverse = std::make_reverse_iterator(begin);
+        const auto pos = std::find(endReverse, beginReverse, toFind);
+        return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
     }
 
     /**
@@ -1216,13 +1096,10 @@ namespace lz {
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate>
     internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, T&& defaultValue) {
-        using CastType = internal::ValueType<Iterator>;
-        using ReverseIterator = std::reverse_iterator<Iterator>;
-
-        ReverseIterator endReverse(end);
-        ReverseIterator beginReverse(begin);
-        const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
+    	auto endReverse = std::make_reverse_iterator(end);
+		auto beginReverse = std::make_reverse_iterator(begin);
+        const auto pos = std::find_if(endReverse, beginReverse, predicate);
+        return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
     }
 
     /**
@@ -1438,7 +1315,7 @@ namespace lz {
      * @return An iterator view object.
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+	lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
     trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
         auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
         auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last));
@@ -1454,7 +1331,7 @@ namespace lz {
      * @return An iterator view object.
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+	lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
     trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
         return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         std::move(first), std::move(last));

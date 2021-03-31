@@ -46,16 +46,6 @@ TEST_CASE("Function tools") {
         CHECK(lines == std::vector<std::string>{"aa", "bb", "bb"});
     }
 
-#if (!defined(LZ_HAS_CXX_17)) && (!defined(LZ_HAS_CXX_20))
-    SECTION("Transform accumulate") {
-        std::vector<std::string> s = {"hello", "world", "!"};
-        size_t totalSize = lz::transAccumulate(s, static_cast<std::size_t>(0), [](std::size_t i, const std::string& s) {
-            return i + s.size();
-        });
-        CHECK(totalSize == 11);
-    }
-#endif
-
     SECTION("Pairwise") {
         auto x = lz::pairwise(ints).toVector();
         CHECK(x == std::vector<std::tuple<int, int>>{std::make_tuple(1, 2), std::make_tuple(2, 3), std::make_tuple(3, 4)});
@@ -147,18 +137,6 @@ TEST_CASE("Function tools") {
         CHECK(dummy.toString(", ") == "1, 2, 3, 4, 5");
     }
 
-    SECTION("String replace") {
-        std::string myString = "picture.jpg";
-        lz::strReplace(myString, ".jpg", ".jpeg");
-        CHECK(myString == "picture.jpeg");
-        CHECK(myString.length() == std::strlen("picture.jpeg"));
-
-        myString = "picture.png.png";
-        lz::strReplaceAll(myString, ".png", ".jpeg");
-        CHECK(myString == "picture.jpeg.jpeg");
-        CHECK(myString.length() == std::strlen("picture.jpeg.jpeg"));
-    }
-
 	SECTION("Reverse") {
         std::string s = "hello";
         CHECK(lz::reverse(s).toString() == "olleh");
@@ -209,7 +187,7 @@ TEST_CASE("Function tools") {
         std::function<bool(int)> even = [](int i) { return i % 2 == 0; };
         auto selectors = lz::map(range, std::move(even));
         auto selected = lz::select(range, std::move(selectors));
-        CHECK(selected.toVector<int>() == std::vector<int>{0, 2, 4, 6, 8});
+        CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
     }
 
     SECTION("Zip with") {
