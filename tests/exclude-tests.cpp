@@ -1,3 +1,4 @@
+#include <list>
 #include "Lz/Exclude.hpp"
 #include <catch2/catch.hpp>
 #include <Lz/FunctionTools.hpp>

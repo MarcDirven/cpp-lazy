@@ -25,7 +25,7 @@ namespace lz { namespace internal {
 	public:
 		using value_type = BasicIteratorView<Iterator>;
 		using difference_type = typename IterTraits::difference_type;
-		using iterator_category = LowestIterType<std::forward_iterator_tag, typename IterTraits::iterator_category>;
+		using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename IterTraits::iterator_category>;
 		using reference = value_type;
 		using pointer = FakePointerProxy<reference>;
 

@@ -60,10 +60,10 @@ namespace lz {
     public:
 		using iterator = Iterator;
 		using const_iterator = iterator;
-		using difference_type = typename iterator::difference_type;
+		using difference_type = typename Traits::difference_type;
 
-		using value_type = typename iterator::value_type;
-		using reference = typename iterator::reference;
+		using value_type = typename Traits::value_type;
+		using reference = typename Traits::reference;
 
         IterView(Iterator begin, Iterator end):
             Base(std::move(begin), std::move(end))
