@@ -13,6 +13,7 @@ set(examples
         Concatenate
         Enumerate
         Except
+        Exclude
         Filter
         Flatten
         FunctionTools
