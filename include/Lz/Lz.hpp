@@ -7,6 +7,7 @@
 #include "Lz/ChunkIf.hpp"
 #include "Lz/Chunks.hpp"
 #include "Lz/Enumerate.hpp"
+#include "Lz/Exclude.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
@@ -82,6 +83,11 @@ namespace lz {
         template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
         IterView<internal::EnumerateIterator<Iterator, Arithmetic>> enumerate(const Arithmetic begin = 0) {
             return lz::toIter(lz::enumerate(std::move(*this), begin));
+        }
+
+        //! See Exclude.hpp for documentation.
+        IterView<internal::ExcludeIterator<Iterator>> exclude(const difference_type from, const difference_type to) {
+        	return lz::toIter(lz::exclude(std::move(*this), from, to));
         }
 
         //! See Join.hpp for documentation.
