@@ -112,6 +112,23 @@ This library is not a replacement for `ranges::v3` but rather a (smaller) altern
 compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Installation
+
+# Without CMake
+- Clone the repository
+- Specify the include directory to `cpp-lazy/include`.
+- Include files as follows:
+
+```cpp
+#define LZ_STANDALONE // Important! Define it before including <Lz/*> files.
+#include <Lz/Map.hpp>
+
+int main() {
+  std::array<int, 4> arr = {1, 2, 3, 4};
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+}
+```
+
+# CMake
 ## Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake
