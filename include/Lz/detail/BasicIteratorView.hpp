@@ -28,32 +28,33 @@ namespace lz { namespace internal {
 		template<class Iterator>
 		std::string toStringImplNoExecution(Iterator begin, Iterator end, const std::string& delimiter) {
 			using ValueType = ValueType<Iterator>;
-			std::string string;
+			if (begin == end) return "";
+
+			const DiffType<Iterator> last = std::distance(begin, end) - 1;
+			DiffType<Iterator> start = 0;
 #ifdef LZ_STANDALONE
 			std::ostringstream outputStringStream;
-			std::for_each(begin, end, [&delimiter, &outputStringStream](const ValueType& v) {
-				outputStringStream << v << delimiter;
+			std::for_each(begin, end, [&outputStringStream, &delimiter, &start, last](const ValueType& v) {
+				outputStringStream << v;
+				if (start != last) {
+					outputStringStream << delimiter;
+				}
+				++start;
 			});
-			string = outputStringStream.str();
+
+			return outputStringStream.str();
 #else // ^^^ LZ_STANDALONE vvv ! LZ_STANDALONE
-			const std::size_t totalSize =
-				std::accumulate(begin, end, static_cast<std::size_t>(0), [&delimiter](const std::size_t init, const ValueType& v) {
-					return init + fmt::formatted_size("{}{}", v, delimiter);
-				});
-
-			string.reserve(totalSize + 1u);
-
-			std::for_each(begin, end, [&string, &delimiter](const ValueType& v) {
-				fmt::format_to(std::back_inserter(string), "{}{}", v, delimiter);
+			std::string string;
+			std::for_each(begin, end, [&string, &delimiter, &start, last](const ValueType& v) {
+				fmt::format_to(std::back_inserter(string), "{}", v);
+				if (start != last) {
+					fmt::format_to(std::back_inserter(string), "{}", delimiter);
+				}
+				++start;
 			});
-
-#endif // LZ_STANDALONE
-			const std::size_t delimiterLength = delimiter.length();
-			if (!string.empty() && delimiterLength >= 1) {
-				string.erase(string.size() - delimiterLength);
-			}
 
 			return string;
+#endif // LZ_STANDALONE
 		}
 #else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
 
@@ -63,34 +64,31 @@ namespace lz { namespace internal {
 			std::string string;
 			constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
 
+			if (begin == end) return "";
+
+			DiffType<Iterator> start = 0;
+			const DiffType<Iterator> last = std::distance(begin, end) - 1;
 #ifdef LZ_STANDALONE
 			std::ostringstream stringStream;
 
-			auto formatFun = [&delimiter, &stringStream](const ValueType& v) {
+			auto formatFun = [&delimiter, &stringStream, &start, last](const ValueType& v) {
 				stringStream.str("");
-				stringStream << v << delimiter;
+				stringStream << v;
+				if (start != last) {
+					stringStream << delimiter;
+				}
+				++start;
 				return stringStream.str();
 			};
 #else // ^^^ LZ_STANDALONE vvv ! LZ_STANDALONE
-
-			std::size_t totalSize;
-			auto sizeCalcFun = [&delimiter](const std::size_t init, const ValueType& v) {
-				return init + fmt::formatted_size("{}{}", v, delimiter);
+			auto formatFun = [&delimiter, &start, last](const ValueType& v) {
+				std::string tmp = fmt::format("{}", v);
+				if (start != last) {
+					fmt::format_to(std::back_inserter(tmp), "{}", delimiter);
+				}
+				++start;
+				return tmp;
 			};
-
-
-			if constexpr (isSequencedPolicy) {
-				totalSize = std::accumulate(begin, end, static_cast<std::size_t>(0), sizeCalcFun);
-			}
-			else {
-				totalSize = std::reduce(exec, begin, end, static_cast<std::size_t>(0), sizeCalcFun);
-			}
-
-			string.reserve(totalSize + 1u);
-			auto formatFun = [&delimiter](const ValueType& v) {
-				return fmt::format("{}{}", v, delimiter);
-			};
-
 #endif // LZ_STANDALONE
 			if constexpr (isSequencedPolicy) {
 				static_cast<void>(exec);
@@ -99,11 +97,6 @@ namespace lz { namespace internal {
 			}
 			else {
 				string = std::transform_reduce(exec, begin, end, std::move(string), std::plus<>(), formatFun);
-			}
-
-			const std::size_t delimiterLength = delimiter.length();
-			if (!string.empty() && delimiterLength >= 1) {
-				string.erase(string.size() - delimiterLength);
 			}
 
 			return string;
@@ -498,4 +491,4 @@ namespace lz { namespace internal {
 		}
 	};
 }} // Namespace lz::internal
-#endif // end LZ_BASIC_ITERATOR_VIEW_HPP
+#endif // en

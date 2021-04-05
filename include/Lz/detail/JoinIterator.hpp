@@ -21,10 +21,7 @@ namespace lz { namespace internal {
 		outputStringStream << value;
 		return outputStringStream.str();
 #else
-		std::string result;
-		result.reserve(fmt::formatted_size("{}", value));
-		fmt::format_to(std::back_inserter(result), "{}", value);
-		return result;
+		return fmt::format("{}", value);
 #endif
 	}
 
