@@ -3,21 +3,32 @@
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library almost doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view object has many `std::execution::*` overloads. This library uses one dependency library `fmt`, which is automatically configured by CMake.
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Excample:
+
+```cpp
+#define LZ_STANDALONE
+#include <Lz/Map.hpp>
+
+int main() {
+  std::array<int, 4> arr = {1, 2, 3, 4};
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+}
+```
 
 # Features
 - C++11/14/17/20; C++20 concept support; C++17 `execution` support (`std::execution::par`/`std::execution::seq` etc...)
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
-- Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `7.0.0` (previous 
-versions have not been checked, so I'd say at least a compiler with C++11 support)
+- Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `5.0.0` (previous 
+versions have not been checked, so I'd say at least a compiler with C++11 support).
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W3` for MSVC
-- One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured
+- One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured, or none if you use `#define LZ_STANDALONE` before including.
 - STL compatible
 - Little overhead
 - Supported compiler versions:
-  - &gt;= GCC 5 (GCC 4.8 is still WIP, it does compile but no tests in .workflow are executed yet)
+  - &gt;= GCC 4.8
   - &gt;= clang 5
-  - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0, previous version have not been tested but C++11 is a minimum
+  - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
+  - Previous version have not been tested but C++11 is a minimum requirement
 - Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
 - Clear [Examples](https://github.com/MarcDirven/cpp-lazy/wiki/Examples)
 - Readable using chaining dot (`.map([]{}()).filter([]{}()).enumerate()./* ... */`) notation
@@ -98,11 +109,26 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 
 ## What about `ranges::v3`?
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
-compile time of this library is faster. Some may argue about which library is more readable. `ranges::v3` does not
-support an easy printing (e.g. using `fmt`/`std` `print` and `format`, `toString()` and `operator<<` for output streams). 
-However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
+compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Installation
+
+# Without CMake
+- Clone the repository
+- Specify the include directory to `cpp-lazy/include`.
+- Include files as follows:
+
+```cpp
+#define LZ_STANDALONE // Important! Define it before including <Lz/*> files.
+#include <Lz/Map.hpp>
+
+int main() {
+  std::array<int, 4> arr = {1, 2, 3, 4};
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+}
+```
+
+# CMake
 ## Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake

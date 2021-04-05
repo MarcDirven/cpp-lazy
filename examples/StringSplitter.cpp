@@ -16,7 +16,7 @@ int main() {
     std::cout << splitter << '\n';
     // Output: Hello world
     // 
-    // If C++ 17 or higher, use for (std::string_view s : lz::split) else use for (std::string& substring : lz::split)
+    // If C++ 17 or higher, use for (std::string_view s : lz::split) else use for (fmt::string_view substring : lz::split)
     for (fmt::string_view substring : splitter) {
         std::cout << substring << '\n';
     }
