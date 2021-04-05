@@ -45,6 +45,7 @@ add_executable(LazyTests
         random-tests.cpp
         range-tests.cpp
         repeat-tests.cpp
+        standalone.cpp
         string-splitter-tests.cpp
         take-every-tests.cpp
         take-tests.cpp

@@ -5,9 +5,29 @@
 
 #include "LzTools.hpp"
 
-#include "fmt/ostream.h"
+
+#ifdef LZ_STANDALONE
+  #include <sstream>
+#else
+  #include <fmt/ostream.h>
+#endif
+
 
 namespace lz { namespace internal {
+	template<class TValueType>
+	std::string toStringJoinImpl(const TValueType& value) {
+#ifdef LZ_STANDALONE
+		std::ostringstream outputStringStream;
+		outputStringStream << value;
+		return outputStringStream.str();
+#else
+		std::string result;
+		result.reserve(fmt::formatted_size("{}", value));
+		fmt::format_to(std::back_inserter(result), "{}", value);
+		return result;
+#endif
+	}
+
     template<LZ_CONCEPT_ITERATOR Iterator>
     class JoinIterator {
         using IterTraits = std::iterator_traits<Iterator>;
@@ -30,10 +50,7 @@ namespace lz { namespace internal {
 
         reference deref(std::false_type /* isSameContainerTypeString */) const {
             if (_isIteratorTurn) {
-            	std::string result;
-            	result.reserve(fmt::formatted_size("{}", *_iterator));
-            	fmt::format_to(std::back_inserter(result), "{}", *_iterator);
-                return result;
+            	return toStringJoinImpl(*_iterator);
             }
             return _delimiter;
         }
