@@ -541,7 +541,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast,
         class Execution = std::execution::sequenced_policy>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+    internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
     trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
         auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first), execution);
         auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last), execution);
@@ -559,7 +559,7 @@ namespace lz {
      */
     template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast,
         class Execution = std::execution::sequenced_policy>
-    lz::Take<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+	internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
     trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
         return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         std::move(first), std::move(last), execution);
