@@ -11,17 +11,106 @@
 #include <algorithm>
 #include <numeric>
 
-#include "fmt/ostream.h"
+
+#ifdef LZ_STANDALONE
+  #include <sstream>
+#else
+  #include "fmt/ostream.h"
+#endif
+
 #include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
 	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
 	namespace {
-		template <typename Container>
+#ifndef LZ_HAS_EXECUTION
+		template<class Iterator>
+		std::string toStringImplNoExecution(Iterator begin, Iterator end, const std::string& delimiter) {
+			using ValueType = ValueType<Iterator>;
+			if (begin == end) return "";
+
+			const DiffType<Iterator> last = std::distance(begin, end) - 1;
+			DiffType<Iterator> start = 0;
+#ifdef LZ_STANDALONE
+			std::ostringstream outputStringStream;
+			std::for_each(begin, end, [&outputStringStream, &delimiter, &start, last](const ValueType& v) {
+				outputStringStream << v;
+				if (start != last) {
+					outputStringStream << delimiter;
+				}
+				++start;
+			});
+
+			return outputStringStream.str();
+#else // ^^^ LZ_STANDALONE vvv ! LZ_STANDALONE
+			std::string string;
+			std::for_each(begin, end, [&string, &delimiter, &start, last](const ValueType& v) {
+				fmt::format_to(std::back_inserter(string), "{}", v);
+				if (start != last) {
+					fmt::format_to(std::back_inserter(string), "{}", delimiter);
+				}
+				++start;
+			});
+
+			return string;
+#endif // LZ_STANDALONE
+		}
+#else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
+
+		template<class Iterator, class Execution>
+		std::string toStringImplExecution(Iterator begin, Iterator end, const std::string& delimiter, Execution exec) {
+			using ValueType = internal::ValueType<Iterator>;
+			std::string string;
+			constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, Iterator>();
+
+			if (begin == end) return "";
+
+			DiffType<Iterator> start = 0;
+			const DiffType<Iterator> last = std::distance(begin, end) - 1;
+#ifdef LZ_STANDALONE
+			std::ostringstream stringStream;
+
+			auto formatFun = [&delimiter, &stringStream, &start, last](const ValueType& v) {
+				stringStream.str("");
+				stringStream << v;
+				if (start != last) {
+					stringStream << delimiter;
+				}
+				++start;
+				return stringStream.str();
+			};
+#else // ^^^ LZ_STANDALONE vvv ! LZ_STANDALONE
+			auto formatFun = [&delimiter, &start, last](const ValueType& v) {
+				std::string tmp = fmt::format("{}", v);
+				if (start != last) {
+					fmt::format_to(std::back_inserter(tmp), "{}", delimiter);
+				}
+				++start;
+				return tmp;
+			};
+#endif // LZ_STANDALONE
+			if constexpr (isSequencedPolicy) {
+				static_cast<void>(exec);
+				// Prevent static assertion and/or weird errors when parallel policy is passed
+				string = std::transform_reduce(begin, end, std::move(string), std::plus<>(), formatFun);
+			}
+			else {
+				string = std::transform_reduce(exec, begin, end, std::move(string), std::plus<>(), formatFun);
+			}
+
+			return string;
+		}
+
+#endif // LZ_HAS_EXECUTION
+
+
+		template<class Container>
 		class HasResize {
 			typedef char One;
-			struct Two { char x[2]; };
+			struct Two {
+				char x[2];
+			};
 
 			template<typename C>
 			static One test(decltype(void(std::declval<C&>().resize(0)))*) { return {}; }
@@ -30,13 +119,18 @@ namespace lz { namespace internal {
 			static Two test(...) { return {}; }
 
 		public:
-			enum { value = sizeof(test<Container>(nullptr)) == sizeof(One) };
+			enum {
+				value = sizeof(test<Container>(nullptr)) == sizeof(One)
+			};
 		};
 
-		template <typename Container>
+
+		template<typename Container>
 		class HasReserve {
 			typedef char One;
-			struct Two { char x[2]; };
+			struct Two {
+				char x[2];
+			};
 
 			template<typename C>
 			static One test(decltype(void(std::declval<C&>().reserve(0)))*) { return {}; }
@@ -45,7 +139,9 @@ namespace lz { namespace internal {
 			static Two test(...) { return {}; }
 
 		public:
-			enum { value = sizeof(test<Container>(nullptr)) == sizeof(One) };
+			enum {
+				value = sizeof(test<Container>(nullptr)) == sizeof(One)
+			};
 		};
 	}
 
@@ -72,14 +168,14 @@ namespace lz { namespace internal {
 		}
 
 		template<class Container>
-		EnableIf<HasReserve<Container>::value> reserve(Container& container) const {
+		EnableIf <HasReserve<Container>::value> reserve(Container& container) const {
 			container.reserve(std::distance(begin(), end()));
 		}
 
 		template<class Container>
 		EnableIf<!HasReserve<Container>::value> reserve(Container&) const {}
 
-#ifdef LZ_HAS_EXECUTION
+  #ifdef LZ_HAS_EXECUTION
 
 		template<class Container, class... Args, class Execution>
 		Container copyContainer(Execution execution, Args&& ... args) const {
@@ -121,7 +217,7 @@ namespace lz { namespace internal {
 			return array;
 		}
 
-#else // ^^^ has execution vvv ! has execution
+  #else // ^^^ has execution vvv ! has execution
 
 		template<class Container, class... Args>
 		Container copyContainer(Args&& ... args) const {
@@ -140,7 +236,7 @@ namespace lz { namespace internal {
 			return array;
 		}
 
-#endif // end has execution
+  #endif // end has execution
 
 		template<class KeySelectorFunc>
 		using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
@@ -157,7 +253,7 @@ namespace lz { namespace internal {
 			return _end;
 		}
 
-#ifdef LZ_HAS_REF_QUALIFIER
+  #ifdef LZ_HAS_REF_QUALIFIER
 		virtual LzIterator begin() && {
 			return std::move(_begin);
 		}
@@ -165,7 +261,7 @@ namespace lz { namespace internal {
 		virtual LzIterator end() && {
 			return std::move(_end);
 		}
-#endif // end lz has ref qualifier
+  #endif // end lz has ref qualifier
 
 		BasicIteratorView() = default;
 
@@ -175,7 +271,7 @@ namespace lz { namespace internal {
 
 		virtual ~BasicIteratorView() = default;
 
-#ifdef LZ_HAS_EXECUTION
+  #ifdef LZ_HAS_EXECUTION
 
 		/**
 		 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -243,43 +339,10 @@ namespace lz { namespace internal {
 		 */
 		template<class Execution = std::execution::sequenced_policy>
 		std::string toString(const std::string& delimiter = "", Execution exec = std::execution::seq) const {
-			std::size_t totalSize;
-			auto sizeCalcFun = [&delimiter](const std::size_t init, const value_type& v) {
-				return init + fmt::formatted_size("{}{}", v, delimiter);
-			};
-			constexpr bool isSequencedPolicy = internal::checkForwardAndPolicies<Execution, LzIterator>();
-
-			if constexpr (isSequencedPolicy) {
-				totalSize = std::accumulate(begin(), end(), static_cast<std::size_t>(0), sizeCalcFun);
-			}
-			else {
-				totalSize = std::reduce(exec, begin(), end(), static_cast<std::size_t>(0), sizeCalcFun);
-			}
-
-			std::string string;
-			string.reserve(totalSize + 1u);
-			auto formatFun = [&delimiter](const value_type& v) {
-				return fmt::format("{}{}", v, delimiter);
-			};
-
-			if constexpr (isSequencedPolicy) {
-				static_cast<void>(exec);
-				// Prevent static assertion and/or weird errors when parallel policy is passed
-				string = std::transform_reduce(begin(), end(), std::move(string), std::plus<>(), formatFun);
-			}
-			else {
-				string = std::transform_reduce(exec, begin(), end(), std::move(string), std::plus<>(), formatFun);
-			}
-
-			const std::size_t delimiterLength = delimiter.length();
-			if (!string.empty() && delimiterLength >= 1) {
-				string.erase(string.size() - delimiterLength);
-			}
-
-			return string;
+			return toStringImplExecution(begin(), end(), delimiter, exec);
 		}
 
-#else
+  #else
 
 		/**
 		 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -340,27 +403,10 @@ namespace lz { namespace internal {
 		 * @return The converted iterator in string format.
 		 */
 		std::string toString(const std::string& delimiter = "") const {
-			const std::size_t totalSize =
-				std::accumulate(begin(), end(), static_cast<std::size_t>(0), [&delimiter](const std::size_t init, const value_type& v) {
-					return init + fmt::formatted_size("{}{}", v, delimiter);
-				});
-
-			std::string string;
-			string.reserve(totalSize + 1u);
-
-			for (const value_type& v : *this) {
-				fmt::format_to(std::back_inserter(string), "{}{}", v, delimiter);
-			}
-
-			const std::size_t delimiterLength = delimiter.length();
-			if (!string.empty() && delimiterLength >= 1) {
-				string.erase(string.size() - delimiterLength);
-			}
-
-			return string;
+			return toStringImplNoExecution(begin(), end(), delimiter);
 		}
 
-#endif
+  #endif
 
 		/**
 		 * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
@@ -445,4 +491,4 @@ namespace lz { namespace internal {
 		}
 	};
 }} // Namespace lz::internal
-#endif // end LZ_BASIC_ITERATOR_VIEW_HPP
+#endif // en
