@@ -113,7 +113,7 @@ compile time of this library is faster. Some may argue about which library is mo
 
 # Installation
 
-# Without CMake, without `fmt`
+## Without CMake, without `fmt`
 - Clone the repository
 - Specify the include directory to `cpp-lazy/include`.
 - Include files as follows:
@@ -128,7 +128,7 @@ int main() {
 }
 ```
 
-# Without CMake, with `fmt`
+## Without CMake, with `fmt`
 - Clone the repository
 - Specify the include directory to `cpp-lazy/include` and `fmt` include.
 - Include files as follows:
