@@ -173,7 +173,7 @@ namespace lz {
 	 * to be sorted in descending order. Note that the type returned by `keySelector` must contain a `operator<` and `operator==`.
 	 * @return A GroupBy iterator view object.
 	 */
-	template<class Iterable, class KeySelector, class SortFunc = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
+	template<class Iterable, class KeySelector, class SortFunc = std::less<internal::ValueTypeIterable<Iterable>>>
 	GroupBy<internal::IterTypeFromIterable<Iterable>, KeySelector>
 	groupByDescending(Iterable&& iterable, KeySelector keySelector) {
 		return groupByDescendingRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
