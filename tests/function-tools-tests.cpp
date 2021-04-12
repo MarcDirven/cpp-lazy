@@ -218,8 +218,8 @@ TEST_CASE("Function tools") {
 
     SECTION("Trimming") {
         std::string toTrim = "\n\n  Hello world    \t\t";
-        using IsSpace = int(*)(int);
-        auto trimming = lz::trim(toTrim, static_cast<IsSpace>(&std::isspace), static_cast<IsSpace>(&std::isspace));
+        auto spaceFn = [](char c) { return std::isspace(c); };
+        auto trimming = lz::trim(toTrim, spaceFn, spaceFn);
         CHECK(trimming.toString() == "Hello world");
     }
 }

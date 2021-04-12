@@ -82,8 +82,7 @@ TEST_CASE("Iterator chaining") {
 	}
 
 	std::string toTrim = "\t  a b c \t";
-	using IsSpace = int(*)(int);
-	auto spaceFn = static_cast<IsSpace>(&std::isspace);
+	auto spaceFn = [](char c) { return std::isspace(c); };
 	CHECK(lz::toIter(toTrim)
 		.trim(spaceFn, spaceFn)
 		.toString() == "a b c");
