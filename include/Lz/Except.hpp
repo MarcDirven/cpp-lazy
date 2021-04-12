@@ -138,14 +138,14 @@ namespace lz {
      * @return An Except view object.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept,
-    	class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
+    	class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
     Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Compare>
     except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = Compare()) {
         return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            internal::begin(std::forward<IterableToExcept>(toExcept)),
                            internal::end(std::forward<IterableToExcept>(toExcept)), std::move(compare));
     }
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
 
     // End of group
     /**

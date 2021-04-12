@@ -14,7 +14,7 @@ namespace lz { namespace internal {
     template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 #else // ^^^ lz has execution vvv ! lz has execution
     template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
     class UniqueIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
@@ -36,14 +36,14 @@ namespace lz { namespace internal {
         UniqueIterator(Iterator begin, Iterator end, Compare compare, Execution execution)
 #else // ^^^ lz has execution vvv ! lz has execution
         UniqueIterator(Iterator begin, Iterator end, Compare compare)
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
         :
             _iterator(std::move(begin)),
             _end(std::move(end)),
             _compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
         {
             if (_iterator == _end) {
                 return;
@@ -59,7 +59,7 @@ namespace lz { namespace internal {
                 return;
             }
             std::sort(_iterator, _end, _compare);
-#endif
+#endif // LZ_HAS_EXECUTION
         }
 
         UniqueIterator() = default;
@@ -82,7 +82,7 @@ namespace lz { namespace internal {
             }
 #else // ^^^ lz has execution vvv ! lz has execution
             _iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
 
             if (_iterator != _end) {
                 ++_iterator;

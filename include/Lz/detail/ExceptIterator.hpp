@@ -14,7 +14,7 @@ namespace lz { namespace internal {
     template<class Execution, LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #else // ^^^ has execution vvv ! has execution
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
     class ExceptIterator {
         using IterTraits = std::iterator_traits<Iterator>;
 
@@ -34,7 +34,7 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
         Execution _execution{};
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
 
         void find() {
 #ifdef LZ_HAS_EXECUTION
@@ -52,7 +52,7 @@ namespace lz { namespace internal {
             _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
                 return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
             });
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
         }
 
     public:
@@ -63,7 +63,7 @@ namespace lz { namespace internal {
                        Execution execution) :
 #else // ^^^ has execution vvv ! has execution
         ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
             _iterator(std::move(begin)),
             _end(std::move(end)),
             _toExceptBegin(std::move(toExceptBegin)),
@@ -71,7 +71,7 @@ namespace lz { namespace internal {
             _compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
         {
             if (_toExceptBegin == _toExceptEnd) {
 				return;
@@ -91,7 +91,7 @@ namespace lz { namespace internal {
                 if (!std::is_sorted(_toExceptBegin, _toExceptEnd, _compare)) {
                     std::sort(_toExceptBegin, _toExceptEnd, _compare);
                 }
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
 			find();
         }
 

@@ -8,7 +8,7 @@
 
 namespace lz {
 	template<class Iterator>
-	class Exclude : public internal::BasicIteratorView<internal::ExcludeIterator<Iterator>> {
+	class Exclude final : public internal::BasicIteratorView<internal::ExcludeIterator<Iterator>> {
 	public:
 		using iterator = internal::ExcludeIterator<Iterator>;
 		using const_iterator = iterator;

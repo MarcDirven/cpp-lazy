@@ -490,5 +490,64 @@ namespace lz { namespace internal {
 			return o << it.toString(" ");
 		}
 	};
-}} // Namespace lz::internal
+} // namespace internal
+#ifndef LZ_HAS_EXECUTION
+	/**
+	 * Use this function to check if two lz iterators are the same.
+	 * @param a An iterable, its underlying value type should have an operator== with `b`
+	 * @param b An iterable, its underlying value type should have an operator== with `a`
+	 * @return true if both are equal, false otherwise.
+	 */
+	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<internal::ValueTypeIterable<IterableA>>>
+	bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate()) {
+		return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
+	}
+
+	/**
+	 * Use this function to check if two lz iterators are the same.
+	 * @param a An iterable, its underlying value type should have an operator== with `b`
+	 * @param b An iterable, its underlying value type should have an operator== with `a`
+	 * @return true if both are equal, false otherwise.
+	 */
+	template<class IterableA, class IterableB, class BinaryPredicate = std::not_equal_to<internal::ValueTypeIterable<IterableA>>>
+	bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate()) {
+		return !lz::equal(a, b, std::move(predicate));
+	}
+
+#else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
+
+	/**
+	 * Use this function to check if two lz iterators are the same.
+	 * @param a An iterable, its underlying value type should have an operator== with `b`
+	 * @param b An iterable, its underlying value type should have an operator== with `a`
+	 * @return true if both are equal, false otherwise.
+	 */
+	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+	bool equals(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate(), Execution exec = Execution()) {
+		if constexpr (internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableA>>() &&
+					  internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableB>>()) {
+			static_cast<void>(exec);
+			return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
+		}
+		else {
+			return std::equal(exec, std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
+		}
+	}
+
+	/**
+	 * Use this function to check if two lz iterators are the same.
+	 * @param a An iterable, its underlying value type should have an operator== with `b`
+	 * @param b An iterable, its underlying value type should have an operator== with `a`
+	 * @return true if both are equal, false otherwise.
+	 */
+	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+	bool notEquals(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate(), Execution exec = Execution()) {
+		return !lz::equals(a, b, std::move(predicate), exec);
+	}
+#endif
+
+
+} // Namespace lz
+
+
 #endif // en
