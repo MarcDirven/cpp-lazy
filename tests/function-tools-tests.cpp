@@ -180,6 +180,8 @@ TEST_CASE("Function tools") {
         std::string s = "hello";
         CHECK(lz::contains(s, 'h'));
         CHECK(!lz::contains(s, 'x'));
+
+        CHECK(lz::containsIf(s, [](char c) { return c == 'h';}));
     }
 
     SECTION("select") {
@@ -188,6 +190,16 @@ TEST_CASE("Function tools") {
         auto selectors = lz::map(range, std::move(even));
         auto selected = lz::select(range, std::move(selectors));
         CHECK(selected.toVector() == std::vector<int>{0, 2, 4, 6, 8});
+    }
+
+    SECTION("Median") {
+    	std::array<int, 5> arr = {5, 2, 3, 1, 7};
+    	CHECK(lz::median(arr) == 3);
+    	CHECK(lz::median(arr, std::less<int>())); // NOLINT
+
+    	std::array<int, 4> arr2 = {3, 5, 1, 9};
+    	CHECK(lz::median(arr2) == (3 + 5) / 2.);
+		CHECK(lz::median(arr2, std::less<int>()) == (3 + 5) / 2.); // NOLINT
     }
 
     SECTION("Zip with") {
