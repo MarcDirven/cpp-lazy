@@ -11,7 +11,7 @@ Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two 
 
 int main() {
   std::array<int, 4> arr = {1, 2, 3, 4};
-  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "2 3 4 5"
 }
 ```
 
