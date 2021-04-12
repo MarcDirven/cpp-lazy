@@ -182,55 +182,6 @@ namespace lz { namespace internal {
 		return array + N;
 	}
 
-	template<class Iterable>
-	using IterTypeFromIterable = decltype(internal::begin(std::forward<Iterable>(std::declval<Iterable>())));
-
-	template<class Iterator>
-	using ValueType = typename std::iterator_traits<Iterator>::value_type;
-
-	template<class Iterator>
-	using PointerType = typename std::iterator_traits<Iterator>::pointer;
-
-	template<class Iterator>
-	using RefType = typename std::iterator_traits<Iterator>::reference;
-
-	template<class Iterator>
-	using DiffType = typename std::iterator_traits<Iterator>::difference_type;
-
-	template<class Iterator>
-	using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
-
-	template<class Function, class... Args>
-	using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
-
-#ifdef LZ_HAS_EXECUTION
-	template<class T>
-	struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
-	};
-
-	template<class T>
-	struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
-	};
-
-	template<class T>
-	constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
-
-	template<class T>
-	constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
-
-	template<class Execution, class Iterator>
-	constexpr bool checkForwardAndPolicies() {
-		static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
-		constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
-		if constexpr (!isSequenced) {
-			static_assert(internal::IsForwardOrStrongerV<Iterator>,
-						  "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
-		}
-		return isSequenced;
-	}
-
-#endif // LZ_HAS_EXECUTION
-
 #ifdef LZ_HAS_CXX_11
 	template<bool B, class U = void>
 	using EnableIf = typename std::enable_if<B, U>::type;
@@ -275,8 +226,59 @@ namespace lz { namespace internal {
 
 	template<bool B, class IfTrue, class IfFalse>
 	using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
-#endif // end cxx > 11
+#endif // LZ_HAS_CXX_11
 
+	template<class Iterable>
+	using IterTypeFromIterable = decltype(internal::begin(std::forward<Iterable>(std::declval<Iterable>())));
+
+	template<class Iterator>
+	using ValueType = typename std::iterator_traits<Iterator>::value_type;
+
+	template<class Iterator>
+	using PointerType = typename std::iterator_traits<Iterator>::pointer;
+
+	template<class Iterator>
+	using RefType = typename std::iterator_traits<Iterator>::reference;
+
+	template<class Iterator>
+	using DiffType = typename std::iterator_traits<Iterator>::difference_type;
+
+	template<class Iterator>
+	using IterCat = typename std::iterator_traits<Iterator>::iterator_category;
+
+	template<class Function, class... Args>
+	using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+
+	template<class Iterable>
+	using ValueTypeIterable = typename Decay<Iterable>::value_type;
+
+#ifdef LZ_HAS_EXECUTION
+	template<class T>
+	struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
+	};
+
+	template<class T>
+	struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
+	};
+
+	template<class T>
+	constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
+
+	template<class T>
+	constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
+
+	template<class Execution, class Iterator>
+	constexpr bool checkForwardAndPolicies() {
+		static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
+		constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
+		if constexpr (!isSequenced) {
+			static_assert(internal::IsForwardOrStrongerV<Iterator>,
+						  "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+		}
+		return isSequenced;
+	}
+
+#endif // LZ_HAS_EXECUTION
 
 	template<class T>
 	class FakePointerProxy {
