@@ -142,7 +142,7 @@ namespace lz {
         //! See FunctionTools.hpp `zipWith` for documentation
         template<class Fn, class... Iterables>
         auto zipWith(Fn fn, Iterables&&... iterables) const ->
-        IterView<decltype(lz::zipWith(std::move(fn), std::move(*this), std::forward<Iterables>(iterables)...))> {
+        IterView<decltype(std::begin(lz::zipWith(std::move(fn), std::move(*this), std::forward<Iterables>(iterables)...)))> {
             return lz::toIter(lz::zipWith(std::move(fn), std::move(*this), std::forward<Iterables>(iterables)...));
         }
 
@@ -178,7 +178,7 @@ namespace lz {
 
         //! See Flatten.hpp for documentation
         template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-		IterView<typename internal::FlattenIterator<Iterator, N>::iterator> flatten() {
+		IterView<internal::FlattenIterator<Iterator, N>> flatten() {
 			return lz::toIter(lz::flatten(std::move(*this)));
 		}
 
@@ -243,14 +243,14 @@ namespace lz {
 
         //! See Except.hpp for documentation.
         template<class IterableToExcept, class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
+        IterView<internal::ExceptIterator<Execution, Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
         except(IterableToExcept&& toExcept, Compare compare = Compare(), Execution exec = std::execution::seq) {
             return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare), exec));
         }
 
         //! See Unique.hpp for documentation.
         template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
-        IterView<internal::UniqueIterator<Iterator, Execution, Compare>>
+        IterView<internal::UniqueIterator<Execution, Iterator, Compare>>
         unique(Compare compare = Compare(), Execution exec = std::execution::seq) {
             return lz::toIter(lz::unique(std::move(*this), std::move(compare), exec));
         }
@@ -264,8 +264,8 @@ namespace lz {
 
         //! See FunctionTools.hpp `filterMap` for documentation.
         template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
-        IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
-        filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc, Execution exec = std::execution::seq) {
+        IterView<internal::MapIterator<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>>
+        filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution exec = std::execution::seq) {
             return lz::toIter(lz::filterMap(std::move(*this), std::move(filterFunc), std::move(mapFunc), exec));
         }
 
@@ -282,9 +282,9 @@ namespace lz {
         }
 
         //! See JoinWhere.hpp for documentation
-        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
+        template<class IterableB, class SelectorA, class SelectorB, class ResultSelector,
             class Execution = std::execution::sequenced_policy>
-        IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+        IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
             SelectorA, SelectorB, ResultSelector, Execution>>
         joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
                   Execution execution = std::execution::seq) {
@@ -294,32 +294,32 @@ namespace lz {
 		//! See GroupBy.hpp for documentation
 		template<class KeySelector, class Execution = std::execution::sequenced_policy>
 		IterView<internal::GroupByIterator<Iterator, KeySelector, Execution>>
-		groupBy(KeySelector selector, Execution execution = std::execution::seq, const bool sort = true) {
-			return lz::toIter(lz::groupBy(std::move(*this), std::move(selector), execution, sort));
+		groupBy(KeySelector selector, Execution execution = std::execution::seq) {
+			return lz::toIter(lz::groupBy(std::move(*this), std::move(selector), execution));
 		}
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
-        value_type firstOrDefault(T&& toFind, U&& defaultValue, Execution exec = std::execution::seq) const {
+        value_type firstOrDefault(const T& toFind, const U& defaultValue, Execution exec = std::execution::seq) const {
             return lz::firstOrDefault(*this, toFind, defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `firstOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
-        value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, Execution exec = std::execution::seq) const {
-            return lz::firstOrDefault(*this, std::move(predicate), defaultValue, exec);
+        value_type firstOrDefaultIf(UnaryPredicate predicate, const U& defaultValue, Execution exec = std::execution::seq) const {
+            return lz::firstOrDefaultIf(*this, std::move(predicate), defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `lastOrDefault` for documentation.
         template<class T, class U, class Execution = std::execution::sequenced_policy>
-        value_type lastOrDefault(T&& toFind, U&& defaultValue, Execution exec = std::execution::seq) const {
+        value_type lastOrDefault(const T& toFind, const U& defaultValue, Execution exec = std::execution::seq) const {
             return lz::lastOrDefault(*this, toFind, defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `lastOrDefaultIf` for documentation.
         template<class UnaryPredicate, class U, class Execution = std::execution::sequenced_policy>
         value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue, Execution exec = std::execution::seq) const {
-            return lz::lastOrDefault(*this, std::move(predicate), defaultValue, exec);
+            return lz::lastOrDefaultIf(*this, std::move(predicate), defaultValue, exec);
         }
 
         //! See FunctionTools.hpp `indexOf` for documentation.
@@ -330,7 +330,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `indexOfIf` for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        difference_type indexOf(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
+        difference_type indexOfIf(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             return lz::indexOfIf(*this, std::move(predicate), exec);
         }
 
@@ -382,21 +382,19 @@ namespace lz {
          */
         template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
         T foldr(T&& init, BinaryFunction function, Execution exec = std::execution::seq) const {
-            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
+            auto reverseView = lz::reverse(*this);
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init),
-                                   std::move(function));
+                return std::reduce(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
             }
             else {
-                return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init),
-                                   std::move(function));
+                return std::reduce(exec, reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
             }
         }
 
         /**
          * Sums the sequence generated so far.
-         * @param exec The exectuion policy.
+         * @param exec The execution policy.
          */
         template<class Execution = std::execution::sequenced_policy>
         value_type sum(Execution exec = std::execution::seq) const {
@@ -410,13 +408,14 @@ namespace lz {
          * @return The min element.
          */
         template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
-        value_type max(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
+        reference max(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
+        	LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::max_element(exec, Base::begin(), Base::end(), std::move(cmp));
+                return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
             }
             else {
-                return std::max_element(Base::begin(), Base::end(), std::move(cmp));
+                return *std::max_element(exec, Base::begin(), Base::end(), std::move(cmp));
             }
         }
 
@@ -427,13 +426,14 @@ namespace lz {
          * @return The min element.
          */
         template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
-        value_type min(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
+		reference min(Compare cmp = std::less<>(), Execution exec = std::execution::seq) const {
+			LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
             if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
                 static_cast<void>(exec);
-                return std::min_element(exec, Base::begin(), Base::end(), std::move(cmp));
+                return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
             }
             else {
-                return std::min_element(Base::begin(), Base::end(), std::move(cmp));
+                return *std::min_element(exec, Base::begin(), Base::end(), std::move(cmp));
             }
         }
 
@@ -512,48 +512,20 @@ namespace lz {
         }
 
         /**
-         * Sorts the sequence given by a predicate.
-         * @param predicate A callable object that takes two values types as its parameter and returns a bool.
-         * @param execution The execution policy.
-         * @return A reference to this.
-         */
-        template<class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-        IterView<Iterator>& sortBy(BinaryPredicate predicate, Execution execution = std::execution::seq) {
-            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-                std::sort(Base::begin(), Base::end(), predicate);
-            }
-            else {
-                std::sort(execution, Base::begin(), Base::end(), predicate);
-            }
-            return *this;
-        }
-
-        /**
          * Sorts the sequence with the default (operator<) comparer.
          * @param execution The execution policy.
          * @return A reference to this.
          */
-        template<class Execution = std::execution::sequenced_policy>
-        IterView<Iterator>& sort(Execution execution = std::execution::seq) {
-            return this->sortBy(std::less<>(), execution);
-        }
-
-        /**
-         * Checks whether the sequence is sorted, given by a predicate. The predicate must take the underlying type of the iterator as its
-         * argument and return a bool.
-         * @param predicate The predicate -- which specifies how to sort -- that takes the type of the underlying iterator and returns a
-         * bool.
-         * @param exec The execution policy.
-         * @return True if the sequence is sorted given by the `predicate` false otherwise.
-         */
-        template<class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-        bool isSortedBy(BinaryPredicate predicate, Execution exec = std::execution::seq) const {
-            if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-                return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
-            }
-            else {
-                return std::is_sorted(exec, Base::begin(), Base::end(), std::move(predicate));
-            }
+        template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
+        IterView<Iterator>& sort(BinaryPredicate predicate = BinaryPredicate(), Execution execution = std::execution::seq) {
+        	if constexpr (internal::checkForwardAndPolicies<Execution, IterView>()) {
+        		static_cast<void>(execution);
+        		std::sort(Base::begin(), Base::end(), std::move(predicate));
+        	}
+        	else {
+				std::sort(execution, Base::begin(), Base::end(), std::move(predicate));
+        	}
+        	return *this;
         }
 
         /**
@@ -561,9 +533,14 @@ namespace lz {
          * @param exec The execution policy.
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
-        template<class Execution = std::execution::sequenced_policy>
-        bool isSorted(Execution exec = std::execution::seq) const {
-            return this->isSortedBy(std::less<>(), exec);
+        template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
+        bool isSorted(BinaryPredicate predicate = BinaryPredicate(), Execution exec = std::execution::seq) const {
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+				return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
+			}
+			else {
+				return std::is_sorted(exec, Base::begin(), Base::end(), std::move(predicate));
+			}
         }
 
 #else // ^^^ lz has execution vvv ! lz has execution
@@ -574,7 +551,7 @@ namespace lz {
         }
 
         //! See Except.hpp for documentation
-        template<class IterableToExcept, class Compare = std::less<internal::ValueType<IterableToExcept>>>
+        template<class IterableToExcept, class Compare = std::less<internal::ValueTypeIterable<IterableToExcept>>>
         IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
         except(IterableToExcept&& toExcept, Compare compare = Compare()) {
             return lz::toIter(lz::except(std::move(*this), toExcept, std::move(compare)));
@@ -595,26 +572,14 @@ namespace lz {
         //! See FunctionTools.hpp `filterMap` for documentation
         template<class UnaryMapFunc, class UnaryFilterFunc>
         IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>>
-        filterMap(UnaryMapFunc mapFunc, UnaryFilterFunc filterFunc) {
+        filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
             return lz::toIter(lz::filterMap(std::move(*this), std::move(filterFunc), std::move(mapFunc)));
         }
 
         //! See FunctionTools.hpp `select` for documentation
-        template<class SelectorIterable
-#ifdef LZ_HAS_CXX_11
-            , class It = internal::IterTypeFromIterable<SelectorIterable>,
-            class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
-            class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
-            class RefTuple = internal::RefType<ZipIter>
-#endif // end lz has cxx11
-        >
-        auto select(SelectorIterable&& selectors)
-#ifdef LZ_HAS_CXX_11
-        -> IterView<internal::MapIterator<internal::FilterIterator<internal::ZipIterator<It, SelectorIterator>,
-                                                                   std::function<bool(RefTuple)>>,
-                                          std::function<internal::RefType<It>(RefTuple)>>>
-#endif // end lz has cxx11
-        {
+        template<class SelectorIterable>
+        auto select(SelectorIterable&& selectors) -> decltype(lz::toIter(lz::select(std::move(*this),
+																					std::forward<SelectorIterable>(selectors)))) {
             return lz::toIter(lz::select(std::move(*this), std::forward<SelectorIterable>(selectors)));
         }
 
@@ -625,17 +590,16 @@ namespace lz {
         }
 
         //! See JoinWhere.hpp for documentation
-        template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-        IterView<JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
-            SelectorA, SelectorB, ResultSelector>>
+        template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
+        IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>>
         joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
             return lz::toIter(lz::joinWhere(std::move(*this), iterableB, std::move(a), std::move(b), std::move(resultSelector)));
         }
 
 		//! See GroupBy.hpp for documentation
 		template<class KeySelector>
-		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector, const bool sort = true) {
-			return lz::toIter(lz::groupBy(std::move(*this), std::move(selector), sort));
+		IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector) {
+			return lz::toIter(lz::groupBy(std::move(*this), std::move(selector)));
 		}
 
         //! See FunctionTools.hpp `firstOrDefault` for documentation
@@ -647,7 +611,7 @@ namespace lz {
         //! See FunctionTools.hpp `firstOrDefaultIf` for documentation
         template<class UnaryPredicate, class U>
         value_type firstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
-            return lz::firstOrDefault(*this, std::move(predicate), defaultValue);
+            return lz::firstOrDefaultIf(*this, std::move(predicate), defaultValue);
         }
 
         //! See FunctionTools.hpp `lastOrDefault` for documentation
@@ -659,7 +623,7 @@ namespace lz {
         //! See FunctionTools.hpp `lastOrDefaultIf` for documentation
         template<class UnaryPredicate, class U>
         value_type lastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
-            return lz::lastOrDefault(*this, std::move(predicate), defaultValue);
+            return lz::lastOrDefaultIf(*this, std::move(predicate), defaultValue);
         }
 
         //! See FunctionTools.hpp `indexOf` for documentation
@@ -715,9 +679,8 @@ namespace lz {
          */
         template<class T, class BinaryFunction>
         T foldr(T&& init, BinaryFunction function) const {
-            IterView<std::reverse_iterator<Iterator>> reverseView = this->reverse();
-            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init),
-                                   std::move(function));
+        	auto reverseView = lz::reverse(*this);
+            return std::accumulate(reverseView.begin(), reverseView.end(), std::forward<T>(init), std::move(function));
         }
 
         /**
@@ -733,8 +696,9 @@ namespace lz {
          * @return The max element.
          */
         template<class Compare = std::less<value_type>>
-        value_type max(Compare cmp = std::less<value_type>()) const {
-            return std::max_element(Base::begin(), Base::end(), std::move(cmp));
+        reference max(Compare cmp = std::less<value_type>()) const {
+        	LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
+            return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**
@@ -743,8 +707,9 @@ namespace lz {
          * @return The min element.
          */
         template<class Compare = std::less<value_type>>
-        value_type min(Compare cmp = std::less<value_type>()) const {
-            return std::min_element(Base::begin(), Base::end(), std::move(cmp));
+        reference min(Compare cmp = std::less<value_type>()) const {
+			LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
+            return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
         }
 
         /**
@@ -795,44 +760,24 @@ namespace lz {
         }
 
         /**
-         * Sorts the sequence given by a predicate.
-         * @param predicate A callable object that takes two values types as its parameter and returns a bool.
-         * @return A reference to this.
-         */
-        template<class BinaryPredicate>
-        IterView<Iterator>& sortBy(BinaryPredicate predicate) {
-            std::sort(Base::begin(), Base::end(), std::move(predicate));
-            return *this;
-        }
-
-        /**
          * Sorts the sequence with the default (operator<) comparer.
          * @return A reference to this.
          */
-        IterView<Iterator>& sort() {
-            return this->sortBy(std::less<value_type>());
-        }
-
-        /**
-         * Checks whether the sequence is sorted, given by a predicate. The predicate must take the underlying type of the iterator as its
-         * argument and return a bool.
-         * @param predicate The predicate -- which specifies how to sort -- that takes the type of the underlying iterator and returns a
-         * bool.
-         * @return True if the sequence is sorted given by the `predicate` false otherwise.
-         */
-        template<class BinaryPredicate>
-        bool isSortedBy(BinaryPredicate predicate) const {
-            return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
+		template<class BinaryPredicate = std::less<internal::ValueType<Iterator>>>
+        IterView<Iterator>& sort(BinaryPredicate predicate = BinaryPredicate()) {
+            std::sort(Base::begin(), Base::end(), std::move(predicate));
+            return *this;
         }
 
         /**
          * Checks whether the sequence is sorted, using the standard (operator<) compare.
          * @return True if the sequence is sorted given by the `predicate` false otherwise.
          */
-        bool isSorted() const {
-            return this->isSortedBy(std::less<value_type>());
+        template<class BinaryPredicate = std::less<internal::ValueType<Iterator>>>
+        bool isSorted(BinaryPredicate binaryPredicate = BinaryPredicate()) const {
+            return std::is_sorted(Base::begin(), Base::end(), std::move(binaryPredicate));
         }
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
     };
 }
 
