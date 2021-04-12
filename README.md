@@ -113,13 +113,27 @@ compile time of this library is faster. Some may argue about which library is mo
 
 # Installation
 
-# Without CMake
+## Without CMake, without `fmt`
 - Clone the repository
 - Specify the include directory to `cpp-lazy/include`.
 - Include files as follows:
 
 ```cpp
 #define LZ_STANDALONE // Important! Define it before including <Lz/*> files.
+#include <Lz/Map.hpp>
+
+int main() {
+  std::array<int, 4> arr = {1, 2, 3, 4};
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+}
+```
+
+## Without CMake, with `fmt`
+- Clone the repository
+- Specify the include directory to `cpp-lazy/include` and `fmt` include.
+- Include files as follows:
+
+```cpp
 #include <Lz/Map.hpp>
 
 int main() {
