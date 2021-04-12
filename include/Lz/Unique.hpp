@@ -116,12 +116,13 @@ namespace lz {
      * @param sortFunc (Optional) The function used to sort the sequence. Use operator <(=) or operator >(=)
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
-    template<LZ_CONCEPT_RA_ITERABLE Iterable, class Compare = std::less<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
+    template<LZ_CONCEPT_RA_ITERABLE Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
     Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = Compare()) {
         return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						   std::move(compare));
     }
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
+
     // End of group
     /**
      * @}
