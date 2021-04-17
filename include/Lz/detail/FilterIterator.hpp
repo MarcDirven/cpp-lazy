@@ -14,9 +14,9 @@ namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 
 
-	template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Function>
+	template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 #else // ^^^lz has execution vvv ! lz has execution
-	template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 #endif // LZ_HAS_EXECUTION
 	class FilterIterator {
 		using IterTraits = std::iterator_traits<Iterator>;
@@ -44,7 +44,7 @@ namespace lz { namespace internal {
 	private:
 		Iterator _iterator{};
 		Iterator _end{};
-		mutable FunctionContainer <Function> _predicate{};
+		mutable FunctionContainer<UnaryPredicate> _predicate{};
 #ifdef LZ_HAS_EXECUTION
 		Execution _execution{};
 #endif // LZ_HAS_EXECUTION
@@ -52,9 +52,9 @@ namespace lz { namespace internal {
 	public:
 #ifdef LZ_HAS_EXECUTION
 
-		FilterIterator(Iterator begin, Iterator end, Function function, Execution execution)
+		FilterIterator(Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
-		FilterIterator(Iterator begin, Iterator end, Function function)
+		FilterIterator(Iterator begin, Iterator end, UnaryPredicate function)
 #endif // LZ_HAS_EXECUTION
 			:
 			_iterator(std::move(begin)),
