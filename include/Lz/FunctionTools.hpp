@@ -24,39 +24,37 @@
 
 #include <cassert>
 
-namespace lz {
-	// ReSharper disable once CppUnnamedNamespaceInHeaderFile
-	namespace internal { namespace {
-        template<class To>
-        struct ConvertFn {
-            template<class From>
-            To operator()(From&& f) const {
-                return static_cast<To>(f);
-            }
+namespace lz { namespace internal {
+	template<class To>
+	struct ConvertFn {
+		template<class From>
+		To operator()(From&& f) const {
+			return static_cast<To>(f);
+		}
 
-			template<class From>
-			To operator()(From&& f) {
-				return static_cast<To>(f);
-			}
-        };
+		template<class From>
+		To operator()(From&& f) {
+			return static_cast<To>(f);
+		}
+	};
 
-        template<class Tuple, class Fn, std::size_t... I>
-        auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>)
+	template<class Tuple, class Fn, std::size_t... I>
+	auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>)
+#if defined(LZ_HAS_CXX_11) || defined(LZ_HAS_CONCEPTS) // concepts require default constructible functions
+	-> std::function<decltype(fn(std::get<I>(std::declval<Tuple>())...))(Tuple)>
+#endif // LZ_HAS_CXX_11 || LZ_HAS_CONCEPTS
+	{
 #ifdef LZ_HAS_CXX_11
-        -> std::function<lz::internal::FunctionReturnType<Fn, decltype(std::get<I>(std::declval<Tuple>()))...>(Tuple)>
-#endif
-        {
-#ifdef LZ_HAS_CXX_11
-            return std::bind([](Fn fn, Tuple tuple) {
-                return fn(std::get<I>(std::forward<Tuple>(tuple))...);
-            }, std::move(fn), std::placeholders::_1);
+		return std::bind([](Fn fn, Tuple tuple) {
+			return fn(std::get<I>(std::forward<Tuple>(tuple))...);
+		}, std::move(fn), std::placeholders::_1);
 #else
-            return [fn = std::move(fn)](Tuple tuple) {
-                return fn(std::get<I>(std::forward<Tuple>(tuple))...);
-            };
+		return [f = std::move(fn)](Tuple tuple) {
+			return f(std::get<I>(std::forward<Tuple>(tuple))...);
+		};
 #endif
-        }
-    }} // namespace internal::<anonymous>
+	}
+    } // namespace internal
 
     /**
      * This value is returned when indexOf(If) does not find the value specified.
@@ -74,7 +72,7 @@ namespace lz {
     template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
     template<class SubString = std::string, class String = std::string>
-#endif // end has string view
+#endif // LZ_HAS_STRING_VIEW
     StringSplitter<SubString, String> lines(const String& string) {
         return lz::split<SubString, String>(string, "\n");
     }
@@ -83,12 +81,21 @@ namespace lz {
     template<class... Strings>
     auto concatAsStringView(Strings&&... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
         static_assert(
-            internal::IsAllSame<char, typename std::iterator_traits<decltype(internal::begin(strings))>::value_type...>::value,
+            internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
             "the character type of the strings must use `char`"
         );
         return lz::concat(static_cast<std::string_view>(strings)...);
     }
-#endif // end lz has string view
+#elif !defined(LZ_STANDALONE)
+	template<class... Strings>
+	auto concatAsStringView(Strings&&... strings) -> lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
+        static_assert(
+            internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
+            "the character type of the strings must use `char`"
+        );
+        return lz::concat(static_cast<fmt::string_view>(strings)...);
+    }
+#endif // LZ_HAS_STRING_VIEW
 
     /**
      * Sums all the values from [from, upToAndIncluding]
@@ -202,13 +209,13 @@ namespace lz {
      */
     template<class Fn, LZ_CONCEPT_ITERATOR... Iterators,
         class Zipper = lz::Zip<Iterators...>,
-        class ValueType = decltype(*std::begin(std::declval<Zipper>()))>
+        class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
     auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
     lz::Map<decltype(std::begin(std::declval<Zipper>())),
-    		decltype(internal::makeExpandFn<ValueType>(fn, internal::MakeIndexSequence<sizeof...(Iterators)>()))>
+    		decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))>
 	{
         Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
-        auto tupleExpanderFunc = internal::makeExpandFn<ValueType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
+        auto tupleExpanderFunc = internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
         return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
     }
 
@@ -1225,13 +1232,13 @@ namespace lz {
         class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>,
         class ZipIter = typename lz::Zip<Iterator, SelectorIterator>::iterator,
         class RefTuple = internal::RefType<ZipIter>
-#endif // end lz has cxx11
+#endif // LZ_HAS_CXX_11
         >
     auto select(Iterable&& iterable, SelectorIterable&& selectors)
 #ifdef LZ_HAS_CXX_11
     -> lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>,  std::function<bool(RefTuple)>>,
                std::function<internal::RefType<Iterator>(RefTuple)>>
-#endif // end lz has cxx11
+#endif // LZ_HAS_CXX_11
     {
         return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)), internal::end(std::forward<SelectorIterable>(selectors)));

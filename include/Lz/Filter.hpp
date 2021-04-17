@@ -9,17 +9,17 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Function>
-    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Execution, Iterator, Function>> {
+    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> {
 #else
-    template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, Function>> {
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
 #endif
     public:
 #ifdef LZ_HAS_EXECUTION
-        using iterator = internal::FilterIterator<Execution, Iterator, Function>;
+        using iterator = internal::FilterIterator<Execution, Iterator, UnaryPredicate>;
 #else
-        using iterator = internal::FilterIterator<Iterator, Function>;
+        using iterator = internal::FilterIterator<Iterator, UnaryPredicate>;
 #endif
         using const_iterator = iterator;
         using value_type = typename iterator::value_type;
@@ -32,7 +32,7 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
 #ifdef LZ_HAS_EXECUTION
-        Filter(Iterator begin, Iterator end, Function function, Execution execution) :
+        Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, function, execution),
                                                   iterator(end, end, function, execution))
         {
@@ -44,7 +44,7 @@ namespace lz {
          * @param end End of the iterator.
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
-        Filter(Iterator begin, Iterator end, Function function) :
+        Filter(Iterator begin, Iterator end, UnaryPredicate function) :
             internal::BasicIteratorView<iterator>(iterator(begin, end, function), iterator(end, end, function))
         {
         }
@@ -79,9 +79,9 @@ namespace lz {
         return Filter<Execution, Iterator, Function>(std::move(begin), std::move(end), std::move(predicate), execution);
     }
 
-    template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERABLE Iterable>
-    Filter<Execution, internal::IterTypeFromIterable<Iterable>, Function>
-    filter(Iterable&& iterable, Function predicate, Execution execPolicy = std::execution::seq) {
+    template<class Execution = std::execution::sequenced_policy, class UnaryPredicate, LZ_CONCEPT_ITERABLE Iterable>
+    Filter<Execution, internal::IterTypeFromIterable<Iterable>, UnaryPredicate>
+    filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std::execution::seq) {
         return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            std::move(predicate), execPolicy);
     }
@@ -97,11 +97,11 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Function, LZ_CONCEPT_ITERATOR Iterator>
-    Filter<Iterator, Function> filterRange(Iterator begin, Iterator end, Function predicate) {
-        static_assert(std::is_convertible<internal::FunctionReturnType<Function, internal::RefType<Iterator>>, bool>::value,
+    template<class UnaryPredicate, LZ_CONCEPT_ITERATOR Iterator>
+    Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
+        static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                       "function return type must be convertible to a bool");
-        return Filter<Iterator, Function>(std::move(begin), std::move(end), std::move(predicate));
+        return Filter<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(predicate));
     }
 
     /**
@@ -113,8 +113,8 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-    Filter<internal::IterTypeFromIterable<Iterable>, Function> filter(Iterable&& iterable, Function predicate) {
+    template<class UnaryPredicate, LZ_CONCEPT_ITERABLE Iterable>
+    Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
         return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            std::move(predicate));
     }

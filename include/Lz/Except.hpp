@@ -42,7 +42,7 @@ namespace lz {
             internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, compare),
                                                   iterator(end, end, toExceptEnd, toExceptEnd, compare))
     	{}
-#endif // end has execution
+#endif // LZ_HAS_EXECUTION
 
         Except() = default;
     };

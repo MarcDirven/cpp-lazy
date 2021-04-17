@@ -164,8 +164,8 @@ namespace lz {
 
         //! See FunctionTools.hpp `trim` for documentation
         template<class UnaryPredicateFirst, class UnaryPredicateLast>
-        IterView<typename lz::Take<std::reverse_iterator<std::reverse_iterator<Iterator>>>::iterator>
-        trim(UnaryPredicateFirst first, UnaryPredicateLast last) {
+		auto trim(UnaryPredicateFirst first, UnaryPredicateLast last) ->
+		decltype(lz::toIter(lz::trim(std::move(*this), std::move(first), std::move(last)))) {
             return lz::toIter(lz::trim(std::move(*this), std::move(first), std::move(last)));
         }
 

@@ -5,24 +5,42 @@
 
 #include "LzTools.hpp"
 
-
 #ifdef LZ_STANDALONE
-  #include <sstream>
+  #ifdef LZ_HAS_FORMAT
+	#include <format>
+  #else
+    #include <sstream>
+  #endif // LZ_HAS_FORMAT
 #else
   #include <fmt/ostream.h>
 #endif
 
 
 namespace lz { namespace internal {
-	template<class TValueType>
-	std::string toStringJoinImpl(const TValueType& value) {
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+	template<class T, EnableIf<std::is_arithmetic<T>::value, bool> = true>
+	std::string toStringSpecialized(const T& value) {
+		return std::to_string(value);
+	}
+
+	template<class T, EnableIf<!std::is_arithmetic<T>::value, bool> = true>
+	std::string toStringSpecialized(const T& value) {
+		std::ostringstream oss;
+		return (oss << value).str();
+	}
+#endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
+	template<class T>
+	std::string toStringJoinImpl(const T& value) {
 #ifdef LZ_STANDALONE
-		std::ostringstream outputStringStream;
-		outputStringStream << value;
-		return outputStringStream.str();
+  #ifdef LZ_HAS_FORMAT
+		return std::format("{}", value);
+  #else
+		return toStringSpecialized(value);
+  #endif // LZ_HAS_FORMAT
 #else
 		return fmt::format("{}", value);
-#endif
+#endif // LZ_STANDALONE
 	}
 
     template<LZ_CONCEPT_ITERATOR Iterator>

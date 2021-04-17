@@ -7,9 +7,9 @@
 #include <iterator>
 
 #ifdef __has_include
-  #define CPP_LAZY_HAS_INCLUDE(FILE) __has_include(FILE)
+  #define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
 #else
-  #define CPP_LAZY_HAS_INCLUDE(FILE) 0
+  #define LZ_HAS_INCLUDE(FILE) 0
 #endif
 
 #if (defined(__GNUC__)) && !(defined(__clang__))
@@ -45,16 +45,16 @@
   #define LZ_HAS_CXX_20
 #endif // Has cxx 20
 
-#if CPP_LAZY_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
+#if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
   #define LZ_HAS_EXECUTION
   #include <execution>
 #endif // has execution
 
-#if CPP_LAZY_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
+#if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
   #define LZ_HAS_STRING_VIEW
 #endif // has string view
 
-#if CPP_LAZY_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
+#if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
   #define LZ_HAS_CONCEPTS
   #include <concepts>
 #endif // has concepts
@@ -71,17 +71,8 @@
   #define LZ_HAS_ATTRIBUTE(ATTR) 0
 #endif
 
-#if LZ_HAS_ATTRIBUTE(likely)
-  #define LZ_LIKELY [[likely]]
-#else
-  #define LZ_LIKELY
-#endif
-
-
-#if LZ_HAS_ATTRIBUTE(unlikely)
-  #define LZ_UNLIKELY [[unlikely]]
-#else
-  #define LZ_UNLIKELY
+#if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>))
+  #define LZ_HAS_FORMAT
 #endif
 
 
@@ -125,10 +116,13 @@ namespace lz {
 	template<class I>
 	concept Arithmetic = std::is_arithmetic_v<I>;
 
-
+	namespace internal {
+		template<class>
+		inline constexpr bool AlwaysFalse = true;
+	} // End namespace internal
 } // End namespace lz
 
-  #define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
+#define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
   #define LZ_CONCEPT_INTEGRAL               std::integral
   #define LZ_CONCEPT_INVOCABLE              std::invocable
   #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
@@ -162,14 +156,14 @@ namespace lz {
 #define LZ_ASSERT(CONDITION, MSG) assert((CONDITION) && (MSG))
 
 namespace lz { namespace internal {
-	template<class Container>
-	constexpr auto begin(Container&& c) -> decltype(std::forward<Container>(c).begin()) {
-		return std::forward<Container>(c).begin();
+	template<class Iterable>
+	constexpr auto begin(Iterable&& c) -> decltype(std::forward<Iterable>(c).begin()) {
+		return std::forward<Iterable>(c).begin();
 	}
 
-	template<class Container>
-	constexpr auto end(Container&& c) -> decltype(std::forward<Container>(c).end()) {
-		return std::forward<Container>(c).end();
+	template<class Iterable>
+	constexpr auto end(Iterable&& c) -> decltype(std::forward<Iterable>(c).end()) {
+		return std::forward<Iterable>(c).end();
 	}
 
 	template<class T, size_t N>
@@ -280,6 +274,7 @@ namespace lz { namespace internal {
 
 #endif // LZ_HAS_EXECUTION
 
+
 	template<class T>
 	class FakePointerProxy {
 		T _t;
@@ -344,20 +339,20 @@ namespace lz { namespace internal {
 	using LowestIterTypeT = typename LowestIterType<IterTypes...>::Type;
 
 
-	template<class Same, class First, class... More>
-	struct IsAllSame : std::integral_constant<bool, std::is_same<Same, First>::value && IsAllSame<First, More...>::value> {
+	template<class T, class U, class... Vs>
+	struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {
 	};
 
-	template<class Same, class First>
-	struct IsAllSame<Same, First> : std::is_same<Same, First> {
+	template<class T, class U>
+	struct IsAllSame<T, U> : std::is_same<T, U> {
 	};
 
-	template<class T>
-	struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::bidirectional_iterator_tag>::value> {
+	template<class Iterator>
+	struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {
 	};
 
-	template<class T>
-	struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<T>, std::random_access_iterator_tag>::value> {
+	template<class Iterator>
+	struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag>::value> {
 	};
 
 	template<LZ_CONCEPT_INTEGRAL Arithmetic>
