@@ -53,7 +53,6 @@ namespace lz { namespace internal {
 	template<class Iterator>
 	std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
 #endif // LZ_HAS_EXECUTION
-		using ValueType = ValueType<Iterator>;
 		if (begin == end) return "";
 		std::string result;
 #if defined(LZ_HAS_FORMAT) || (!defined(LZ_STANDALONE)) // std::format_to or fmt::format_to backInserter
@@ -65,11 +64,11 @@ namespace lz { namespace internal {
   #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT)) // std::ostringstream or std::to_string is used
 			result = toStringImplSpecialized(begin, end, delimiter);
   #elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-			std::for_each(begin, end, [&delimiter, backInserter](const ValueType& v) {
+			std::for_each(begin, end, [&delimiter, backInserter](const ValueType<Iterator>& v) {
 				std::format_to(backInserter, "{}{}", v, delimiter);
 			});
   #else // fmt::format_to is used
-			std::for_each(begin, end, [&delimiter, backInserter](const ValueType& v) {
+			std::for_each(begin, end, [&delimiter, backInserter](const ValueType<Iterator>& v) {
 				fmt::format_to(backInserter, "{}{}", v, delimiter);
 			});
   #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
@@ -78,26 +77,26 @@ namespace lz { namespace internal {
 			std::mutex m;
   #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream or std::to_string
 			if constexpr (std::is_arithmetic_v<ValueType>) {
-				std::for_each(exec, begin, end, [&result, &delimiter, &m](const ValueType& v) {
+				std::for_each(exec, begin, end, [&result, &delimiter, &m](const ValueType<Iterator>& v) {
 					std::lock_guard guard(m);
 					result += std::to_string(v) + delimiter;
 				});
 			}
 			else {
 				std::ostringstream oss;
-				std::for_each(exec, begin, end, [&delimiter, &oss, &m](const ValueType& v) {
+				std::for_each(exec, begin, end, [&delimiter, &oss, &m](const ValueType<Iterator>& v) {
 					std::lock_guard guard(m);
 					oss << v << delimiter;
 				});
 				result = oss.str();
 			}
   #elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-			std::for_each(exec, begin, end, [&delimiter, backInserter, &m](const ValueType& v) {
+			std::for_each(exec, begin, end, [&delimiter, backInserter, &m](const ValueType<Iterator>& v) {
 				std::lock_guard guard(m);
 				std::format_to(backInserter, "{}{}", v, delimiter);
 			});
   #else // fmt::format_to is used
-			std::for_each(exec, begin, end, [&delimiter, &m, backInserter](const ValueType& v) {
+			std::for_each(exec, begin, end, [&delimiter, &m, backInserter](const ValueType<Iterator>& v) {
 				std::lock_guard guard(m);
 				fmt::format_to(backInserter, "{}{}", v, delimiter);
 			});
@@ -105,7 +104,7 @@ namespace lz { namespace internal {
 		} // end if check if higher than std::execution::seq
 #else // ^^^ LZ_HAS_EXECUTION vvv !LZ_HAS_EXECUTION
   #if !defined(LZ_STANDALONE)
-		std::for_each(begin, end, [&delimiter, backInserter](const ValueType& v) {
+		std::for_each(begin, end, [&delimiter, backInserter](const ValueType<Iterator>& v) {
 			fmt::format_to(backInserter, "{}{}", v, delimiter);
 		});
   #else // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
