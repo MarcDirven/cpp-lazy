@@ -30,10 +30,8 @@ namespace lz {
 	}
 
 	template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-	Exclude<Iterator> exclude(Iterable&& iterable, const internal::DiffType<Iterator> from,
-							  const internal::DiffType<Iterator> to) {
-		return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from,
-							to);
+	Exclude<Iterator> exclude(Iterable&& iterable, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
+		return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from, to);
 	}
 }
 

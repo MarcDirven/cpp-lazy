@@ -77,7 +77,7 @@ namespace lz { namespace internal {
             _resultSelector(std::move(resultSelector))
 #ifdef LZ_HAS_EXECUTION
             , _execution(execution)
-#endif // end has cxx 17
+#endif // LZ_HAS_EXECUTION
             {
                 if (_iterA == _endA || _iterB == _endB) {
                     return;
@@ -95,11 +95,11 @@ namespace lz { namespace internal {
 						std::sort(_execution, _iterB, _endB, comparer);
 					}
 				}
-#else // ^^^has cxx 17 vvv ! has cxx 17
+#else
 				if (!std::is_sorted(_iterB, _endB, comparer)) {
 					std::sort(_iterB, _endB, comparer);
 				}
-#endif // end has cxx 17
+#endif // LZ_HAS_EXECUTION
                 findNext();
             }
 
