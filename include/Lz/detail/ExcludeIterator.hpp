@@ -37,6 +37,8 @@ namespace lz { namespace internal {
 			}
 		}
 
+		ExcludeIterator() = default;
+
 		reference operator*() const {
 			return *_iterator;
 		}
@@ -48,11 +50,9 @@ namespace lz { namespace internal {
 		ExcludeIterator& operator++() {
 			++_iterator;
 			++_index;
-
 			if (_index == _from) {
 				_iterator = std::next(std::move(_iterator), _to - _from);
 			}
-
 			return *this;
 		}
 
