@@ -4,7 +4,6 @@
 #define LZ_JOIN_ITERATOR_HPP
 
 #include "LzTools.hpp"
-#define LZ_STANDALONE
 
 #ifdef LZ_STANDALONE
   #ifdef LZ_HAS_FORMAT
