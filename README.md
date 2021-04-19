@@ -130,10 +130,12 @@ int main() {
 
 ## Without CMake, with `fmt`
 - Clone the repository
-- Specify the include directory to `cpp-lazy/include` and `fmt` include.
+- Specify the include directory to `cpp-lazy/include` and `fmt/include`.
+- Define `FMT_HEADER_ONLY` before including any `lz` files.
 - Include files as follows:
 
 ```cpp
+#define FMT_HEADER_ONLY
 #include <Lz/Map.hpp>
 
 int main() {
