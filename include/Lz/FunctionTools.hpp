@@ -39,11 +39,8 @@ namespace lz { namespace internal {
 	};
 
 	template<class Tuple, class Fn, std::size_t... I>
-	auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>)
-#if defined(LZ_HAS_CXX_11) || defined(LZ_HAS_CONCEPTS) // concepts require default constructible functions
-	-> std::function<decltype(fn(std::get<I>(std::declval<Tuple>())...))(Tuple)>
-#endif // LZ_HAS_CXX_11 || LZ_HAS_CONCEPTS
-	{
+	auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>)	->
+	std::function<decltype(fn(std::get<I>(std::declval<Tuple>())...))(Tuple)> {
 #ifdef LZ_HAS_CXX_11
 		return std::bind([](Fn fn, Tuple tuple) {
 			return fn(std::get<I>(std::forward<Tuple>(tuple))...);
@@ -159,7 +156,8 @@ namespace lz { namespace internal {
 #ifndef LZ_HAS_CONCEPTS
         static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // LZ_HAS_CONCEPTS
-        return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
+        return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(end),
+        																		std::make_reverse_iterator(begin));
     }
     /**
      * Returns a view object of which its iterators are reversed.
@@ -212,8 +210,7 @@ namespace lz { namespace internal {
         class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
     auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
     lz::Map<decltype(std::begin(std::declval<Zipper>())),
-    		decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))>
-	{
+    		decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
         Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
         auto tupleExpanderFunc = internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
         return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
@@ -231,10 +228,9 @@ namespace lz { namespace internal {
         class ValueType = decltype(*std::begin(std::declval<Zipper>()))>
     auto zipWith(Fn fn, Iterables&&... iterables) ->
     lz::Map<decltype(std::begin(std::declval<Zipper>())),
-            decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))>
-	{
-        return lz::zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
-                                          std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
+            decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
+        return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
+                       std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
     }
 
     /**
@@ -564,7 +560,7 @@ namespace lz { namespace internal {
      * @return The median of the sequence.
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<>>
-    double median(Iterator begin, Iterator end, Compare compare = Compare(), Execution execution = std::execution::seq) {
+    double median(Iterator begin, Iterator end, Compare compare = {}, Execution execution = std::execution::seq) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
         constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
 
@@ -604,7 +600,7 @@ namespace lz { namespace internal {
      */
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
     	class Compare = std::less<>>
-    double median(Iterable& iterable, Compare compare = Compare(), Execution execution = std::execution::seq) {
+    double median(Iterable& iterable, Compare compare = {}, Execution execution = std::execution::seq) {
         return lz::median(std::begin(iterable), std::end(iterable), std::move(compare), execution);
     }
 
@@ -916,7 +912,7 @@ namespace lz { namespace internal {
      * @return The median of the sequence.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
-    double median(Iterator begin, Iterator end, Compare compare = Compare()) {
+    double median(Iterator begin, Iterator end, Compare compare = {}) {
         const internal::DiffType<Iterator> len = std::distance(begin, end);
         if (len == 0) return 0.;
 
@@ -938,7 +934,7 @@ namespace lz { namespace internal {
      * @return The median of the sequence.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
-    double median(Iterable& iterable, Compare compare = Compare()) {
+    double median(Iterable& iterable, Compare compare = {}) {
         return lz::median(std::begin(iterable), std::end(iterable), compare);
     }
 
