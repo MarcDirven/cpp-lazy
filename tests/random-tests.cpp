@@ -21,6 +21,15 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
     }
 }
 
+TEST_CASE("Random with custom distro's and custom engine") {
+	static std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::poisson_distribution<> d(500'000);
+	auto r = lz::random(d, gen, 3);
+	CHECK(std::distance(r.begin(), r.end()) == 3);
+	CHECK(r.nextRandom() != r.nextRandom());
+}
+
 TEST_CASE("Random binary operations", "[Random][Binary ops]") {
     constexpr std::ptrdiff_t size = 5;
     auto random = lz::random(0., 1., size);

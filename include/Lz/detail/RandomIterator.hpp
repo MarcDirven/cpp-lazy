@@ -9,83 +9,74 @@
 
 
 namespace lz { namespace internal {
-    template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
-    class RandomIterator {
-    public:
-        using iterator_category = std::input_iterator_tag;
-        using value_type = Arithmetic;
-        using difference_type = std::ptrdiff_t;
-        using pointer = FakePointerProxy<Arithmetic>;
-        using reference = value_type;
-        using result_type = value_type;
+	template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
+	class RandomIterator {
+	public:
+		using iterator_category = std::input_iterator_tag;
+		using value_type = Arithmetic;
+		using difference_type = std::ptrdiff_t;
+		using pointer = FakePointerProxy<Arithmetic>;
+		using reference = value_type;
+		using result_type = value_type;
 
-    private:
-        std::ptrdiff_t  _current{};
-        Arithmetic _min{}, _max{};
-        bool _isWhileTrueLoop{};
+	private:
+		std::ptrdiff_t _current{};
+		bool _isWhileTrueLoop{};
+		Distribution _distribution{};
+		Generator* _generator{nullptr};
 
-    public:
-        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t current, const bool isWhileTrueLoop) :
-            _current(current),
-            _min(min),
-            _max(max),
-            _isWhileTrueLoop(isWhileTrueLoop) {
-        }
-
-        RandomIterator() = default;
-
-        value_type operator*() const {
-            static std::random_device randomEngine;
-            static Generator generator(randomEngine());
-            Distribution randomNumber(_min, _max);
-            return randomNumber(generator);
-        }
-
-        result_type(min)() {
-        	return _min;
-        }
-
-		result_type(max)() {
-			return _max;
+	public:
+		explicit RandomIterator(const Distribution distribution, Generator& generator, const std::ptrdiff_t current,
+								const bool isWhileTrueLoop) :
+			_current(current),
+			_isWhileTrueLoop(isWhileTrueLoop),
+			_distribution(distribution),
+			_generator(&generator) {
 		}
 
-        value_type operator()() const {
-        	return **this;
-        }
+		RandomIterator() = default;
 
-        void setMin(value_type min) {
-        	_min = min;
-        }
+		value_type operator*() {
+			return _distribution(*_generator);
+		}
 
-        void setMax(value_type max) {
-        	_max = max;
-        }
+		result_type (min)() {
+			return _distribution->min();
+		}
 
-        pointer operator->() const {
-            return FakePointerProxy<decltype(**this)>(**this);
-        }
+		result_type (max)() {
+			return _distribution->max();
+		}
 
-        RandomIterator& operator++() {
-            if (!_isWhileTrueLoop) {
-                ++_current;
-            }
-            return *this;
-        }
+		value_type operator()() {
+			return _distribution(*_generator);
+		}
 
-        RandomIterator operator++(int) {
-            RandomIterator tmp(*this);
-            ++*this;
-            return tmp;
-        }
+		pointer operator->() const {
+			return FakePointerProxy<decltype(**this)>(**this);
+		}
 
-        friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
-            return a._current != b._current;
-        }
+		RandomIterator& operator++() {
+			if (!_isWhileTrueLoop) {
+				++_current;
+			}
+			return *this;
+		}
 
-        friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
-            return !(a != b); // NOLINT
-        }
-    };
+		RandomIterator operator++(int) {
+			RandomIterator tmp(*this);
+			++*this;
+			return tmp;
+		}
+
+		friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
+			return a._current != b._current;
+		}
+
+		friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
+			return !(a != b); // NOLINT
+		}
+	};
 }}
 
 #endif
