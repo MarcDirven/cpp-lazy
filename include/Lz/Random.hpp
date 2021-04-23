@@ -43,6 +43,36 @@ namespace lz {
         value_type nextRandom() const {
         	return *this->begin();
         }
+
+        /**
+         * Gets the minimum random value.
+         * @return The min value
+         */
+        value_type (min)() const {
+        	return this->begin().min();
+        }
+
+		/**
+		 * Gets the maximum random value.
+		 * @return The max value
+		 */
+        value_type (max)() const {
+        	return this->begin().max();
+        }
+
+		/**
+		 * Sets the maximum random value.
+		 */
+        void setMax(const value_type value) {
+        	this->begin().setMax(value);
+        }
+
+		/**
+		 * Sets the minimum random value.
+		 */
+        void setMin(const value_type value) {
+        	this->begin().setMin(value);
+        }
     };
 	
     /**
