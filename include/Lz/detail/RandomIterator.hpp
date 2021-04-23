@@ -21,44 +21,35 @@ namespace lz { namespace internal {
 
     private:
         std::ptrdiff_t  _current{};
-        Arithmetic _min{}, _max{};
         bool _isWhileTrueLoop{};
+        Distribution _distribution{};
+        Generator* _generator{nullptr};
 
     public:
-        explicit RandomIterator(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t current, const bool isWhileTrueLoop) :
+        explicit RandomIterator(const Distribution distribution, Generator& generator, const std::ptrdiff_t current,
+								const bool isWhileTrueLoop) :
             _current(current),
-            _min(min),
-            _max(max),
-            _isWhileTrueLoop(isWhileTrueLoop) {
+			_isWhileTrueLoop(isWhileTrueLoop),
+			_distribution(distribution),
+            _generator(&generator) {
         }
 
         RandomIterator() = default;
 
         value_type operator*() const {
-            static std::random_device randomEngine;
-            static Generator generator(randomEngine());
-            Distribution randomNumber(_min, _max);
-            return randomNumber(generator);
+            return _distribution(*_generator);
         }
 
         result_type(min)() {
-        	return _min;
+        	return _distribution->min();
         }
 
 		result_type(max)() {
-			return _max;
+			return _distribution->max();
 		}
 
         value_type operator()() const {
-        	return **this;
-        }
-
-        void setMin(value_type min) {
-        	_min = min;
-        }
-
-        void setMax(value_type max) {
-        	_max = max;
+        	return _distribution(*_generator);
         }
 
         pointer operator->() const {

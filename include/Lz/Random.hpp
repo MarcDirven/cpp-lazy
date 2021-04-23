@@ -23,8 +23,9 @@ namespace lz {
          * interpreted as a `while-true` loop.
          * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
          */
-        Random(const Arithmetic min, const Arithmetic max, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
-            internal::BasicIteratorView<iterator>(iterator(min, max, 0, isWhileTrueLoop), iterator(min, max, amount, isWhileTrueLoop))
+        Random(const Distribution distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
+            internal::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
+												  iterator(distribution, generator, amount, isWhileTrueLoop))
         {
         }
 
@@ -41,7 +42,7 @@ namespace lz {
          * @return A new random `value_type` between [min, max].
          */
         value_type nextRandom() const {
-        	return *this->begin();
+        	return *internal::BasicIteratorView<iterator>::begin();
         }
 
         /**
@@ -59,20 +60,6 @@ namespace lz {
         value_type (max)() const {
         	return this->begin().max();
         }
-
-		/**
-		 * Sets the maximum random value.
-		 */
-        void setMax(const value_type value) {
-        	this->begin().setMax(value);
-        }
-
-		/**
-		 * Sets the minimum random value.
-		 */
-        void setMin(const value_type value) {
-        	this->begin().setMin(value);
-        }
     };
 	
     /**
@@ -81,7 +68,7 @@ namespace lz {
      */
 
      /**
-      * @brief Returns a random view object that generates a sequence of random numbers, using a uniform distribution.
+      * @brief Returns an output iterator view object that generates a sequence of random numbers, using a uniform distribution.
       * @details This random access iterator view object can be used to generate a sequence of random numbers between
       * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
       * @param min The minimum value , included.
@@ -92,15 +79,18 @@ namespace lz {
       * it is interpreted as a `while-true` loop.
       * @return A random view object that generates a sequence of random numbers
       */
-    template<class Integral, class Distribution = std::uniform_int_distribution<Integral>, class Generator = std::mt19937>
-    static internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, Distribution, Generator>>
+    template<class Integral, internal::EnableIf<std::is_integral<Integral>::value, bool> = true>
+    static Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>
     random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
-        return Random<Integral, Distribution, Generator>(min, max, static_cast<std::ptrdiff_t>(amount),
-                                                         amount == std::numeric_limits<std::size_t>::max());
+    	static std::random_device rd;
+    	static std::mt19937 gen(rd());
+		std::uniform_int_distribution<Integral> dist(min, max);
+        return Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>(
+        	dist, gen, static_cast<std::ptrdiff_t>(amount), amount == std::numeric_limits<std::size_t>::max());
     }
 
     /**
-     * @brief Returns a random access view object that generates a sequence of floating point doubles, using a uniform
+     * @brief Returns an output view object that generates a sequence of floating point doubles, using a uniform
      * distribution.
      * @details This random access iterator view object can be used to generate a sequence of random doubles between
      * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
@@ -110,14 +100,31 @@ namespace lz {
      * @param max The maximum value, included.
      * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::size_t>::max()`
      * it is interpreted as a `while-true` loop.
-     * @return A random view object that generates a sequence of random doubles.
+     * @return A random view object that generates a sequence of random floating point values.
      */
-    template<class Floating, class Distribution = std::uniform_real_distribution<Floating>, class Generator = std::mt19937>
-    static internal::EnableIf<std::is_floating_point<Floating>::value, Random<Floating, Distribution, Generator>>
+    template<class Floating, internal::EnableIf<std::is_floating_point<Floating>::value, bool> = true>
+    static Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>
     random(const Floating min, const Floating max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
-        return Random<Floating, Distribution, Generator>(min, max, static_cast<std::ptrdiff_t>(amount),
-                                                         amount == std::numeric_limits<std::size_t>::max());
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		std::uniform_real_distribution<Floating> dist(min, max);
+		return Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>(
+			dist, gen, static_cast<std::ptrdiff_t>(amount), amount == std::numeric_limits<std::size_t>::max());
     }
+
+    /**
+     * Creates a random number generator with specified generator and distribution.
+     * @param distribution A number distribution, for e.g. std::uniform_<type>_distribution<type>.
+     * @param generator A random number generator, for e.g. std::mt19937.
+     * @param amount The amount of numbers to create.
+     * @return A random view object that generates a sequence of `Generator::result_type`
+     */
+    template<class Generator, class Distribution>
+    static Random<typename Generator::result_type, Distribution, Generator>
+	random(Distribution distribution, Generator& generator, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+		return Random<typename Generator::result_type, Distribution, Generator>(
+			distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == std::numeric_limits<std::size_t>::max());
+	}
 
     // End of group
     /**
