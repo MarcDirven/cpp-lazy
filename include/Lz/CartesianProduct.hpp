@@ -17,7 +17,7 @@ namespace lz {
         CartesianProduct() = default;
 
         CartesianProduct(std::tuple<Iterators...> begin, std::tuple<Iterators...> end):
-            internal::BasicIteratorView<iterator>(iterator(begin, end), iterator(end, end))
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end), iterator(end, end))
         {}
     };
 

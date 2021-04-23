@@ -45,7 +45,7 @@ namespace lz {
          * @param function A function with parameter the value type of the iterable and must return a bool.
          */
         Filter(Iterator begin, Iterator end, UnaryPredicate function) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, function), iterator(end, end, function))
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function), iterator(end, end, function))
         {
         }
 #endif

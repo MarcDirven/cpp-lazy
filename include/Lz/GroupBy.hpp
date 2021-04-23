@@ -26,7 +26,8 @@ namespace lz {
 										 		  iterator(end, end, keySelector, sortFunc, execution))
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 		GroupBy(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc):
-			internal::BasicIteratorView<iterator>(iterator(begin, end, keySelector, sortFunc), iterator(end, end, keySelector, sortFunc))
+			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, keySelector, sortFunc),
+										 		  iterator(end, end, keySelector, sortFunc))
 #endif // LZ_HAS_EXECUTION
 		{}
 
