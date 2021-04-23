@@ -76,7 +76,7 @@ namespace lz { namespace internal {
 		else {
 			std::mutex m;
   #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream or std::to_string
-			if constexpr (std::is_arithmetic_v<ValueType>) {
+			if constexpr (std::is_arithmetic_v<ValueType<Iterator>>) {
 				std::for_each(exec, begin, end, [&result, &delimiter, &m](const ValueType<Iterator>& v) {
 					std::lock_guard guard(m);
 					result += std::to_string(v) + delimiter;
@@ -198,14 +198,16 @@ namespace lz { namespace internal {
 			if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
 				static_cast<void>(execution);
 				reserve(cont);
-
 				// If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
 				std::copy(b, e, std::inserter(cont, cont.begin()));
 			}
 			else {
 				static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel algorithms."
 														   " Use std::execution::seq instead");
-				cont.resize(std::distance(begin(), end()));
+				const auto iterLength = static_cast<std::size_t>(std::distance(begin(), end()));
+				if (iterLength > cont.size()) {
+					cont.resize(iterLength);
+				}
 				std::copy(execution, b, e, cont.begin());
 			}
 
@@ -230,12 +232,17 @@ namespace lz { namespace internal {
 
 #else // ^^^ has execution vvv ! has execution
 
+		template<class Container, class Iter>
+		Container makeContainer(Container& container, Iter where) const {
+			std::copy(begin(), end(), std::move(where));
+			return container;
+		}
+
 		template<class Container, class... Args>
 		Container copyContainer(Args&& ... args) const {
 			Container cont(std::forward<Args>(args)...);
 			reserve(cont);
-			std::copy(begin(), end(), std::inserter(cont, cont.begin()));
-			return cont;
+			return makeContainer(cont, std::inserter(cont, cont.begin()));
 		}
 
 		template<std::size_t N>
@@ -243,8 +250,7 @@ namespace lz { namespace internal {
 			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
 					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
 			auto array = std::array<value_type, N>();
-			std::copy(begin(), end(), array.begin());
-			return array;
+			return makeContainer(array, array.begin());
 		}
 
 #endif // LZ_HAS_EXECUTION
@@ -510,7 +516,7 @@ namespace lz { namespace internal {
 	 * @return true if both are equal, false otherwise.
 	 */
 	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<internal::ValueTypeIterable<IterableA>>>
-	bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate()) {
+	bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
 		return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
 	}
 
@@ -520,8 +526,8 @@ namespace lz { namespace internal {
 	 * @param b An iterable, its underlying value type should have an operator== with `a`
 	 * @return true if both are equal, false otherwise.
 	 */
-	template<class IterableA, class IterableB, class BinaryPredicate = std::not_equal_to<internal::ValueTypeIterable<IterableA>>>
-	bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate()) {
+	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<internal::ValueTypeIterable<IterableA>>>
+	bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
 		return !lz::equal(a, b, std::move(predicate));
 	}
 
@@ -534,7 +540,7 @@ namespace lz { namespace internal {
 	 * @return true if both are equal, false otherwise.
 	 */
 	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-	bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate(), Execution exec = Execution()) {
+	bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution exec = Execution()) {
 		if constexpr (internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableA>>() &&
 					  internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableB>>()) {
 			static_cast<void>(exec);
@@ -552,7 +558,7 @@ namespace lz { namespace internal {
 	 * @return true if both are equal, false otherwise.
 	 */
 	template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-	bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = BinaryPredicate(), Execution exec = Execution()) {
+	bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution exec = Execution()) {
 		return !lz::equal(a, b, std::move(predicate), exec);
 	}
 #endif

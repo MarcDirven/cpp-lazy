@@ -33,10 +33,6 @@
   #define LZ_CONST_REF_QUALIFIER
 #endif
 
-#if (__cplusplus >= 201402) || ((defined(_MSVC_LANG)) && _MSVC_LANG >= 201402L)
-  #define LZ_HAS_CXX_14
-#endif // end has cxx 14
-
 #if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
   #define LZ_HAS_CXX_17
 #endif // Has cxx 17
@@ -63,12 +59,6 @@
   #define LZ_CONSTEXPR_IF constexpr
 #else
   #define LZ_CONSTEXPR_IF
-#endif
-
-#if defined(__has_cpp_attribute)
-  #define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
-#else
-  #define LZ_HAS_ATTRIBUTE(ATTR) 0
 #endif
 
 #if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>))
@@ -167,13 +157,13 @@ namespace lz { namespace internal {
 	}
 
 	template<class T, size_t N>
-	constexpr T* begin(T(& array)[N]) noexcept {
-		return array;
+	constexpr T* begin(T(& array)[N]) {
+		return std::begin(array);
 	}
 
 	template<class T, size_t N>
-	constexpr T* end(T(& array)[N]) noexcept {
-		return array + N;
+	constexpr T* end(T(& array)[N]) {
+		return std::end(array);
 	}
 
 #ifdef LZ_HAS_CXX_11

@@ -39,7 +39,7 @@ namespace lz {
         }
 #else
         Unique(Iterator begin, Iterator end, Compare compare) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, compare), iterator(end, end, compare))
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare))
         {
         }
 #endif
@@ -67,7 +67,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(Iterator, Iterator)
     Unique<Execution, Iterator, Compare>
-	uniqueRange(Iterator begin, Iterator end, Compare compare = Compare(), Execution execPolicy = std::execution::seq) {
+	uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPolicy = std::execution::seq) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator or higher for "
                                                                  "std::sort");
@@ -88,7 +88,7 @@ namespace lz {
     template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_RA_ITERABLE Iterable,
     	class It = internal::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(It, It)
-    Unique<Execution, It, Compare> unique(Iterable&& iterable, Compare compare = Compare(), Execution execPolicy = std::execution::seq) {
+    Unique<Execution, It, Compare> unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
         return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						   std::move(compare), execPolicy);
     }
@@ -103,7 +103,7 @@ namespace lz {
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
      */
     template<LZ_CONCEPT_RA_ITERATOR Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
-    Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = Compare()) {
+    Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = {}) {
         static_assert(internal::IsRandomAccess<Iterator>::value, "The iterator to except must be a random access iterator "
                                                                  "or higher for std::sort");
         return Unique<Iterator, Compare>(std::move(begin), std::move(end), std::move(compare));
@@ -117,7 +117,7 @@ namespace lz {
      * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
      */
     template<LZ_CONCEPT_RA_ITERABLE Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
-    Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = Compare()) {
+    Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
         return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						   std::move(compare));
     }

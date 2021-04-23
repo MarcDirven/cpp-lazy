@@ -29,6 +29,20 @@ namespace lz {
         }
 
         Random() = default;
+
+        /**
+         * Creates a new random number, not taking into account its size. This is for pure convenience. Example:
+         * ```cpp
+         * auto rand = lz::random(0, 5);
+         * for (int i = 0; i < 50_000; i++) {
+         *     int myRandom = rand.nextRandom();
+         * }
+         * ```
+         * @return A new random `value_type` between [min, max].
+         */
+        value_type nextRandom() const {
+        	return *this->begin();
+        }
     };
 	
     /**

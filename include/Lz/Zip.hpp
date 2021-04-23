@@ -30,7 +30,7 @@ namespace lz {
          * @param end The ending of all the containers
          */
         explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
-            internal::BasicIteratorView<iterator>(iterator(begin), iterator(end))
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end)))
         {
         }
 
