@@ -39,7 +39,7 @@ namespace lz {
         {}
 #else // ^^^ has execution vvv ! has execution
         Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, toExceptBegin, toExceptEnd, compare),
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, compare),
                                                   iterator(end, end, toExceptEnd, toExceptEnd, compare))
     	{}
 #endif // LZ_HAS_EXECUTION
@@ -71,7 +71,7 @@ namespace lz {
         class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(internal::ValueType<Iterator>, internal::ValueType<IteratorToExcept>)
     Except<Execution, Iterator, IteratorToExcept, Compare>
-	exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare = Compare(),
+	exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare = {},
 			    Execution execPolicy = std::execution::seq) {
 #ifndef LZ_HAS_CONCEPTS // If no concepts, use static assertion to notify
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
@@ -98,7 +98,7 @@ namespace lz {
 		class Compare = std::less<>>
     LZ_REQUIRES_LESS_THAN(internal::ValueType<I1>, internal::ValueType<I2>)
     Except<Execution, I1, I2, Compare>
-	except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = Compare(), Execution execPolicy = std::execution::seq) {
+	except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = {}, Execution execPolicy = std::execution::seq) {
         return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            internal::begin(std::forward<IterableToExcept>(toExcept)),
                            internal::end(std::forward<IterableToExcept>(toExcept)), std::move(compare), execPolicy);
@@ -119,7 +119,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_RA_ITERATOR IteratorToExcept,
         class Compare = std::less<internal::ValueType<Iterator>>>
     Except<Iterator, IteratorToExcept, Compare>
-	exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare = Compare()) {
+	exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare = {}) {
         static_assert(internal::IsRandomAccess<IteratorToExcept>::value, "The iterator to except must be a random access iterator"
                                                                          "or higher for std::sort");
         return Except<Iterator, IteratorToExcept, Compare>(std::move(begin), std::move(end), std::move(toExceptBegin),
@@ -140,7 +140,7 @@ namespace lz {
     template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_RA_ITERABLE IterableToExcept,
     	class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
     Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Compare>
-    except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = Compare()) {
+    except(Iterable&& iterable, IterableToExcept&& toExcept, Compare compare = {}) {
         return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            internal::begin(std::forward<IterableToExcept>(toExcept)),
                            internal::end(std::forward<IterableToExcept>(toExcept)), std::move(compare));
