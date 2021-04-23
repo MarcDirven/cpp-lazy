@@ -36,7 +36,7 @@ namespace lz { namespace internal {
 
 		RandomIterator() = default;
 
-		value_type operator*() const {
+		value_type operator*() {
 			return _distribution(*_generator);
 		}
 
@@ -48,7 +48,7 @@ namespace lz { namespace internal {
 			return _distribution->max();
 		}
 
-		value_type operator()() const {
+		value_type operator()() {
 			return _distribution(*_generator);
 		}
 
