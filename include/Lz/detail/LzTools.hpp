@@ -165,7 +165,6 @@ namespace lz { namespace internal {
 	constexpr T* end(T(& array)[N]) {
 		return std::end(array);
 	}
-
 #ifdef LZ_HAS_CXX_11
 	template<bool B, class U = void>
 	using EnableIf = typename std::enable_if<B, U>::type;
