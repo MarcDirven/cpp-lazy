@@ -3,8 +3,6 @@
 #ifndef LZ_RANDOM_ITERATOR_HPP
 #define LZ_RANDOM_ITERATOR_HPP
 
-#include <random>
-
 #include "LzTools.hpp"
 
 
@@ -26,7 +24,7 @@ namespace lz { namespace internal {
 		Generator* _generator{nullptr};
 
 	public:
-		explicit RandomIterator(const Distribution distribution, Generator& generator, const std::ptrdiff_t current,
+		explicit RandomIterator(const Distribution& distribution, Generator& generator, const std::ptrdiff_t current,
 								const bool isWhileTrueLoop) :
 			_current(current),
 			_isWhileTrueLoop(isWhileTrueLoop),
@@ -40,11 +38,11 @@ namespace lz { namespace internal {
 			return _distribution(*_generator);
 		}
 
-		result_type (min)() {
+		result_type (min)() const {
 			return _distribution->min();
 		}
 
-		result_type (max)() {
+		result_type (max)() const {
 			return _distribution->max();
 		}
 
@@ -52,7 +50,7 @@ namespace lz { namespace internal {
 			return _distribution(*_generator);
 		}
 
-		pointer operator->() const {
+		pointer operator->() {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
