@@ -12,15 +12,12 @@
 
 namespace lz { namespace internal {
 		inline std::mt19937 createMtEngine() {
-			static_assert(std::is_same<std::seed_seq::result_type, std::mt19937::result_type>::value,
-						  "result_type of std::seed_seq and std::mt19937 need to be the same. Please send an issue via Github.");
 			std::random_device rd;
 			const auto generator = lz::generate([&rd]() {
 				return rd();
-			}, std::mt19937::state_size);
+			}, ((std::mt19937::state_size * sizeof(std::mt19937::result_type)) - 1) / sizeof(std::random_device::result_type) + 1);
 			std::seed_seq sd(generator.begin(), generator.end());
-			std::mt19937 gen(sd);
-			return gen;
+			return std::mt19937(sd);
 		}
 	}
 
