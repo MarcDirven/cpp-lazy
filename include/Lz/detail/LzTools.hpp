@@ -105,11 +105,6 @@ namespace lz {
 
 	template<class I>
 	concept Arithmetic = std::is_arithmetic_v<I>;
-
-	namespace internal {
-		template<class>
-		inline constexpr bool AlwaysFalse = true;
-	} // End namespace internal
 } // End namespace lz
 
 #define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
