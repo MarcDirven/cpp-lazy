@@ -7,13 +7,20 @@
 
 
 namespace lz { namespace internal {
+	template<class>
+	struct AlwaysFalse {
+		static constexpr bool value = false;
+	};
 
 	template<class Func>
 	class FunctionContainer {
 		Func _func;
 		bool _isConstructed{false};
 
-		explicit FunctionContainer(std::false_type /*isDefaultConstructible*/) {}
+		explicit FunctionContainer(std::false_type /*isDefaultConstructible*/) {
+			static_assert(AlwaysFalse<Func>::value, "Please use std::function instead of a lambda in this case, because "
+													"lambda's are not default constructible pre C++20");
+		}
 
 		explicit FunctionContainer(std::true_type /*isDefaultConstructible*/) :
 			_func(),

@@ -14,4 +14,14 @@ int main() {
 	for (float i : rng) {
 		// process i...
 	}
+
+	// Or create your own
+	static std::random_device rd;
+	std::mt19937_64 gen(rd());
+	std::poisson_distribution<> d(500'000);
+	auto r = lz::random(d, gen, 3);
+
+	for (int i : r) {
+		// process i...
+	}
 }

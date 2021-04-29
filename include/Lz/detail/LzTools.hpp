@@ -105,11 +105,6 @@ namespace lz {
 
 	template<class I>
 	concept Arithmetic = std::is_arithmetic_v<I>;
-
-	namespace internal {
-		template<class>
-		inline constexpr bool AlwaysFalse = true;
-	} // End namespace internal
 } // End namespace lz
 
 #define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
@@ -165,7 +160,6 @@ namespace lz { namespace internal {
 	constexpr T* end(T(& array)[N]) {
 		return std::end(array);
 	}
-
 #ifdef LZ_HAS_CXX_11
 	template<bool B, class U = void>
 	using EnableIf = typename std::enable_if<B, U>::type;

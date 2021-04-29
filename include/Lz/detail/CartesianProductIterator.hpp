@@ -16,7 +16,8 @@ namespace lz { namespace internal {
 		using value_type = std::tuple<typename std::iterator_traits<Iterators>::value_type...>;
 		using reference = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
 		using pointer = std::tuple<typename std::iterator_traits<Iterators>::pointer...>;
-		using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename std::iterator_traits<Iterators>::iterator_category...>;
+		using iterator_category = LowestIterTypeT<
+			std::forward_iterator_tag, typename std::iterator_traits<Iterators>::iterator_category...>;
 		using difference_type = std::ptrdiff_t;
 
 	private:
@@ -32,6 +33,7 @@ namespace lz { namespace internal {
   #pragma warning(push)
   #pragma warning(disable:4127)
 #endif
+
 		template<std::size_t I>
 		EnableIf<(I > 0)> next() {
 			auto& prev = std::get<I - 1>(_iterator);
@@ -44,6 +46,7 @@ namespace lz { namespace internal {
 				}
 			}
 		}
+
 #ifdef LZ_MSVC
   #pragma warning(pop)
 #endif
@@ -72,15 +75,10 @@ namespace lz { namespace internal {
 			return dereference(MakeIndexSequence<sizeof...(Iterators)>());
 		}
 
-		difference_type length() const {
-			return length(MakeIndexSequence<sizeof...(Iterators)>());
-		}
-
 		CartesianProductIterator& operator++() {
 			if (std::get<0>(_iterator) == std::get<0>(_end)) {
 				return *this;
 			}
-
 			next<sizeof...(Iterators)>();
 			return *this;
 		}

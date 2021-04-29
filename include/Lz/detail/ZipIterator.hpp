@@ -23,24 +23,24 @@ namespace lz { namespace internal {
 
         template<std::size_t... I>
         reference dereference(IndexSequence<I...>) const {
-            return reference{*std::get<I>(_iterators)...};
+            return {*std::get<I>(_iterators)...};
         }
 
         template<std::size_t... I>
         void increment(IndexSequence<I...>) {
-            const std::initializer_list<int> expand = {(++std::get<I>(_iterators), 0)...};
+            const int expand[] = {(++std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
         void decrement(IndexSequence<I...>) {
-            const std::initializer_list<int> expand = {(--std::get<I>(_iterators), 0)...};
+            const int expand[] = {(--std::get<I>(_iterators), 0)...};
             static_cast<void>(expand);
         }
 
         template<std::size_t... I>
         void plusIs(IndexSequence<I...>, const difference_type differenceType) {
-            const std::initializer_list<int> expand = { ((std::get<I>(_iterators) += differenceType), 0)... };
+            const int expand[] = { ((std::get<I>(_iterators) += differenceType), 0)... };
             static_cast<void>(expand);
         }
 
@@ -58,17 +58,17 @@ namespace lz { namespace internal {
 
         template<std::size_t... I>
         bool lessThan(IndexSequence<I...>, const ZipIterator& other) const {
-            const std::initializer_list<bool> distances = { (std::get<I>(_iterators) < std::get<I>(other._iterators)) ...};
-			const auto* end = distances.end();
-            return std::find(distances.begin(), end, true) != end;
+            const bool distances[] = { (std::get<I>(_iterators) < std::get<I>(other._iterators)) ...};
+			const auto* end = std::end(distances);
+            return std::find(std::begin(distances), end, true) != end;
         }
 
         template<std::size_t... I>
         bool notEqual(IndexSequence<I...>, const ZipIterator& other) const {
-            const std::initializer_list<bool> boolValues = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
-            const auto* const end = boolValues.end();
+            const bool boolValues[] = {(std::get<I>(_iterators) != std::get<I>(other._iterators))...};
+            const auto* const end = std::end(boolValues);
             // Check if false not in boolValues
-            return std::find(boolValues.begin(), end, false) == end;
+            return std::find(std::begin(boolValues), end, false) == end;
         }
 
     public:
