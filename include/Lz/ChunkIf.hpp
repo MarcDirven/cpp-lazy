@@ -24,7 +24,8 @@ namespace lz {
 
 #ifdef LZ_HAS_EXECUTION
 		ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution):
-			internal::BasicIteratorView<iterator>(iterator(begin, end, predicate, execution), iterator(end, end, predicate, execution))
+			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate, execution),
+										 		  iterator(end, end, predicate, execution))
 		{}
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 		ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate):

@@ -9,15 +9,15 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
-    template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
-    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> {
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
+    class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> {
 #else
     template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
     class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
 #endif
     public:
 #ifdef LZ_HAS_EXECUTION
-        using iterator = internal::FilterIterator<Execution, Iterator, UnaryPredicate>;
+        using iterator = internal::FilterIterator<Iterator, UnaryPredicate, Execution>;
 #else
         using iterator = internal::FilterIterator<Iterator, UnaryPredicate>;
 #endif
@@ -33,7 +33,7 @@ namespace lz {
          */
 #ifdef LZ_HAS_EXECUTION
         Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
-            internal::BasicIteratorView<iterator>(iterator(begin, end, function, execution),
+            internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function, execution),
                                                   iterator(end, end, function, execution))
         {
         }
@@ -70,17 +70,17 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class Execution = std::execution::sequenced_policy, class Function, LZ_CONCEPT_ITERATOR Iterator>
-    Filter<Execution, Iterator, Function>
-    filterRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    Filter<Iterator, UnaryPredicate, Execution>
+    filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution = std::execution::seq) {
         static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                       "function must return type that can be converted to bool");
         static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
-        return Filter<Execution, Iterator, Function>(std::move(begin), std::move(end), std::move(predicate), execution);
+        return Filter<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(predicate), execution);
     }
 
-    template<class Execution = std::execution::sequenced_policy, class UnaryPredicate, LZ_CONCEPT_ITERABLE Iterable>
-    Filter<Execution, internal::IterTypeFromIterable<Iterable>, UnaryPredicate>
+    template< LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
     filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std::execution::seq) {
         return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            std::move(predicate), execPolicy);
@@ -97,7 +97,7 @@ namespace lz {
      * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
      * over.
      */
-    template<class UnaryPredicate, LZ_CONCEPT_ITERATOR Iterator>
+    template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
     Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
         static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                       "function return type must be convertible to a bool");
@@ -113,12 +113,12 @@ namespace lz {
      * @return A filter iterator that can be converted to an arbitrary container or can be iterated
      * over using `for (auto... lz::filter(...))`.
      */
-    template<class UnaryPredicate, LZ_CONCEPT_ITERABLE Iterable>
+    template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
     Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
         return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                            std::move(predicate));
     }
-#endif // end lz has execution
+#endif // LZ_HAS_EXECUTION
     // End of group
     /**
      * @}

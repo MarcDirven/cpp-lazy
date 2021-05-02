@@ -158,47 +158,52 @@ namespace lz { namespace internal {
 
 	template<class LzIterator>
 	class BasicIteratorView {
+	private:
+		LzIterator _begin{};
+		LzIterator _end{};
+
 	public:
 		using value_type = internal::ValueType<LzIterator>;
 
 	private:
-#if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
+		template<class KeySelectorFunc>
+		using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+
+		template<class Container, EnableIf<!HasReserve<Container>::value, bool> = false>
+		void reserve(Container&) const {}
+
+		template<class Container, EnableIf<HasReserve<Container>::value, bool> = true>
+		void reserve(Container& container) const {
+			container.reserve(std::distance(begin(), end()));
+		}
+
+  #if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
 		template<class MapType, class KeySelectorFunc>
 		MapType createMap(const KeySelectorFunc keyGen) const {
 			MapType map;
-#else // end GCC 4.[0, 9], i.e. 4.8, 4.7, 4.6... 4.0
-
+  #else
 		template<class MapType, class Allocator, class KeySelectorFunc>
 		MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
 			MapType map(allocator);
-#endif
+  #endif // END LZ_GCC_VERSION
 			std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
 				return std::make_pair(keyGen(value), value);
 			});
 			return map;
 		}
 
-		template<class Container>
-		EnableIf<HasReserve<Container>::value> reserve(Container& container) const {
-			container.reserve(std::distance(begin(), end()));
-		}
-
-		template<class Container>
-		EnableIf<!HasReserve<Container>::value> reserve(Container&) const {}
-
 #ifdef LZ_HAS_EXECUTION
-
 		template<class Container, class... Args, class Execution>
 		Container copyContainer(Execution execution, Args&& ... args) const {
 			const LzIterator b = begin();
 			const LzIterator e = end();
 			Container cont(std::forward<Args>(args)...);
-
 			// Prevent static assertion
 			if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
 				static_cast<void>(execution);
 				reserve(cont);
 				// If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the contents.
+				// Here we can freely use std::inserter (output iterator)
 				std::copy(b, e, std::inserter(cont, cont.begin()));
 			}
 			else {
@@ -206,11 +211,11 @@ namespace lz { namespace internal {
 														   " Use std::execution::seq instead");
 				const auto iterLength = static_cast<std::size_t>(std::distance(begin(), end()));
 				if (iterLength > cont.size()) {
+					// Container's iterator needs to be a bidirectional iterator at least, std::inserter will not suffice
 					cont.resize(iterLength);
 				}
 				std::copy(execution, b, e, cont.begin());
 			}
-
 			return cont;
 		}
 
@@ -219,7 +224,6 @@ namespace lz { namespace internal {
 			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
 					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
 			std::array<value_type, N> array{};
-
 			if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
 				static_cast<void>(execution);
 				std::copy(begin(), end(), array.begin());
@@ -231,7 +235,6 @@ namespace lz { namespace internal {
 		}
 
 #else // ^^^ has execution vvv ! has execution
-
 		template<class Container, class Iter>
 		Container makeContainer(Container& container, Iter where) const {
 			std::copy(begin(), end(), std::move(where));
@@ -254,13 +257,6 @@ namespace lz { namespace internal {
 		}
 
 #endif // LZ_HAS_EXECUTION
-
-		template<class KeySelectorFunc>
-		using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
-
-		LzIterator _begin{};
-		LzIterator _end{};
-
 	public:
 		virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
 			return _begin;
@@ -358,7 +354,6 @@ namespace lz { namespace internal {
 		std::string toString(const std::string& delimiter = "", Execution exec = std::execution::seq) const {
 			return toStringImpl(begin(), end(), delimiter, exec);
 		}
-
 #else
 
 		/**
@@ -422,7 +417,6 @@ namespace lz { namespace internal {
 		std::string toString(const std::string& delimiter = "") const {
 			return toStringImpl(begin(), end(), delimiter);
 		}
-
 #endif
 
 		/**
@@ -486,15 +480,15 @@ namespace lz { namespace internal {
 			class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
 			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
 		std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+  #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
 		toUnorderedMap(const KeySelectorFunc keyGen) const {
 			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
 			return createMap<UnorderedMap>(keyGen);
-#else // ^^^gcc < 5 vvv gcc >= 5
+  #else // ^^^gcc < 5 vvv gcc >= 5
 		toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
 			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>;
 			return createMap<UnorderedMap>(keyGen, allocator);
-#endif // end lz gcc version < 5
+  #endif // end lz gcc version < 5
 		}
 
 		/**

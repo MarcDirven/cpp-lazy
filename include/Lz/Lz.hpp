@@ -236,14 +236,14 @@ namespace lz {
 #ifdef LZ_HAS_EXECUTION
 		//! See Filter.hpp for documentation.
         template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-        IterView<internal::FilterIterator<Execution, Iterator, UnaryPredicate>> filter(UnaryPredicate predicate,
-                                                                                       Execution exec = std::execution::seq) const {
+        IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>>
+        filter(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
             return lz::toIter(lz::filter(*this, std::move(predicate), exec));
         }
 
         //! See Except.hpp for documentation.
         template<class IterableToExcept, class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
-        IterView<internal::ExceptIterator<Execution, Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
+        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
         except(IterableToExcept&& toExcept, Compare compare = {}, Execution exec = std::execution::seq) const {
             return lz::toIter(lz::except(*this, toExcept, std::move(compare), exec));
         }
@@ -264,7 +264,7 @@ namespace lz {
 
         //! See FunctionTools.hpp `filterMap` for documentation.
         template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
-        IterView<internal::MapIterator<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>>
+        IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
         filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution exec = std::execution::seq) const {
             return lz::toIter(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc), exec));
         }
@@ -282,13 +282,11 @@ namespace lz {
         }
 
         //! See JoinWhere.hpp for documentation
-        template<class IterableB, class SelectorA, class SelectorB, class ResultSelector,
-            class Execution = std::execution::sequenced_policy>
+        template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
         IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
-            SelectorA, SelectorB, ResultSelector, Execution>>
-        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
-                  Execution execution = std::execution::seq) const {
-            return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
+            SelectorA, SelectorB, ResultSelector>>
+        joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
+            return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
         }
 
 		//! See GroupBy.hpp for documentation

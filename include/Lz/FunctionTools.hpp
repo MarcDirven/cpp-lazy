@@ -469,7 +469,7 @@ namespace lz { namespace internal {
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
-    Map<internal::FilterIterator<Execution, Iterator, UnaryFilterFunc>, UnaryMapFunc>
+    Map<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>
 	filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
               Execution execPolicy = std::execution::seq) {
         auto filterView = lz::filterRange(std::move(begin), std::move(end), std::move(filterFunc), execPolicy);
@@ -486,7 +486,7 @@ namespace lz { namespace internal {
      * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
      */
     template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
-    Map<internal::FilterIterator<Execution, internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc>, UnaryMapFunc>
+    Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc, Execution>, UnaryMapFunc>
 	filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execution = std::execution::seq) {
         return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
                              internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc), std::move(mapFunc),

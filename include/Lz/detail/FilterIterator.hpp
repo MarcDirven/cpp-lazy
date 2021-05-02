@@ -12,9 +12,7 @@
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-
-
-	template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
 #else // ^^^lz has execution vvv ! lz has execution
 	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 #endif // LZ_HAS_EXECUTION
@@ -61,8 +59,7 @@ namespace lz { namespace internal {
 			_end(std::move(end)),
 			_predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
-			,
-			_execution(execution)
+			, _execution(execution)
 #endif // LZ_HAS_EXECUTION
 		{
 			find();
