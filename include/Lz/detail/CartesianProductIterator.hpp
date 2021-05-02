@@ -5,8 +5,6 @@
 
 #include "Lz/detail/LzTools.hpp"
 
-#include <numeric>
-
 
 namespace lz { namespace internal {
 	// Edited version of https://github.com/mirandaconrado/product-iterator
@@ -26,8 +24,7 @@ namespace lz { namespace internal {
 		std::tuple<Iterators...> _end{};
 
 		template<std::size_t I>
-		EnableIf<I == 0> next() const {
-		}
+		constexpr EnableIf<I == 0> next() const {}
 
 #ifdef LZ_MSVC
   #pragma warning(push)
@@ -35,7 +32,7 @@ namespace lz { namespace internal {
 #endif
 
 		template<std::size_t I>
-		EnableIf<(I > 0)> next() {
+		LZ_CONSTEXPR_CXX_14 EnableIf<(I > 0)> next() {
 			auto& prev = std::get<I - 1>(_iterator);
 			++prev;
 
@@ -52,30 +49,23 @@ namespace lz { namespace internal {
 #endif
 
 		template<std::size_t... Is>
-		reference dereference(IndexSequence<Is...>) {
-			return reference(*std::get<Is>(_iterator)...);
-		}
-
-		template<std::size_t... Is>
-		difference_type length(IndexSequence<Is...>) const {
-			auto lengths = {static_cast<difference_type>(std::distance(std::get<Is>(_iterator), std::get<Is>(_end)))...};
-			return std::accumulate(lengths.begin(), lengths.end(), 1,
-								   std::multiplies<difference_type>()); // NOLINT(modernize-use-transparent-functors)
+		LZ_CONSTEXPR_CXX_14 reference dereference(IndexSequence<Is...>) {
+			return {*std::get<Is>(_iterator)...};
 		}
 
 	public:
-		CartesianProductIterator() = default;
+		constexpr CartesianProductIterator() = default;
 
-		CartesianProductIterator(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+		LZ_CONSTEXPR_CXX_14 CartesianProductIterator(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
 			_begin(begin),
 			_iterator(begin),
-			_end(end) {}
+			_end(std::move(end)) {}
 
-		reference operator*() {
+		LZ_CONSTEXPR_CXX_14 reference operator*() {
 			return dereference(MakeIndexSequence<sizeof...(Iterators)>());
 		}
 
-		CartesianProductIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 CartesianProductIterator& operator++() {
 			if (std::get<0>(_iterator) == std::get<0>(_end)) {
 				return *this;
 			}
@@ -83,17 +73,17 @@ namespace lz { namespace internal {
 			return *this;
 		}
 
-		CartesianProductIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 CartesianProductIterator operator++(int) {
 			CartesianProductIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+		LZ_CONSTEXPR_CXX_14 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 			return std::get<0>(lhs._iterator) == std::get<0>(rhs._iterator);
 		}
 
-		friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+		LZ_CONSTEXPR_CXX_14 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 			return !(lhs == rhs); // NOLINT
 		}
 	};

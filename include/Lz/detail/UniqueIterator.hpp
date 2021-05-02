@@ -36,9 +36,9 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
 
-		UniqueIterator(Iterator begin, Iterator end, Compare compare, Execution execution)
+		constexpr UniqueIterator(Iterator begin, Iterator end, Compare compare, Execution execution)
 #else // ^^^ lz has execution vvv ! lz has execution
-		UniqueIterator(Iterator begin, Iterator end, Compare compare)
+		constexpr UniqueIterator(Iterator begin, Iterator end, Compare compare)
 #endif // LZ_HAS_EXECUTION
 			:
 			_iterator(std::move(begin)),
@@ -51,17 +51,17 @@ namespace lz { namespace internal {
 		{
 		}
 
-		UniqueIterator() = default;
+		constexpr UniqueIterator() = default;
 
-		reference operator*() const {
+		constexpr reference operator*() const {
 			return *_iterator;
 		}
 
-		pointer operator->() const {
+		constexpr pointer operator->() const {
 			return &*_iterator;
 		}
 
-		UniqueIterator& operator++() {
+		LZ_CONSTEXPR_CXX_20 UniqueIterator& operator++() {
   #ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 				_iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
@@ -79,17 +79,17 @@ namespace lz { namespace internal {
 			return *this;
 		}
 
-		UniqueIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_20 UniqueIterator operator++(int) {
 			UniqueIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
+		constexpr friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
 			return a._iterator != b._iterator;
 		}
 
-		friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
+		constexpr friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
 			return !(a != b); // NOLINT
 		}
 	};

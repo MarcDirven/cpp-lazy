@@ -4,8 +4,7 @@
 #define LZ_TAKE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include <cassert>
-#include <functional>
+
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
@@ -25,7 +24,7 @@ namespace lz {
          * function returns false, the iterator stops.
          */
         template<class Function>
-        Take(Iterator begin, Iterator end, Function predicate) :
+        constexpr Take(Iterator begin, Iterator end, Function predicate) :
             internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end)
         {
         }
@@ -36,12 +35,12 @@ namespace lz {
          * @param begin The beginning of the iterator.
          * @param end The ending of the iterator.
          */
-        Take(Iterator begin, Iterator end, std::nullptr_t) :
+        constexpr Take(Iterator begin, Iterator end, std::nullptr_t) :
             internal::BasicIteratorView<iterator>(std::move(begin), std::move(end))
         {
         }
 
-        Take() = default;
+		constexpr Take() = default;
     };
 
     // Start of group
@@ -67,7 +66,7 @@ namespace lz {
      * `for (auto... lz::takeWhileRange(...))`.
      */
     template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-    Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
+	constexpr Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
         return Take<Iterator>(std::move(begin), std::move(end), std::move(predicate));
     }
 
@@ -81,7 +80,7 @@ namespace lz {
      * `for (auto... lz::takeWhile(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-    Take<internal::IterTypeFromIterable<Iterable>> takeWhile(Iterable&& iterable, Function predicate) {
+	constexpr Take<internal::IterTypeFromIterable<Iterable>> takeWhile(Iterable&& iterable, Function predicate) {
         return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                               std::move(predicate));
     }
@@ -96,7 +95,7 @@ namespace lz {
      * `for (auto... lz::takeRange(...))`.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    Take<Iterator> takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
+    LZ_CONSTEXPR_CXX_17 Take<Iterator> takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
         LZ_ASSERT(amount <= std::distance(begin, end), "cannot access elements after end");
         static_cast<void>(end);
         return takeWhileRange(begin, std::next(begin, amount), nullptr);
@@ -112,7 +111,7 @@ namespace lz {
      * `for (auto... lz::take(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-    Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
+	LZ_CONSTEXPR_CXX_17 Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
         return takeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
     }
 
@@ -124,7 +123,7 @@ namespace lz {
      * @return A Take iterator where the first `amount` items have been dropped.
      */
     template<LZ_CONCEPT_ITERATOR Iterator>
-    Take<Iterator> dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
+	LZ_CONSTEXPR_CXX_17 Take<Iterator> dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
         return takeRange(std::next(begin, amount), end, std::distance(begin, end) - amount);
     }
 
@@ -135,7 +134,7 @@ namespace lz {
      * @return A Take iterator where the first `amount` items have been dropped.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-    Take<IterType> drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
+	LZ_CONSTEXPR_CXX_17 Take<IterType> drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
         return dropRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
     }
 
@@ -149,8 +148,8 @@ namespace lz {
      * `for (auto... lz::slice(...))`.
      */
     template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-    Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
-                                                         const internal::DiffType<IterType> to) {
+	LZ_CONSTEXPR_CXX_17 Take<internal::IterTypeFromIterable<Iterable>> slice(Iterable&& iterable, const internal::DiffType<IterType> from,
+                                                         					 const internal::DiffType<IterType> to) {
         LZ_ASSERT(to >= from, "parameter `to` cannot be more than `from`");
         auto begin = internal::begin(std::forward<Iterable>(iterable));
         begin = std::next(std::move(begin), from);
@@ -169,7 +168,8 @@ namespace lz {
      * @return A Take iterator view object.
      */
 	template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-	Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution exec = std::execution::seq) {
+	LZ_CONSTEXPR_CXX_20 Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate,
+												   	  Execution exec = std::execution::seq) {
         using ValueType = internal::ValueType<Iterator>;
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(exec);
@@ -195,8 +195,8 @@ namespace lz {
      * @return A Take iterator view object.
      */
 	template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
-	Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
-                                                             Execution exec = std::execution::seq) {
+	LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
+                                                             					 Execution exec = std::execution::seq) {
         return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                               std::move(predicate), exec);
     }
@@ -221,7 +221,7 @@ namespace lz {
         begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
             return !pred(value);
 		});
-#endif // end lz has cxx 11
+#endif // LZ_HAS_CXX_11
         return takeRange(begin, end, std::distance(begin, end));
     }
 
@@ -238,8 +238,8 @@ namespace lz {
         return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                               std::move(predicate));
     }
-	
-#endif // end lz has execution
+
+#endif // LZ_HAS_EXECUTION
     // End of group
     /**
      * @}

@@ -25,7 +25,8 @@ namespace lz { namespace internal {
 		difference_type _to{};
 
 	public:
-		ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from, const difference_type to) :
+		LZ_CONSTEXPR_CXX_17 ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from,
+											const difference_type to) :
 			_iterator(std::move(it)),
 			_begin(std::move(begin)),
 			_end(std::move(end)),
@@ -37,17 +38,17 @@ namespace lz { namespace internal {
 			}
 		}
 
-		ExcludeIterator() = default;
+		constexpr ExcludeIterator() = default;
 
-		reference operator*() const {
+		constexpr reference operator*() const {
 			return *_iterator;
 		}
 
-		pointer operator->() const {
+		constexpr pointer operator->() const {
 			return &*_iterator;
 		}
 
-		ExcludeIterator& operator++() {
+		LZ_CONSTEXPR_CXX_17 ExcludeIterator& operator++() {
 			++_iterator;
 			++_index;
 			if (_index == _from) {
@@ -56,17 +57,17 @@ namespace lz { namespace internal {
 			return *this;
 		}
 
-		ExcludeIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_17 ExcludeIterator operator++(int) {
 			ExcludeIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
+		constexpr friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
 			return !(a != b); // NOLINT
 		}
 
-		friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+		constexpr friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
 			return a._iterator != b._iterator;
 		}
 	};

@@ -183,7 +183,7 @@ namespace lz { namespace internal {
 			MapType map;
   #else
 		template<class MapType, class Allocator, class KeySelectorFunc>
-		MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
+		LZ_CONSTEXPR_CXX_20 MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
 			MapType map(allocator);
   #endif // END LZ_GCC_VERSION
 			std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
@@ -194,7 +194,7 @@ namespace lz { namespace internal {
 
 #ifdef LZ_HAS_EXECUTION
 		template<class Container, class... Args, class Execution>
-		Container copyContainer(Execution execution, Args&& ... args) const {
+		LZ_CONSTEXPR_CXX_20 Container copyContainer(Execution execution, Args&& ... args) const {
 			const LzIterator b = begin();
 			const LzIterator e = end();
 			Container cont(std::forward<Args>(args)...);
@@ -220,7 +220,7 @@ namespace lz { namespace internal {
 		}
 
 		template<std::size_t N, class Execution>
-		std::array<value_type, N> copyArray(Execution execution) const {
+		LZ_CONSTEXPR_CXX_20 std::array<value_type, N> copyArray(Execution execution) const {
 			LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
 					  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
 			std::array<value_type, N> array{};
@@ -258,27 +258,27 @@ namespace lz { namespace internal {
 
 #endif // LZ_HAS_EXECUTION
 	public:
-		virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
+		LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
 			return _begin;
 		}
 
-		virtual LzIterator end() LZ_CONST_REF_QUALIFIER {
+		LZ_CONSTEXPR_CXX_20 virtual LzIterator end() LZ_CONST_REF_QUALIFIER {
 			return _end;
 		}
 
 #ifdef LZ_HAS_REF_QUALIFIER
-		virtual LzIterator begin() && {
+		LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() && {
 			return std::move(_begin);
 		}
 
-		virtual LzIterator end() && {
+		LZ_CONSTEXPR_CXX_20 virtual LzIterator end() && {
 			return std::move(_end);
 		}
 #endif // LZ_HAS_REF_QUALIFIER
 
-		BasicIteratorView() = default;
+		constexpr BasicIteratorView() = default;
 
-		BasicIteratorView(LzIterator begin, LzIterator end) :
+		constexpr BasicIteratorView(LzIterator begin, LzIterator end) :
 			_begin(std::move(begin)),
 			_end(std::move(end)) {}
 
@@ -302,7 +302,7 @@ namespace lz { namespace internal {
 		 * @return An arbitrary container specified by the entered template parameter.
 		 */
 		template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-		Container<value_type, Args...> to(Execution execution = std::execution::seq, Args&& ... args) const {
+		LZ_CONSTEXPR_CXX_20 Container<value_type, Args...> to(Execution execution = std::execution::seq, Args&& ... args) const {
 			using Cont = Container<value_type, Args...>;
 			return copyContainer<Cont>(execution, std::forward<Args>(args)...);
 		}
@@ -314,7 +314,7 @@ namespace lz { namespace internal {
 		* @return A `std::vector<value_type>` with the sequence.
 		*/
 		template<class Execution = std::execution::sequenced_policy>
-		std::vector<value_type> toVector(Execution exec = std::execution::seq) const {
+		LZ_CONSTEXPR_CXX_20 std::vector<value_type> toVector(Execution exec = std::execution::seq) const {
 			return to<std::vector>(exec);
 		}
 
@@ -327,7 +327,7 @@ namespace lz { namespace internal {
 		 * @return A new `std::vector<value_type, Allocator>`.
 		 */
 		template<class Allocator, class Execution = std::execution::sequenced_policy>
-		std::vector<value_type, Allocator> toVector(const Allocator& alloc, Execution exec) const {
+		LZ_CONSTEXPR_CXX_20 std::vector<value_type, Allocator> toVector(const Allocator& alloc, Execution exec) const {
 			return to<std::vector>(exec, alloc);
 		}
 
@@ -339,7 +339,7 @@ namespace lz { namespace internal {
 		 * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
 		 */
 		template<std::size_t N, class Execution = std::execution::sequenced_policy>
-		std::array<value_type, N> toArray(Execution exec = std::execution::seq) const {
+		LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution exec = std::execution::seq) const {
 			return copyArray<N>(exec);
 		}
 
@@ -442,7 +442,7 @@ namespace lz { namespace internal {
 		template<class KeySelectorFunc,
 			class Compare = std::less<KeyType<KeySelectorFunc>>,
 			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
-		std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
+		LZ_CONSTEXPR_CXX_20 std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
 		toMap(const KeySelectorFunc keyGen) const {
 			using Map = std::map<KeyType<KeySelectorFunc>, T, Compare, Allocator>;
@@ -479,7 +479,7 @@ namespace lz { namespace internal {
 			class Hasher = std::hash<KeyType<KeySelectorFunc>>,
 			class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
 			class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
-		std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
+		LZ_CONSTEXPR_CXX_20 std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
   #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
 		toUnorderedMap(const KeySelectorFunc keyGen) const {
 			using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;

@@ -12,6 +12,8 @@
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
+
+
 	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
 #else // ^^^lz has execution vvv ! lz has execution
 	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
@@ -26,23 +28,23 @@ namespace lz { namespace internal {
 		using pointer = typename IterTraits::pointer;
 		using reference = typename IterTraits::reference;
 
-		void find() {
-  #ifdef LZ_HAS_EXECUTION
+		LZ_CONSTEXPR_CXX_20 void find() {
+#ifdef LZ_HAS_EXECUTION
 			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) { // prevent verbose errors when iter cat < forward
 				_iterator = std::find_if(std::move(_iterator), _end, _predicate);
 			}
 			else {
 				_iterator = std::find_if(_execution, std::move(_iterator), _end, _predicate);
 			}
-  #else // ^^^lz has execution vvv ! lz has execution
+#else // ^^^lz has execution vvv ! lz has execution
 			_iterator = std::find_if(std::move(_iterator), _end, _predicate);
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 		}
 
 	private:
 		Iterator _iterator{};
 		Iterator _end{};
-		mutable FunctionContainer<UnaryPredicate> _predicate{};
+		mutable FunctionContainer <UnaryPredicate> _predicate{};
 #ifdef LZ_HAS_EXECUTION
 		Execution _execution{};
 #endif // LZ_HAS_EXECUTION
@@ -50,7 +52,7 @@ namespace lz { namespace internal {
 	public:
 #ifdef LZ_HAS_EXECUTION
 
-		FilterIterator(Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
+		LZ_CONSTEXPR_CXX_20 FilterIterator(Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
 		FilterIterator(Iterator begin, Iterator end, UnaryPredicate function)
 #endif // LZ_HAS_EXECUTION
@@ -59,39 +61,40 @@ namespace lz { namespace internal {
 			_end(std::move(end)),
 			_predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
-			, _execution(execution)
+			,
+			_execution(execution)
 #endif // LZ_HAS_EXECUTION
 		{
 			find();
 		}
 
-		FilterIterator() = default;
+		constexpr FilterIterator() = default;
 
-		reference operator*() const {
+		constexpr reference operator*() const {
 			return *_iterator;
 		}
 
-		pointer operator->() const {
+		constexpr pointer operator->() const {
 			return &*_iterator;
 		}
 
-		FilterIterator& operator++() {
+		LZ_CONSTEXPR_CXX_20 FilterIterator& operator++() {
 			++_iterator;
 			find();
 			return *this;
 		}
 
-		FilterIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_20 FilterIterator operator++(int) {
 			FilterIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
+		constexpr friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
 			return a._iterator != b._iterator;
 		}
 
-		friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
+		constexpr friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
 			return !(a != b); // NOLINT
 		}
 	};

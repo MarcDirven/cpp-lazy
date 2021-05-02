@@ -12,6 +12,8 @@
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
+
+
 	template<class Iterator, class KeySelector, class Execution>
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 	template<class Iterator, class KeySelector>
@@ -28,7 +30,7 @@ namespace lz { namespace internal {
 		using IterValueType = ValueType<Iterator>;
 		using FnRetType = decltype(_keySelector(*_subRangeBegin));
 
-		void advance() {
+		LZ_CONSTEXPR_CXX_20 void advance() {
 			if (_subRangeEnd == _end) {
 				return;
 			}
@@ -59,19 +61,21 @@ namespace lz { namespace internal {
 		using pointer = FakePointerProxy<reference>;
 		using difference_type = std::ptrdiff_t;
 
-		GroupByIterator() = default;
+		constexpr GroupByIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, Execution execution):
+
+		LZ_CONSTEXPR_CXX_20 GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, Execution execution) :
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector):
+			GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector):
 #endif // end LZ_HAS_EXECUTION
 			_subRangeEnd(begin),
 			_subRangeBegin(begin),
 			_end(std::move(end)),
 			_keySelector(std::move(keySelector))
 #ifdef LZ_HAS_EXECUTION
-			, _execution(execution)
+			,
+			_execution(execution)
 #endif // end LZ_HAS_EXECUTION
 		{
 			if (_subRangeBegin == _end) {
@@ -80,31 +84,31 @@ namespace lz { namespace internal {
 			advance();
 		}
 
-		reference operator*() const {
+		constexpr reference operator*() const {
 			return reference(_keySelector(*_subRangeBegin), BasicIteratorView<Iterator>(_subRangeBegin, _subRangeEnd));
 		}
 
-		pointer operator->() const {
+		constexpr pointer operator->() const {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		GroupByIterator& operator++() {
+		LZ_CONSTEXPR_CXX_20 GroupByIterator& operator++() {
 			_subRangeBegin = _subRangeEnd;
 			advance();
 			return *this;
 		}
 
-		GroupByIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_20 GroupByIterator operator++(int) {
 			GroupByIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+		constexpr friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
 			return lhs._subRangeBegin != rhs._subRangeBegin;
 		}
 
-		friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+		constexpr friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
 			return !(lhs != rhs); // NOLINT
 		}
 	};

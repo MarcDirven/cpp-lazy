@@ -260,15 +260,15 @@ namespace lz { namespace internal {
 
 		using Pointer = decltype(std::addressof(_t));
 	public:
-		explicit FakePointerProxy(const T& t) :
+		constexpr explicit FakePointerProxy(const T& t) :
 			_t(t) {
 		}
 
-		Pointer operator->() {
+		constexpr Pointer operator->() {
 			return std::addressof(_t);
 		}
 
-		Pointer operator->() const {
+		constexpr Pointer operator->() const {
 			return std::addressof(_t);
 		}
 	};
@@ -335,7 +335,7 @@ namespace lz { namespace internal {
 	};
 
 	template<LZ_CONCEPT_INTEGRAL Arithmetic>
-	inline bool isEven(const Arithmetic value) {
+	inline constexpr bool isEven(const Arithmetic value) {
 		return (value & 1) == 0;
 	}
 }} // end lz::internal

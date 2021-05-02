@@ -10,13 +10,15 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
+
+
 	template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 	class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
 #else
 
 
-	template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-	class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
+		template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
+		class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
 #endif
 	public:
 #ifdef LZ_HAS_EXECUTION
@@ -28,19 +30,20 @@ namespace lz {
 		using value_type = typename iterator::value_type;
 
 #ifdef LZ_HAS_EXECUTION
-		Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
-			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e))
-		{
+
+		constexpr Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
+			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
 		}
+
 #else
 
-		Unique(Iterator begin, Iterator end, Compare compare) :
+		constexpr Unique(Iterator begin, Iterator end, Compare compare) :
 			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
 		}
 
 #endif
 
-		Unique() = default;
+		constexpr Unique() = default;
 	};
 
 	// Start of group
@@ -50,6 +53,7 @@ namespace lz {
 	 */
 
   #ifdef LZ_HAS_EXECUTION
+
 	/**
 	 * @brief Returns an Unique iterator view object.
 	 * @attention [begin, end) must be sorted in order to work properly.
@@ -62,7 +66,7 @@ namespace lz {
 	 * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
 	 */
 	template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<>>
-	Unique<Execution, Iterator, Compare>
+	constexpr Unique<Execution, Iterator, Compare>
 	uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPolicy = std::execution::seq) {
 		return Unique<Execution, Iterator, Compare>(std::move(begin), std::move(end), std::move(compare), execPolicy);
 	}
@@ -80,7 +84,8 @@ namespace lz {
 	 */
 	template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
 		class It = internal::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
-	Unique<Execution, It, Compare> unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
+	constexpr Unique<Execution, It, Compare>
+	unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
 		return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						   std::move(compare), execPolicy);
 	}
@@ -97,7 +102,7 @@ namespace lz {
 	 * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
 	 */
 	template<class Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
-	Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = {}) {
+	constexpr Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = {}) {
 		return Unique<Iterator, Compare>(std::move(begin), std::move(end), std::move(compare));
 	}
 
@@ -110,7 +115,7 @@ namespace lz {
 	 * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
 	 */
 	template<class Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
-	Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
+	constexpr Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
 		return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						   std::move(compare));
 	}

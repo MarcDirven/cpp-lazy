@@ -13,11 +13,11 @@ namespace lz {
 		using const_iterator = iterator;
 		using value_type = typename iterator::value_type;
 
-		Chunks(Iterator begin, Iterator end, const std::size_t chunkSize):
+		LZ_CONSTEXPR_CXX_17 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize):
 			internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize), iterator(end, end, chunkSize))
 		{}
 
-		Chunks() = default;
+		constexpr Chunks() = default;
 	};
 
 	/**
@@ -29,7 +29,7 @@ namespace lz {
 	 * @return A Chunk iterator view object.
 	 */
 	template<LZ_CONCEPT_ITERATOR Iterator>
-	Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
+	LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
 		return Chunks<Iterator>(std::move(begin), std::move(end), chunkSize);
 	}
 
@@ -41,7 +41,7 @@ namespace lz {
 	 * @return A Chunk iterator view object.
 	 */
 	template<LZ_CONCEPT_ITERABLE Iterable>
-	Chunks<internal::IterTypeFromIterable<Iterable>> chunks(Iterable&& iterable, const std::size_t chunkSize) {
+	LZ_CONSTEXPR_CXX_17 Chunks<internal::IterTypeFromIterable<Iterable>> chunks(Iterable&& iterable, const std::size_t chunkSize) {
 		return chunksRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), chunkSize);
 	}
 }
