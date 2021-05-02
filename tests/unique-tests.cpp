@@ -4,16 +4,13 @@
 
 TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality]") {
     std::array<int, 4> arr = {3, 2, 3, 1};
+	std::sort(arr.begin(), arr.end());
     auto unique = lz::unique(arr);
     auto beg = unique.begin();
     constexpr std::size_t size = 3;
 
     REQUIRE(*beg == 1);
     REQUIRE(static_cast<std::size_t>(std::distance(beg, unique.end())) == size);
-
-    SECTION("Should be sorted") {
-        CHECK(std::is_sorted(arr.begin(), arr.end()));
-    }
 
     SECTION("Should be unique") {
         std::array<int, size> expected = {1, 2, 3};
@@ -30,6 +27,7 @@ TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality
 
 TEST_CASE("Unique binary operations", "[Unique][Binary ops]") {
     std::array<int, 4> arr = {3, 2, 3, 1};
+	std::sort(arr.begin(), arr.end());
     auto unique = lz::unique(arr);
     auto beg = unique.begin();
 
@@ -47,6 +45,7 @@ TEST_CASE("Unique binary operations", "[Unique][Binary ops]") {
 
 TEST_CASE("Unique to container", "[Unique][To container]") {
     std::array<int, 4> arr = {3, 2, 3, 1};
+	std::sort(arr.begin(), arr.end());
     constexpr std::size_t size = 3;
     auto unique = lz::unique(arr);
 

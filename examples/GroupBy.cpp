@@ -5,6 +5,7 @@ int main() {
 		"hello", "hellp", "i'm", "done"
 	};
 
+	std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
 	auto grouper = lz::groupBy(vec, [](const std::string& s) { return s.length(); });
 
 	for (auto&& pair : grouper) {
@@ -26,7 +27,8 @@ int main() {
 
 	fmt::print("\n");
 
-	auto grouperDesc = lz::groupByDescending(vec, [](const std::string& s) { return s.length(); });
+	std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() > b.length(); });
+	auto grouperDesc = lz::groupBy(vec, [](const std::string& s) { return s.length(); });
 	for (auto&& pair : grouperDesc) {
 		fmt::print("String length group: {}\n", pair.first);
 		for (const auto& str : pair.second) {

@@ -30,6 +30,7 @@ int main() {
 	 * Use of lz::length(customers) > lz::length(paymentBills) is also possible of course.
 	 * */
 	if (std::distance(customers.begin(), customers.end()) > std::distance(paymentBills.begin(), paymentBills.end())) {
+		std::sort(paymentBills.begin(), paymentBills.end(), [](const PaymentBill& a, const PaymentBill& b) { return a.customerId < b.customerId; });
 		auto joined = lz::joinWhere(customers, paymentBills,
 									[](const Customer& p) { return p.id; },
 									[](const PaymentBill& c) { return c.customerId; },
@@ -48,6 +49,7 @@ int main() {
 	}
 	// paymentBills sequence is larger, sort customers instead
 	else {
+		std::sort(customers.begin(), customers.end(), [](const Customer& a, const Customer& b) { return a.id < b.id; });
 		auto joined = lz::joinWhere(paymentBills, customers,
 									[](const PaymentBill& p) { return p.customerId; },
 									[](const Customer& c) { return c.id; },

@@ -32,15 +32,20 @@ namespace lz { namespace internal {
 			if (_subRangeEnd == _end) {
 				return;
 			}
-
 			FnRetType next = _keySelector(*_subRangeEnd);
+			++_subRangeEnd;
 #ifdef LZ_HAS_EXECUTION
-			++_subRangeEnd;
-			_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
-				return !(_keySelector(v) == next); // NOLINT
-			});
+			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+				_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
+					return !(_keySelector(v) == next); // NOLINT
+				});
+			}
+			else {
+				_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
+					return !(_keySelector(v) == next); // NOLINT
+				});
+			}
 #else
-			++_subRangeEnd;
 			_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 				return !(_keySelector(v) == next); // NOLINT
 			});
@@ -56,11 +61,10 @@ namespace lz { namespace internal {
 
 		GroupByIterator() = default;
 
-		template<class SortFunc>
 #ifdef LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc, Execution execution):
+		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, Execution execution):
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc):
+		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector):
 #endif // end LZ_HAS_EXECUTION
 			_subRangeEnd(begin),
 			_subRangeBegin(begin),
@@ -73,18 +77,6 @@ namespace lz { namespace internal {
 			if (_subRangeBegin == _end) {
 				return;
 			}
-
-#ifdef LZ_HAS_EXECUTION
-			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-				if (!std::is_sorted(_execution, _subRangeBegin, _end, sortFunc)) {
-					std::sort(_execution, _subRangeBegin, _end, sortFunc);
-				}
-			}
-#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-			if (!std::is_sorted(_subRangeBegin, _end, sortFunc)) {
-				std::sort(_subRangeBegin, _end, sortFunc);
-			}
-#endif // end LZ_HAS_EXECUTION
 			advance();
 		}
 

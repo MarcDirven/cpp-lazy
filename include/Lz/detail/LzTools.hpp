@@ -112,12 +112,9 @@ namespace lz {
   #define LZ_CONCEPT_INVOCABLE              std::invocable
   #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
   #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
-  #define LZ_CONCEPT_RA_ITERATOR            RandomAccessOrHigherIterator
-  #define LZ_CONCEPT_RA_ITERABLE            RandomAccessOrHigherIterable
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
-  #define LZ_REQUIRES_LESS_THAN(A, B) requires LessThanComparable<A, B>
 #else  // ^^^ has concepts !has concepts vvv
   #define LZ_CONCEPT_ARITHMETIC             class
   #define LZ_CONCEPT_INTEGRAL               class
@@ -126,8 +123,6 @@ namespace lz {
   #define LZ_CONCEPT_ITERABLE               class
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-  #define LZ_CONCEPT_RA_ITERATOR            class
-  #define LZ_CONCEPT_RA_ITERABLE            class
 
   #define LZ_REQUIRES_LESS_THAN(A, B)
 #endif  // lz has concepts
