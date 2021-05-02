@@ -17,29 +17,40 @@
 #endif
 
 #if defined(_MSVC_LANG)
-  #define LZ_MSVC
+  #define LZ_MSVC _MSVC_LANG
 #endif
 
-#if defined(_MSVC_LANG) && (_MSVC_LANG >= 201103L) && (_MSVC_LANG < 201402L)
-  #define LZ_HAS_CXX_11
-#elif (__cplusplus >= 201103L) && (__cplusplus < 201402L) // ^^^ has msvc && cxx 11 vvv has cxx 11
+#if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
   #define LZ_HAS_CXX_11
 #endif // end has cxx 11
+
+#if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
+  #define LZ_CONSTEXPR_CXX_14 constexpr
+#else
+  #define LZ_CONSTEXPR_CXX_14
+#endif // has cxx 14
+
+
+#if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
+  #define LZ_HAS_CXX_17
+  #define LZ_CONSTEXPR_CXX_17 constexpr
+#else
+  #define LZ_CONSTEXPR_CXX_17
+#endif // Has cxx 17
+
+#if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
+  #define LZ_HAS_CXX_20
+  #define LZ_CONSTEXPR_CXX_20 constexpr
+#else
+  #define LZ_CONSTEXPR_CXX_20
+#endif // Has cxx 20
 
 #ifdef __cpp_ref_qualifiers
   #define LZ_HAS_REF_QUALIFIER
   #define LZ_CONST_REF_QUALIFIER const&
 #else
   #define LZ_CONST_REF_QUALIFIER
-#endif
-
-#if (__cplusplus >= 201703L) || ((defined(_MSVC_LANG)) && (_MSVC_LANG >= 201703L))
-  #define LZ_HAS_CXX_17
-#endif // Has cxx 17
-
-#if (__cplusplus > 201703L) || ((defined(_MSVC_LANG) && (_MSVC_LANG > 201703L)))
-  #define LZ_HAS_CXX_20
-#endif // Has cxx 20
+#endif // __cpp_ref_qualifiers
 
 #if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
   #define LZ_HAS_EXECUTION
@@ -107,7 +118,7 @@ namespace lz {
 	concept Arithmetic = std::is_arithmetic_v<I>;
 } // End namespace lz
 
-#define LZ_CONCEPT_ARITHMETIC            	lz::Arithmetic
+  #define LZ_CONCEPT_ARITHMETIC                lz::Arithmetic
   #define LZ_CONCEPT_INTEGRAL               std::integral
   #define LZ_CONCEPT_INVOCABLE              std::invocable
   #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
@@ -155,6 +166,7 @@ namespace lz { namespace internal {
 	constexpr T* end(T(& array)[N]) {
 		return std::end(array);
 	}
+
 #ifdef LZ_HAS_CXX_11
 	template<bool B, class U = void>
 	using EnableIf = typename std::enable_if<B, U>::type;
