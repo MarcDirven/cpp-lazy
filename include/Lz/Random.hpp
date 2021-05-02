@@ -10,7 +10,8 @@
 #include "Generate.hpp"
 
 
-namespace lz { namespace internal {
+namespace lz {
+	namespace internal {
 		inline std::mt19937 createMtEngine() {
 			std::random_device rd;
 			const auto generator = lz::generate([&rd]() {
