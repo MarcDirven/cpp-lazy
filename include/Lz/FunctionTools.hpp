@@ -6,7 +6,6 @@
 
 #include <numeric>
 #include <algorithm>
-#include <functional>
 
 #include "StringSplitter.hpp"
 #include "Join.hpp"
@@ -47,18 +46,24 @@ namespace lz {
 		};
 
 
-		template<class Tuple, class Fn, std::size_t... I>
-		auto makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>) ->
-		std::function<decltype(fn(std::get<I>(std::declval<Tuple>())...))(Tuple)> {
-  #ifdef LZ_HAS_CXX_11
-			return std::bind([](Fn fn, Tuple tuple) {
-				return fn(std::get<I>(std::forward<Tuple>(tuple))...);
-			}, std::move(fn), std::placeholders::_1);
-  #else
-			return [f = std::move(fn)](Tuple tuple) {
-				return f(std::get<I>(std::forward<Tuple>(tuple))...);
-			};
-  #endif
+		template<class Fn, class RefTuple, std::size_t... I>
+		struct TupleExpand {
+			internal::FunctionContainer<Fn> fn{};
+
+			constexpr TupleExpand() = default;
+
+			explicit constexpr TupleExpand(Fn fn):
+				fn(std::move(fn))
+			{}
+
+			constexpr auto operator()(RefTuple tuple) -> decltype(fn(std::get<I>(tuple)...)) {
+				return fn(std::get<I>(tuple)...);
+			}
+		};
+
+		template<class RefTuple, class Fn, std::size_t... I>
+		constexpr internal::TupleExpand<Fn, RefTuple, I...> makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>) {
+			return internal::TupleExpand<Fn, RefTuple, I...>(std::move(fn));
 		}
 	} // namespace internal
 
@@ -232,7 +237,7 @@ namespace lz {
 		class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
 	auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
 	lz::Map<decltype(std::begin(std::declval<Zipper>())),
-		decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
+	decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
 		Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
 		auto tupleExpanderFunc = internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
 		return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
@@ -363,7 +368,7 @@ namespace lz {
 	}
 
 	template<LZ_CONCEPT_ITERATOR Iterator>
-	constexpr internal::RefType<Iterator> last(Iterator begin, Iterator end) {
+	LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
 		LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
 		return *std::next(begin, std::distance(begin, end) - 1);
 	}
@@ -374,7 +379,7 @@ namespace lz {
 	 * @return The last element of the sequence (by reference).
 	 */
 	template<LZ_CONCEPT_ITERABLE Iterable>
-	constexpr internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
+	LZ_CONSTEXPR_CXX_17 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
 		return lz::last(std::begin(iterable), std::end(iterable));
 	}
 
@@ -433,7 +438,8 @@ namespace lz {
 	template<LZ_CONCEPT_ITERATOR Iterator>
 	LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
 		LZ_ASSERT(lz::hasMany(begin, end), "length of the sequence must be greater than or equal to 2");
-		return lz::zipRange(std::make_tuple(begin, std::next(begin)), std::make_tuple(end, end));
+		auto start = begin++;
+		return lz::zipRange(std::make_tuple(start, begin), std::make_tuple(end, end));
 	}
 
 	/**
@@ -954,11 +960,9 @@ namespace lz {
 	double median(Iterator begin, Iterator end, Compare compare = {}) {
 		const internal::DiffType<Iterator> len = std::distance(begin, end);
 		if (len == 0) return 0.;
-
 		const internal::DiffType<Iterator> mid = len >> 1;
 		const Iterator midIter = std::next(begin, mid);
 		std::nth_element(begin, midIter, end, compare);
-
 		if (internal::isEven(len)) {
 			const Iterator leftHalf = std::max_element(begin, midIter);
 			return (static_cast<double>(*leftHalf) + *midIter) / 2.;
