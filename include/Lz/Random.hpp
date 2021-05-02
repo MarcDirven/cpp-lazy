@@ -36,7 +36,7 @@ namespace lz { namespace internal {
 		 * interpreted as a `while-true` loop.
 		 * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
 		 */
-		Random(const Distribution distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
+		Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
 			internal::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
 												  iterator(distribution, generator, amount, isWhileTrueLoop)) {
 		}
