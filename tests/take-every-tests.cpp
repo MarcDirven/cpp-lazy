@@ -50,43 +50,10 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         CHECK(*iterator == 4);
     }
 
-    SECTION("Operator--") {
-        ++iterator;
-        --iterator;
-        CHECK(*iterator == 1);
-    }
-
     SECTION("Operator== & Operator!=") {
         CHECK(iterator != takeEvery.end());
         iterator = takeEvery.end();
         CHECK(iterator == takeEvery.end());
-    }
-
-    SECTION("Operator+(int), tests += as well") {
-        CHECK(*(iterator + 1) == 4);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        ++iterator;
-        CHECK(*(iterator - 1) == 1);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK(takeEvery.end() - takeEvery.begin() == 2);
-    }
-
-    SECTION("Operator[]()") {
-        CHECK(iterator[1] == array[3]);
-    }
-
-    SECTION("Operator<, '<, <=, >, >='") {
-        auto b = takeEvery.begin();
-        auto end = takeEvery.end();
-
-        CHECK(b < end);
-        CHECK(b + 1 > end - 1);
-        CHECK(b + 1 <= end);
-        CHECK(b + 1  >= end - 1);
     }
 }
 

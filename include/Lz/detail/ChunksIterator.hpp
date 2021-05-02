@@ -15,19 +15,7 @@ namespace lz { namespace internal {
 		Iterator _end{};
 		std::size_t _chunkSize{};
 
-		void prevChunk() {
-			auto distance = std::distance(_begin, _subRangeBegin);
-			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
-
-			if (distance > chunkSizeSigned) {
-				_subRangeBegin = std::next(std::move(_subRangeBegin), -chunkSizeSigned);
-			}
-			else {
-				_subRangeBegin = std::next(std::move(_subRangeBegin), -distance);
-			}
-		}
-
-		void nextChunk() {
+		LZ_CONSTEXPR_CXX_17 void nextChunk() {
 			auto distance = std::distance(_subRangeEnd, _end);
 			auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
 
@@ -41,64 +29,51 @@ namespace lz { namespace internal {
 
 		using IterTraits = std::iterator_traits<Iterator>;
 	public:
-		using iterator_category = LowestIterTypeT<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>;
+		using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename IterTraits::iterator_category>;
 		using value_type = BasicIteratorView<Iterator>;
 		using reference = value_type;
 		using pointer = FakePointerProxy<value_type>;
 		using difference_type = typename IterTraits::difference_type;
 
-		ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize):
+		LZ_CONSTEXPR_CXX_17 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize) :
 			_begin(begin),
 			_subRangeBegin(begin == end ? end : begin),
 			_subRangeEnd(begin == end ? end : begin),
 			_end(end),
-			_chunkSize(chunkSize)
-		{
+			_chunkSize(chunkSize) {
 			if (_begin == _end) { // end iterator
 				return;
 			}
 			nextChunk();
 		}
 
-		ChunksIterator() = default;
+		constexpr ChunksIterator() = default;
 
-		reference operator*() const {
+		LZ_CONSTEXPR_CXX_17 reference operator*() const {
 			return reference(_subRangeBegin, _subRangeEnd);
 		}
 
-		pointer operator->() const {
+		LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		ChunksIterator& operator++() {
+		LZ_CONSTEXPR_CXX_17 ChunksIterator& operator++() {
 			_subRangeBegin = _subRangeEnd;
 			nextChunk();
 			return *this;
 		}
 
-		ChunksIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_17 ChunksIterator operator++(int) {
 			ChunksIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		ChunksIterator& operator--() {
-			_subRangeEnd = _subRangeBegin;
-			prevChunk();
-			return *this;
-		}
-
-		ChunksIterator operator--(int) {
-			ChunksIterator tmp(*this);
-			++*this;
-			return tmp;
-		}
-
-		friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+		LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 			return lhs._subRangeBegin != rhs._subRangeBegin;
 		}
 
-		friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+		LZ_CONSTEXPR_CXX_17 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 			return !(lhs != rhs); // NOLINT
 		}
 	};

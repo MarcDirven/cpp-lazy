@@ -1,4 +1,5 @@
 #include "Lz/Chunks.hpp"
+#include "Lz/FunctionTools.hpp"
 #include "catch2/catch.hpp"
 #include <list>
 
@@ -29,16 +30,6 @@ TEST_CASE("Chunks binary operations", "[Chunks][Binary ops]") {
 		CHECK(*it->begin() == 4);
 		++it;
 		CHECK(*it->begin() == 7);
-	}
-
-	SECTION("Operator--") {
-		++it;
-		CHECK(*it->begin() == 4);
-		--it;
-		CHECK(*it->begin() == 1);
-		CHECK(it == chunked.begin());
-
-		CHECK(*--chunked.end()->end() == 8);
 	}
 
 	SECTION("Operator== & operator!=") {
