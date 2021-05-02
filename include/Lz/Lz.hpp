@@ -613,7 +613,7 @@ namespace lz {
 
 		//! See FunctionTools.hpp `trim` for documentation
 		template<class UnaryPredicateFirst, class UnaryPredicateLast>
-		LZ_CONSTEXPR_CXX_20 auto trim(UnaryPredicateFirst first, UnaryPredicateLast last) const ->
+		auto trim(UnaryPredicateFirst first, UnaryPredicateLast last) const ->
 		decltype(lz::toIter(lz::trim(*this, std::move(first), std::move(last)))) {
 			return lz::toIter(lz::trim(*this, std::move(first), std::move(last)));
 		}
