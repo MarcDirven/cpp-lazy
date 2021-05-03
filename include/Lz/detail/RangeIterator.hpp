@@ -52,7 +52,7 @@ namespace lz { namespace internal {
 			return a._iterator < b._iterator;
 		}
 
-		constexpr friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+		LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
 			return !(a != b); // NOLINT
 		}
 	};
