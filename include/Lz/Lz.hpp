@@ -143,7 +143,7 @@ namespace lz {
 
 		//! See FunctionTools.hpp `zipWith` for documentation
 		template<class Fn, class... Iterables>
-		auto zipWith(Fn fn, Iterables&&... iterables) const ->
+		LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&&... iterables) const ->
 		IterView<decltype(std::begin(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...)))> {
 			return lz::toIter(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...));
 		}
@@ -587,8 +587,8 @@ namespace lz {
 
 		//! See FunctionTools.hpp `select` for documentation
 		template<class SelectorIterable>
-		auto select(SelectorIterable&& selectors) const -> decltype(lz::toIter(lz::select(*this,
-																						  std::forward<SelectorIterable>(selectors)))) {
+		auto select(SelectorIterable&& selectors) const ->
+		decltype(lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)))) {
 			return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)));
 		}
 
