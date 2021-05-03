@@ -5,6 +5,11 @@
 
 #include "detail/BasicIteratorView.hpp"
 
+#ifdef LZ_HAS_CXX_11
+  #include <functional>
+#endif
+
+
 
 namespace lz {
     template<LZ_CONCEPT_ITERATOR Iterator>
