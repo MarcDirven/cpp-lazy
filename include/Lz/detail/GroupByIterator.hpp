@@ -55,7 +55,7 @@ namespace lz { namespace internal {
 		}
 
 	public:
-		using iterator_category = std::input_iterator_tag;
+		using iterator_category = LowestIterTypeT<std::forward_iterator_tag, typename std::iterator_traits<Iterator>::iterator_category>;
 		using value_type = std::pair<Decay<FnRetType>, BasicIteratorView<Iterator>>;
 		using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;
 		using pointer = FakePointerProxy<reference>;
