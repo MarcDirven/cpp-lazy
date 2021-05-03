@@ -20,7 +20,7 @@ namespace lz { namespace internal {
 		std::string _delimiter;
 
 	public:
-		using iterator_category = std::input_iterator_tag;
+		using iterator_category = std::forward_iterator_tag;
 		using value_type = SubString;
 		using reference = SubString;
 		using difference_type = std::ptrdiff_t;
@@ -38,7 +38,7 @@ namespace lz { namespace internal {
 
 		SplitIterator() = default;
 
-		reference operator*() const {
+		value_type operator*() const {
 			if (_last != std::string::npos) {
 				return SubString(&(*_string)[_currentPos], _last - _currentPos);
 			}
