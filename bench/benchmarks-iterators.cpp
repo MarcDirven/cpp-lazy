@@ -19,6 +19,31 @@ static void CartesianProduct(benchmark::State& state) {
     }
 }
 
+static void ChunkIf(benchmark::State& state) {
+	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+	auto half = static_cast<int>(SizePolicy / 2);
+	auto chunk = lz::chunkIf(a, [half](int i) { return i == half; });
+	for (auto _ : state) {
+		for (auto&& x : chunk) {
+			for (int y : x) {
+				benchmark::DoNotOptimize(y);
+			}
+
+		}
+	}
+}
+
+static void Chunks(benchmark::State& state) {
+	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+	for (auto _ : state) {
+		for (auto&& chunk : lz::chunks(a, 8)) {
+			for (int x : chunk) {
+				benchmark::DoNotOptimize(x);
+			}
+		}
+	}
+}
+
 static void Flatten(benchmark::State& state) {
     std::array<std::array<int, SizePolicy / 4>, SizePolicy / 8> arr{};
     for (auto _ : state) {
@@ -29,16 +54,20 @@ static void Flatten(benchmark::State& state) {
 }
 
 static void JoinWhere(benchmark::State& state) {
-    std::array<int, SizePolicy / 16> arr = {2, 1};
-    std::array<int, SizePolicy / 2> toJoin = {5, 67, 7, 5, 97, 67, 9, 7, 56, 76, 99, 57, 67, 99, 56, 66};
-    auto randomIndex = lz::random<std::size_t>(0, toJoin.size(), 1);
-    toJoin[*randomIndex.begin()] = 2;
+    std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::vector<int> toJoin = {17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
+
+    auto randomIndex = lz::random<std::size_t>(0, toJoin.size());
+    toJoin[randomIndex.nextRandom()] = arr[randomIndex.nextRandom()]; // Create a value where both values are equal
+	std::sort(toJoin.begin(), toJoin.end());
     auto joiner = lz::joinWhere(arr, toJoin,
                                 [](int i) { return i; },
                                 [](int i) { return i; },
                                 [](int a, int b) { return std::make_tuple(a, b);});
+    assert(std::is_sorted(arr.begin(), arr.end()));
+
     for (auto _ : state) {
-        for (auto&& val : joiner) {
+        for (std::tuple<int, int> val : joiner) {
             benchmark::DoNotOptimize(val);
         }
     }
@@ -53,6 +82,16 @@ static void Enumerate(benchmark::State& state) {
             benchmark::DoNotOptimize(pair);
         }
     }
+}
+
+static void Exclude(benchmark::State& state) {
+	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+
+	for (auto _ : state) {
+		for (int i : lz::exclude(a, 5, 10)) {
+			benchmark::DoNotOptimize(i);
+		}
+	}
 }
 
 static void Filter(benchmark::State& state) {
@@ -79,7 +118,7 @@ static void Map(benchmark::State& state) {
 
 static void Range(benchmark::State& state) {
     for (auto _ : state) {
-        auto range = lz::range(SizePolicy);
+        auto range = lz::range<int>(SizePolicy);
 
         for (const int i : range) {
             benchmark::DoNotOptimize(i);
@@ -299,12 +338,15 @@ static void JoinString(benchmark::State& state) {
 }
 
 BENCHMARK(CartesianProduct);
-BENCHMARK(Flatten);
+BENCHMARK(ChunkIf);
+BENCHMARK(Chunks);
 BENCHMARK(Concatenate);
-BENCHMARK(DropWhile);
 BENCHMARK(Enumerate);
 BENCHMARK(Except);
+BENCHMARK(Exclude);
 BENCHMARK(Filter);
+BENCHMARK(Flatten);
+BENCHMARK(DropWhile);
 BENCHMARK(Generate);
 BENCHMARK(JoinInt);
 BENCHMARK(JoinString);
@@ -313,11 +355,11 @@ BENCHMARK(Map);
 BENCHMARK(Range);
 BENCHMARK(Random);
 BENCHMARK(Repeat);
+BENCHMARK(Slice);
 BENCHMARK(StringSplitter);
 BENCHMARK(Take);
 BENCHMARK(TakeWhile);
 BENCHMARK(TakeEvery);
-BENCHMARK(Slice);
 BENCHMARK(Unique);
 BENCHMARK(Zip4);
 BENCHMARK(Zip3);
