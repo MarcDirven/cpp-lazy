@@ -169,10 +169,10 @@ namespace lz { namespace internal {
 		template<class KeySelectorFunc>
 		using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
 
-		template<class Container, EnableIf<!HasReserve<Container>::value, bool> = false>
+		template<class Container, class It = LzIterator, EnableIf<!HasReserve<Container>::value || !IsForward<It>::value, bool> = false>
 		void reserve(Container&) const {}
 
-		template<class Container, EnableIf<HasReserve<Container>::value, bool> = true>
+		template<class Container, class It = LzIterator, EnableIf<HasReserve<Container>::value && IsForward<It>::value, bool> = true>
 		void reserve(Container& container) const {
 			container.reserve(std::distance(begin(), end()));
 		}
