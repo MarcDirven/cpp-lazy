@@ -10,7 +10,7 @@ namespace lz { namespace internal {
 	template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 	class RandomIterator {
 	public:
-		using iterator_category = std::input_iterator_tag;
+		using iterator_category = std::forward_iterator_tag;
 		using value_type = Arithmetic;
 		using difference_type = std::ptrdiff_t;
 		using pointer = FakePointerProxy<Arithmetic>;
