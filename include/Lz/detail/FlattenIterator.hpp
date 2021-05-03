@@ -143,23 +143,23 @@ namespace lz { namespace internal {
 			return &*_current;
 		}
 
-		constexpr FlattenWrapper& operator++() {
+		LZ_CONSTEXPR_CXX_14 FlattenWrapper& operator++() {
 			++_current;
 			return *this;
 		}
 
-		constexpr FlattenWrapper operator++(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenWrapper operator++(int) {
 			FlattenWrapper tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr FlattenWrapper& operator--() {
+		LZ_CONSTEXPR_CXX_14 FlattenWrapper& operator--() {
 			--_current;
 			return *this;
 		}
 
-		constexpr FlattenWrapper operator--(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenWrapper operator--(int) {
 			FlattenWrapper tmp(*this);
 			++*this;
 			return tmp;
@@ -179,7 +179,7 @@ namespace lz { namespace internal {
 		using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
 	private:
-		constexpr void advance() {
+		LZ_CONSTEXPR_CXX_14 void advance() {
 			if (_innerIter.hasSome()) { return; }
 
 			for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
@@ -195,7 +195,7 @@ namespace lz { namespace internal {
 	public:
 		constexpr FlattenIterator() = default;
 
-		constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end) :
+		LZ_CONSTEXPR_CXX_14 FlattenIterator(Iterator it, Iterator begin, Iterator end) :
 			_outerIter(std::move(it), std::move(begin), std::move(end)) {
 			if (_outerIter.hasSome()) {
 				_innerIter = Inner(std::begin(*_outerIter), std::begin(*_outerIter), std::end(*_outerIter));
@@ -227,19 +227,19 @@ namespace lz { namespace internal {
 			return &*_innerIter;
 		}
 
-		constexpr FlattenIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator& operator++() {
 			++_innerIter;
 			this->advance();
 			return *this;
 		}
 
-		constexpr FlattenIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator operator++(int) {
 			FlattenIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr FlattenIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator& operator--() {
 			if (_innerIter.hasPrev()) {
 				--_innerIter;
 				return *this;
@@ -257,7 +257,7 @@ namespace lz { namespace internal {
 			return *this;
 		}
 
-		constexpr FlattenIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator operator--(int) {
 			FlattenIterator tmp(*this);
 			--*this;
 			return tmp;
@@ -306,23 +306,23 @@ namespace lz { namespace internal {
 			return !(a != b); // NOLINT
 		}
 
-		constexpr FlattenIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator& operator++() {
 			++_range;
 			return *this;
 		}
 
-		constexpr FlattenIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator operator++(int) {
 			FlattenIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr FlattenIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator& operator--() {
 			--_range;
 			return *this;
 		}
 
-		constexpr FlattenIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 FlattenIterator operator--(int) {
 			FlattenIterator tmp(*this);
 			--*this;
 			return tmp;

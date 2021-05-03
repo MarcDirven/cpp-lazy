@@ -38,45 +38,45 @@ namespace lz { namespace internal {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		constexpr MapIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 MapIterator& operator++() {
 			++_iterator;
 			return *this;
 		}
 
-		constexpr MapIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 MapIterator operator++(int) {
 			MapIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr MapIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 MapIterator& operator--() {
 			--_iterator;
 			return *this;
 		}
 
-		constexpr MapIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 MapIterator operator--(int) {
 			MapIterator tmp(*this);
 			--*this;
 			return tmp;
 		}
 
-		constexpr MapIterator& operator+=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 MapIterator& operator+=(const difference_type offset) {
 			_iterator += offset;
 			return *this;
 		}
 
-		constexpr MapIterator& operator-=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 MapIterator& operator-=(const difference_type offset) {
 			_iterator -= offset;
 			return *this;
 		}
 
-		constexpr MapIterator operator+(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 MapIterator operator+(const difference_type offset) const {
 			MapIterator tmp(*this);
 			tmp += offset;
 			return tmp;
 		}
 
-		constexpr MapIterator operator-(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 MapIterator operator-(const difference_type offset) const {
 			MapIterator tmp(*this);
 			tmp -= offset;
 			return tmp;
@@ -86,7 +86,7 @@ namespace lz { namespace internal {
 			return _iterator - other._iterator;
 		}
 
-		constexpr reference operator[](const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
 			return *(*this + offset);
 		}
 

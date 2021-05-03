@@ -276,11 +276,11 @@ namespace lz { namespace internal {
 			_t(t) {
 		}
 
-		constexpr Pointer operator->() {
+		LZ_CONSTEXPR_CXX_14 Pointer operator->() {
 			return std::addressof(_t);
 		}
 
-		constexpr Pointer operator->() const {
+		LZ_CONSTEXPR_CXX_14 Pointer operator->() const {
 			return std::addressof(_t);
 		}
 	};
@@ -343,7 +343,7 @@ namespace lz { namespace internal {
 	};
 
 	template<class Iterator>
-	struct IsRandomAccess : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag>::value> {
+	struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {
 	};
 
 	template<LZ_CONCEPT_INTEGRAL Arithmetic>

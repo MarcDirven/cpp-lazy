@@ -13,11 +13,11 @@ namespace lz { namespace internal {
 		Arithmetic _step{};
 
 	public:
-		using iterator_category = std::input_iterator_tag;
+		using iterator_category = std::forward_iterator_tag;
 		using value_type = Arithmetic;
 		using difference_type = std::ptrdiff_t;
-		using pointer = const Arithmetic*;
-		using reference = Arithmetic;
+		using pointer = Arithmetic*;
+		using reference = Arithmetic&;
 
 		constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) :
 			_iterator(iterator),
@@ -34,18 +34,18 @@ namespace lz { namespace internal {
 			return &_iterator;
 		}
 
-		constexpr RangeIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() {
 			_iterator += _step;
 			return *this;
 		}
 
-		constexpr RangeIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) {
 			RangeIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+		LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
 			if (a._step < 0) {
 				return a._iterator > b._iterator;
 			}

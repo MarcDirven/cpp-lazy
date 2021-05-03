@@ -33,7 +33,7 @@ namespace lz { namespace internal {
 			return _generator();
 		}
 
-		constexpr reference operator*() {
+		LZ_CONSTEXPR_CXX_14 reference operator*() {
 			return _generator();
 		}
 
@@ -41,57 +41,57 @@ namespace lz { namespace internal {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		constexpr pointer operator->() {
+		LZ_CONSTEXPR_CXX_14 pointer operator->() {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		constexpr GenerateIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() {
 			if (!_isWhileTrueLoop) {
 				++_current;
 			}
 			return *this;
 		}
 
-		constexpr GenerateIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) {
 			GenerateIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr GenerateIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() {
 			if (!_isWhileTrueLoop) {
 				--_current;
 			}
 			return *this;
 		}
 
-		constexpr GenerateIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) {
 			GenerateIterator tmp(*this);
 			--*this;
 			return tmp;
 		}
 
-		constexpr GenerateIterator& operator+=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) {
 			if (!_isWhileTrueLoop) {
 				_current += offset;
 			}
 			return *this;
 		}
 
-		constexpr GenerateIterator& operator-=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) {
 			if (!_isWhileTrueLoop) {
 				_current -= offset;
 			}
 			return *this;
 		}
 
-		constexpr GenerateIterator operator+(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
 			GenerateIterator tmp(*this);
 			tmp += offset;
 			return tmp;
 		}
 
-		constexpr GenerateIterator operator-(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
 			GenerateIterator tmp(*this);
 			tmp -= offset;
 			return tmp;
@@ -101,7 +101,7 @@ namespace lz { namespace internal {
 			return _current - other._current;
 		}
 
-		constexpr value_type operator[](const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
 			return *(*this + offset);
 		}
 

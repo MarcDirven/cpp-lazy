@@ -36,49 +36,49 @@ namespace lz { namespace internal {
 			return FakePointerProxy<decltype(**this)>(**this);
 		}
 
-		constexpr EnumerateIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator++() {
 			++_index;
 			++_iterator;
 			return *this;
 		}
 
-		constexpr EnumerateIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator operator++(int) {
 			EnumerateIterator tmp = *this;
 			++*this;
 			return tmp;
 		}
 
-		constexpr EnumerateIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator--() {
 			--_index;
 			--_iterator;
 			return *this;
 		}
 
-		constexpr EnumerateIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator operator--(int) {
 			EnumerateIterator tmp(*this);
 			--*this;
 			return tmp;
 		}
 
-		constexpr EnumerateIterator& operator+=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator+=(const difference_type offset) {
 			_index += static_cast<Arithmetic>(offset);
 			_iterator += offset;
 			return *this;
 		}
 
-		constexpr EnumerateIterator operator+(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator operator+(const difference_type offset) const {
 			EnumerateIterator tmp(*this);
 			tmp += offset;
 			return tmp;
 		}
 
-		constexpr EnumerateIterator& operator-=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator-=(const difference_type offset) {
 			_index -= static_cast<Arithmetic>(offset);
 			_iterator -= offset;
 			return *this;
 		}
 
-		constexpr EnumerateIterator operator-(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 EnumerateIterator operator-(const difference_type offset) const {
 			EnumerateIterator tmp(*this);
 			tmp -= offset;
 			return tmp;
@@ -88,7 +88,7 @@ namespace lz { namespace internal {
 			return _iterator - other._iterator;
 		}
 
-		constexpr reference operator[](const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
 			return *(*this + offset);
 		}
 

@@ -6,6 +6,7 @@
 
 #include <numeric>
 #include <algorithm>
+#include <iterator>
 
 #include "StringSplitter.hpp"
 #include "Join.hpp"
@@ -26,12 +27,12 @@ namespace lz {
 		template<class To>
 		struct ConvertFn {
 			template<class From>
-			constexpr To operator()(From&& f) const {
+			LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const {
 				return static_cast<To>(f);
 			}
 
 			template<class From>
-			constexpr To operator()(From&& f) {
+			LZ_CONSTEXPR_CXX_14 To operator()(From&& f) {
 				return static_cast<To>(f);
 			}
 		};
@@ -182,8 +183,8 @@ namespace lz {
 #ifndef LZ_HAS_CONCEPTS
 		static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // LZ_HAS_CONCEPTS
-		return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(end),
-																				std::make_reverse_iterator(begin));
+		return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(end),
+																				std::reverse_iterator<Iterator>(begin));
 	}
 
 	/**
@@ -235,7 +236,7 @@ namespace lz {
 	template<class Fn, LZ_CONCEPT_ITERATOR... Iterators,
 		class Zipper = lz::Zip<Iterators...>,
 		class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
-	auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
+	LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
 	lz::Map<decltype(std::begin(std::declval<Zipper>())),
 	decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
 		Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
@@ -253,7 +254,7 @@ namespace lz {
 	template<class Fn, class... Iterables,
 		class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>,
 		class ValueType = decltype(*std::begin(std::declval<Zipper>()))>
-	auto zipWith(Fn fn, Iterables&& ... iterables) ->
+	LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&& ... iterables) ->
 	lz::Map<decltype(std::begin(std::declval<Zipper>())),
 		decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
 		return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
@@ -1047,8 +1048,8 @@ namespace lz {
 	 */
 	template<class Iterator, class T, class U>
 	internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
-		auto endReverse = std::make_reverse_iterator(end);
-		auto beginReverse = std::make_reverse_iterator(begin);
+		auto endReverse = std::reverse_iterator<Iterator>(end);
+		auto beginReverse = std::reverse_iterator<Iterator>(begin);
 		const auto pos = std::find(endReverse, beginReverse, toFind);
 		return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 	}
@@ -1075,8 +1076,8 @@ namespace lz {
 	 */
 	template<class Iterator, class T, class UnaryPredicate>
 	internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
-		auto endReverse = std::make_reverse_iterator(end);
-		auto beginReverse = std::make_reverse_iterator(begin);
+		auto endReverse = std::reverse_iterator<Iterator>(end);
+		auto beginReverse = std::reverse_iterator<Iterator>(begin);
 		const auto pos = std::find_if(endReverse, beginReverse, predicate);
 		return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 	}

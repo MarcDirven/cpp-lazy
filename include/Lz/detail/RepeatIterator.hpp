@@ -3,8 +3,9 @@
 #ifndef LZ_REPEAT_ITERATOR_HPP
 #define LZ_REPEAT_ITERATOR_HPP
 
-#include <iterator>
 #include <limits>
+
+#include "LzTools.hpp"
 
 
 namespace lz { namespace internal {
@@ -48,53 +49,53 @@ namespace lz { namespace internal {
 			return &_iterHelper->toRepeat;
 		}
 
-		constexpr RepeatIterator& operator++() {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator& operator++() {
 			if (!_iterHelper->isWhileTrueLoop) {
 				++_iterator;
 			}
 			return *this;
 		}
 
-		constexpr RepeatIterator operator++(int) {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator operator++(int) {
 			RepeatIterator tmp(*this);
 			++*this;
 			return tmp;
 		}
 
-		constexpr RepeatIterator& operator--() {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator& operator--() {
 			if (!_iterHelper->isWhileTrueLoop) {
 				--_iterator;
 			}
 			return *this;
 		}
 
-		constexpr RepeatIterator operator--(int) {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator operator--(int) {
 			RepeatIterator tmp(*this);
 			--*this;
 			return tmp;
 		}
 
-		constexpr RepeatIterator& operator+=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator& operator+=(const difference_type offset) {
 			if (!_iterHelper->isWhileTrueLoop) {
 				_iterator += offset;
 			}
 			return *this;
 		}
 
-		constexpr RepeatIterator& operator-=(const difference_type offset) {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator& operator-=(const difference_type offset) {
 			if (!_iterHelper->isWhileTrueLoop) {
 				_iterator -= offset;
 			}
 			return *this;
 		}
 
-		constexpr RepeatIterator operator+(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator operator+(const difference_type offset) const {
 			RepeatIterator tmp(*this);
 			tmp += offset;
 			return tmp;
 		}
 
-		constexpr RepeatIterator operator-(const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 RepeatIterator operator-(const difference_type offset) const {
 			RepeatIterator tmp(*this);
 			tmp -= offset;
 			return tmp;
@@ -104,7 +105,7 @@ namespace lz { namespace internal {
 			return _iterator - other._iterator;
 		}
 
-		constexpr reference operator[](const difference_type offset) const {
+		LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
 			return *(*this + offset);
 		}
 
