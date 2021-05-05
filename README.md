@@ -1,6 +1,6 @@
 [![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![](https://i.ibb.co/bLQfw5B/logo-cpp-lazy.jpg)
+![](https://i.ibb.co/ccn2V8N/Screenshot-2021-05-05-Make-A-High-Quality-Logo-In-Just-5-Minutes-For-Under-30-v1-cropped.png)
 
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
