@@ -113,6 +113,34 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
 compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
+# Important note
+To garantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
+```cpp
+auto view = lz::chunks(array, 3);
+// Calculate distance:
+using std::distance; using lz::distance;
+auto distance = distance(view.begin(), view.end());
+
+// Get nth element:
+using std::next; using lz::next;
+auto nth = next(view.begin(), 4);
+```
+
+What's also important is that there are 2 iterators that are not safe to return from a function. Those are the `RepeatIterator`, created by `lz::repeat` `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
+```cpp
+auto foo() {
+    return lz::split(std::string("hello, world!"), ", ");
+}
+
+auto bar() {
+    return lz::repeat('a', 30);
+}
+
+auto f = foo(); // dangling reference
+auto b = bar(); // dangling reference
+```
+After storing the result of these functions, the variables will contain dangling references.
+
 # Installation
 
 ## Without CMake, without `fmt`
