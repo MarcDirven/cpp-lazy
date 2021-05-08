@@ -5,7 +5,6 @@
 TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct][Basic functionality]") {
     std::vector<int> vec = {1, 2, 3};
     std::vector<char> chars = {'a', 'b', 'c'};
-
     auto cartesian = lz::cartesian(vec, chars);
 
     SECTION("Should be by reference") {
@@ -45,6 +44,24 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
         it = cartesian.end();
         CHECK(it == cartesian.end());
     }
+
+	SECTION("Lz distance") {
+		CHECK(lz::distance(cartesian.begin(), cartesian.end()) == 9);
+		std::vector<int> ints = {1, 2, 3, 4};
+		auto cart2 = lz::cartesian(vec, chars, ints);
+		CHECK(lz::distance(cart2.begin(), cart2.end()) == 36);
+	}
+
+	SECTION("Next") {
+		std::array<int, 4> a = 			{1,		2,		3,		4};
+		std::array<char, 4> b = 		{'a',	'b',	'c',	'd'};
+		std::array<std::string, 4> c = 	{"he",	"ll",	"o",	"world"};
+		auto cart = lz::cartesian(a, b, c);
+		std::ptrdiff_t counter = 0;
+		for (auto&& tuple : cart) {
+			CHECK(*lz::next(cart.begin(), counter++) == tuple);
+		}
+	}
 }
 
 TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") {
