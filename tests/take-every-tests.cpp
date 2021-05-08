@@ -55,6 +55,18 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         iterator = takeEvery.end();
         CHECK(iterator == takeEvery.end());
     }
+
+    SECTION("Lz distance") {
+    	auto takeEvery2 = lz::takeEvery(array, 5);
+		CHECK(lz::distance(takeEvery.begin(), takeEvery.end()) == 2);
+		CHECK(lz::distance(takeEvery2.begin(), takeEvery2.end()) == 1);
+    }
+
+    SECTION("Lz next") {
+    	CHECK(*lz::next(iterator, 1) == 4);
+		CHECK(*lz::next(iterator, 0) == 1);
+		CHECK(lz::next(iterator, 2) == takeEvery.end());
+    }
 }
 
 TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {

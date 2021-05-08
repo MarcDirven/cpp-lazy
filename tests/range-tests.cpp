@@ -60,6 +60,15 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         it = range.end();
         CHECK(it == range.end());
     }
+
+	SECTION("Lz distance") {
+		CHECK(lz::distance(range.begin(), range.end()) == 10);
+	}
+
+	SECTION("Lz next") {
+    	CHECK(*(it + 5) == 5);
+    	CHECK(*(it + 11) == 11);
+    }
 }
 
 TEST_CASE("Range to containers", "[Range][To container]") {
