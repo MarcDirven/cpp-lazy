@@ -33,9 +33,11 @@ TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
 
     SECTION("Should be by ref") {
         std::vector<std::vector<std::vector<int>>> vectors = {
-            { { 1,2, 3}, {}, {4} },
-            {},
-            {{ 5, 6 }, {7} , {}}
+            { {0}, {1, 2, 3}, {}, {4} },
+            {{}},
+            {{ 5, 6 }, {7} , {}},
+			{{}},
+			{{}}
         };
         auto flattened = lz::flatten(vectors);
         *flattened.begin() = -382753;
@@ -54,7 +56,6 @@ TEST_CASE("Flatten binary operations", "[Flatten][Binary ops]") {
         CHECK(*begin == 2);
         ++begin, ++begin;
         CHECK(*begin == 1);
-
     }
 
     SECTION("Operator--") {
@@ -63,6 +64,7 @@ TEST_CASE("Flatten binary operations", "[Flatten][Binary ops]") {
     	CHECK(*begin == 2);
     	--begin;
     	CHECK(*begin == 1);
+    	CHECK(begin == flattened.begin());
     	++begin, ++begin, ++begin;
     	CHECK(*begin == 1);
     	--begin;
