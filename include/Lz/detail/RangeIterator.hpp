@@ -6,56 +6,78 @@
 #include <iterator>
 
 
-namespace lz { namespace internal {
-	template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-	class RangeIterator {
-		Arithmetic _iterator{};
-		Arithmetic _step{};
+namespace lz {
+namespace internal {
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+class RangeIterator {
+	Arithmetic _iterator{};
+	Arithmetic _step{};
 
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = Arithmetic;
-		using difference_type = std::ptrdiff_t;
-		using pointer = Arithmetic*;
-		using reference = Arithmetic&;
+public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = Arithmetic;
+	using difference_type = typename std::make_signed<Arithmetic>::type;
+	using pointer = Arithmetic*;
+	using reference = Arithmetic&;
 
-		constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) :
-			_iterator(iterator),
-			_step(step) {
+	constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) :
+		_iterator(iterator),
+		_step(step) {
+	}
+
+	constexpr RangeIterator() = default;
+
+	constexpr value_type operator*() const {
+		return _iterator;
+	}
+
+	constexpr pointer operator->() const {
+		return &_iterator;
+	}
+
+	LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() {
+		_iterator += _step;
+		return *this;
+	}
+
+	LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) {
+		RangeIterator tmp(*this);
+		++*this;
+		return tmp;
+	}
+
+	LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+		if (a._step < 0) {
+			return a._iterator > b._iterator;
 		}
+		return a._iterator < b._iterator;
+	}
 
-		constexpr RangeIterator() = default;
+	LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+		return !(a != b); // NOLINT
+	}
 
-		constexpr value_type operator*() const {
-			return _iterator;
-		}
+	LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
+		return static_cast<difference_type>(a._iterator) - static_cast<difference_type>(b._iterator);
+	}
 
-		constexpr pointer operator->() const {
-			return &_iterator;
-		}
+	constexpr RangeIterator operator+(const Arithmetic value) const {
+		return RangeIterator(_iterator + value, _step);
+	}
+};
+} // internal
 
-		LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() {
-			_iterator += _step;
-			return *this;
-		}
+template<class Arithmetic>
+LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
+distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIterator<Arithmetic>& b) {
+	return b - a;
+}
 
-		LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) {
-			RangeIterator tmp(*this);
-			++*this;
-			return tmp;
-		}
-
-		LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
-			if (a._step < 0) {
-				return a._iterator > b._iterator;
-			}
-			return a._iterator < b._iterator;
-		}
-
-		LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
-			return !(a != b); // NOLINT
-		}
-	};
-}}
+template<class Arithmetic>
+constexpr internal::RangeIterator<Arithmetic>
+next(const internal::RangeIterator<Arithmetic>& r, const internal::DiffType<internal::RangeIterator<Arithmetic>> value) {
+	return r + value;
+}
+} // lz
 
 #endif
