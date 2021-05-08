@@ -92,17 +92,17 @@ TEST_CASE("Iterator chaining") {
 	auto cart = lz::toIter(a).cartesian(b);
 	CHECK((
 		*cart.begin() == std::make_tuple(1, 3) &&
-		*std::next(cart.begin()) == std::make_tuple(1, 4) &&
-		*std::next(cart.begin(), 2) == std::make_tuple(2, 3) &&
-		*std::next(cart.begin(), 3) == std::make_tuple(2, 4) &&
-		std::next(cart.begin(), 4) == cart.end())
+		*lz::next(cart.begin()) == std::make_tuple(1, 4) &&
+		*lz::next(cart.begin(), 2) == std::make_tuple(2, 3) &&
+		*lz::next(cart.begin(), 3) == std::make_tuple(2, 4) &&
+		lz::next(cart.begin(), 4) == cart.end())
 	);
 
 	std::array<std::array<int, 3>, 3> toFlatten{};
 	CHECK(lz::equal(lz::toIter(toFlatten).flatten(), lz::repeat(0, 3 * 3)));
 
-	CHECK(lz::toIter(arr).nth(1) == 1);
-	CHECK(lz::toIter(arr).length() == size);
+	CHECK(lz::toIter(arr).next(1) == 1);
+	CHECK(lz::toIter(arr).distance() == size);
 	CHECK(!lz::toIter(arr).isEmpty());
 	CHECK(!lz::toIter(arr).hasOne());
 	CHECK(lz::toIter(arr).hasMany());
@@ -113,10 +113,10 @@ TEST_CASE("Iterator chaining") {
 	CHECK(lz::toIter(v).firstOr(20) == 20);
 	CHECK(lz::toIter(v).lastOr(20) == 20);
 
-	CHECK(lz::toIter(arr).filter([](int i) { return i % 2 == 0; }).length() == 8);
-	CHECK(lz::toIter(arr).except(arr2).length() == 0);
-	CHECK(lz::toIter(arr).unique().length() == size);
-	CHECK(lz::toIter(arr).chunkIf([](int i) { return i % 2 == 0; }).length() == 9);
+	CHECK(lz::toIter(arr).filter([](int i) { return i % 2 == 0; }).distance() == 8);
+	CHECK(lz::toIter(arr).except(arr2).distance() == 0);
+	CHECK(lz::toIter(arr).unique().distance() == size);
+	CHECK(lz::toIter(arr).chunkIf([](int i) { return i % 2 == 0; }).distance() == 9);
 
 	CHECK(lz::toIter(arr).filterMap(
 		[](int i) { return i % 2 == 0; },
@@ -124,8 +124,8 @@ TEST_CASE("Iterator chaining") {
 		.toString(" ") == "0 2 4 6 8 10 12 14");
 	std::function<bool(int)> selFunc = [](int i) { return i % 2 == 0; };
 	auto selectors = lz::map(arr, std::move(selFunc));
-	CHECK(lz::toIter(arr).select(selectors).length() == 8);
-	CHECK(lz::toIter(arr).dropWhile([](int i) { return i >= 0; }).length() == 0);
+	CHECK(lz::toIter(arr).select(selectors).distance() == 8);
+	CHECK(lz::toIter(arr).dropWhile([](int i) { return i >= 0; }).distance() == 0);
 
 	auto joinWhere = lz::toIter(arr).joinWhere(arr2,
 				   [](int i) { return i; },
@@ -134,7 +134,7 @@ TEST_CASE("Iterator chaining") {
 	CHECK(*joinWhere.begin() == std::make_tuple(0, 0));
 	CHECK(lz::last(joinWhere) == std::make_tuple(15, 15));
 
-	CHECK(lz::toIter(arr).groupBy([](int i) { return i; }).length() == size);
+	CHECK(lz::toIter(arr).groupBy([](int i) { return i; }).distance() == size);
 	CHECK(lz::toIter(arr).firstOrDefault(16, 16) == 16);
 	CHECK(lz::toIter(arr).firstOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
 	CHECK(lz::toIter(arr).lastOrDefault(16, 16) == 16);
