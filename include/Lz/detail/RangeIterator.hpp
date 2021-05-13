@@ -4,6 +4,7 @@
 #define LZ_RANGE_ITERATOR_HPP
 
 #include <iterator>
+#include <cmath>
 
 
 namespace lz {

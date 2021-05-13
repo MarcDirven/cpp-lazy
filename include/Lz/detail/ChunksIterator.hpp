@@ -5,6 +5,7 @@
 
 #include "BasicIteratorView.hpp"
 
+#include <cmath>
 
 namespace lz {
 namespace internal {
