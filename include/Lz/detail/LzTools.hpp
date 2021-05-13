@@ -27,7 +27,7 @@
 #if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
   #define LZ_CONSTEXPR_CXX_14 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_14
+  #define LZ_CONSTEXPR_CXX_14 inline
 #endif // has cxx 14
 
 
@@ -35,14 +35,14 @@
   #define LZ_HAS_CXX_17
   #define LZ_CONSTEXPR_CXX_17 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_17
+  #define LZ_CONSTEXPR_CXX_17 inline
 #endif // Has cxx 17
 
 #if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
   #define LZ_HAS_CXX_20
   #define LZ_CONSTEXPR_CXX_20 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_20
+  #define LZ_CONSTEXPR_CXX_20 inline
 #endif // Has cxx 20
 
 #ifdef __cpp_ref_qualifiers

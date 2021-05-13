@@ -8,9 +8,7 @@
 
 namespace lz { namespace internal {
 template<class>
-struct AlwaysFalse {
-	static constexpr bool value = false;
-};
+struct AlwaysFalse : std::false_type {};
 
 
 template<class Func>
