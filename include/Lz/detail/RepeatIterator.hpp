@@ -101,8 +101,10 @@ public:
 		return tmp;
 	}
 
-	constexpr difference_type operator-(const RepeatIterator& other) const {
-		return _iterator - other._iterator;
+	constexpr friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) {
+		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
+				  "incompatible iterator types: both must be while true loop or not");
+		return a._iterator - b._iterator;
 	}
 
 	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
@@ -110,6 +112,8 @@ public:
 	}
 
 	constexpr friend bool operator!=(const RepeatIterator& a, const RepeatIterator& b) {
+		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
+				  "incompatible iterator types: both must be while true loop or not");
 		return a._iterator != b._iterator;
 	}
 
@@ -118,6 +122,8 @@ public:
 	}
 
 	constexpr friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) {
+		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
+				  "incompatible iterator types: both must be while true loop or not");
 		return a._iterator < b._iterator;
 	}
 

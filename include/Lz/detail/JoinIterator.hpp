@@ -163,9 +163,10 @@ public:
 		return tmp;
 	}
 
-	difference_type operator-(const JoinIterator& other) const {
+	friend difference_type operator-(const JoinIterator& a, const JoinIterator& b) {
+		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		// distance * 2 for delimiter, - 1 for removing last delimiter
-		return (_iterator - other._iterator) * 2 - 1;
+		return (a._iterator - b._iterator) * 2 - 1;
 	}
 
 	reference operator[](const difference_type offset) const {
@@ -179,6 +180,7 @@ public:
 	}
 
 	friend bool operator==(const JoinIterator& a, const JoinIterator& b) {
+		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		return a._iterator == b._iterator;
 	}
 
@@ -187,6 +189,7 @@ public:
 	}
 
 	friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
+		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		return b - a > 0;
 	}
 

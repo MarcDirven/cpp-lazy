@@ -93,8 +93,9 @@ public:
 		return tmp;
 	}
 
-	difference_type operator-(const RandomIterator& other) const {
-		return _current - other._current;
+	friend difference_type operator-(const RandomIterator& a, const RandomIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
+		return a._current - b._current;
 	}
 
 	value_type operator[](const difference_type offset) const {
@@ -115,6 +116,7 @@ public:
 	}
 
 	friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}
 
@@ -123,6 +125,7 @@ public:
 	}
 
 	friend bool operator<(const RandomIterator& a, const RandomIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current < b._current;
 	}
 

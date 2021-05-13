@@ -73,6 +73,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+		LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
 		return lhs._subRangeBegin != rhs._subRangeBegin;
 	}
 
@@ -82,6 +83,7 @@ public:
 
 	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 		using std::distance; using lz::distance;
+		LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
 		const auto dist = distance(rhs._subRangeBegin, lhs._end) / static_cast<float>(lhs._chunkSize);
 		return static_cast<difference_type>(std::ceil(dist));
 	}
@@ -106,16 +108,29 @@ public:
 };
 } // internal
 
+/**
+ * Gets the distance between begin and end. If the underlying iterator type is random access, distance is O(1).
+ * @param begin Beginning of the sequence.
+ * @param end Ending of the sequence.
+ * @return The distance between begin and end.
+ */
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
-distance(const internal::ChunksIterator<Iterator>& a, const internal::ChunksIterator<Iterator>& b) {
-	return b - a;
+distance(const internal::ChunksIterator<Iterator>& begin, const internal::ChunksIterator<Iterator>& end) {
+	return end - begin;
 }
 
+/**
+ * Gets the nth value from iter. If the underlying iterator type is random access, next is O(1).
+ * @param iter A chunks iterator instance.
+ * @param value The amount to add.
+ * @return A chunks iterator with offset iter + value.
+ */
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
-next(const internal::ChunksIterator<Iterator>& c, const internal::DiffType<internal::ChunksIterator<Iterator>> value) {
-	return c + value;
+next(const internal::ChunksIterator<Iterator>& iter, const internal::DiffType<internal::ChunksIterator<Iterator>> value) {
+	LZ_ASSERT(value >= 0, "Chunks iterator is not random access, offset must be >= 0");
+	return iter + value;
 }
 } // lz
 

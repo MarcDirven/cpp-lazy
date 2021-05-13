@@ -66,11 +66,13 @@ public:
 	}
 
 	constexpr friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+		LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
 		return a._iterator != b._iterator;
 	}
 
 	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
 		using lz::distance; using std::distance;
+		LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
 		const auto dist = distance(b._iterator, a._iterator) / static_cast<float>(a._offset);
 		return static_cast<difference_type>(std::ceil(dist));
 	}
@@ -87,15 +89,28 @@ public:
 };
 } // internal
 
+/**
+ * Gets the distance between begin and end. If the underlying iterator type is random access, distance is O(1).
+ * @param begin Beginning of the sequence.
+ * @param end Ending of the sequence.
+ * @return The distance between begin and end.
+ */
 template<class Iterator>
 LZ_CONSTEXPR_CXX_17 typename internal::TakeEveryIterator<Iterator>::difference_type
-distance(const internal::TakeEveryIterator<Iterator>& a, const internal::TakeEveryIterator<Iterator>& b) {
-	return b - a;
+distance(const internal::TakeEveryIterator<Iterator>& begin, const internal::TakeEveryIterator<Iterator>& end) {
+	return end - begin;
 }
 
+/**
+ * Gets the nth value from iter. If the underlying iterator type is random access, next is O(1).
+ * @param iter A take every iterator instance.
+ * @param value The amount to add.
+ * @return A take every iterator with offset iter + value.
+ */
 template<class Iterator>
 LZ_CONSTEXPR_CXX_17 internal::TakeEveryIterator<Iterator>
 next(const internal::TakeEveryIterator<Iterator>& t, const internal::DiffType<internal::TakeEveryIterator<Iterator>> value) {
+	LZ_ASSERT(value >= 0, "Take every iterator is not random access, offset must be >= 0");
 	return t + value;
 }
 } // lz

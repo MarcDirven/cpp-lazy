@@ -97,8 +97,9 @@ public:
 		return tmp;
 	}
 
-	constexpr difference_type operator-(const GenerateIterator& other) const {
-		return _current - other._current;
+	constexpr friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
+		return a._current - b._current;
 	}
 
 	LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
@@ -110,10 +111,12 @@ public:
 	}
 
 	constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}
 
 	constexpr friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
+		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current < b._current;
 	}
 
