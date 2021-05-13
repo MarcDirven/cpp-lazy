@@ -297,24 +297,14 @@ public:
 		_t(t) {
 	}
 
-	LZ_CONSTEXPR_CXX_14 Pointer operator->() {
+	LZ_CONSTEXPR_CXX_17 Pointer operator->() {
 		return std::addressof(_t);
 	}
 
-	LZ_CONSTEXPR_CXX_14 Pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 Pointer operator->() const {
 		return std::addressof(_t);
 	}
 };
-
-
-template<class T, class... Rest>
-struct ContainsType : std::true_type {};
-
-template<class T, class First, class... Rest>
-struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {};
-
-template<class T>
-struct ContainsType<T> : std::false_type {};
 
 
 template<class T, class U, class... Vs>
@@ -328,8 +318,10 @@ struct IsAllSame<T, U> : std::is_same<T, U> {};
 template<class Iterator>
 struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {};
 
+
 template<class Iterator>
 struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {};
+
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) {
@@ -354,7 +346,7 @@ LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
 distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
 
 template<class Iterator, int N>
-typename internal::FlattenIterator<Iterator, N>::difference_type
+LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
 distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
 
 
