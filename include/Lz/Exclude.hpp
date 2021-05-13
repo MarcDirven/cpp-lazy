@@ -20,6 +20,10 @@ public:
 		internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {}
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
 /**
  * Excludes a range within [begin, end) where index is [from, to).
@@ -49,7 +53,12 @@ LZ_CONSTEXPR_CXX_17 Exclude<Iterator> exclude(Iterable&& iterable, const interna
 											  const internal::DiffType<Iterator> to) {
 	return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from, to);
 }
-}
+
+// End of group
+/**
+ * @}
+ */
+} // lz
 
 
 #endif // LZ_SKIP_HPP

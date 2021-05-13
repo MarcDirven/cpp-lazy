@@ -40,6 +40,10 @@ public:
 #endif // LZ_HAS_EXECUTION
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
   #ifdef LZ_HAS_EXECUTION
 
@@ -100,6 +104,11 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
 }
 
   #endif // LZ_HAS_EXECUTION
-}
+
+// End of group
+/**
+ * @}
+ */
+} // lz
 
 #endif // LZ_CHUNK_IF_HPP

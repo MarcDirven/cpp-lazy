@@ -25,6 +25,10 @@ public:
 	constexpr JoinWhere() = default;
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
 /**
  * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -74,6 +78,11 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
 					 std::move(a), std::move(b), std::move(resultSelector));
 }
-}
+
+// End of group
+/**
+ * @}
+ */
+} // end lz
 
 #endif // LZ_LEFT_JOIN_HPP

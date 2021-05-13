@@ -36,6 +36,10 @@ public:
 	constexpr GroupBy() = default;
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
   #ifdef LZ_HAS_EXECUTION
 
@@ -108,6 +112,11 @@ groupBy(Iterable&& iterable, KeySelector keySelector) {
 						  std::move(keySelector));
 }
   #endif // end LZ_HAS_EXECUTION
-}
+
+// End of group
+/**
+ * @}
+ */
+} // lz
 
 #endif // LZ_GROUP_BY_HPP

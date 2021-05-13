@@ -19,6 +19,10 @@ public:
 	constexpr Chunks() = default;
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
 /**
  * Chops a sequence into chunks of `chunkSize`. The value type of the iterator is another iterator, so a double for loop is necessary
@@ -44,6 +48,12 @@ template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_CONSTEXPR_CXX_17 Chunks<internal::IterTypeFromIterable<Iterable>> chunks(Iterable&& iterable, const std::size_t chunkSize) {
 	return chunksRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), chunkSize);
 }
-}
+
+// End of group
+/**
+ * @}
+ */
+
+} // lz
 
 #endif //LZ_CHUNKS_HPP

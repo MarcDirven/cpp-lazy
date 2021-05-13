@@ -23,6 +23,10 @@ public:
 		Base(iterator(begin, begin, end), iterator(end, begin, end)) {}
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
 
 /**
  * This function returns a view object that flattens an n-dimensional array.
@@ -32,6 +36,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
 constexpr Flatten<Iterator, Dims> flatten(Iterator begin, Iterator end) {
+	static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
 	return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
 }
 
@@ -48,7 +53,8 @@ constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
 }
 
 /**
- * Returns the amount of dimensions an iterator has.
+ * Returns the amount of dimensions an iterator has. Please note that adding for e.g. `map(vec, []() {...})` adds an extra dimension.
+ * So: `dimensionsIter(lz::map(vec1D, [](){...}).begin())` will return 2. One for the vec1D and 1 for the `lz::map::begin()`.
  * @param An iterator object.
  * @return The amount of dimensions.
  */
@@ -58,7 +64,8 @@ constexpr int dimensionsIter(Iterator) {
 }
 
 /**
- * Returns the amount of dimensions a sequence has.
+ * Returns the amount of dimensions a sequence has. Please note that adding for e.g. `map(vec, []() {...})` adds an extra dimension.
+ * So: `dimensions(lz::map(vec1D, [](){...}))` will return 2. One for the vec1D and 1 for the `lz::map`.
  * @param An iterable object.
  * @return The amount of dimensions.
  */
@@ -66,6 +73,11 @@ template<LZ_CONCEPT_ITERABLE Iterable>
 constexpr int dimensions(Iterable&& it) {
 	return dimensionsIter(internal::begin(std::forward<Iterable>(it)));
 }
-}
+
+// End of group
+/**
+ * @}
+ */
+} // lz
 
 #endif // LZ_FLATTEN_HPP

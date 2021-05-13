@@ -22,6 +22,12 @@ public:
 
 
 /**
+ * @addtogroup ItFns
+ * @{
+ */
+
+
+/**
  * Creates an iterator view object that, when iterated over, gets all possible combinations of all its values of the iterators.
  * @param begin The tuple containing all the beginnings of the sequences.
  * @param end The ending containing all the endings of the sequences.
@@ -43,6 +49,11 @@ LZ_CONSTEXPR_CXX_14 CartesianProduct<internal::IterTypeFromIterable<Iterables>..
 	return cartesianRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
 						  std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
-}
+
+// End of group
+/**
+ * @}
+ */
+} // lz
 
 #endif // LZ_CARTESIAN_PRODUCT_HPP
