@@ -10,7 +10,8 @@ class ExcludeIterator {
 	using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-	using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>;
+	using iterator_category =
+		typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
 	using value_type = typename IterTraits::value_type;
 	using difference_type = typename IterTraits::difference_type;
 	using reference = typename IterTraits::reference;
@@ -70,6 +71,7 @@ public:
 	}
 
 	constexpr friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
 		return a._iterator != b._iterator;
 	}
 };

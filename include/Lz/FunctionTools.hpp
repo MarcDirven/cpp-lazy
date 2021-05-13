@@ -84,6 +84,7 @@ constexpr LZ_INLINE_VAR std::size_t npos = std::numeric_limits<std::size_t>::max
 
 template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
+
 template<class SubString = std::string, class String = std::string>
 #endif // LZ_HAS_STRING_VIEW
 StringSplitter<SubString, String> lines(const String& string) {
@@ -107,13 +108,14 @@ constexpr auto concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decl
 }
 
   #elif !defined(LZ_STANDALONE)
+
 /**
 * Concatenates a sequence of string-like values to fmt::string_view
 * @param strings The string-like values, may be: `lz::concatAsStringView("hello", std::string("world"))`
 * @return A concatenate view object with a `value_type` of `char`.
 */
 template<class... Strings>
-LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&&... strings) ->
+LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&& ... strings) ->
 lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
 	static_assert(
 		internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
@@ -121,6 +123,7 @@ lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
 	);
 	return lz::concat(static_cast<fmt::string_view>(strings)...);
 }
+
   #endif // LZ_HAS_STRING_VIEW
 
 /**
@@ -1220,7 +1223,7 @@ filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc)
  */
 template<class Iterator, class SelectorIterator>
 lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::TupleGet<1>>, internal::TupleGet<0>>
-select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector)	{
+select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector) {
 	auto zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
 							   std::make_tuple(std::move(end), std::move(endSelector)));
 	return lz::filterMap(std::move(zipper), internal::TupleGet<1>(), internal::TupleGet<0>());
@@ -1271,6 +1274,7 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
 	return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					std::move(first), std::move(last));
 }
+
   #endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 

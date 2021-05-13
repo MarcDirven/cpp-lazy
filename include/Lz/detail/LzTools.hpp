@@ -164,6 +164,10 @@ template<class Iterator>
 class ChunksIterator;
 
 
+template<class Iterator, int N>
+class FlattenIterator;
+
+
 template<class Iterable>
 constexpr auto begin(Iterable&& c) -> decltype(std::forward<Iterable>(c).begin()) {
 	return std::forward<Iterable>(c).begin();
@@ -304,33 +308,28 @@ public:
 
 
 template<class T, class... Rest>
-struct ContainsType : std::true_type {
-};
+struct ContainsType : std::true_type {};
 
 template<class T, class First, class... Rest>
-struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {
-};
+struct ContainsType<T, First, Rest...> : Conditional<std::is_same<T, First>::value, std::true_type, ContainsType<T, Rest...>> {};
 
 template<class T>
-struct ContainsType<T> : std::false_type {
-};
+struct ContainsType<T> : std::false_type {};
 
 
 template<class T, class U, class... Vs>
-struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {
-};
+struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {};
+
 
 template<class T, class U>
-struct IsAllSame<T, U> : std::is_same<T, U> {
-};
+struct IsAllSame<T, U> : std::is_same<T, U> {};
+
 
 template<class Iterator>
-struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {
-};
+struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {};
 
 template<class Iterator>
-struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {
-};
+struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) {
@@ -354,11 +353,14 @@ template<class Iterator>
 LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
 distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
 
+template<class Iterator, int N>
+typename internal::FlattenIterator<Iterator, N>::difference_type
+distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
+
 
 template<class... Iterators>
 LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
-next(const internal::CartesianProductIterator<Iterators...>&,
-	 internal::DiffType<internal::CartesianProductIterator<Iterators...>> = 1);
+next(const internal::CartesianProductIterator<Iterators...>&, internal::DiffType<internal::CartesianProductIterator<Iterators...>> = 1);
 
 template<class Arithmetic>
 constexpr internal::RangeIterator<Arithmetic>
@@ -371,6 +373,10 @@ next(const internal::TakeEveryIterator<Iterator>&, internal::DiffType<internal::
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
 next(const internal::ChunksIterator<Iterator>&, internal::DiffType<internal::ChunksIterator<Iterator>> = 1);
+
+template<class Iterator, int N>
+LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
+next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal::FlattenIterator<Iterator, N>> = 1);
 } // lz
 
-#endif
+#endif // LZ_LZ_TOOLS_HPP

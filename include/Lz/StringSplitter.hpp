@@ -22,9 +22,8 @@ public:
 	 * @param str The string to split.
 	 * @param delimiter The delimiter to split on.
 	 */
-	StringSplitter(const String& str, std::string&& delimiter) :
-		internal::BasicIteratorView<iterator>(iterator(0, str, delimiter),
-											  iterator(str.size(), str, delimiter)) {
+	StringSplitter(const String& str, std::string delimiter) :
+		internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, "")) {
 	}
 
 	StringSplitter() = default;
@@ -36,14 +35,13 @@ class StringSplitter<std::string, std::string>;
 
 
 #ifdef LZ_HAS_STRING_VIEW
-
-
 template
 class StringSplitter<std::string_view, std::string_view>;
 
 
 template<class SubString = std::string_view, class String = std::string_view>
 #else
+
 template<class SubString = fmt::string_view, class String = std::string>
 #endif
 // Start of group
@@ -57,7 +55,7 @@ template<class SubString = fmt::string_view, class String = std::string>
  * to safely move the substring, that is returned by the
  * `StringSplitter<SubString>::const_iterator::operator*`. Its `begin()` and `end()` return an input iterator.
  * The StringSplitter view object may not outlive its iterator i.e. they must have the same lifetime.
- * @attention This object keeps a reference to a copy of `str`. This is illegal C++:
+ * @attention This object keeps a const reference to `str`. This is illegal C++:
  * ```
  * lz::StringSplitter<std::string, std::string> f() {
  * 		return lz::split(std::string("hello, world!"), ", ");

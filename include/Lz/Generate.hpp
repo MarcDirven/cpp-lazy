@@ -50,12 +50,9 @@ public:
  * @return A generator random access iterator view object.
  */
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-constexpr Generate<GeneratorFunc> generate(GeneratorFunc
-										   generatorFunc,
-										   const std::size_t amount = std::numeric_limits<std::size_t>::max()
-) {
-	return
-		Generate<GeneratorFunc>(std::move(generatorFunc), amount, amount == std::numeric_limits<std::size_t>::max());
+constexpr Generate<GeneratorFunc> generate(GeneratorFunc generatorFunc,
+										   const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+	return Generate<GeneratorFunc>(std::move(generatorFunc), amount, amount == std::numeric_limits<std::size_t>::max());
 }
 
 
