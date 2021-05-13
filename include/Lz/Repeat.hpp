@@ -57,15 +57,7 @@ public:
 
 /**
  * @brief Returns `toRepeat`, `amount` of times. If amount is left empty, it never stops and is interpreted as a
- * `while-true` loop. The repeat view object may not outlive its iterator i.e. they must have the same lifetime.
- * @attention This object keeps a reference to a copy of `toRepeat`. This is illegal C++:
- * ```
- * lz::Repeat<std::string> f() {
- * 		return lz::repeat(std::string("hello"), 5);
- * }
- * std::cout << *f().begin() << '\n';
- * ```
- * This will most likely crash your application.
+ * `while-true` loop.
  * @param toRepeat The value to repeat `amount` times.
  * @param amount The amount of times to repeat the loop, returning `toRepeat`.
  * @return A repeat object, containing the random access iterator.
