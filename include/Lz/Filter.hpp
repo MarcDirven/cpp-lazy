@@ -101,7 +101,7 @@ filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std
  * @return A filter object from [begin, end) that can be converted to an arbitrary container or can be iterated
  * over.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+template<class Iterator, class UnaryPredicate>
 Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
 	static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
 				  "function return type must be convertible to a bool");
@@ -117,7 +117,7 @@ Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, Unary
  * @return A filter iterator that can be converted to an arbitrary container or can be iterated
  * over using `for (auto... lz::filter(...))`.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
+template<class Iterable, class UnaryPredicate>
 Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
 	return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					   std::move(predicate));
