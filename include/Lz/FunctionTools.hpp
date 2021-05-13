@@ -94,12 +94,12 @@ StringSplitter<SubString, String> lines(const String& string) {
   #ifdef LZ_HAS_STRING_VIEW
 
 /**
- * Concats a sequence of string-like values to std::string_view
+ * Concatenates a sequence of string-like values to std::string_view
  * @param strings The string-like values, may be: `lz::concatAsStringView("hello", std::string("world"))`
  * @return A concatenate view object with a `value_type` of `char`.
  */
 template<class... Strings>
-constexpr auto concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
+LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
 	static_assert(
 		internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
 		"the character type of the strings must use `char`"
