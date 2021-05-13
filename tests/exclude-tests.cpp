@@ -1,7 +1,6 @@
 #include <list>
 #include "Lz/Exclude.hpp"
 #include <catch2/catch.hpp>
-#include <Lz/FunctionTools.hpp>
 
 
 TEST_CASE("Exclude changing and creating elements", "[Exclude][Basic functionality]") {
