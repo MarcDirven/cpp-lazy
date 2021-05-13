@@ -84,8 +84,8 @@ public:
 		return tmp;
 	}
 
-	constexpr difference_type operator-(const EnumerateIterator& other) const {
-		return _iterator - other._iterator;
+	constexpr friend difference_type operator-(const EnumerateIterator& a, const EnumerateIterator& b) {
+		return a._iterator - b._iterator;
 	}
 
 	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
