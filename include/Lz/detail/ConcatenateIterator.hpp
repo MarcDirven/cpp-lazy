@@ -147,7 +147,7 @@ struct PlusIs {
 
 
 template<class Tuple, std::size_t I>
-struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
+struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
 	template<class DifferenceType>
 	constexpr void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {}
 };
@@ -163,10 +163,10 @@ class ConcatenateIterator {
 	using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
 public:
-	using value_type = typename FirstTupleIterator::value_type; // value_types must all be equal
+	using value_type = typename FirstTupleIterator::value_type;
 	using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
-	using reference = typename FirstTupleIterator::reference; // reference must all be equal
-	using pointer = typename FirstTupleIterator::pointer; // pointer must all be equal
+	using reference = typename FirstTupleIterator::reference;
+	using pointer = typename FirstTupleIterator::pointer;
 	using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
 
 private:
