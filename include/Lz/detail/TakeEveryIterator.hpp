@@ -5,6 +5,7 @@
 
 #include "LzTools.hpp"
 
+#include <cmath>
 
 namespace lz {
 namespace internal {
