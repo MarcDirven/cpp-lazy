@@ -1,9 +1,11 @@
 [![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![](https://i.ibb.co/ccn2V8N/Screenshot-2021-05-05-Make-A-High-Quality-Logo-In-Just-5-Minutes-For-Under-30-v1-cropped.png)
+
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Excample:
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Excample:
 
 ```cpp
 #define LZ_STANDALONE
@@ -110,6 +112,34 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 ## What about `ranges::v3`?
 This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
 compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
+
+# Important note
+To garantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
+```cpp
+auto view = lz::chunks(array, 3);
+// Calculate distance:
+using std::distance; using lz::distance;
+auto distance = distance(view.begin(), view.end());
+
+// Get nth element:
+using std::next; using lz::next;
+auto nth = next(view.begin(), 4);
+```
+
+What's also important is that there are 2 iterators that are not safe to return from a function. Those are the `RepeatIterator`, created by `lz::repeat` `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
+```cpp
+auto foo() {
+    return lz::split(std::string("hello, world!"), ", ");
+}
+
+auto bar() {
+    return lz::repeat('a', 30);
+}
+
+auto f = foo(); // dangling reference
+auto b = bar(); // dangling reference
+```
+After storing the result of these functions, the variables will contain dangling references.
 
 # Installation
 
