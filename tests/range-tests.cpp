@@ -63,11 +63,17 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
 
 	SECTION("Lz distance") {
 		CHECK(lz::distance(range.begin(), range.end()) == 10);
+		range = lz::range(5, 10, 2);
+		CHECK(lz::distance(range.begin(), range.end()) == 3);
+		range = lz::range(5, 10, 3);
+		CHECK(lz::distance(range.begin(), range.end()) == 2);
 	}
 
 	SECTION("Lz next") {
-    	CHECK(*(it + 5) == 5);
-    	CHECK(*(it + 11) == 11);
+    	CHECK(*lz::next(it, 5) == 5);
+    	CHECK(*lz::next(it, 11)  == 11);
+    	range = lz::range(5, 10, 2);
+    	CHECK(*lz::next(range.begin(), 2) == 9);
     }
 }
 
