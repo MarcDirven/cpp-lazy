@@ -61,9 +61,9 @@ private:
 		using lz::distance; using std::distance; using std::next; using lz::next;
 		auto& iterator = std::get<I>(tmp._iterator);
 		const auto dist = distance(iterator, std::get<I>(tmp._end));
-		const auto divided = std::lldiv(offset, dist);
-		iterator = next(std::move(iterator), divided.rem);
-		operatorPlusImpl<I - 1>(tmp, divided.quot);
+		const auto offsets = std::lldiv(offset, dist);
+		iterator = next(std::move(iterator), offsets.rem);
+		operatorPlusImpl<I - 1>(tmp, offsets.quot);
 	}
 
 	template<std::size_t... Is>
@@ -116,7 +116,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-		return a.distanceImpl(IndexSequenceForThis(), b);
+		return b.distanceImpl(IndexSequenceForThis(), a);
 	}
 
 	LZ_CONSTEXPR_CXX_17 CartesianProductIterator operator+(const difference_type offset) const {
@@ -127,16 +127,31 @@ public:
 };
 } // internal
 
+/**
+ * Calculates the distance of a cartesian product iterator. If all iterators are random access iterators, time complexity is O(I),
+ * where I is the amount of iterators (`sizeof...(Iterators)`).
+ * @param begin Beginning of the sequence.
+ * @param end Ending of the sequence
+ * @return The difference between a and b.
+ */
 template<class... Iterators>
 LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
-distance(const internal::CartesianProductIterator<Iterators...>& a, const internal::CartesianProductIterator<Iterators...>& b) {
-	return a - b;
+distance(const internal::CartesianProductIterator<Iterators...>& begin, const internal::CartesianProductIterator<Iterators...>& end) {
+	return end - begin;
 }
 
+/**
+ * Gets the nth value from a cartesian product iterator. If all iterators are random access iterators, time complexity is O(I),
+ * where I is the amount of iterators (`sizeof...(Iterators)`).
+ * @param iter Cartesian product iterator instance.
+ * @param offset The amount to add.
+ * @return An iterator that contains `iter + offset` value.
+ */
 template<class... Iterators>
 LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
 next(const internal::CartesianProductIterator<Iterators...>& iter,
 	 const internal::DiffType<internal::CartesianProductIterator<Iterators...>> offset) {
+	LZ_ASSERT(offset >= 0, "Cartesian product iterator is not random access, offset must be >= 0");
 	return iter + offset;
 }
 }// lz
