@@ -126,6 +126,13 @@ using std::next; using lz::next;
 auto nth = next(view.begin(), 4);
 ```
 
+If, for some reason, you do not wish do do this, then be sure to use `lz::next/lz::distance` for the following iterators:
+- `CartesianProductIterator` created by `lz::cartesian::begin`
+- `Range` created by `lz::range::begin`
+- `TakeEveryIterator` created by `lz::takeEvery::begin`
+- `ChunksIterator` created by `lz::chunks::begin`
+- `FlattenIterator` created by `lz::flatten::begin`
+
 What's also important is that there is 1 iterator that is not safe to return from a function. This is `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
 ```cpp
 auto foo() {
