@@ -72,7 +72,7 @@ jobs:
   clang:
     strategy:
       matrix:
-        version: [8, 9, 10]
+        version: [9, 10]
         standard: [11, 14, 17, 20]
 
     runs-on: ubuntu-latest
