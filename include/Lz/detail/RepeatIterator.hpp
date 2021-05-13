@@ -49,93 +49,93 @@ public:
 		return &_iterHelper->toRepeat;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator++() {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator& operator++() {
 		if (!_iterHelper->isWhileTrueLoop) {
 			++_iterator;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator operator++(int) {
 		RepeatIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator--() {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator& operator--() {
 		if (!_iterHelper->isWhileTrueLoop) {
 			--_iterator;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator operator--(int) {
 		RepeatIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator+=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator& operator+=(const difference_type offset) {
 		if (!_iterHelper->isWhileTrueLoop) {
 			_iterator += offset;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator-=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator& operator-=(const difference_type offset) {
 		if (!_iterHelper->isWhileTrueLoop) {
 			_iterator -= offset;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator+(const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator operator+(const difference_type offset) const {
 		RepeatIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator-(const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 RepeatIterator operator-(const difference_type offset) const {
 		RepeatIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	constexpr friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) {
 		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
 				  "incompatible iterator types: both must be while true loop or not");
 		return a._iterator - b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 reference operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	constexpr friend bool operator!=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const RepeatIterator& a, const RepeatIterator& b) {
 		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
 				  "incompatible iterator types: both must be while true loop or not");
 		return a._iterator != b._iterator;
 	}
 
-	constexpr friend bool operator==(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const RepeatIterator& a, const RepeatIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) {
 		LZ_ASSERT(a._iterHelper->isWhileTrueLoop == b._iterHelper->isWhileTrueLoop,
 				  "incompatible iterator types: both must be while true loop or not");
 		return a._iterator < b._iterator;
 	}
 
-	constexpr friend bool operator>(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator>(const RepeatIterator& a, const RepeatIterator& b) {
 		return b < a;
 	}
 
-	constexpr friend bool operator<=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator<=(const RepeatIterator& a, const RepeatIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	constexpr friend bool operator>=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator>=(const RepeatIterator& a, const RepeatIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };

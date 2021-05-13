@@ -28,91 +28,91 @@ public:
 
 	constexpr EnumerateIterator() = default;
 
-	LZ_CONSTEXPR_CXX_14 reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return reference(_index, *_iterator);
 	}
 
-	LZ_CONSTEXPR_CXX_14 FakePointerProxy <reference> operator->() {
+	LZ_CONSTEXPR_CXX_17 FakePointerProxy <reference> operator->() {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator++() {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator& operator++() {
 		++_index;
 		++_iterator;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator operator++(int) {
 		EnumerateIterator tmp = *this;
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator--() {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator& operator--() {
 		--_index;
 		--_iterator;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator operator--(int) {
 		EnumerateIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator+=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator& operator+=(const difference_type offset) {
 		_index += static_cast<Arithmetic>(offset);
 		_iterator += offset;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator operator+(const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator operator+(const difference_type offset) const {
 		EnumerateIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator& operator-=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator& operator-=(const difference_type offset) {
 		_index -= static_cast<Arithmetic>(offset);
 		_iterator -= offset;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 EnumerateIterator operator-(const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 EnumerateIterator operator-(const difference_type offset) const {
 		EnumerateIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	constexpr friend difference_type operator-(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return a._iterator - b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 reference operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	constexpr friend bool operator==(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr friend bool operator!=(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	constexpr friend bool operator<(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator<(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return a._iterator < b._iterator;
 	}
 
-	constexpr friend bool operator>(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator>(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return b < a; // NOLINT
 	}
 
-	constexpr friend bool operator<=(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator<=(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	constexpr friend bool operator>=(const EnumerateIterator& a, const EnumerateIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator>=(const EnumerateIterator& a, const EnumerateIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };

@@ -42,11 +42,11 @@ public:
 
 	constexpr ExcludeIterator() = default;
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -66,11 +66,11 @@ public:
 		return tmp;
 	}
 
-	constexpr friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
 		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
 		return a._iterator != b._iterator;
 	}

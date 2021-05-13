@@ -119,58 +119,58 @@ public:
 		_current(std::move(current)),
 		_end(std::move(end)) {}
 
-	constexpr bool hasSome() const {
+	LZ_CONSTEXPR_CXX_17 bool hasSome() const {
 		return _current != _end;
 	}
 
-	constexpr bool hasPrev() const {
+	LZ_CONSTEXPR_CXX_17 bool hasPrev() const {
 		return _current != _begin;
 	}
 
-	constexpr friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) {
 		return a._current != b._current;
 	}
 
-	constexpr friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_current;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_current;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenWrapper& operator++() {
+	LZ_CONSTEXPR_CXX_17 FlattenWrapper& operator++() {
 		++_current;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenWrapper operator++(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenWrapper operator++(int) {
 		FlattenWrapper tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenWrapper& operator--() {
+	LZ_CONSTEXPR_CXX_17 FlattenWrapper& operator--() {
 		--_current;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenWrapper operator--(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenWrapper operator--(int) {
 		FlattenWrapper tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	difference_type distance() const {
+	LZ_CONSTEXPR_CXX_17 difference_type distance() const {
 		using lz::distance; using std::distance;
 		return distance(_current, _end);
 	}
 
-	friend difference_type operator-(const FlattenWrapper&, const FlattenWrapper& b) {
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const FlattenWrapper&, const FlattenWrapper& b) {
 		return b.distance();
 	}
 
@@ -195,7 +195,7 @@ public:
 	using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
 private:
-	LZ_CONSTEXPR_CXX_14 void advance() {
+	LZ_CONSTEXPR_CXX_17 void advance() {
 		if (_innerIter.hasSome()) return;
 		for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
 			const auto begin = std::begin(*_outerIter);
@@ -211,7 +211,7 @@ private:
 public:
 	constexpr FlattenIterator() = default;
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator(Iterator it, Iterator begin, Iterator end):
+	LZ_CONSTEXPR_CXX_17 FlattenIterator(Iterator it, Iterator begin, Iterator end):
 		_outerIter(std::move(it), std::move(begin), std::move(end)) {
 		if (_outerIter.hasSome()) {
 			const auto beg = std::begin(*_outerIter);
@@ -220,43 +220,43 @@ public:
 		}
 	}
 
-	constexpr bool hasSome() const {
+	LZ_CONSTEXPR_CXX_17 bool hasSome() const {
 		return _outerIter.hasSome();
 	}
 
-	constexpr bool hasPrev() const {
+	LZ_CONSTEXPR_CXX_17 bool hasPrev() const {
 		return _innerIter.hasPrev() || _outerIter.hasPrev();
 	}
 
-	constexpr friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
 		return a._outerIter != b._outerIter || a._innerIter != b._innerIter;
 	}
 
-	constexpr friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_innerIter;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_innerIter;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator& operator++() {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator& operator++() {
 		++_innerIter;
 		this->advance();
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator++(int) {
 		FlattenIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator& operator--() {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator& operator--() {
 		if (_innerIter.hasPrev()) {
 			--_innerIter;
 			return *this;
@@ -273,13 +273,13 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator--(int) {
 		FlattenIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	difference_type distance() const {
+	LZ_CONSTEXPR_CXX_17 difference_type distance() const {
 		FlattenIterator tmp(*this);
 		if (!tmp._outerIter.hasSome()) {
 			return 0;
@@ -295,11 +295,11 @@ public:
 		return total;
 	}
 
-	friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
 		return b.distance();
 	}
 
-	FlattenIterator operator+(difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator+(difference_type offset) const {
 		FlattenIterator tmp(*this);
 		if (!tmp._outerIter.hasSome()) {
 			return tmp;
@@ -344,61 +344,61 @@ public:
 	constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end):
 		_range(std::move(it), std::move(begin), std::move(end)) {}
 
-	constexpr bool hasSome() const {
+	LZ_CONSTEXPR_CXX_17 bool hasSome() const {
 		return _range.hasSome();
 	}
 
-	constexpr bool hasPrev() const {
+	LZ_CONSTEXPR_CXX_17 bool hasPrev() const {
 		return _range.hasPrev();
 	}
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_range;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_range;
 	}
 
-	constexpr friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
 		return a._range != b._range;
 	}
 
-	constexpr friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator& operator++() {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator& operator++() {
 		++_range;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator++(int) {
 		FlattenIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator& operator--() {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator& operator--() {
 		--_range;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 FlattenIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator--(int) {
 		FlattenIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	difference_type distance() const {
+	LZ_CONSTEXPR_CXX_17 difference_type distance() const {
 		return _range.distance();
 	}
 
-	friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
 		return b._range.distance();
 	}
 
-	FlattenIterator operator+(const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 FlattenIterator operator+(const difference_type offset) const {
 		FlattenIterator tmp(*this);
 		tmp._range = tmp._range + offset;
 		return tmp;

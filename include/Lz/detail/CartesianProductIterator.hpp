@@ -33,7 +33,7 @@ private:
 #endif
 
 	template<std::size_t I>
-	LZ_CONSTEXPR_CXX_14 EnableIf<(I > 0)> next() {
+	LZ_CONSTEXPR_CXX_17 EnableIf<(I > 0)> next() {
 		auto& prev = std::get<I - 1>(_iterator);
 		++prev;
 
@@ -50,7 +50,7 @@ private:
 #endif
 
 	template<std::size_t I, EnableIf<I == 0, bool> = true>
-	void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {
+	LZ_CONSTEXPR_CXX_17 void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {
 		using lz::distance; using std::distance; using std::next; using lz::next;
 		auto& iterator = std::get<I>(tmp._iterator);
 		iterator = next(std::move(iterator), offset);
@@ -67,7 +67,7 @@ private:
 	}
 
 	template<std::size_t... Is>
-	LZ_CONSTEXPR_CXX_14 reference dereference(IndexSequence<Is...>) {
+	LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) {
 		return {*std::get<Is>(_iterator)...};
 	}
 
@@ -89,11 +89,11 @@ public:
 		_iterator(begin),
 		_end(std::move(end)) {}
 
-	LZ_CONSTEXPR_CXX_14 reference operator*() {
+	LZ_CONSTEXPR_CXX_17 reference operator*() {
 		return dereference(IndexSequenceForThis());
 	}
 
-	LZ_CONSTEXPR_CXX_14 CartesianProductIterator& operator++() {
+	LZ_CONSTEXPR_CXX_17 CartesianProductIterator& operator++() {
 		if (std::get<0>(_iterator) == std::get<0>(_end)) {
 			return *this;
 		}
@@ -101,17 +101,17 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 CartesianProductIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_17 CartesianProductIterator operator++(int) {
 		CartesianProductIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return std::get<0>(lhs._iterator) == std::get<0>(rhs._iterator);
 	}
 
-	LZ_CONSTEXPR_CXX_14 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return !(lhs == rhs); // NOLINT
 	}
 

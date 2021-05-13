@@ -85,11 +85,11 @@ public:
 		advance();
 	}
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return reference(_keySelector(*_subRangeBegin), BasicIteratorView<Iterator>(_subRangeBegin, _subRangeEnd));
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -105,11 +105,11 @@ public:
 		return tmp;
 	}
 
-	constexpr friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
 		return lhs._subRangeBegin != rhs._subRangeBegin;
 	}
 
-	constexpr friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
 		return !(lhs != rhs); // NOLINT
 	}
 };

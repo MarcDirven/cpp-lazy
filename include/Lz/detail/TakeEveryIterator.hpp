@@ -36,11 +36,11 @@ public:
 
 	constexpr TakeEveryIterator() = default;
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -62,11 +62,11 @@ public:
 		return tmp;
 	}
 
-	constexpr friend bool operator==(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const TakeEveryIterator& a, const TakeEveryIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
 		LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
 		return a._iterator != b._iterator;
 	}

@@ -53,11 +53,11 @@ public:
 
 	constexpr UniqueIterator() = default;
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -85,11 +85,11 @@ public:
 		return tmp;
 	}
 
-	constexpr friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	constexpr friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
 		return !(a != b); // NOLINT
 	}
 };

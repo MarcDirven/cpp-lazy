@@ -66,11 +66,11 @@ public:
 
 	constexpr JoinWhereIterator() = default;
 
-	constexpr reference operator*() const {
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return _resultSelector(*_iterA, *_iterB);
 	}
 
-	constexpr pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -86,11 +86,11 @@ public:
 		return tmp;
 	}
 
-	constexpr friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
 		return a._iterA == b._iterA;
 	}
 
-	constexpr friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
 		return !(a == b); // NOLINT
 	}
 };
