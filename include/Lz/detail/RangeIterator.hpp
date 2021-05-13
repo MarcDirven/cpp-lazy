@@ -4,114 +4,100 @@
 #define LZ_RANGE_ITERATOR_HPP
 
 #include <iterator>
+#include <cmath>
 
 
-namespace lz { namespace internal {
-    template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-    class RangeIterator {
-        Arithmetic _iterator{};
-        Arithmetic _step{};
+namespace lz {
+namespace internal {
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+class RangeIterator {
+	Arithmetic _iterator{};
+	Arithmetic _step{};
 
-    public:
-        using iterator_category = std::random_access_iterator_tag;
-        using value_type = Arithmetic;
-        using difference_type = std::ptrdiff_t;
-        using pointer = const Arithmetic*;
-        using reference = Arithmetic;
+public:
+	using iterator_category = std::forward_iterator_tag;
+	using value_type = Arithmetic;
+	using difference_type = typename std::make_signed<Arithmetic>::type;
+	using pointer = Arithmetic*;
+	using reference = Arithmetic&;
 
-        RangeIterator(const Arithmetic iterator, const Arithmetic step) :
-            _iterator(iterator),
-            _step(step) {
-        }
+	constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) :
+		_iterator(iterator),
+		_step(step) {
+	}
 
-        RangeIterator() = default;
+	constexpr RangeIterator() = default;
 
-        value_type operator*() const {
-            return _iterator;
-        }
+	constexpr value_type operator*() const {
+		return _iterator;
+	}
 
-        pointer operator->() const {
-            return &_iterator;
-        }
+	constexpr pointer operator->() const {
+		return &_iterator;
+	}
 
-        RangeIterator& operator++() {
-            _iterator += _step;
-            return *this;
-        }
+	LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() {
+		_iterator += _step;
+		return *this;
+	}
 
-        RangeIterator operator++(int) {
-            RangeIterator tmp(*this);
-            ++*this;
-            return tmp;
-        }
+	LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) {
+		RangeIterator tmp(*this);
+		++*this;
+		return tmp;
+	}
 
-        RangeIterator& operator--() {
-            _iterator -= _step;
-            return *this;
-        }
+	LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
+		if (a._step < 0) {
+			return a._iterator > b._iterator;
+		}
+		return a._iterator < b._iterator;
+	}
 
-        RangeIterator operator--(int) {
-            RangeIterator tmp(*this);
-            --*this;
-            return tmp;
-        }
+	LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+		return !(a != b); // NOLINT
+	}
 
-        RangeIterator& operator+=(const difference_type offset) {
-            _iterator += (static_cast<Arithmetic>(offset) * _step);
-            return *this;
-        }
+	LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
+		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
+		const auto difference = static_cast<difference_type>(a._iterator) - static_cast<difference_type>(b._iterator);
+		if (a._step == 1) {
+			return difference;
+		}
+		return static_cast<difference_type>(std::ceil(difference / static_cast<float>(a._step)));
+	}
 
-        RangeIterator operator+(const difference_type offset) const {
-            RangeIterator tmp(*this);
-            return tmp += offset;
-        }
+	constexpr RangeIterator operator+(const Arithmetic value) const {
+		return RangeIterator(_iterator + (value * _step), _step);
+	}
+};
+} // internal
 
-        RangeIterator& operator-=(const difference_type offset) {
-            _iterator -= (static_cast<Arithmetic>(offset) * _step);
-            return *this;
-        }
+/**
+ * Gets the distance between begin and end. Distance is always O(1).
+ * @param begin Beginning of the sequence.
+ * @param end Ending of the sequence.
+ * @return The distance between begin and end.
+ */
+template<class Arithmetic>
+LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
+distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIterator<Arithmetic>& b) {
+	return b - a;
+}
 
-        RangeIterator operator-(const difference_type other) const {
-            RangeIterator tmp = *this;
-            return tmp -= other;
-        }
-
-        difference_type operator-(const RangeIterator& other) const {
-            difference_type distance = _iterator - other._iterator;
-            return static_cast<difference_type>(distance / _step);
-        }
-
-        value_type operator[](const difference_type offset) const {
-            return *(*this + offset);
-        }
-
-        friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
-            if (a._step < 0) {
-                return a._iterator > b._iterator;
-            }
-            return a._iterator < b._iterator;
-        }
-
-        friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
-            return !(a != b); // NOLINT
-        }
-
-        friend bool operator<(const RangeIterator& a, const RangeIterator& b) {
-            return a._iterator < b._iterator;
-        }
-
-        friend bool operator>(const RangeIterator& a, const RangeIterator& b) {
-            return b < a;
-        }
-
-        friend bool operator<=(const RangeIterator& a, const RangeIterator& b) {
-            return !(b < a); // NOLINT
-        }
-
-        friend bool operator>=(const RangeIterator& a, const RangeIterator& b) {
-            return !(a < b); // NOLINT
-        }
-    };
-}}
+/**
+ * Gets the nth value from iter. Next is always O(1).
+ * @param iter A chunks iterator instance.
+ * @param value The amount to add.
+ * @return A chunks iterator with offset iter + value.
+ */
+template<class Arithmetic>
+constexpr internal::RangeIterator<Arithmetic>
+next(const internal::RangeIterator<Arithmetic>& iter, const internal::DiffType<internal::RangeIterator<Arithmetic>> value) {
+	LZ_ASSERT(value >= 0, "Range iterator is not random access, offset must be >= 0");
+	return iter + value;
+}
+} // lz
 
 #endif

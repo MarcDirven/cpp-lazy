@@ -8,6 +8,7 @@ TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionali
 		"hello", "hellp", "i'm", "done"
 	};
 
+	std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
 	auto grouper = lz::groupBy(vec, [](const std::string& s) { return s.length(); });
 
 	SECTION("Should be correct chunks") {
@@ -35,27 +36,14 @@ TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionali
 			return l.length() < r.length();
 		}));
 	}
-
-	SECTION("Should be still be sorted descending after groupBy") {
-		std::sort(vec.begin(), vec.end(), [](const std::string& l, const std::string& r) {
-			return l.length() > r.length();
-		});
-#ifdef LZ_HAS_EXECUTION
-		auto g = lz::groupByDescending(vec, [](const std::string& s) { return s.length(); }, std::execution::seq);
-#else
-		auto g = lz::groupByDescending(vec, [](const std::string& s) { return s.length(); });
-#endif
-		static_cast<void>(g);
-		CHECK(std::is_sorted(vec.begin(), vec.end(), [](const std::string& l, const std::string& r) {
-			return l.length() > r.length();
-		}));
-	}
 }
 
 TEST_CASE("GroupBy binary operations", "[GroupBy][Binary ops]") {
 	std::vector<std::string> vec = {
 		"hello", "hellp", "i'm", "done"
 	};
+
+	std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
 	auto grouper = lz::groupBy(vec, [](const std::string& s) { return s.length(); });
 
 	SECTION("Operator++") {

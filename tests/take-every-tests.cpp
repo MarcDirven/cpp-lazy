@@ -50,43 +50,22 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         CHECK(*iterator == 4);
     }
 
-    SECTION("Operator--") {
-        ++iterator;
-        --iterator;
-        CHECK(*iterator == 1);
-    }
-
     SECTION("Operator== & Operator!=") {
         CHECK(iterator != takeEvery.end());
         iterator = takeEvery.end();
         CHECK(iterator == takeEvery.end());
     }
 
-    SECTION("Operator+(int), tests += as well") {
-        CHECK(*(iterator + 1) == 4);
+    SECTION("Lz distance") {
+    	auto takeEvery2 = lz::takeEvery(array, 5);
+		CHECK(lz::distance(takeEvery.begin(), takeEvery.end()) == 2);
+		CHECK(lz::distance(takeEvery2.begin(), takeEvery2.end()) == 1);
     }
 
-    SECTION("Operator-(int), tests -= as well") {
-        ++iterator;
-        CHECK(*(iterator - 1) == 1);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK(takeEvery.end() - takeEvery.begin() == 2);
-    }
-
-    SECTION("Operator[]()") {
-        CHECK(iterator[1] == array[3]);
-    }
-
-    SECTION("Operator<, '<, <=, >, >='") {
-        auto b = takeEvery.begin();
-        auto end = takeEvery.end();
-
-        CHECK(b < end);
-        CHECK(b + 1 > end - 1);
-        CHECK(b + 1 <= end);
-        CHECK(b + 1  >= end - 1);
+    SECTION("Lz next") {
+    	CHECK(*lz::next(iterator, 1) == 4);
+		CHECK(*lz::next(iterator, 0) == 1);
+		CHECK(lz::next(iterator, 2) == takeEvery.end());
     }
 }
 

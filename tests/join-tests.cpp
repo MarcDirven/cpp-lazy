@@ -56,8 +56,10 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
     SECTION("Operator--") {
         ++joinIntBegin, ++joinStrBegin;
 
-        --joinIntBegin;
-        CHECK(*joinIntBegin == "1");
+        CHECK(*--joinIntBegin == "1");
+        auto joinIntEnd = joinInt.end();
+        CHECK(*--joinIntEnd == "5");
+		CHECK(*--joinIntEnd == ", ");
 
         --joinStrBegin;
         CHECK(*joinStrBegin == "h");

@@ -1,4 +1,5 @@
 #include "Lz/Chunks.hpp"
+#include "Lz/FunctionTools.hpp"
 #include "catch2/catch.hpp"
 #include <list>
 
@@ -31,22 +32,38 @@ TEST_CASE("Chunks binary operations", "[Chunks][Binary ops]") {
 		CHECK(*it->begin() == 7);
 	}
 
-	SECTION("Operator--") {
-		++it;
-		CHECK(*it->begin() == 4);
-		--it;
-		CHECK(*it->begin() == 1);
-		CHECK(it == chunked.begin());
-
-		CHECK(*--chunked.end()->end() == 8);
-	}
-
 	SECTION("Operator== & operator!=") {
 		CHECK(it == chunked.begin());
 		CHECK(it != chunked.end());
 		it = chunked.end();
 		CHECK(it != chunked.begin());
 		CHECK(it == chunked.end());
+	}
+
+	SECTION("Lz distance") {
+		auto c = lz::chunks(v, 3);
+		CHECK(lz::distance(c.begin(), c.end()) == 3);
+		c = lz::chunks(v, 4);
+		CHECK(lz::distance(c.begin(), c.end()) == 2);
+		c = lz::chunks(v, 8);
+		CHECK(lz::distance(c.begin(), c.end()) == 1);
+	}
+
+	SECTION("Lz next") {
+		auto c = lz::chunks(v, 3);
+		CHECK(*lz::next(c.begin(), 0)->begin() == 1);
+		CHECK(*lz::next(c.begin(), 1)->begin() == 4);
+		CHECK(*lz::next(c.begin(), 2)->begin() == 7);
+		CHECK(lz::next(c.begin(), 3) == c.end());
+
+		c = lz::chunks(v, 4);
+		CHECK(*lz::next(c.begin(), 0)->begin() == 1);
+		CHECK(*lz::next(c.begin(), 1)->begin() == 5);
+		CHECK(lz::next(c.begin(), 2) == c.end());
+
+		c = lz::chunks(v, 8);
+		CHECK(*lz::next(c.begin(), 0)->begin() == 1);
+		CHECK(lz::next(c.begin(), 1) == c.end());
 	}
 }
 

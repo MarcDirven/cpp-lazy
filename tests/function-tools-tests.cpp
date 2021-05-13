@@ -154,9 +154,9 @@ TEST_CASE("Function tools") {
         auto filterEven = lz::filter(vec, [](const int i) { return i % 2 == 0; });
         auto filterUneven = lz::filter(vec, [](const int i) { return i % 2 != 0; });
 
-        CHECK(lz::length(filterEven) == 0);
+        CHECK(std::distance(filterEven.begin(), filterEven.end()) == 0);
         CHECK(lz::isEmpty(filterEven));
-        CHECK(static_cast<std::size_t>(lz::length(filterUneven)) == vec.size());
+        CHECK(static_cast<std::size_t>(std::distance(filterUneven.begin(), filterUneven.end())) == vec.size());
 
         CHECK(lz::first(filterUneven) == 1);
         CHECK(lz::last(filterUneven) == 9);

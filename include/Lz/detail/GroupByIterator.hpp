@@ -12,109 +12,106 @@
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-	template<class Iterator, class KeySelector, class Execution>
+
+
+template<class Iterator, class KeySelector, class Execution>
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-	template<class Iterator, class KeySelector>
+template<class Iterator, class KeySelector>
 #endif  // end LZ_HAS_EXECUTION
-	class GroupByIterator {
-		Iterator _subRangeEnd{};
-		Iterator _subRangeBegin{};
-		Iterator _end{};
-		mutable FunctionContainer<KeySelector> _keySelector{};
+class GroupByIterator {
+	Iterator _subRangeEnd{};
+	Iterator _subRangeBegin{};
+	Iterator _end{};
+	mutable FunctionContainer<KeySelector> _keySelector{};
 #ifdef LZ_HAS_EXECUTION
-		Execution _execution{};
+	Execution _execution{};
 #endif // end LZ_HAS_EXECUTION
 
-		using IterValueType = ValueType<Iterator>;
-		using FnRetType = decltype(_keySelector(*_subRangeBegin));
+	using IterValueType = ValueType<Iterator>;
+	using FnRetType = decltype(_keySelector(*_subRangeBegin));
 
-		void advance() {
-			if (_subRangeEnd == _end) {
-				return;
-			}
-
-			FnRetType next = _keySelector(*_subRangeEnd);
-#ifdef LZ_HAS_EXECUTION
-			++_subRangeEnd;
-			_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
-				return !(_keySelector(v) == next); // NOLINT
-			});
-#else
-			++_subRangeEnd;
+	LZ_CONSTEXPR_CXX_20 void advance() {
+		if (_subRangeEnd == _end) {
+			return;
+		}
+		FnRetType next = _keySelector(*_subRangeEnd);
+		++_subRangeEnd;
+  #ifdef LZ_HAS_EXECUTION
+		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 			_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 				return !(_keySelector(v) == next); // NOLINT
 			});
-#endif
 		}
+		else {
+			_subRangeEnd = std::find_if(_execution, std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
+				return !(_keySelector(v) == next); // NOLINT
+			});
+		}
+  #else
+		_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
+			return !(_keySelector(v) == next); // NOLINT
+		});
+  #endif
+	}
 
-	public:
-		using iterator_category = std::input_iterator_tag;
-		using value_type = std::pair<Decay<FnRetType>, BasicIteratorView<Iterator>>;
-		using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;
-		using pointer = FakePointerProxy<reference>;
-		using difference_type = std::ptrdiff_t;
+public:
+	using iterator_category =
+	typename std::common_type<std::forward_iterator_tag, typename std::iterator_traits<Iterator>::iterator_category>::type;
+	using value_type = std::pair<Decay<FnRetType>, BasicIteratorView<Iterator>>;
+	using reference = std::pair<FnRetType, BasicIteratorView<Iterator>>;
+	using pointer = FakePointerProxy<reference>;
+	using difference_type = std::ptrdiff_t;
 
-		GroupByIterator() = default;
+	constexpr GroupByIterator() = default;
 
-		template<class SortFunc>
 #ifdef LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc, Execution execution):
+
+	LZ_CONSTEXPR_CXX_20 GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, Execution execution) :
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector, SortFunc sortFunc):
+		GroupByIterator(Iterator begin, Iterator end, KeySelector keySelector):
 #endif // end LZ_HAS_EXECUTION
-			_subRangeEnd(begin),
-			_subRangeBegin(begin),
-			_end(std::move(end)),
-			_keySelector(std::move(keySelector))
+		_subRangeEnd(begin),
+		_subRangeBegin(begin),
+		_end(std::move(end)),
+		_keySelector(std::move(keySelector))
 #ifdef LZ_HAS_EXECUTION
-			, _execution(execution)
+		,
+		_execution(execution)
 #endif // end LZ_HAS_EXECUTION
-		{
-			if (_subRangeBegin == _end) {
-				return;
-			}
-
-#ifdef LZ_HAS_EXECUTION
-			if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-				if (!std::is_sorted(_execution, _subRangeBegin, _end, sortFunc)) {
-					std::sort(_execution, _subRangeBegin, _end, sortFunc);
-				}
-			}
-#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-			if (!std::is_sorted(_subRangeBegin, _end, sortFunc)) {
-				std::sort(_subRangeBegin, _end, sortFunc);
-			}
-#endif // end LZ_HAS_EXECUTION
-			advance();
+	{
+		if (_subRangeBegin == _end) {
+			return;
 		}
+		advance();
+	}
 
-		reference operator*() const {
-			return reference(_keySelector(*_subRangeBegin), BasicIteratorView<Iterator>(_subRangeBegin, _subRangeEnd));
-		}
+	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+		return reference(_keySelector(*_subRangeBegin), BasicIteratorView<Iterator>(_subRangeBegin, _subRangeEnd));
+	}
 
-		pointer operator->() const {
-			return FakePointerProxy<decltype(**this)>(**this);
-		}
+	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+		return FakePointerProxy<decltype(**this)>(**this);
+	}
 
-		GroupByIterator& operator++() {
-			_subRangeBegin = _subRangeEnd;
-			advance();
-			return *this;
-		}
+	LZ_CONSTEXPR_CXX_20 GroupByIterator& operator++() {
+		_subRangeBegin = _subRangeEnd;
+		advance();
+		return *this;
+	}
 
-		GroupByIterator operator++(int) {
-			GroupByIterator tmp(*this);
-			++*this;
-			return tmp;
-		}
+	LZ_CONSTEXPR_CXX_20 GroupByIterator operator++(int) {
+		GroupByIterator tmp(*this);
+		++*this;
+		return tmp;
+	}
 
-		friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
-			return lhs._subRangeBegin != rhs._subRangeBegin;
-		}
+	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+		return lhs._subRangeBegin != rhs._subRangeBegin;
+	}
 
-		friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
-			return !(lhs != rhs); // NOLINT
-		}
-	};
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+		return !(lhs != rhs); // NOLINT
+	}
+};
 }}
 #endif // LZ_GROUP_BY_ITERATOR_HPP
