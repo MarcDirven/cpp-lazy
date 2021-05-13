@@ -8,7 +8,7 @@
 
 
 namespace lz {
-template<LZ_CONCEPT_ITERATOR... Iterators>
+template<class... Iterators>
 class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
 public:
 	using iterator = internal::ConcatenateIterator<Iterators...>;
@@ -32,7 +32,8 @@ public:
 
 /**
  * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater than
- * or equal to 2.
+ * greater than or equal to 2. The underlying types of the containers (i.e. `int`) may be different, but need to be able to be converted to
+ * one another.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param begin A tuple of iterators pointing to the beginning.
  * @param end A tuple of iterators pointing to the ending.
@@ -47,18 +48,16 @@ LZ_CONSTEXPR_CXX_14 Concatenate<Iterators...> concatRange(std::tuple<Iterators..
 
 /**
  * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the parameter pack must be
- * greater than or equal to 2.
+ * greater than or equal to 2. The underlying types of the containers (i.e. `int`) may be different, but need to be able to be converted to
+ * one another.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param iterables A parameter pack of containers/iterables.
  * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&& ...
-iterables) {
-	return
-		concatRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
-					std::make_tuple(internal::end(std::forward<Iterables>(iterables))...)
-		);
+LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&&... iterables) {
+	return concatRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
+			 		   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
 
 // End of group
@@ -67,4 +66,4 @@ iterables) {
  */
 } // end lz
 
-#endif
+#endif // LZ_CONCATENATE_HPP
