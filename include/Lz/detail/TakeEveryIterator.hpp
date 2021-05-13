@@ -9,7 +9,7 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ITERATOR Iterator>
+template<class Iterator>
 class TakeEveryIterator {
 	Iterator _iterator{};
 	Iterator _end{};
