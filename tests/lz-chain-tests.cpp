@@ -128,13 +128,13 @@ TEST_CASE("Iterator chaining") {
 	CHECK(lz::toIter(arr).dropWhile([](int i) { return i >= 0; }).distance() == 0);
 
 	auto joinWhere = lz::toIter(arr).joinWhere(arr2,
-				   [](int i) { return i; },
-				   [](int i) { return i; },
-				   [](int a, int b) -> std::tuple<int, int> { return {a, b}; });
+											   [](int a) { return a; },
+											   [](int b) { return b; },
+				   							   [](int a, int b) -> std::tuple<int, int> { return {a, b}; });
 	CHECK(*joinWhere.begin() == std::make_tuple(0, 0));
 	CHECK(lz::last(joinWhere) == std::make_tuple(15, 15));
 
-	CHECK(lz::toIter(arr).groupBy([](int i) { return i; }).distance() == size);
+	CHECK(lz::toIter(arr).groupBy().distance() == size);
 	CHECK(lz::toIter(arr).firstOrDefault(16, 16) == 16);
 	CHECK(lz::toIter(arr).firstOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
 	CHECK(lz::toIter(arr).lastOrDefault(16, 16) == 16);
