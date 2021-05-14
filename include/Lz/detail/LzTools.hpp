@@ -142,17 +142,31 @@ namespace lz {
 #define LZ_TO_STRING(x) LZ_STRINGIFY(x)
 #define LZ_FILE_LINE __FILE__ ": " LZ_TO_STRING(__LINE__)
 
-#include <cassert>
-#define LZ_ASSERT(CONDITION, MSG) assert((CONDITION) && (MSG))
+#ifndef NDEBUG
+  #include <exception>
+#endif
 
 namespace lz {
 namespace internal {
+[[noreturn]]
+inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
+	std::fprintf(stderr, "'%s':%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
+	std::terminate();
+}
+
+#ifdef NDEBUG
+  #define LZ_ASSERT(CONDITION, MSG) ((void)0)
+#else
+	#define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#endif
+
+
 /* forward declarations of all iterators that contain a custom distance implementation */
 template<class... Iterators>
 class CartesianProductIterator;
 
 
-template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+template<class Arithmetic>
 class RangeIterator;
 
 
