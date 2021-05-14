@@ -21,13 +21,13 @@
 
 #include "Lz/FunctionTools.hpp"
 // Function tools includes:
-// StringSplitter.hpp
-// Join.hpp
-// Zip.hpp
-// Map.hpp
-// Filter.hpp
-// Take.hpp
 // Concatenate.hpp
+// Filter.hpp
+// Join.hpp
+// Map.hpp
+// StringSplitter.hpp
+// Take.hpp
+// Zip.hpp
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -275,25 +275,26 @@ public:
 		return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors), exec));
 	}
 
+	//! See JoinWhere.hpp for documentation
+	template<class IterableB, class SelectorA, class SelectorB, class ResultSelector, class Execution = std::execution::sequenced_policy>
+	LZ_CONSTEXPR_CXX_20 IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
+		SelectorA, SelectorB, ResultSelector, Execution>>
+	joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
+		   	  Execution execution = std::execution::seq) const {
+		return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
+	}
+
 	//! See Take.hpp for documentation
 	template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
 	LZ_CONSTEXPR_CXX_20 IterView<Iterator> dropWhile(UnaryPredicate predicate, Execution exec = std::execution::seq) const {
 		return lz::toIter(lz::dropWhile(*this, std::move(predicate), exec));
 	}
 
-	//! See JoinWhere.hpp for documentation
-	template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-	LZ_CONSTEXPR_CXX_20 IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
-		SelectorA, SelectorB, ResultSelector>>
-	joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
-		return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
-	}
-
 	//! See GroupBy.hpp for documentation
-	template<class KeySelector, class Execution = std::execution::sequenced_policy>
-	LZ_CONSTEXPR_CXX_20 IterView<internal::GroupByIterator<Iterator, KeySelector, Execution>>
-	groupBy(KeySelector selector, Execution execution = std::execution::seq) const {
-		return lz::toIter(lz::groupBy(*this, std::move(selector), execution));
+	template<class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+	LZ_CONSTEXPR_CXX_20 IterView<internal::GroupByIterator<Iterator, Comparer, Execution>>
+	groupBy(Comparer comparer = {}, Execution execution = std::execution::seq) const {
+		return lz::toIter(lz::groupBy(*this, std::move(comparer), execution));
 	}
 
 	//! See FunctionTools.hpp `trim` for documentation
@@ -596,23 +597,24 @@ public:
 		return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)));
 	}
 
+	//! See JoinWhere.hpp for documentation
+	template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
+	LZ_CONSTEXPR_CXX_20 IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
+		SelectorA, SelectorB, ResultSelector>>
+	joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
+		return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
+	}
+
 	//! See Take.hpp for documentation
 	template<class UnaryPredicate>
 	IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
 		return lz::toIter(lz::dropWhile(*this, std::move(predicate)));
 	}
 
-	//! See JoinWhere.hpp for documentation
-	template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-	IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>>
-	joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
-		return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
-	}
-
 	//! See GroupBy.hpp for documentation
-	template<class KeySelector>
-	IterView<internal::GroupByIterator<Iterator, KeySelector>> groupBy(KeySelector selector) const {
-		return lz::toIter(lz::groupBy(*this, std::move(selector)));
+	template<class Comparer = std::equal_to<internal::ValueType<Iterator>>>
+	IterView<internal::GroupByIterator<Iterator, Comparer>> groupBy(Comparer comparer = {}) const {
+		return lz::toIter(lz::groupBy(*this, std::move(comparer)));
 	}
 
 	//! See FunctionTools.hpp `trim` for documentation
