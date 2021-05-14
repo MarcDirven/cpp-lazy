@@ -52,27 +52,24 @@ constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
 	return flatten<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
-/**
- * Returns the amount of dimensions an iterator has. Please note that adding for e.g. `map(vec, []() {...})` adds an extra dimension.
- * So: `dimensionsIter(lz::map(vec1D, [](){...}).begin())` will return 2. One for the vec1D and 1 for the `lz::map::begin()`.
- * @param An iterator object.
- * @return The amount of dimensions.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr int dimensionsIter(Iterator) {
-	return internal::CountDims<std::iterator_traits<Iterator>>::value;
-}
+template<class, class = void>
+struct Dimensions;
 
-/**
- * Returns the amount of dimensions a sequence has. Please note that adding for e.g. `map(vec, []() {...})` adds an extra dimension.
- * So: `dimensions(lz::map(vec1D, [](){...}))` will return 2. One for the vec1D and 1 for the `lz::map`.
- * @param An iterable object.
- * @return The amount of dimensions.
- */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr int dimensions(Iterable&& it) {
-	return dimensionsIter(internal::begin(std::forward<Iterable>(it)));
-}
+struct Dimensions<Iterable, internal::EnableIf<!std::is_array<Iterable>::value>> {
+	static constexpr int value = internal::CountDims<internal::IterTypeFromIterable<Iterable>>::value;
+};
+
+template<LZ_CONCEPT_ITERABLE Iterable>
+struct Dimensions<Iterable, internal::EnableIf<std::is_array<Iterable>::value>> {
+	static constexpr int value = static_cast<int>(std::rank<Iterable>::value);
+};
+
+#ifdef LZ_HAS_CXX_17
+template<LZ_CONCEPT_ITERABLE Iterable>
+inline constexpr int DimensionsV = Dimensions<Iterable>::value;
+#endif
+
 
 // End of group
 /**
