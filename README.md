@@ -126,20 +126,22 @@ using std::next; using lz::next;
 auto nth = next(view.begin(), 4);
 ```
 
-What's also important is that there are 2 iterators that are not safe to return from a function. Those are the `RepeatIterator`, created by `lz::repeat` `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
+If, for some reason, you do not wish do do this, then be sure to use `lz::next/lz::distance` for the following iterators:
+- `CartesianProductIterator` created by `lz::cartesian::begin`
+- `Range` created by `lz::range::begin`
+- `TakeEveryIterator` created by `lz::takeEvery::begin`
+- `ChunksIterator` created by `lz::chunks::begin`
+- `FlattenIterator` created by `lz::flatten::begin`
+
+What's also important is that there is 1 iterator that is not safe to return from a function. This is `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
 ```cpp
 auto foo() {
     return lz::split(std::string("hello, world!"), ", ");
 }
 
-auto bar() {
-    return lz::repeat('a', 30);
-}
-
 auto f = foo(); // dangling reference
-auto b = bar(); // dangling reference
 ```
-After storing the result of these functions, the variables will contain dangling references.
+After storing the result of this function, the variable will contain dangling references.
 
 # Installation
 
