@@ -6,6 +6,7 @@
 #include <tuple>
 #include <iterator>
 
+
 #ifdef __has_include
   #define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
 #else
@@ -29,7 +30,6 @@
 #else
   #define LZ_CONSTEXPR_CXX_14 inline
 #endif // has cxx 14
-
 
 #if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
   #define LZ_HAS_CXX_17
@@ -75,7 +75,6 @@
 #if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>))
   #define LZ_HAS_FORMAT
 #endif
-
 
 #ifdef LZ_HAS_CONCEPTS
 namespace lz {
@@ -142,31 +141,41 @@ namespace lz {
 #define LZ_TO_STRING(x) LZ_STRINGIFY(x)
 #define LZ_FILE_LINE __FILE__ ": " LZ_TO_STRING(__LINE__)
 
-#include <cassert>
-#define LZ_ASSERT(CONDITION, MSG) assert((CONDITION) && (MSG))
+#ifndef NDEBUG
+  #include <exception>
+#endif
 
 namespace lz {
 namespace internal {
+
+#ifdef NDEBUG
+  #define LZ_ASSERT(CONDITION, MSG) ((void)0)
+#else
+
+[[noreturn]]
+inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
+	std::fprintf(stderr, "'%s':%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
+	std::terminate();
+}
+
+  #define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#endif
+
 /* forward declarations of all iterators that contain a custom distance implementation */
 template<class... Iterators>
 class CartesianProductIterator;
 
-
-template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+template<class Arithmetic>
 class RangeIterator;
-
 
 template<class Iterator>
 class TakeEveryIterator;
 
-
 template<class Iterator>
 class ChunksIterator;
 
-
 template<class Iterator, int N>
 class FlattenIterator;
-
 
 template<class Iterable>
 constexpr auto begin(Iterable&& c) -> decltype(std::forward<Iterable>(c).begin()) {
@@ -286,7 +295,6 @@ constexpr bool checkForwardAndPolicies() {
 
 #endif // LZ_HAS_EXECUTION
 
-
 template<class T>
 class FakePointerProxy {
 	T _t;
@@ -306,22 +314,17 @@ public:
 	}
 };
 
-
 template<class T, class U, class... Vs>
 struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {};
-
 
 template<class T, class U>
 struct IsAllSame<T, U> : std::is_same<T, U> {};
 
-
 template<class Iterator>
 struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {};
 
-
 template<class Iterator>
 struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {};
-
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) {
@@ -348,7 +351,6 @@ distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterat
 template<class Iterator, int N>
 LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
 distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
-
 
 template<class... Iterators>
 LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>

@@ -2,7 +2,6 @@
 
 #include <catch2/catch.hpp>
 #include <Lz/Range.hpp>
-#include <Lz/FunctionTools.hpp>
 
 
 TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]") {

@@ -9,7 +9,7 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+template<class Arithmetic>
 class RangeIterator {
 	Arithmetic _iterator{};
 	Arithmetic _step{};
