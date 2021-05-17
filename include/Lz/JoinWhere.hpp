@@ -17,10 +17,11 @@ class JoinWhere final :
 public:
 	using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
-	template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
+
+template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 class JoinWhere final :
 	public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
-		using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
+	using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
 #endif
 public:
 	using const_iterator = iterator;
@@ -28,18 +29,17 @@ public:
 
 public:
 #ifdef LZ_HAS_EXECUTION
-
 	JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
 			  Execution execution) :
 		internal::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector, execution),
 											  iterator(endA, endA, endB, endB, a, b, resultSelector, execution)) {}
-
 #else
+
 	JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
 		internal::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
 											  iterator(endA, endA, endB, endB, a, b, resultSelector)) {}
-#endif
 
+#endif // LZ_HAS_EXECUTION
 
 	constexpr JoinWhere() = default;
 };
@@ -49,8 +49,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
-
+#ifdef LZ_HAS_EXECUTION
 /**
  * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
  * The selector for a must be a function with a parameter of type = `*iterA`.
@@ -106,8 +105,7 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
 					 std::move(a), std::move(b), std::move(resultSelector), execution);
 }
-
-  #else
+#else
 
 /**
 * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -157,7 +155,8 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
 					 std::move(a), std::move(b), std::move(resultSelector));
 }
-  #endif
+
+#endif // LZ_HAS_EXECUTION
 
 // End of group
 /**
