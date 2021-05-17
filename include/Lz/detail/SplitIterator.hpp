@@ -8,15 +8,14 @@
 #include "LzTools.hpp"
 
 #ifdef LZ_HAS_STRING_VIEW
-  #include <string_view>
+#include <string_view>
 #endif
-
 
 namespace lz { namespace internal {
 template<class SubString, class String>
 class SplitIterator {
 	std::size_t _currentPos{}, _last{};
-	const String* _string{nullptr};
+	String* _string{nullptr};
 	std::string _delimiter;
 
 public:
@@ -26,7 +25,7 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = FakePointerProxy<reference>;
 
-	SplitIterator(const std::size_t startingPosition, const String& string, std::string delimiter) :
+	SplitIterator(const std::size_t startingPosition, String& string, std::string delimiter) :
 		_currentPos(startingPosition),
 		_string(&string),
 		_delimiter(std::move(delimiter)) {
