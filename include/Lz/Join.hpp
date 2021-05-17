@@ -6,7 +6,6 @@
 #include "detail/JoinIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Join final : public internal::BasicIteratorView<internal::JoinIterator<Iterator>> {

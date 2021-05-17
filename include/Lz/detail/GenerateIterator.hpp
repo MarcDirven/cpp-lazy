@@ -5,7 +5,6 @@
 
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 template<class GeneratorFunc>
 class GenerateIterator {

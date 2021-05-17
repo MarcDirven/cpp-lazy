@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/ZipIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {

@@ -8,10 +8,9 @@
 
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-
-
 template<class Iterator, class UnaryPredicate, class Execution>
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+
 template<class Iterator, class UnaryPredicate>
 #endif // LZ_HAS_EXECUTION
 class ChunkIfIterator {
@@ -33,34 +32,34 @@ public:
 
 private:
 	LZ_CONSTEXPR_CXX_20 void findNext() {
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 			_subRangeEnd = std::find_if(_execution, _subRangeBegin, _end, _predicate);
 		}
 		else {
 			_subRangeEnd = std::find_if(_subRangeBegin, _end, _predicate);
 		}
-  #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 		_subRangeEnd = std::find_if(_subRangeBegin, _end, _predicate);
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 	}
 
 public:
 	constexpr ChunkIfIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-
 	LZ_CONSTEXPR_CXX_20 ChunkIfIterator(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		ChunkIfIterator(Iterator begin, Iterator end, UnaryPredicate predicate):
+
+	ChunkIfIterator(Iterator begin, Iterator end, UnaryPredicate predicate) :
 #endif // LZ_HAS_EXECUTION
 		_subRangeBegin(begin),
 		_subRangeEnd(begin),
 		_end(std::move(end)),
 		_predicate(std::move(predicate))
 #ifdef LZ_HAS_EXECUTION
-		,
-		_execution(execution)
+	,
+	_execution(execution)
 #endif // LZ_HAS_EXECUTION
 	{
 		if (begin == end) {

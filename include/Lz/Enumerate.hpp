@@ -6,11 +6,9 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/EnumerateIterator.hpp"
 
-
 namespace lz {
 using lz::distance;
 using std::distance;
-
 
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
 class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {

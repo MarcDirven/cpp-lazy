@@ -5,8 +5,8 @@
 
 #include "LzTools.hpp"
 
-
-namespace lz { namespace internal {
+namespace lz {
+namespace internal {
 template<class T, class U = void>
 struct AliasWrapper {
 	using Type = U;
@@ -16,44 +16,34 @@ template<class T, class U = void>
 using AliasWrapperT = typename AliasWrapper<T, U>::Type;
 
 template<class T, class Enable = void>
-struct HasValueType : std::false_type {
-};
+struct HasValueType : std::false_type {};
 
 template<class T>
-struct HasValueType<T, AliasWrapperT<typename T::value_type>> : std::true_type {
-};
+struct HasValueType<T, AliasWrapperT<typename T::value_type>> : std::true_type {};
 
 template<class T, class Enable = void>
-struct HasDifferenceType : std::false_type {
-};
+struct HasDifferenceType : std::false_type {};
 
 template<class T>
-struct HasDifferenceType<T, AliasWrapperT<typename T::reference>> : std::true_type {
-};
+struct HasDifferenceType<T, AliasWrapperT<typename T::reference>> : std::true_type {};
 
 template<class T, class Enable = void>
-struct HasPointer : std::false_type {
-};
+struct HasPointer : std::false_type {};
 
 template<class T>
-struct HasPointer<T, AliasWrapperT<typename T::pointer>> : std::true_type {
-};
+struct HasPointer<T, AliasWrapperT<typename T::pointer>> : std::true_type {};
 
 template<class T, class Enable = void>
-struct HasIterCat : std::false_type {
-};
+struct HasIterCat : std::false_type {};
 
 template<class T>
-struct HasIterCat<T, AliasWrapperT<typename T::iterator_category>> : std::true_type {
-};
+struct HasIterCat<T, AliasWrapperT<typename T::iterator_category>> : std::true_type {};
 
 template<class T, class Enable = void>
-struct HasReference : std::false_type {
-};
+struct HasReference : std::false_type {};
 
 template<class T>
-struct HasReference<T, AliasWrapperT<typename T::reference>> : std::true_type {
-};
+struct HasReference<T, AliasWrapperT<typename T::reference>> : std::true_type {};
 
 template<class T>
 struct IsIterator {
@@ -87,15 +77,10 @@ struct CountDimsHelper<T, true> {
 };
 
 template<class T>
-struct CountDimsHelper<T, false> {
-	static constexpr int value = 0;
-};
+struct CountDimsHelper<T, false> : std::integral_constant<int, 0> {};
 
 template<class T>
-struct CountDims {
-	static constexpr int value = CountDimsHelper<T, IsIterator<T>::value>::value;
-};
-
+struct CountDims : CountDimsHelper<T, IsIterator<T>::value> {};
 
 // Improvement of https://stackoverflow.com/a/21076724/8729023
 template<class Iterator>
@@ -182,7 +167,6 @@ public:
 	}
 };
 
-
 template<class Iterator, int N>
 class FlattenIterator {
 	using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
@@ -196,11 +180,11 @@ public:
 
 private:
 	LZ_CONSTEXPR_CXX_17 void advance() {
-		if (_innerIter.hasSome()) return;
+		if (_innerIter.hasSome()) { return; }
 		for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
 			const auto begin = std::begin(*_outerIter);
 			_innerIter = Inner(begin, begin, std::end(*_outerIter));
-			if (_innerIter.hasSome()) return;
+			if (_innerIter.hasSome()) { return; }
 		}
 		_innerIter = Inner();
 	}
@@ -211,7 +195,7 @@ private:
 public:
 	constexpr FlattenIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 FlattenIterator(Iterator it, Iterator begin, Iterator end):
+	LZ_CONSTEXPR_CXX_17 FlattenIterator(Iterator it, Iterator begin, Iterator end) :
 		_outerIter(std::move(it), std::move(begin), std::move(end)) {
 		if (_outerIter.hasSome()) {
 			const auto beg = std::begin(*_outerIter);
@@ -288,7 +272,7 @@ public:
 		for (;;) {
 			total += tmp._innerIter.distance();
 			++tmp._outerIter;
-			if (!tmp._outerIter.hasSome()) break;
+			if (!tmp._outerIter.hasSome()) { break; }
 			const auto begin = std::begin(*tmp._outerIter);
 			tmp._innerIter = Inner(begin, begin, std::end(*tmp._outerIter));
 		}
@@ -326,7 +310,6 @@ public:
 	}
 };
 
-
 template<class Iterator>
 class FlattenIterator<Iterator, 0> {
 	FlattenWrapper<Iterator> _range;
@@ -341,7 +324,7 @@ public:
 
 	constexpr FlattenIterator() = default;
 
-	constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end):
+	constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end) :
 		_range(std::move(it), std::move(begin), std::move(end)) {}
 
 	LZ_CONSTEXPR_CXX_17 bool hasSome() const {
@@ -408,7 +391,7 @@ public:
 
 /**
  * Gets the distance of the iterator. Please note that the first argument *must* be created from `flatten(...).begin()`, not
- * `flatten(...).end()`. The second argument is not used. Distance is O(N), where N is the amount of dimensions (not its length,
+ * `flatten(...).end()`. The second argument is not used. Distance is O(N), where N is the amount of inner containers.
  * (this is only the case for random access iterators, or iterators that define a custom `distance`).
  * @param begin The flatten iterator created from `lz::flatten(...).begin()`
  * @return The distance (size/length) of the iterator.
@@ -420,9 +403,9 @@ distance(const internal::FlattenIterator<Iterator, N>& begin, const internal::Fl
 }
 
 /**
- * Gets the nth value of the iterator. If value >= 0, this function is O(N), where N is the amount of dimensions (not its length,
- * this is only the case for random access iterators, or iterators that define a custom `distance`). Otherwise this function is
- * O(N * M) where M is the amount of elements inside that dimension and N is the amount of dimensions.
+ * Gets the nth value of the iterator. If value >= 0, this function is O(N), where N is the amount of inner containers.
+ * (this is only the case for random access iterators, or iterators that define a custom `distance`). Otherwise this function is
+ * O(N * M) where M is the amount of elements inside that dimension and N is the amount of inner containers.
  * @param iter The iterator to increment.
  * @param value The amount to increment
  * @return A flatten iterator with iter + value.

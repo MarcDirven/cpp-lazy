@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/GenerateIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
 class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {

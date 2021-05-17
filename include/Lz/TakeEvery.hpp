@@ -6,7 +6,6 @@
 #include "detail/TakeEveryIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class TakeEvery final : public internal::BasicIteratorView<internal::TakeEveryIterator<Iterator>> {

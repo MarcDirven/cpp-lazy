@@ -6,11 +6,11 @@
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
 #else
+
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 #endif // LZ_HAS_EXECUTION
 class JoinWhereIterator {
@@ -89,11 +89,12 @@ public:
 
 #ifdef LZ_HAS_EXECUTION
 	JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
-				      Execution execution)
+					  Execution execution)
 #else
+
 	JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector)
 #endif // LZ_HAS_EXECUTION
-	:
+		:
 		_iterA(std::move(iterA)),
 		_endA(std::move(endA)),
 		_iterB(std::move(iterB)),

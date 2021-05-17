@@ -5,7 +5,6 @@
 
 #include <algorithm>
 
-
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
 
@@ -15,6 +14,7 @@ namespace lz { namespace internal {
 
 template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 #else // ^^^ lz has execution vvv ! lz has execution
+
 template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
 #endif // LZ_HAS_EXECUTION
 class UniqueIterator {
@@ -38,6 +38,7 @@ public:
 
 	constexpr UniqueIterator(Iterator begin, Iterator end, Compare compare, Execution execution)
 #else // ^^^ lz has execution vvv ! lz has execution
+
 	constexpr UniqueIterator(Iterator begin, Iterator end, Compare compare)
 #endif // LZ_HAS_EXECUTION
 		:
@@ -45,8 +46,8 @@ public:
 		_end(std::move(end)),
 		_compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
-		,
-		_execution(execution)
+	,
+	_execution(execution)
 #endif // LZ_HAS_EXECUTION
 	{
 	}
@@ -62,16 +63,16 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_20 UniqueIterator& operator++() {
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 			_iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
 		}
 		else {
 			_iterator = std::adjacent_find(_execution, std::move(_iterator), _end, _compare);
 		}
-  #else // ^^^ lz has execution vvv ! lz has execution
+#else // ^^^ lz has execution vvv ! lz has execution
 		_iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 
 		if (_iterator != _end) {
 			++_iterator;

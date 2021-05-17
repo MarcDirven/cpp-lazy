@@ -6,7 +6,6 @@
 #include <numeric>
 #include "LzTools.hpp"
 
-
 namespace lz {
 namespace internal {
 // Edited version of https://github.com/mirandaconrado/product-iterator
@@ -28,9 +27,9 @@ private:
 	constexpr EnableIf<I == 0> next() const {}
 
 #ifdef LZ_MSVC
-  #pragma warning(push)
-  #pragma warning(disable:4127)
-#endif
+#pragma warning(push)
+#pragma warning(disable:4127)
+#endif // LZ_MSVC
 
 	template<std::size_t I>
 	LZ_CONSTEXPR_CXX_17 EnableIf<(I > 0)> next() {
@@ -46,8 +45,8 @@ private:
 	}
 
 #ifdef LZ_MSVC
-  #pragma warning(pop)
-#endif
+#pragma warning(pop)
+#endif // LZ_MSVC
 
 	template<std::size_t I, EnableIf<I == 0, bool> = true>
 	LZ_CONSTEXPR_CXX_17 void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {

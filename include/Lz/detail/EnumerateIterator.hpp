@@ -3,9 +3,7 @@
 #ifndef LZ_ENUMERATE_ITERATOR_HPP
 #define LZ_ENUMERATE_ITERATOR_HPP
 
-
 #include "LzTools.hpp"
-
 
 namespace lz { namespace internal {
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL Arithmetic>

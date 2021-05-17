@@ -3,10 +3,8 @@
 #ifndef LZ_UNIQUE_HPP
 #define LZ_UNIQUE_HPP
 
-
 #include "detail/BasicIteratorView.hpp"
 #include "detail/UniqueIterator.hpp"
-
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
@@ -16,9 +14,8 @@ template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
 #else
 
-
-	template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-	class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
+template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
+class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
 #endif
 public:
 #ifdef LZ_HAS_EXECUTION
@@ -52,7 +49,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * @brief Returns an Unique iterator view object.
@@ -90,7 +87,7 @@ unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::ex
 					   std::move(compare), execPolicy);
 }
 
-  #else // ^^^ has execution vvv !has execution
+#else // ^^^ has execution vvv !has execution
 
 /**
  * @brief Returns an Unique iterator view object.
@@ -120,7 +117,7 @@ constexpr Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Itera
 					   std::move(compare));
 }
 
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 
 // End of group
 /**

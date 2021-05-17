@@ -6,7 +6,6 @@
 #include <iterator>
 #include <cmath>
 
-
 namespace lz {
 namespace internal {
 template<class Arithmetic>
@@ -59,7 +58,7 @@ public:
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
+	friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
 		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
 		const auto difference = static_cast<difference_type>(a._iterator) - static_cast<difference_type>(b._iterator);
 		if (a._step == 1) {
@@ -69,7 +68,7 @@ public:
 	}
 
 	constexpr RangeIterator operator+(const Arithmetic value) const {
-		return RangeIterator(_iterator + (value * _step), _step);
+		return RangeIterator(_iterator + value * _step, _step);
 	}
 };
 } // internal
@@ -81,7 +80,7 @@ public:
  * @return The distance between begin and end.
  */
 template<class Arithmetic>
-LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
+typename internal::RangeIterator<Arithmetic>::difference_type
 distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIterator<Arithmetic>& b) {
 	return b - a;
 }
@@ -95,7 +94,7 @@ distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIter
 template<class Arithmetic>
 constexpr internal::RangeIterator<Arithmetic>
 next(const internal::RangeIterator<Arithmetic>& iter, const internal::DiffType<internal::RangeIterator<Arithmetic>> value) {
-	LZ_ASSERT(value >= 0, "Range iterator is not random access, offset must be >= 0");
+	LZ_ASSERT(value >= 0, "Range iterator is not bidirectional, offset must be >= 0");
 	return iter + value;
 }
 } // lz

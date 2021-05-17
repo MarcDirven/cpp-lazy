@@ -3,18 +3,15 @@
 #ifndef LZ_EXCEPT_ITERATOR_HPP
 #define LZ_EXCEPT_ITERATOR_HPP
 
-
 #include <algorithm>
 
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-
-
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare, class Execution>
 #else // ^^^ has execution vvv ! has execution
+
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
 #endif // LZ_HAS_EXECUTION
 class ExceptIterator {
@@ -39,7 +36,7 @@ private:
 #endif // LZ_HAS_EXECUTION
 
 	LZ_CONSTEXPR_CXX_20 void find() {
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 			_iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
 				return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
@@ -50,22 +47,22 @@ private:
 				return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
 			});
 		}
-  #else // ^^^ has execution vvv ! has execution
+#else // ^^^ has execution vvv ! has execution
 		_iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
 			return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
 		});
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 	}
 
 public:
 	constexpr ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-
 	LZ_CONSTEXPR_CXX_20 ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
 									   Compare compare, Execution execution) :
 #else // ^^^ has execution vvv ! has execution
-		ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
+
+	ExceptIterator(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Compare compare) :
 #endif // LZ_HAS_EXECUTION
 		_iterator(std::move(begin)),
 		_end(std::move(end)),
@@ -73,8 +70,8 @@ public:
 		_toExceptEnd(std::move(toExceptEnd)),
 		_compare(std::move(compare))
 #ifdef LZ_HAS_EXECUTION
-		,
-		_execution(execution)
+	,
+	_execution(execution)
 #endif // LZ_HAS_EXECUTION
 	{
 		if (_toExceptBegin == _toExceptEnd) {

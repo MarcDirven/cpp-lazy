@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/FilterIterator.hpp"
 
-
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
 
@@ -14,8 +13,9 @@ namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
 class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> {
 #else
-	template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
-	class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
+
+template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
 #endif
 public:
 #ifdef LZ_HAS_EXECUTION
@@ -41,6 +41,7 @@ public:
 	}
 
 #else
+
 	/**
 	 * @brief The filter constructor.
 	 * @param begin Beginning of the iterator.
@@ -48,9 +49,9 @@ public:
 	 * @param function A function with parameter the value type of the iterable and must return a bool.
 	 */
 	Filter(Iterator begin, Iterator end, UnaryPredicate function) :
-		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function), iterator(end, end, function))
-	{
+		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function), iterator(end, end, function)) {
 	}
+
 #endif
 
 	constexpr Filter() = default;
@@ -61,7 +62,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
@@ -90,7 +91,8 @@ filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std
 					   std::move(predicate), execPolicy);
 }
 
-  #else // ^^^ has execution vvv ! has execution
+#else // ^^^ has execution vvv ! has execution
+
 /**
  * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
  * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all
@@ -122,7 +124,8 @@ Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable
 	return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					   std::move(predicate));
 }
-  #endif // LZ_HAS_EXECUTION
+
+#endif // LZ_HAS_EXECUTION
 // End of group
 /**
  * @}

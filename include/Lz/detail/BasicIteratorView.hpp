@@ -12,17 +12,16 @@
 #include <numeric>
 
 #if defined(LZ_STANDALONE)
-  #ifdef LZ_HAS_FORMAT
-	#include <format>
-  #else
-	#include <sstream>
-  #endif // LZ_HAS_FORMAT
+#ifdef LZ_HAS_FORMAT
+#include <format>
 #else
-  #include "fmt/ostream.h"
+#include <sstream>
+#endif // LZ_HAS_FORMAT
+#else
+#include "fmt/ostream.h"
 #endif // LZ_STANDALONE
 
 #include "LzTools.hpp"
-
 
 namespace lz {
 namespace internal {
@@ -46,14 +45,12 @@ std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::str
 }
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
-
 #ifdef LZ_HAS_EXECUTION
-
 template<class Iterator, class Execution>
-std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter, Execution exec) {
+LZ_CONSTEXPR_CXX_20 std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter, Execution execution) {
 #else
-	template<class Iterator>
-	std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
+template<class Iterator>
+std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
 #endif // LZ_HAS_EXECUTION
 	if (begin == end) { return ""; }
 	std::string result;
@@ -79,81 +76,77 @@ std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimi
 		std::mutex m;
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream or std::to_string
 		if constexpr (std::is_arithmetic_v<ValueType<Iterator>>) {
-			std::for_each(exec, begin, end, [&result, &delimiter, &m](const ValueType<Iterator>& v) {
+			std::for_each(execution, begin, end, [&result, &delimiter, &m](const ValueType<Iterator>& v) {
 				std::lock_guard guard(m);
 				result += std::to_string(v) + delimiter;
 			});
 		}
 		else {
 			std::ostringstream oss;
-			std::for_each(exec, begin, end, [&delimiter, &oss, &m](const ValueType<Iterator>& v) {
+			std::for_each(execution, begin, end, [&delimiter, &oss, &m](const ValueType<Iterator>& v) {
 				std::lock_guard guard(m);
 				oss << v << delimiter;
 			});
 			result = oss.str();
 		}
 #elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-		std::for_each(exec, begin, end, [&delimiter, backInserter, &m](const ValueType<Iterator>& v) {
+		std::for_each(execution, begin, end, [&delimiter, backInserter, &m](const ValueType<Iterator>& v) {
 			std::lock_guard guard(m);
 			std::format_to(backInserter, "{}{}", v, delimiter);
 		});
 #else // fmt::format_to is used
-		std::for_each(exec, begin, end, [&delimiter, &m, backInserter](const ValueType <Iterator>& v) {
+		std::for_each(execution, begin, end, [&delimiter, &m, backInserter](const ValueType<Iterator>& v) {
 			std::lock_guard guard(m);
 			fmt::format_to(backInserter, "{}{}", v, delimiter);
 		});
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 	} // end if check if higher than std::execution::seq
 #else // ^^^ LZ_HAS_EXECUTION vvv !LZ_HAS_EXECUTION
-  #if !defined(LZ_STANDALONE)
+#if !defined(LZ_STANDALONE)
 	std::for_each(begin, end, [&delimiter, backInserter](const ValueType<Iterator>& v) {
 		fmt::format_to(backInserter, "{}{}", v, delimiter);
 	});
-  #else // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
+#else // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
 	result = toStringImplSpecialized(begin, end, delimiter);
-  #endif // !defined(LZ_STANDALONE)
+#endif // !defined(LZ_STANDALONE)
 #endif // LZ_HAS_EXECUTION
 	const auto resultEnd = result.end();
 	result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.length()), resultEnd);
 	return result;
 }
 
-
 using One = char;
 struct Two {
 	char x[2];
 };
 
-
 template<class Container>
 class HasResize {
 	template<class C>
-	static One test(decltype(void(std::declval<C&>().resize(0)))*) { return {}; }
+	static constexpr One test(decltype(void(std::declval<C&>().resize(0)))*) { return {}; }
 
 	template<class C>
-	static Two test(...) { return {}; }
+	static constexpr Two test(...) { return {}; }
 
 public:
 	enum {
 		value = sizeof(test<Container>(nullptr)) == sizeof(One)
 	};
 };
-
 
 template<class Container>
 class HasReserve {
 	template<class C>
-	static One test(decltype(void(std::declval<C&>().reserve(0)))*) { return {}; }
+	static constexpr One test(decltype(void(std::declval<C&>().reserve(0)))*) { return {}; }
 
 	template<class C>
-	static Two test(...) { return {}; }
+	static constexpr Two test(...) { return {}; }
 
 public:
 	enum {
 		value = sizeof(test<Container>(nullptr)) == sizeof(One)
 	};
 };
-
 
 template<class LzIterator>
 class BasicIteratorView {
@@ -192,8 +185,7 @@ private:
 		return map;
 	}
 
-  #ifdef LZ_HAS_EXECUTION
-
+#ifdef LZ_HAS_EXECUTION
 	template<class Container, class... Args, class Execution>
 	LZ_CONSTEXPR_CXX_20 Container copyContainer(Execution execution, Args&& ... args) const {
 		using lz::distance; using std::distance;
@@ -222,7 +214,7 @@ private:
 	template<std::size_t N, class Execution>
 	LZ_CONSTEXPR_CXX_20 std::array<value_type, N> copyArray(Execution execution) const {
 		LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
-				  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
+				  "the iterator size is too large and/or array size is too small");
 		std::array<value_type, N> array{};
 		if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
 			static_cast<void>(execution);
@@ -233,8 +225,8 @@ private:
 		}
 		return array;
 	}
+#else // ^^^ has execution vvv ! has execution
 
-  #else // ^^^ has execution vvv ! has execution
 	template<class Container, class Iter>
 	Container makeContainer(Container& container, Iter where) const {
 		std::copy(begin(), end(), std::move(where));
@@ -251,12 +243,12 @@ private:
 	template<std::size_t N>
 	std::array<value_type, N> copyArray() const {
 		LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
-				  LZ_FILE_LINE ": the iterator size is too large and/or array size is too small");
+				  "the iterator size is too large and/or array size is too small");
 		auto array = std::array<value_type, N>();
 		return makeContainer(array, array.begin());
 	}
 
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 public:
 	LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
 		return _begin;
@@ -266,15 +258,17 @@ public:
 		return _end;
 	}
 
-  #ifdef LZ_HAS_REF_QUALIFIER
-	LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() && {
+#ifdef LZ_HAS_REF_QUALIFIER
+
+	LZ_CONSTEXPR_CXX_20 virtual LzIterator begin()&& {
 		return std::move(_begin);
 	}
 
-	LZ_CONSTEXPR_CXX_20 virtual LzIterator end() && {
+	LZ_CONSTEXPR_CXX_20 virtual LzIterator end()&& {
 		return std::move(_end);
 	}
-  #endif // LZ_HAS_REF_QUALIFIER
+
+#endif // LZ_HAS_REF_QUALIFIER
 
 	constexpr BasicIteratorView() = default;
 
@@ -284,8 +278,7 @@ public:
 
 	virtual ~BasicIteratorView() = default;
 
-  #ifdef LZ_HAS_EXECUTION
-
+#ifdef LZ_HAS_EXECUTION
 	/**
 	 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
 	 * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
@@ -310,52 +303,51 @@ public:
 	/**
 	* @brief Creates a new `std::vector<value_type>` of the sequence.
 	* @details Creates a new vector of the sequence. A default `std::allocator<value_type>`.
-	* @param exec The execution policy. Must be one of `std::execution`'s tags.
+	* @param execution The execution policy. Must be one of `std::execution`'s tags.
 	* @return A `std::vector<value_type>` with the sequence.
 	*/
 	template<class Execution = std::execution::sequenced_policy>
-	LZ_CONSTEXPR_CXX_20 std::vector<value_type> toVector(Execution exec = std::execution::seq) const {
-		return to<std::vector>(exec);
+	LZ_CONSTEXPR_CXX_20 std::vector<value_type> toVector(Execution execution = std::execution::seq) const {
+		return to<std::vector>(execution);
 	}
 
 	/**
 	 * @brief Creates a new `std::vector<value_type, Allocator>`.
 	 * @details Creates a new `std::vector<value_type, Allocator>` with a specified allocator which can be passed
 	 * by this function.
-	 * @param exec The execution policy. Must be one of `std::execution`'s tags.
+	 * @param execution The execution policy. Must be one of `std::execution`'s tags.
 	 * @param alloc The allocator.
 	 * @return A new `std::vector<value_type, Allocator>`.
 	 */
 	template<class Allocator, class Execution = std::execution::sequenced_policy>
-	LZ_CONSTEXPR_CXX_20 std::vector<value_type, Allocator> toVector(const Allocator& alloc, Execution exec) const {
-		return to<std::vector>(exec, alloc);
+	LZ_CONSTEXPR_CXX_20 std::vector<value_type, Allocator> toVector(const Allocator& alloc, Execution execution) const {
+		return to<std::vector>(execution, alloc);
 	}
 
 	/**
 	 * @brief Creates a new `std::vector<value_type, N>`.
 	 * @tparam N The size of the array.
-	 * @param exec The execution policy. Must be one of `std::execution`'s tags.
+	 * @param execution The execution policy. Must be one of `std::execution`'s tags.
 	 * @return A new `std::array<value_type, N>`.
 	 * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
 	 */
 	template<std::size_t N, class Execution = std::execution::sequenced_policy>
-	LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution exec = std::execution::seq) const {
-		return copyArray<N>(exec);
+	LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const {
+		return copyArray<N>(execution);
 	}
 
 	/**
 	 * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
 	 * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
 	 * @param delimiter The delimiter between the previous value and the next.
-	 * @param exec The execution policy. Must be one of `std::execution`'s tags.
+	 * @param execution The execution policy. Must be one of `std::execution`'s tags.
 	 * @return The converted iterator in string format.
 	 */
 	template<class Execution = std::execution::sequenced_policy>
-	std::string toString(const std::string& delimiter = "", Execution exec = std::execution::seq) const {
-		return toStringImpl(begin(), end(), delimiter, exec);
+	LZ_CONSTEXPR_CXX_20 std::string toString(const std::string& delimiter = "", Execution execution = std::execution::seq) const {
+		return toStringImpl(begin(), end(), delimiter, execution);
 	}
-
-  #else
+#else
 
 	/**
 	 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -418,7 +410,8 @@ public:
 	std::string toString(const std::string& delimiter = "") const {
 		return toStringImpl(begin(), end(), delimiter);
 	}
-  #endif
+
+#endif
 
 	/**
 	 * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
@@ -504,6 +497,7 @@ public:
 };
 } // namespace internal
 #ifndef LZ_HAS_EXECUTION
+
 /**
  * Use this function to check if two lz iterators are the same.
  * @param a An iterable, its underlying value type should have an operator== with `b`
@@ -527,7 +521,6 @@ bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate 
 }
 
 #else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
-
 /**
  * Use this function to check if two lz iterators are the same.
  * @param a An iterable, its underlying value type should have an operator== with `b`
@@ -535,14 +528,14 @@ bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate 
  * @return true if both are equal, false otherwise.
  */
 template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution exec = Execution()) {
+bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution execution = Execution()) {
 	if constexpr (internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableA>>() &&
 				  internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableB>>()) {
-		static_cast<void>(exec);
+		static_cast<void>(execution);
 		return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
 	}
 	else {
-		return std::equal(exec, std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
+		return std::equal(execution, std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
 	}
 }
 
@@ -553,10 +546,9 @@ bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {
  * @return true if both are equal, false otherwise.
  */
 template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution exec = Execution()) {
-	return !lz::equal(a, b, std::move(predicate), exec);
+bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution execution = Execution()) {
+	return !lz::equal(a, b, std::move(predicate), execution);
 }
-
 #endif
 } // Namespace lz
 

@@ -9,13 +9,11 @@
 #include "LzTools.hpp"
 #include "BasicIteratorView.hpp"
 
-
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-
-
 template<class Iterator, class Comparer, class Execution>
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+
 template<class Iterator, class Comparer>
 #endif  // end LZ_HAS_EXECUTION
 class GroupByIterator {
@@ -36,7 +34,7 @@ class GroupByIterator {
 		}
 		Ref next = *_subRangeEnd;
 		++_subRangeEnd;
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 			_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 				return !_comparer(v, next);
@@ -47,11 +45,11 @@ class GroupByIterator {
 				return !_comparer(v, next);
 			});
 		}
-  #else
+#else
 		_subRangeEnd = std::find_if(std::move(_subRangeEnd), _end, [this, &next](const IterValueType& v) {
 			return !_comparer(v, next);
 		});
-  #endif
+#endif
 	}
 
 public:
@@ -65,18 +63,18 @@ public:
 	constexpr GroupByIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
-
 	LZ_CONSTEXPR_CXX_20 GroupByIterator(Iterator begin, Iterator end, Comparer comparer, Execution execution) :
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-		GroupByIterator(Iterator begin, Iterator end, Comparer comparer):
+
+	GroupByIterator(Iterator begin, Iterator end, Comparer comparer) :
 #endif // end LZ_HAS_EXECUTION
 		_subRangeEnd(begin),
 		_subRangeBegin(begin),
 		_end(std::move(end)),
 		_comparer(std::move(comparer))
 #ifdef LZ_HAS_EXECUTION
-		,
-		_execution(execution)
+	,
+	_execution(execution)
 #endif // end LZ_HAS_EXECUTION
 	{
 		if (_subRangeBegin == _end) {

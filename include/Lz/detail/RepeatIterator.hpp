@@ -7,7 +7,6 @@
 
 #include "LzTools.hpp"
 
-
 namespace lz { namespace internal {
 template<class T>
 struct RepeatIteratorHelper {
@@ -20,7 +19,6 @@ struct RepeatIteratorHelper {
 
 	constexpr RepeatIteratorHelper() = default;
 };
-
 
 template<class T>
 class RepeatIterator {

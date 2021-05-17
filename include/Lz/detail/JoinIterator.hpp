@@ -6,15 +6,14 @@
 #include "LzTools.hpp"
 
 #ifdef LZ_STANDALONE
-  #ifdef LZ_HAS_FORMAT
-	#include <format>
-  #else
-	#include <sstream>
-  #endif // LZ_HAS_FORMAT
+#ifdef LZ_HAS_FORMAT
+#include <format>
 #else
-  #include <fmt/ostream.h>
-#endif
-
+#include <sstream>
+#endif // LZ_HAS_FORMAT
+#else
+#include <fmt/ostream.h>
+#endif // LZ_STANDALONE
 
 namespace lz { namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
@@ -29,20 +28,6 @@ std::string toStringSpecialized(const T& value) {
 	return (oss << value).str();
 }
 #endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-
-template<class T>
-std::string toStringJoinImpl(const T& value) {
-#ifdef LZ_STANDALONE
-  #ifdef LZ_HAS_FORMAT
-	return std::format("{}", value);
-  #else
-	return toStringSpecialized(value);
-  #endif // LZ_HAS_FORMAT
-#else
-	return fmt::format("{}", value);
-#endif // LZ_STANDALONE
-}
-
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 class JoinIterator {
@@ -66,7 +51,15 @@ private:
 
 	reference deref(std::false_type /* isSameContainerTypeString */) const {
 		if (_isIteratorTurn) {
-			return toStringJoinImpl(*_iterator);
+#ifdef LZ_STANDALONE
+#ifdef LZ_HAS_FORMAT
+	return std::format("{}", *_iterator);
+#else
+	return toStringSpecialized(*_iterator);
+#endif // LZ_HAS_FORMAT
+#else
+			return fmt::format("{}", *_iterator);
+#endif // LZ_STANDALONE
 		}
 		return _delimiter;
 	}

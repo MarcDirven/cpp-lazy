@@ -6,7 +6,6 @@
 #include "detail/ConcatenateIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<class... Iterators>
 class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
@@ -55,9 +54,9 @@ LZ_CONSTEXPR_CXX_14 Concatenate<Iterators...> concatRange(std::tuple<Iterators..
  * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&&... iterables) {
+LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&& ... iterables) {
 	return concatRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
-			 		   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
+					   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
 
 // End of group

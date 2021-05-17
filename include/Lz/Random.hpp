@@ -9,7 +9,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "Generate.hpp"
 
-
 namespace lz {
 namespace internal {
 inline std::mt19937 createMtEngine() {

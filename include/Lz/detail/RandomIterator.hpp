@@ -5,7 +5,6 @@
 
 #include "LzTools.hpp"
 
-
 namespace lz { namespace internal {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 class RandomIterator {
@@ -18,17 +17,17 @@ public:
 	using result_type = value_type;
 
 private:
+	Distribution _distribution{};
 	std::ptrdiff_t _current{};
 	bool _isWhileTrueLoop{};
-	Distribution _distribution{};
 	Generator* _generator{nullptr};
 
 public:
 	RandomIterator(const Distribution& distribution, Generator& generator, const std::ptrdiff_t current,
 				   const bool isWhileTrueLoop) :
+		_distribution(distribution),
 		_current(current),
 		_isWhileTrueLoop(isWhileTrueLoop),
-		_distribution(distribution),
 		_generator(&generator) {
 	}
 

@@ -6,9 +6,8 @@
 #include "detail/BasicIteratorView.hpp"
 
 #ifdef LZ_HAS_CXX_11
-  #include <functional>
+#include <functional>
 #endif
-
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -178,22 +177,22 @@ LZ_CONSTEXPR_CXX_17 Take <internal::IterTypeFromIterable<Iterable>> slice(Iterab
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @param exec The execution policy. Must be one of std::execution::*
+ * @param execution The execution policy. Must be one of std::execution::*
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_CONSTEXPR_CXX_20 Take <Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate,
-												   Execution exec = std::execution::seq) {
+												   Execution execution = std::execution::seq) {
 	using lz::distance; using std::distance;
 	using ValueType = internal::ValueType<Iterator>;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-		static_cast<void>(exec);
+		static_cast<void>(execution);
 		begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
 			return !pred(value);
 		});
 	}
 	else {
-		begin = std::find_if(exec, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
+		begin = std::find_if(execution, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
 			return !pred(value);
 		});
 	}
@@ -206,17 +205,18 @@ LZ_CONSTEXPR_CXX_20 Take <Iterator> dropWhileRange(Iterator begin, Iterator end,
  * no more values are being skipped.
  * @param iterable The sequence with the values that can be iterated over.
  * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @param exec The execution policy. Must be one of std::execution::*
+ * @param execution The execution policy. Must be one of std::execution::*
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
 LZ_CONSTEXPR_CXX_20 Take <internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate,
-																			  Execution exec = std::execution::seq) {
+																			  Execution execution = std::execution::seq) {
 	return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-						  std::move(predicate), exec);
+						  std::move(predicate), execution);
 }
 
 #else // ^^^ lz has execution vvv lz ! has execution
+
 /**
  * @brief Creates a Take iterator view object.
  * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns false,
@@ -227,7 +227,7 @@ LZ_CONSTEXPR_CXX_20 Take <internal::IterTypeFromIterable<Iterable>> dropWhile(It
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
+Take <Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
 	using lz::distance; using std::distance;
 	using ValueType = internal::ValueType<Iterator>;
 #ifdef LZ_HAS_CXX_11
@@ -251,7 +251,7 @@ Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) 
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
+Take <internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
 	return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						  std::move(predicate));
 }

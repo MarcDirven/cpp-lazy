@@ -6,7 +6,6 @@
 #include "detail/RepeatIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<class T>
 class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {

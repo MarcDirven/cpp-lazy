@@ -7,7 +7,6 @@
 
 #include <numeric>
 
-
 namespace lz {
 namespace internal {
 template<class Tuple, std::size_t I, class = void>
@@ -22,12 +21,10 @@ struct PlusPlus {
 	}
 };
 
-
 template<class Tuple, std::size_t I>
 struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value>> {
-	LZ_CONSTEXPR_CXX_17 void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {}
+LZ_CONSTEXPR_CXX_17 void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {}
 };
-
 
 template<class Tuple, std::size_t I, class = void>
 struct NotEqual {
@@ -37,14 +34,12 @@ struct NotEqual {
 	}
 };
 
-
 template<class Tuple, std::size_t I>
 struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
-	LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
-		return std::get<I>(iterators) != std::get<I>(end);
-	}
+LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
+	return std::get<I>(iterators) != std::get<I>(end);
+}
 };
-
 
 template<class Tuple, std::size_t I, class = void>
 struct Deref {
@@ -53,15 +48,13 @@ struct Deref {
 	}
 };
 
-
 template<class Tuple, std::size_t I>
 struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
-	LZ_CONSTEXPR_CXX_17 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
-		return *std::get<I>(iterators);
-	}
+LZ_CONSTEXPR_CXX_17 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
+	return *std::get<I>(iterators);
+}
 
 };
-
 
 template<class Tuple, std::size_t I>
 struct MinusMinus {
@@ -76,14 +69,12 @@ struct MinusMinus {
 	}
 };
 
-
 template<class Tuple>
 struct MinusMinus<Tuple, 0> {
 	LZ_CONSTEXPR_CXX_17 void operator()(Tuple& iterators, const Tuple&, const Tuple&) const {
 		--std::get<0>(iterators);
 	}
 };
-
 
 template<class Tuple, std::size_t I>
 struct MinIs {
@@ -110,7 +101,6 @@ struct MinIs {
 	}
 };
 
-
 template<class Tuple>
 struct MinIs<Tuple, 0> {
 	template<class DifferenceType>
@@ -122,7 +112,6 @@ struct MinIs<Tuple, 0> {
 		current -= offset;
 	}
 };
-
 
 template<class Tuple, std::size_t I, class = void>
 struct PlusIs {
@@ -145,13 +134,12 @@ struct PlusIs {
 	}
 };
 
-
 template<class Tuple, std::size_t I>
-struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
-	template<class DifferenceType>
-	LZ_CONSTEXPR_CXX_17 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {}
-};
+struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
+template<class DifferenceType>
+LZ_CONSTEXPR_CXX_17 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {}
 
+};
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ConcatenateIterator {
@@ -160,14 +148,14 @@ class ConcatenateIterator {
 	IterTuple _begin{};
 	IterTuple _end{};
 
-	using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
+	using FirstTupleIterator = std::iterator_traits<TupleElement < 0, IterTuple>>;
 
 public:
 	using value_type = typename FirstTupleIterator::value_type;
-	using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+	using difference_type = typename std::common_type<DiffType < Iterators>...>::type;
 	using reference = typename FirstTupleIterator::reference;
 	using pointer = typename FirstTupleIterator::pointer;
-	using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
+	using iterator_category = typename std::common_type<IterCat < Iterators>...>::type;
 
 private:
 	template<std::size_t... I>
@@ -270,7 +258,6 @@ public:
 		return !(a < b); // NOLINT
 	}
 };
-
 
 }} // lz::internal
 

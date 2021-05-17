@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/MapIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {

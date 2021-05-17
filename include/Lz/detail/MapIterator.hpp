@@ -3,10 +3,8 @@
 #ifndef LZ_MAP_ITERATOR_HPP
 #define LZ_MAP_ITERATOR_HPP
 
-
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
-
 
 namespace lz { namespace internal {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>

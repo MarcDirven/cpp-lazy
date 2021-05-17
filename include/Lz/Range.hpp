@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/RangeIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
