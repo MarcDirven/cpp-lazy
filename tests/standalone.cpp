@@ -2,6 +2,7 @@
 
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
+#include <Lz/StringSplitter.hpp>
 #include <catch2/catch.hpp>
 
 
@@ -15,4 +16,13 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 	std::array<bool, 4> bools = {true, false, true, false};
 	auto boolMap = 	lz::map(bools, [](const bool b) -> std::string { return b ? "true" : "false"; }).toString(", ");
 	REQUIRE(boolMap == "true, false, true, false");
+
+	std::string toSplit = "hello, world";
+	auto splitter = lz::split(toSplit, ", ");
+	REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
+#ifdef LZ_HAS_CXX_17
+	REQUIRE(std::is_same<decltype(*splitter.begin()), std::string_view>::value);
+#else
+	REQUIRE(std::is_same<decltype(*splitter.begin()), std::string>::value);
+#endif
 }
