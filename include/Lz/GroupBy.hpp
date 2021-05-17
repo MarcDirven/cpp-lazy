@@ -14,9 +14,10 @@ template<LZ_CONCEPT_ITERATOR Iterator, class Comparer, class Execution>
 class GroupBy : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer, Execution>> {
 	using iterator = internal::GroupByIterator<Iterator, Comparer, Execution>;
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-	template<class Iterator, class Comparer>
-	class GroupBy final : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer>> {
-		using iterator = internal::GroupByIterator<Iterator, Comparer>;
+
+template<class Iterator, class Comparer>
+class GroupBy final : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer>> {
+	using iterator = internal::GroupByIterator<Iterator, Comparer>;
 #endif
 	using const_iterator = iterator;
 
@@ -26,7 +27,8 @@ public:
 	LZ_CONSTEXPR_CXX_20 GroupBy(Iterator begin, Iterator end, Comparer comparer, Execution execution) :
 		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer, execution), iterator(end, end, comparer, execution))
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-	GroupBy(Iterator begin, Iterator end, Comparer comparer):
+
+	GroupBy(Iterator begin, Iterator end, Comparer comparer) :
 		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer), iterator(end, end, comparer))
 #endif // LZ_HAS_EXECUTION
 	{}
@@ -39,7 +41,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * Chops a sequence into chunks, where every chunk is grouped based on a grouping predicate.
@@ -72,7 +74,8 @@ groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::
 						std::move(comparer), execution);
 }
 
-  #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+
 /**
  * Chops a sequence into chunks, where every chunk is grouped based on a grouping predicate.
  * @attention [begin, end) must be sorted in order to work properly.
@@ -99,9 +102,10 @@ template<class Iterable, class Comparer = std::equal_to<internal::ValueType<inte
 GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer>
 groupBy(Iterable&& iterable, Comparer comparer = {}) {
 	return groupByRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-						  std::move(comparer));
+						std::move(comparer));
 }
-  #endif // end LZ_HAS_EXECUTION
+
+#endif // end LZ_HAS_EXECUTION
 
 // End of group
 /**
