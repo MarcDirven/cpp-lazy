@@ -4,7 +4,6 @@
 #include "detail/FlattenIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<class Iterator, int Dims>
 class Flatten final : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
@@ -35,7 +34,7 @@ public:
  * @return A flatten view object, where its iterator is a forward iterator.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-constexpr Flatten<Iterator, Dims> flatten(Iterator begin, Iterator end) {
+constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
 	static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
 	return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
 }
@@ -49,20 +48,20 @@ template<LZ_CONCEPT_ITERABLE Iterable,
 	class Iterator = internal::IterTypeFromIterable<Iterable>,
 	int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
 constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
-	return flatten<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+	return flattenRange<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 template<class, class = void>
 struct Dimensions;
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-struct Dimensions<Iterable, internal::EnableIf<!std::is_array<Iterable>::value>> {
-	static constexpr int value = internal::CountDims<internal::IterTypeFromIterable<Iterable>>::value;
+struct Dimensions<Iterable, internal::EnableIf<!std::is_array<Iterable>::value>> :
+	std::integral_constant<int, internal::CountDims<internal::IterTypeFromIterable<Iterable>>::value> {
 };
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-struct Dimensions<Iterable, internal::EnableIf<std::is_array<Iterable>::value>> {
-	static constexpr int value = static_cast<int>(std::rank<Iterable>::value);
+struct Dimensions<Iterable, internal::EnableIf<std::is_array<Iterable>::value>> :
+	std::integral_constant<int, static_cast<int>(std::rank<Iterable>::value)> {
 };
 
 #ifdef LZ_HAS_CXX_17
