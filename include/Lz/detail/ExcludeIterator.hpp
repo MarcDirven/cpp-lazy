@@ -3,7 +3,6 @@
 #ifndef LZ_EXCLUDE_ITERATOR_HPP
 #define LZ_EXCLUDE_ITERATOR_HPP
 
-
 namespace lz { namespace internal {
 template<class Iterator>
 class ExcludeIterator {
@@ -11,7 +10,7 @@ class ExcludeIterator {
 
 public:
 	using iterator_category =
-		typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
+	typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
 	using value_type = typename IterTraits::value_type;
 	using difference_type = typename IterTraits::difference_type;
 	using reference = typename IterTraits::reference;
@@ -74,7 +73,48 @@ public:
 		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
 		return a._iterator != b._iterator;
 	}
+
+	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ExcludeIterator& a, const ExcludeIterator& b) {
+		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
+		using lz::distance; using std::distance;
+		if (b._index >= a._to || a._from == 0) { // after range
+			return distance(b._iterator, a._iterator);
+		}
+		return distance(b._iterator, a._iterator) - (a._to - b._from);
+	}
+
+	LZ_CONSTEXPR_CXX_17 ExcludeIterator operator+(difference_type offset) const {
+		using lz::distance; using std::distance; using lz::next; using std::next;
+		ExcludeIterator tmp(*this);
+		const auto indexToAchieve = offset - tmp._index;
+		if (indexToAchieve >= tmp._to) { // after range
+			tmp._index += offset;
+			offset += tmp._to - tmp._from;
+		}
+		else if (indexToAchieve >= tmp._from && tmp._from != 0) { // within range
+			tmp._index = tmp._to;
+			offset += tmp._to - tmp._from;
+		}
+		else { // before range
+			tmp._index += offset;
+		}
+		tmp._iterator = next(std::move(tmp._iterator), offset);
+		return tmp;
+	}
 };
-}}
+} // internal
+
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_CONSTEXPR_CXX_17 typename internal::ExcludeIterator<Iterator>::difference_type
+distance(const internal::ExcludeIterator<Iterator>& begin, const internal::ExcludeIterator<Iterator>& end) {
+	return end - begin;
+}
+
+template<class Iterator>
+LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
+next(const internal::ExcludeIterator<Iterator>& iter, internal::DiffType<internal::ExcludeIterator<Iterator>> value) {
+	return iter + value;
+}
+} // lz
 
 #endif // LZ_EXCLUDE_ITERATOR_HPP
