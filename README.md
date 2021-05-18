@@ -5,7 +5,7 @@
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Excample:
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Example:
 
 ```cpp
 #define LZ_STANDALONE
