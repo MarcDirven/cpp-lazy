@@ -55,7 +55,7 @@ public:
  * @return A chunk if iterator view object.
  */
 template<class Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
 chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
 	return ChunkIf<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(unaryPredicate), execution);
 }
@@ -68,7 +68,7 @@ chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execut
  * @return A chunk if iterator view object.
  */
 template<class Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
 chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
 	return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						std::move(unaryPredicate), execution);

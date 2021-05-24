@@ -62,17 +62,17 @@ public:
 	_execution(execution)
 #endif // LZ_HAS_EXECUTION
 	{
-		if (begin == end) {
+		if (begin == _end) {
 			return;
 		}
 		findNext();
 	}
 
-	LZ_CONSTEXPR_CXX_20 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
 		return reference(_subRangeBegin, _subRangeEnd);
 	}
 
-	LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -94,11 +94,11 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
 		return lhs._subRangeBegin == rhs._subRangeBegin;
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
 		return !(lhs == rhs); // NOLINT
 	}
 };
