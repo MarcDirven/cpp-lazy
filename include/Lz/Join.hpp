@@ -57,7 +57,7 @@ public:
  * @return A Join iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
+LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
 	using lz::distance; using std::distance;
 	return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1);
 }
@@ -71,7 +71,7 @@ Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
  * @return A Join iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
+LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
 	return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					 std::move(delimiter));
 }

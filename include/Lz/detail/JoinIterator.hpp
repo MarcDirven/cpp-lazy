@@ -17,15 +17,34 @@
 
 namespace lz { namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-template<class T, EnableIf<std::is_arithmetic<T>::value, bool> = true>
-std::string toStringSpecialized(const T& value) {
+// Small wrapper for ostringstream. Constructing ostringstream each time in `toStringSpecialized` is approx 12x slower.
+class OStringStreamSingleton {
+	std::ostringstream _oss;
+
+	OStringStreamSingleton() = default;
+
+public:
+	static OStringStreamSingleton& get() {
+		static OStringStreamSingleton instance;
+		return instance;
+	}
+
+	std::ostringstream& getStream() {
+		return _oss;
+	}
+};
+
+template<class T>
+std::string toStringSpecialized(std::true_type /* isArithmetic */, const T& value) {
 	return std::to_string(value);
 }
 
-template<class T, EnableIf<!std::is_arithmetic<T>::value, bool> = true>
-std::string toStringSpecialized(const T& value) {
-	std::ostringstream oss;
-	return (oss << value).str();
+template<class T>
+std::string toStringSpecialized(std::false_type /* isArithmetic */, const T& value) {
+	auto& oss = OStringStreamSingleton::get().getStream();
+	oss.str("");
+	oss << value;
+	return oss.str();
 }
 #endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
@@ -53,9 +72,9 @@ private:
 		if (_isIteratorTurn) {
 #ifdef LZ_STANDALONE
 #ifdef LZ_HAS_FORMAT
-	return std::format("{}", *_iterator);
+			return std::format("{}", *_iterator);
 #else
-	return toStringSpecialized(*_iterator);
+			return toStringSpecialized(std::is_arithmetic<value_type>(), *_iterator);
 #endif // LZ_HAS_FORMAT
 #else
 			return fmt::format("{}", *_iterator);
@@ -93,11 +112,11 @@ public:
 
 	JoinIterator() = default;
 
-	reference operator*() const {
+	LZ_NODISCARD reference operator*() const {
 		return deref(IsContainerTypeString());
 	}
 
-	pointer operator->() const {
+	LZ_NODISCARD pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -150,51 +169,51 @@ public:
 		return *this;
 	}
 
-	JoinIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD JoinIterator operator+(const difference_type offset) const {
 		JoinIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	friend difference_type operator-(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend difference_type operator-(const JoinIterator& a, const JoinIterator& b) {
 		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		// distance * 2 for delimiter, - 1 for removing last delimiter
 		return (a._iterator - b._iterator) * 2 - 1;
 	}
 
-	reference operator[](const difference_type offset) const {
+	LZ_NODISCARD reference operator[](const difference_type offset) const {
 		return indexOperator(IsContainerTypeString(), offset);
 	}
 
-	JoinIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD JoinIterator operator-(const difference_type offset) const {
 		JoinIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	friend bool operator==(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator==(const JoinIterator& a, const JoinIterator& b) {
 		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		return a._iterator == b._iterator;
 	}
 
-	friend bool operator!=(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator!=(const JoinIterator& a, const JoinIterator& b) {
 		return !(a == b); // NOLINT
 	}
 
-	friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
 		LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
 		return b - a > 0;
 	}
 
-	friend bool operator>(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator>(const JoinIterator& a, const JoinIterator& b) {
 		return b < a;
 	}
 
-	friend bool operator<=(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator<=(const JoinIterator& a, const JoinIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	friend bool operator>=(const JoinIterator& a, const JoinIterator& b) {
+	LZ_NODISCARD friend bool operator>=(const JoinIterator& a, const JoinIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };
