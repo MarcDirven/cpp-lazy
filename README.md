@@ -68,7 +68,7 @@ std::generate(randomNumbers.begin(), randomNumbers.end(), [&dist, &gen]{ return 
 ```
 
 
-That certainly took alot amount of typing. Instead, try this for change:
+That is pretty verbose. Instead, try this for change:
 ```cpp
 std::vector<int> randomNumbers = lz::random(0, 32, n).toVector();
 ```
