@@ -33,7 +33,7 @@ public:
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
 	return Chunks<Iterator>(std::move(begin), std::move(end), chunkSize);
 }
 
@@ -45,7 +45,7 @@ LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, c
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_17 Chunks<internal::IterTypeFromIterable<Iterable>> chunks(Iterable&& iterable, const std::size_t chunkSize) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Chunks<internal::IterTypeFromIterable<Iterable>> chunks(Iterable&& iterable, const std::size_t chunkSize) {
 	return chunksRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), chunkSize);
 }
 
