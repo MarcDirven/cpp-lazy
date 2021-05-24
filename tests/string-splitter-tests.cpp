@@ -5,14 +5,14 @@
 
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {
-    std::string toSplit = "Hello  world  test  123  ";
+    const std::string toSplit = "Hello  world  test  123  ";
     std::string delimiter = "  ";
     auto splitter = lz::split(toSplit, std::move(delimiter));
 
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
-        std::vector<std::string> expected = {"Hello", "world", "test", "123"};
+		std::vector<std::string> expected = {"Hello", "world", "test", "123"};
 
         for (std::size_t i = 0; i < expected.size(); i++, ++it) {
             CHECK(*it == expected[i]);
@@ -38,9 +38,8 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 }
 
 TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") {
-    std::string toSplit = "Hello world test 123";
-    std::string delimiter = " ";
-    auto splitter = lz::split(toSplit, std::move(delimiter));
+    std::string toSplit = "Hello world test 123 ";
+    auto splitter = lz::split(toSplit, ' ');
     auto it = splitter.begin();
 
     CHECK(*it == "Hello");
