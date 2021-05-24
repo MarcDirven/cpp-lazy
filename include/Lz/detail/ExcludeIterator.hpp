@@ -41,11 +41,11 @@ public:
 
 	constexpr ExcludeIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -65,16 +65,16 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
 		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
 		return a._iterator != b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ExcludeIterator& a, const ExcludeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ExcludeIterator& a, const ExcludeIterator& b) {
 		LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
 		using lz::distance; using std::distance;
 		if (b._index >= a._to || a._from == 0) { // after range
@@ -83,7 +83,7 @@ public:
 		return distance(b._iterator, a._iterator) - (a._to - b._from);
 	}
 
-	LZ_CONSTEXPR_CXX_17 ExcludeIterator operator+(difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ExcludeIterator operator+(difference_type offset) const {
 		using lz::distance; using std::distance; using lz::next; using std::next;
 		ExcludeIterator tmp(*this);
 		const auto indexToAchieve = offset - tmp._index;
@@ -105,13 +105,13 @@ public:
 } // internal
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_17 typename internal::ExcludeIterator<Iterator>::difference_type
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 typename internal::ExcludeIterator<Iterator>::difference_type
 distance(const internal::ExcludeIterator<Iterator>& begin, const internal::ExcludeIterator<Iterator>& end) {
 	return end - begin;
 }
 
-template<class Iterator>
-LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>& iter, internal::DiffType<internal::ExcludeIterator<Iterator>> value) {
 	return iter + value;
 }
