@@ -78,11 +78,11 @@ public:
 
 	constexpr ZipIterator() = default;
 
-	LZ_CONSTEXPR_CXX_14 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator*() const {
 		return dereference(MakeIndexSequenceForThis());
 	}
 
-	LZ_CONSTEXPR_CXX_14 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -113,7 +113,7 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 ZipIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 ZipIterator operator+(const difference_type offset) const {
 		ZipIterator tmp(*this);
 		tmp += offset;
 		return tmp;
@@ -124,41 +124,41 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 ZipIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 ZipIterator operator-(const difference_type offset) const {
 		ZipIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 difference_type operator-(const ZipIterator& other) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 difference_type operator-(const ZipIterator& other) const {
 		return iteratorMin(MakeIndexSequenceForThis(), other);
 	}
 
-	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
 		return a.notEqual(MakeIndexSequenceForThis(), b);
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
 		return a.lessThan(MakeIndexSequenceForThis(), b);
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipIterator& a, const ZipIterator& b) {
 		return b < a;
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ZipIterator& a, const ZipIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ZipIterator& a, const ZipIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ZipIterator& a, const ZipIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };
