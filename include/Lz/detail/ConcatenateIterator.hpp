@@ -135,7 +135,7 @@ struct PlusIs {
 };
 
 template<class Tuple, std::size_t I>
-struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
+struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
 template<class DifferenceType>
 LZ_CONSTEXPR_CXX_17 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {}
 
@@ -174,11 +174,11 @@ public:
 
 	constexpr ConcatenateIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return Deref<IterTuple, 0>()(_iterators, _end);
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &(**this);
 	}
 
@@ -214,47 +214,47 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator+(const difference_type offset) const {
 		ConcatenateIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator-(const difference_type offset) const {
 		ConcatenateIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_20 difference_type operator-(const ConcatenateIterator& other) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ConcatenateIterator& other) const {
 		return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return NotEqual<IterTuple, 0>()(a._iterators, b._iterators);
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_17 reference operator[](const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator<(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return b - a > 0;
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator>(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return b < a;
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };
