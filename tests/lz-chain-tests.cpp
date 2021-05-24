@@ -135,10 +135,10 @@ TEST_CASE("Iterator chaining") {
 	CHECK(lz::last(joinWhere) == std::make_tuple(15, 15));
 
 	CHECK(lz::toIter(arr).groupBy().distance() == size);
-	CHECK(lz::toIter(arr).firstOrDefault(16, 16) == 16);
-	CHECK(lz::toIter(arr).firstOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
-	CHECK(lz::toIter(arr).lastOrDefault(16, 16) == 16);
-	CHECK(lz::toIter(arr).lastOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
+	CHECK(lz::toIter(arr).findFirstOrDefault(16, 16) == 16);
+	CHECK(lz::toIter(arr).findFirstOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
+	CHECK(lz::toIter(arr).findLastOrDefault(16, 16) == 16);
+	CHECK(lz::toIter(arr).findLastOrDefaultIf([](int i) { return i == 16; }, 16) == 16);
 	CHECK(lz::toIter(arr).indexOf(15) == 15);
 	CHECK(lz::toIter(arr).contains(15));
 	CHECK(lz::toIter(arr).containsIf([](int i) { return i == 15; }));

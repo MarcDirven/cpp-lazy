@@ -19,12 +19,6 @@
 #define LZ_HAS_ATTRIBUTE(ATTR) 0
 #endif // __has_cpp_attribute
 
-#if LZ_HAS_ATTRIBUTE(nodiscard)
-#define LZ_NODISCARD [[nodiscard]]
-#else
-#define LZ_NODISCARD
-#endif // LZ_HAS_ATTRIBUTE(nodiscard
-
 #if (defined(__GNUC__)) && !(defined(__clang__))
 #define LZ_GCC_VERSION __GNUC__
 #endif // GNU/clang
@@ -56,6 +50,12 @@
 #else
 #define LZ_CONSTEXPR_CXX_20 inline
 #endif // Has cxx 20
+
+#if LZ_HAS_ATTRIBUTE(nodiscard) && defined(LZ_HAS_CXX_17)
+#define LZ_NODISCARD [[nodiscard]]
+#else
+#define LZ_NODISCARD
+#endif // LZ_HAS_ATTRIBUTE(nodiscard)
 
 #ifdef __cpp_ref_qualifiers
 #define LZ_HAS_REF_QUALIFIER

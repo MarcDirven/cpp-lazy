@@ -17,19 +17,19 @@ int main() {
     std::string toFind = "hel";
     std::string def = "default";
 
-    toFind = std::move(lz::firstOrDefault(s, toFind, def));
+    toFind = lz::findFirstOrDefault(s, toFind, def);
     // toFind == "default"
 
     toFind = "hello";
-    toFind = std::move(lz::firstOrDefault(s, toFind, def));
+    toFind = lz::findFirstOrDefault(s, toFind, def);
     // toFind == "hello"
 
-    toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
+    toFind = lz::findFirstOrDefaultIf(s, [](const std::string& s) {
         return s.find('\'') != std::string::npos; // ' is present in the sequence
     }, def);
     // toFind == "what's"
 
-    toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
+    toFind = lz::findFirstOrDefaultIf(s, [](const std::string& s) {
         return s.find('z') != std::string::npos; // z is not present in the sequence
     }, "default");
     // toFind == "default"
@@ -73,18 +73,18 @@ int main() {
     toFind = "hel";
     def = "default";
 
-    toFind = lz::lastOrDefault(s, toFind, def);
+    toFind = lz::findLastOrDefault(s, toFind, def);
     // toFind == "default"
 
     toFind = "what's up";
     // toFind == "what's up"
 
-    toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
+    toFind = lz::findLastOrDefaultIf(s, [](const std::string& s) {
         return s.find('\'') != std::string::npos;
     }, def);
     // toFind == "what's up"
 
-    toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
+    toFind = lz::findLastOrDefaultIf(s, [](const std::string& s) {
         return lz::contains(s, 'q');
     }, def);
     // toFind == def

@@ -5,10 +5,6 @@
 
 #include "detail/BasicIteratorView.hpp"
 
-#ifdef LZ_HAS_CXX_11
-#include <functional>
-#endif
-
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Take final : public internal::BasicIteratorView<Iterator> {
@@ -18,25 +14,11 @@ public:
 
 	using value_type = internal::ValueType<Iterator>;
 
-	/**
-	 * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
-	 * returns false, the iterator stops.
-	 * @param begin The beginning of the iterator.
-	 * @param end The ending of the iterator.
-	 * @param predicate Function that must contain a the value type in its arguments and must return a bool. If the
-	 * function returns false, the iterator stops.
-	 */
 	template<class Function>
 	constexpr Take(Iterator begin, Iterator end, Function predicate) :
 		internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end) {
 	}
 
-	/**
-	 * @brief Extra constructor overload with `std::nullptr_t`. Takes elements from an iterator from [begin, ...).
-	 * Takes no function as argument. Rather a `nullptr` to indicate that we are just taking a sequence.
-	 * @param begin The beginning of the iterator.
-	 * @param end The ending of the iterator.
-	 */
 	constexpr Take(Iterator begin, Iterator end, std::nullptr_t) :
 		internal::BasicIteratorView<iterator>(std::move(begin), std::move(end)) {
 	}
@@ -179,14 +161,10 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> dropWhileRange(Iterator begin, I
 	using ValueType = internal::ValueType<Iterator>;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
-			return !pred(value);
-		});
+		begin = std::find_if_not(std::move(begin), end, std::move(predicate));
 	}
 	else {
-		begin = std::find_if(execution, std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
-			return !pred(value);
-		});
+		begin = std::find_if_not(execution, std::move(begin), end, std::move(predicate));
 	}
 	return takeRange(begin, end, distance(begin, end));
 }
@@ -221,16 +199,7 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
 	using lz::distance; using std::distance;
-	using ValueType = internal::ValueType<Iterator>;
-#ifdef LZ_HAS_CXX_11
-	begin = std::find_if(std::move(begin), end, std::bind([](const ValueType& value, Function pred) {
-		return !pred(value);
-	}, std::placeholders::_1, std::move(predicate)));
-#else // ^^^lz has cxx 11 vvv lz cxx > 11
-	begin = std::find_if(std::move(begin), end, [pred = std::move(predicate)](const ValueType& value) {
-		return !pred(value);
-	});
-#endif // LZ_HAS_CXX_11
+	begin = std::find_if_not(std::move(begin), end, std::move(predicate));
 	return takeRange(begin, end, distance(begin, end));
 }
 

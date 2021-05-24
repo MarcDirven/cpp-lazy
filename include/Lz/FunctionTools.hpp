@@ -82,7 +82,7 @@ template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
 template<class SubString = std::string, class String = std::string>
 #endif // LZ_HAS_STRING_VIEW
-StringSplitter<SubString, String, char> lines(String& string) {
+LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string) {
 	return lz::split<SubString>(string, '\n');
 }
 
@@ -94,7 +94,8 @@ StringSplitter<SubString, String, char> lines(String& string) {
  * @return A concatenate view object with a `value_type` of `char`.
  */
 template<class... Strings>
-LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto
+concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
 	static_assert(
 		internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
 		"the character type of the strings must use `char`"
@@ -127,7 +128,7 @@ lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
  * @return The result of the sum from [from, upToAndIncluding]
  */
 template<class T>
-constexpr T sumTo(const T from, const T upToAndIncluding) {
+LZ_NODISCARD constexpr T sumTo(const T from, const T upToAndIncluding) {
 	static_assert(std::is_integral<T>::value, "T must be integral type");
 	const T fromAbs = from < 0 ? -from : from;
 	const T toAbs = upToAndIncluding < 0 ? -upToAndIncluding : upToAndIncluding;
@@ -153,7 +154,7 @@ constexpr T sumTo(const T from, const T upToAndIncluding) {
  * @return The result of the sum from [0, upToAndIncluding]
  */
 template<class T>
-constexpr T sumTo(const T upToAndIncluding) {
+LZ_NODISCARD constexpr T sumTo(const T upToAndIncluding) {
 	return lz::sumTo(0, upToAndIncluding);
 }
 
@@ -163,7 +164,7 @@ constexpr T sumTo(const T upToAndIncluding) {
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
 template<class Strings>
-Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
+LZ_NODISCARD Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
 	return lz::join(strings, "\n");
 }
 
@@ -174,7 +175,7 @@ Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
 	static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
@@ -185,7 +186,7 @@ reverse(Iterator begin, Iterator end) {
 #else
 	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(
 		std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
-#endif
+#endif // LZ_HAS_CXX_11
 
 }
 
@@ -195,7 +196,7 @@ reverse(Iterator begin, Iterator end) {
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
 reverse(Iterable&& iterable) {
 	// ADL std::reverse
 	return lz::reverse(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
@@ -210,7 +211,7 @@ reverse(Iterable&& iterable) {
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERATOR Iterator>
-constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
+LZ_NODISCARD constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
 	return lz::mapRange(std::move(begin), std::move(end), internal::ConvertFn<T>());
 }
 
@@ -222,7 +223,7 @@ constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end)
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERABLE Iterable>
-constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
+LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
 	return lz::as<T>(
 		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
@@ -238,7 +239,7 @@ constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> 
 template<class Fn, LZ_CONCEPT_ITERATOR... Iterators,
 	class Zipper = lz::Zip<Iterators...>,
 	class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
-LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
 lz::Map<decltype(std::begin(std::declval<Zipper>())),
 	decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
 	Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
@@ -256,7 +257,7 @@ lz::Map<decltype(std::begin(std::declval<Zipper>())),
 template<class Fn, class... Iterables,
 	class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>,
 	class ValueType = decltype(*std::begin(std::declval<Zipper>()))>
-LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&& ... iterables) ->
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&& ... iterables) ->
 lz::Map<decltype(std::begin(std::declval<Zipper>())),
 	decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
 	return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
@@ -270,7 +271,7 @@ lz::Map<decltype(std::begin(std::declval<Zipper>())),
  * @return True if it is empty, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr bool isEmpty(const Iterator begin, const Iterator end) {
+LZ_NODISCARD constexpr bool isEmpty(const Iterator begin, const Iterator end) {
 	return begin == end;
 }
 
@@ -280,7 +281,7 @@ constexpr bool isEmpty(const Iterator begin, const Iterator end) {
  * @return True if it is empty, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr bool isEmpty(const Iterable& iterable) {
+LZ_NODISCARD constexpr bool isEmpty(const Iterable& iterable) {
 	return lz::isEmpty(std::begin(iterable), std::end(iterable));
 }
 
@@ -291,7 +292,7 @@ constexpr bool isEmpty(const Iterable& iterable) {
  * @return True if it has one element exactly, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr bool hasOne(Iterator begin, const Iterator end) {
+LZ_NODISCARD constexpr bool hasOne(Iterator begin, const Iterator end) {
 	return !lz::isEmpty(begin, end) && ++begin == end;
 }
 
@@ -301,7 +302,7 @@ constexpr bool hasOne(Iterator begin, const Iterator end) {
  * @return True if it has one element exactly, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr bool hasOne(const Iterable& iterable) {
+LZ_NODISCARD constexpr bool hasOne(const Iterable& iterable) {
 	return lz::hasOne(std::begin(iterable), std::end(iterable));
 }
 
@@ -312,7 +313,7 @@ constexpr bool hasOne(const Iterable& iterable) {
  * @return True if the amount of values are >= 2, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr bool hasMany(Iterator begin, Iterator end) {
+LZ_NODISCARD constexpr bool hasMany(Iterator begin, Iterator end) {
 	return !lz::isEmpty(begin, end) && !lz::hasOne(begin, end);
 }
 
@@ -322,7 +323,7 @@ constexpr bool hasMany(Iterator begin, Iterator end) {
  * @return True if the amount of values are >= 2, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr bool hasMany(const Iterable& iterable) {
+LZ_NODISCARD constexpr bool hasMany(const Iterable& iterable) {
 	return !lz::isEmpty(iterable) && !lz::hasOne(iterable);
 }
 
@@ -333,7 +334,7 @@ constexpr bool hasMany(const Iterable& iterable) {
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr internal::RefType<Iterator> first(Iterator begin, Iterator end) {
+LZ_NODISCARD constexpr internal::RefType<Iterator> first(Iterator begin, Iterator end) {
 	LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the first element");
 	static_cast<void>(end);
 	return *begin;
@@ -345,12 +346,18 @@ constexpr internal::RefType<Iterator> first(Iterator begin, Iterator end) {
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr internal::RefType<internal::IterTypeFromIterable<Iterable>> first(Iterable&& iterable) {
+LZ_NODISCARD constexpr internal::RefType<internal::IterTypeFromIterable<Iterable>> first(Iterable&& iterable) {
 	return lz::first(std::begin(iterable), std::end(iterable));
 }
 
+/**
+ * Returns the last element. Asserts if the sequence is empty.
+ * @param begin The beginning of the sequence.
+ * @param end The ending of the sequence.
+ * @return The last element of the sequence (by reference).
+ */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
 	LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
 	using lz::distance; using std::distance; using std::next; using lz::next;
 	return *next(begin, distance(begin, end) - 1);
@@ -362,30 +369,30 @@ LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin, Iterator en
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_17 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
 	return lz::last(std::begin(iterable), std::end(iterable));
 }
 
 /**
- * Returns the last element. Asserts if the sequence is empty.
+ * Returns the first element, or `defaultValue` if [begin, end) is empty
  * @param begin The beginning of the sequence
  * @param end The ending of the sequence.
  * @param defaultValue The value to return if `iterable` is empty.
  * @return Either the first element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
-constexpr internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
+LZ_NODISCARD constexpr internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
 	return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : lz::first(begin, end);
 }
 
 /**
- * Gets the first element of the sequence, or `value` if the sequence is empty.
+ * Gets the first element of the sequence, or `defaultValue` if the sequence is empty.
  * @param iterable The iterable to get the first value of, or `value` in case it is empty.
  * @param defaultValue The value to return if `iterable` is empty.
  * @return Either the first element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T>
-constexpr internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable, const T& defaultValue) {
+LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable, const T& defaultValue) {
 	return lz::firstOr(std::begin(iterable), std::end(iterable), defaultValue);
 }
 
@@ -397,7 +404,7 @@ constexpr internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable
  * @return Either the last element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
-constexpr internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
+LZ_NODISCARD constexpr internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
 	return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : lz::last(begin, end);
 }
 
@@ -408,7 +415,7 @@ constexpr internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, con
  * @return Either the last element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T>
-constexpr internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable, const T& value) {
+LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable, const T& value) {
 	return lz::lastOr(std::begin(iterable), std::end(iterable), value);
 }
 
@@ -419,19 +426,19 @@ constexpr internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable,
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
 	LZ_ASSERT(lz::hasMany(begin, end), "length of the sequence must be greater than or equal to 2");
 	auto start = begin++;
-	return lz::zipRange(std::make_tuple(start, begin), std::make_tuple(end, end));
+	return lz::zipRange(std::make_tuple(std::move(start), std::move(begin)), std::make_tuple(end, end));
 }
 
 /**
- * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<To, To> like fashion.
+ * Returns an iterator that accesses two adjacent elements of one container in a std::tuple<T, T> like fashion.
  * @param iterable A container/iterable.
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
 	return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -445,7 +452,8 @@ LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
  * @return The mean of the sequence.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 double mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
+mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
 	using ValueType = internal::ValueType<Iterator>;
 	using lz::distance; using std::distance;
 	const internal::DiffType<Iterator> dist = distance(begin, end);
@@ -466,7 +474,7 @@ LZ_CONSTEXPR_CXX_20 double mean(Iterator begin, Iterator end, BinaryOp binaryOp 
  * @return The mean of the container.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, BinaryOp binOp = {}, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, BinaryOp binOp = {}, Execution execution = std::execution::seq) {
 	return lz::mean(std::begin(container), std::end(container), std::move(binOp), execution);
 }
 
@@ -481,7 +489,7 @@ LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, BinaryOp binOp = {}, 
  * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
  */
 template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_20 Map<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>
 filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execPolicy = std::execution::seq) {
 	auto filterView = lz::filterRange(std::move(begin), std::move(end), std::move(filterFunc), execPolicy);
 	return lz::map(std::move(filterView), std::move(mapFunc));
@@ -497,7 +505,8 @@ filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc
  * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of `mapFunc`.
  */
 template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_20 Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc, Execution>, UnaryMapFunc>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+Map<internal::FilterIterator<internal::IterTypeFromIterable<Iterable>, UnaryFilterFunc, Execution>, UnaryMapFunc>
 filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execution = std::execution::seq) {
 	return lz::filterMap(internal::begin(std::forward<Iterable>(iterable)),
 						 internal::end(std::forward<Iterable>(iterable)), std::move(filterFunc), std::move(mapFunc), execution);
@@ -513,7 +522,7 @@ filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::TupleGet<1>, Execution>,
 	internal::TupleGet<0>>
 select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector,
@@ -533,7 +542,7 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
 template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy,
 	class Iterator = internal::IterTypeFromIterable<Iterable>,
 	class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
-LZ_CONSTEXPR_CXX_20
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::TupleGet<1>, Execution>,
 	internal::TupleGet<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = std::execution::seq) {
@@ -554,7 +563,7 @@ select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = 
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class UnaryPredicateFirst, class UnaryPredicateLast,
 	class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
 trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
 	auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first), execution);
 	auto takenLast = lz::dropWhile(std::move(lz::reverse(takenFirst)), std::move(last), execution);
@@ -572,7 +581,7 @@ trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast,
 	class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
 	return lz::trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
@@ -584,17 +593,17 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Ex
  * @param begin The beginning of the sequence
  * @param end The ending of the sequence
  * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom comparer can be used.
- * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
- * even.
+ * @param execution Uses the execution to perform the nth_element algorithm + the std::max element.
  * @return The median of the sequence.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::less<>>
-LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+double median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
 	using lz::distance; using std::distance; using std::next; using lz::next;
 	const internal::DiffType<Iterator> len = distance(begin, end);
 	constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
-	LZ_ASSERT(len > 0, "the length of the sequence cannot be (lower than) 0");
-	const internal::DiffType<Iterator> mid = len >> 1;
+	LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
+	const internal::DiffType<Iterator> mid = len / 2;
 	const Iterator midIter = next(begin, mid);
 	if constexpr (isSequenced) {
 		static_cast<void>(execution);
@@ -620,13 +629,11 @@ LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Comparer compare
  * Gets the median of a sequence.
  * @param iterable The container/sequence by reference.
  * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
- * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
- * even.
+ * @param execution Uses the execution to perform the nth_element algorithm + the std::max element.
  * @return The median of the sequence.
  */
-template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
-	class Comparer = std::less<>>
-LZ_CONSTEXPR_CXX_20 double median(Iterable& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
+template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class Comparer = std::less<>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double median(Iterable& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
 	return lz::median(std::begin(iterable), std::end(iterable), std::move(comparer), execution);
 }
 
@@ -634,37 +641,37 @@ LZ_CONSTEXPR_CXX_20 double median(Iterable& iterable, Comparer comparer = {}, Ex
  * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
- * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+ * @param toFind The value to find.
  * @param defaultValue The value to return if `toFind` is not found.
  * @param execution Uses the execution to perform the find.
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T, class U>
-LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
-firstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
+findFirstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue, Execution execution = std::execution::seq) {
 	using ValueType = internal::ValueType<Iterator>;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		return static_cast<ValueType>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
+		return static_cast<ValueType>(std::find(std::move(begin), end, toFind) == end ? defaultValue : toFind);
 	}
 	else {
-		return static_cast<ValueType>(std::find(execution, begin, end, toFind) == end ? defaultValue : toFind);
+		return static_cast<ValueType>(std::find(execution, std::move(begin), end, toFind) == end ? defaultValue : toFind);
 	}
 }
 
 /**
  * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
  * @param iterable The iterable to search.
- * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
+ * @param toFind The value to find.
  * @param defaultValue The value to return if `toFind` is not found.
  * @param execution Uses the execution to perform the find.
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class U>
-LZ_CONSTEXPR_CXX_20
-internal::ValueTypeIterable<Iterable> firstOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue,
-													 Execution execution = std::execution::seq) {
-	return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueTypeIterable<Iterable> findFirstOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue,
+														 Execution execution = std::execution::seq) {
+	return lz::findFirstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
 }
 
 /**
@@ -679,17 +686,17 @@ internal::ValueTypeIterable<Iterable> firstOrDefault(const Iterable& iterable, c
  * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class T>
-LZ_CONSTEXPR_CXX_20
-internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
-											   const T& defaultValue, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueType<Iterator> findFirstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate,
+												   const T& defaultValue, Execution execution = std::execution::seq) {
 	using ValueType = internal::ValueType<Iterator>;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		const Iterator pos = std::find_if(begin, end, predicate);
+		const Iterator pos = std::find_if(std::move(begin), end, std::move(predicate));
 		return static_cast<ValueType>(pos == end ? defaultValue : *pos);
 	}
 	else {
-		const Iterator pos = std::find_if(execution, begin, end, predicate);
+		const Iterator pos = std::find_if(execution, std::move(begin), end, std::move(predicate));
 		return static_cast<ValueType>(pos == end ? defaultValue : *pos);
 	}
 }
@@ -705,10 +712,10 @@ internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, Una
  * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
-LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable>
-firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue,
-				 Execution execution = std::execution::seq) {
-	return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue, execution);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable>
+findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue,
+					 Execution execution = std::execution::seq) {
+	return lz::findFirstOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue, execution);
 }
 
 /**
@@ -719,21 +726,20 @@ firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& de
  * @param defaultValue The value to return when no element `toFind` exists in [begin, end)
  * @return Either the last occurrence of `toFind` in [begin, end) or `defaultValue` if no such element exists.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
-internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue,
-											Execution execution = std::execution::seq) {
+template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class T, class U, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue,
+												Execution execution = std::execution::seq) {
 	using CastType = internal::ValueType<Iterator>;
-	using ReverseIterator = std::reverse_iterator<Iterator>;
-	ReverseIterator endReverse(end);
-	ReverseIterator beginReverse(begin);
+	auto endReverse = std::make_reverse_iterator(std::move(end));
+	auto beginReverse = std::make_reverse_iterator(std::move(begin));
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		const ReverseIterator pos = std::find(endReverse, beginReverse, toFind);
+		const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
 		return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
 	}
 	else {
-		const ReverseIterator pos = std::find(execution, endReverse, beginReverse, toFind);
+		const auto pos = std::find(execution, std::move(endReverse), beginReverse, toFind);
 		return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
 	}
 }
@@ -745,11 +751,11 @@ internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, const 
  * @param defaultValue The value to return when no element `toFind` exists in `iterable`
  * @return Either the last occurrence of `toFind` in `iterable` or `defaultValue` if no such element exists.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class T, class U, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
-internal::ValueTypeIterable<Iterable> lastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue,
-													Execution execution = std::execution::seq) {
-	return lz::lastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class T, class U, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueTypeIterable<Iterable> findLastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue,
+														Execution execution = std::execution::seq) {
+	return lz::findLastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
 }
 
 /**
@@ -761,20 +767,19 @@ internal::ValueTypeIterable<Iterable> lastOrDefault(const Iterable& iterable, co
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
-internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
-											  Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueType<Iterator> findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
+												  Execution execution = std::execution::seq) {
 	using CastType = internal::ValueType<Iterator>;
-	using ReverseIterator = std::reverse_iterator<Iterator>;
-	ReverseIterator endReverse(end);
-	ReverseIterator beginReverse(begin);
+	auto endReverse = std::make_reverse_iterator(std::move(end));
+	auto beginReverse = std::make_reverse_iterator(std::move(begin));
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		const ReverseIterator pos = std::find_if(endReverse, beginReverse, predicate);
+		const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
 		return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
 	}
 	else {
-		const ReverseIterator pos = std::find_if(execution, endReverse, beginReverse, predicate);
+		const auto pos = std::find_if(execution, std::move(endReverse), beginReverse, std::move(predicate));
 		return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
 	}
 }
@@ -787,10 +792,10 @@ internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, Unar
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
-internal::ValueTypeIterable<Iterable> lastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate,
-													  const T& defaultValue, Execution execution = std::execution::seq) {
-	return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue, execution);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+internal::ValueTypeIterable<Iterable> findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate,
+														  const T& defaultValue, Execution execution = std::execution::seq) {
+	return lz::findLastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue, execution);
 }
 
 /**
@@ -802,7 +807,8 @@ internal::ValueTypeIterable<Iterable> lastOrDefaultIf(const Iterable& iterable, 
  * @return The index of `val` or lz::npos of no such value exists.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
-LZ_CONSTEXPR_CXX_20 std::size_t indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+std::size_t indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::execution::seq) {
 	using lz::distance; using std::distance;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
@@ -823,7 +829,7 @@ LZ_CONSTEXPR_CXX_20 std::size_t indexOf(Iterator begin, Iterator end, const T& v
  * @return The index of `val` or lz::npos of no such value exists.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T>
-LZ_CONSTEXPR_CXX_20 std::size_t indexOf(const Iterable& iterable, const T& val, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t indexOf(const Iterable& iterable, const T& val, Execution execution = std::execution::seq) {
 	return lz::indexOf(std::begin(iterable), std::end(iterable), val, execution);
 }
 
@@ -836,16 +842,16 @@ LZ_CONSTEXPR_CXX_20 std::size_t indexOf(const Iterable& iterable, const T& val, 
 * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
 */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
-LZ_CONSTEXPR_CXX_20
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution = std::execution::seq) {
 	using lz::distance; using std::distance;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
 		static_cast<void>(execution);
-		const Iterator pos = std::find_if(begin, end, predicate);
+		const Iterator pos = std::find_if(begin, end, std::move(predicate));
 		return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
 	}
 	else {
-		const Iterator pos = std::find_if(execution, begin, end, predicate);
+		const Iterator pos = std::find_if(execution, begin, end, std::move(predicate));
 		return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
 	}
 }
@@ -857,8 +863,9 @@ std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Executi
 * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
 */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class UnaryFunc>
-LZ_CONSTEXPR_CXX_20 std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = std::execution::seq) {
-	return lz::indexOfIf(std::begin(iterable), std::end(iterable), predicate, execution);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = std::execution::seq) {
+	return lz::indexOfIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
 
 /**
@@ -869,8 +876,8 @@ LZ_CONSTEXPR_CXX_20 std::size_t indexOfIf(const Iterable& iterable, UnaryFunc pr
  * @return True if `iterable` contains `value`, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
-	return lz::indexOf(begin, end, value, execution) != lz::npos;
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
+	return lz::indexOf(std::move(begin), std::move(end), value, execution) != lz::npos;
 }
 
 /**
@@ -880,7 +887,7 @@ LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, 
  * @return True if `iterable` contains `value`, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Execution execution = std::execution::seq) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Execution execution = std::execution::seq) {
 	return lz::contains(std::begin(iterable), std::end(iterable), value, execution);
 }
 
@@ -892,8 +899,9 @@ LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Exec
  * @return Returns true if `predicate` returns true, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
-	return lz::indexOfIf(begin, end, predicate, execution) != lz::npos;
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
+	return lz::indexOfIf(std::move(begin), std::move(end), std::move(predicate), execution) != lz::npos;
 }
 
 /**
@@ -904,8 +912,9 @@ LZ_CONSTEXPR_CXX_20 bool containsIf(Iterator begin, Iterator end, BinaryPredicat
  * @return Returns true if `predicate` returns true, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
-	return lz::containsIf(std::begin(iterable), std::end(iterable), predicate, execution);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+bool containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
+	return lz::containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
 
 #else // ^^^ Lz has execution vvv !Lz has execution
@@ -916,7 +925,11 @@ LZ_CONSTEXPR_CXX_20 bool containsIf(const Iterable& iterable, BinaryPredicate pr
  * @param end The ending of the sequence.
  * @return The mean of the sequence.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class BinaryOp = std::plus<internal::ValueType<Iterator>>>
+#else
+template<class Iterator, class BinaryOp = std::plus<>>
+#endif // LZ_HAS_CXX_11
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
 	using lz::distance; using std::distance;
 	using ValueType = internal::ValueType<Iterator>;
@@ -930,7 +943,11 @@ double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
  * @param container The container to calculate the mean of.
  * @return The mean of the container.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class BinaryOp = std::plus<internal::ValueTypeIterable<Iterable>>>
+#else
+template<class Iterable, class BinaryOp = std::plus<>>
+#endif // LZ_HAS_CXX_11
 double mean(const Iterable& container, BinaryOp binOp = {}) {
 	return lz::mean(std::begin(container), std::end(container), std::move(binOp));
 }
@@ -942,7 +959,11 @@ double mean(const Iterable& container, BinaryOp binOp = {}) {
  * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom comparer can be used.
  * @return The median of the sequence.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator>>>
+#else
+template<class Iterator, class Comparer = std::less<>>
+#endif // LZ_HAS_CXX_11
 double median(Iterator begin, Iterator end, Comparer comparer = {}) {
 	using lz::distance; using std::distance;  using std::next; using lz::next;
 	const internal::DiffType<Iterator> len = distance(begin, end);
@@ -963,7 +984,11 @@ double median(Iterator begin, Iterator end, Comparer comparer = {}) {
  * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
  * @return The median of the sequence.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
+#else
+template<class Iterable, class Comparer = std::less<>>
+#endif // LZ_HAS_CXX_11
 double median(Iterable& iterable, Comparer comparer = {}) {
 	return lz::median(std::begin(iterable), std::end(iterable), std::move(comparer));
 }
@@ -977,8 +1002,8 @@ double median(Iterable& iterable, Comparer comparer = {}) {
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Iterator, class T, class U>
-internal::ValueType<Iterator> firstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
-	return static_cast<internal::ValueType<Iterator>>(std::find(begin, end, toFind) == end ? defaultValue : toFind);
+internal::ValueType<Iterator> findFirstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
+	return static_cast<internal::ValueType<Iterator>>(std::find(std::move(begin), end, toFind) == end ? defaultValue : toFind);
 }
 
 /**
@@ -989,8 +1014,8 @@ internal::ValueType<Iterator> firstOrDefault(Iterator begin, Iterator end, const
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Iterable, class T, class U>
-internal::ValueTypeIterable<Iterable> firstOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue) {
-	return lz::firstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
+internal::ValueTypeIterable<Iterable> findFirstOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue) {
+	return lz::findFirstOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
 }
 
 /**
@@ -1004,9 +1029,9 @@ internal::ValueTypeIterable<Iterable> firstOrDefault(const Iterable& iterable, c
  * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
  */
 template<class Iterator, class T, class UnaryPredicate>
-internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
+internal::ValueType<Iterator> findFirstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
 	using CastType = internal::ValueType<Iterator>;
-	const Iterator pos = std::find_if(begin, end, std::move(predicate));
+	const Iterator pos = std::find_if(std::move(begin), end, std::move(predicate));
 	return static_cast<CastType>(pos == end ? defaultValue : *pos);
 }
 
@@ -1020,8 +1045,8 @@ internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, Una
  * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
  */
 template<class Iterable, class T, class UnaryPredicate>
-internal::ValueTypeIterable<Iterable> firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
-	return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
+internal::ValueTypeIterable<Iterable> findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
+	return lz::findFirstOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
 }
 
 /**
@@ -1033,10 +1058,10 @@ internal::ValueTypeIterable<Iterable> firstOrDefaultIf(const Iterable& iterable,
  * @return Either the last occurrence of `toFind` in [begin, end) or `defaultValue` if no such element exists.
  */
 template<class Iterator, class T, class U>
-internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
-	auto endReverse = std::reverse_iterator<Iterator>(end);
-	auto beginReverse = std::reverse_iterator<Iterator>(begin);
-	const auto pos = std::find(endReverse, beginReverse, toFind);
+internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
+	auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
+	auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
+	const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
 	return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
 
@@ -1048,8 +1073,8 @@ internal::ValueType<Iterator> lastOrDefault(Iterator begin, Iterator end, const 
  * @return Either the last occurrence of `toFind` in `iterable` or `defaultValue` if no such element exists.
  */
 template<class Iterable, class T, class U>
-internal::ValueTypeIterable<Iterable> lastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue) {
-	return lz::lastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
+internal::ValueTypeIterable<Iterable> findLastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue) {
+	return lz::findLastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue);
 }
 
 /**
@@ -1061,10 +1086,10 @@ internal::ValueTypeIterable<Iterable> lastOrDefault(const Iterable& iterable, co
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
  */
 template<class Iterator, class T, class UnaryPredicate>
-internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
-	auto endReverse = std::reverse_iterator<Iterator>(end);
-	auto beginReverse = std::reverse_iterator<Iterator>(begin);
-	const auto pos = std::find_if(endReverse, beginReverse, std::move(predicate));
+internal::ValueType<Iterator> findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
+	auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
+	auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
+	const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
 	return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
 
@@ -1076,8 +1101,8 @@ internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, Unar
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element exists.
  */
 template<class Iterable, class T, class UnaryPredicate>
-internal::ValueTypeIterable<Iterable> lastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
-	return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
+internal::ValueTypeIterable<Iterable> findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
+	return lz::findLastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
 }
 
 /**
@@ -1139,7 +1164,7 @@ std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate) {
  */
 template<class Iterator, class T>
 bool contains(Iterator begin, Iterator end, const T& value) {
-	return std::find(begin, end, value) != end;
+	return std::find(std::move(begin), end, value) != end;
 }
 
 /**
@@ -1163,7 +1188,7 @@ bool contains(const Iterable& iterable, const T& value) {
  */
 template<class Iterator, class BinaryPredicate>
 bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate) {
-	return std::find_if(begin, end, std::move(predicate)) != end;
+	return std::find_if(std::move(begin), end, std::move(predicate)) != end;
 }
 
 /**

@@ -25,8 +25,7 @@ private:
 	difference_type _to{};
 
 public:
-	LZ_CONSTEXPR_CXX_17 ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from,
-										const difference_type to) :
+	LZ_CONSTEXPR_CXX_17 ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from, const difference_type to) :
 		_iterator(std::move(it)),
 		_begin(std::move(begin)),
 		_end(std::move(end)),

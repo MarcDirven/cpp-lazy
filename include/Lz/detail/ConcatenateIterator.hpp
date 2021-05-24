@@ -22,7 +22,7 @@ struct PlusPlus {
 };
 
 template<class Tuple, std::size_t I>
-struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value>> {
+struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value>> {
 LZ_CONSTEXPR_CXX_17 void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {}
 };
 
@@ -35,7 +35,7 @@ struct NotEqual {
 };
 
 template<class Tuple, std::size_t I>
-struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
+struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
 LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
 	return std::get<I>(iterators) != std::get<I>(end);
 }
@@ -49,7 +49,7 @@ struct Deref {
 };
 
 template<class Tuple, std::size_t I>
-struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay < Tuple>>::value - 1>> {
+struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
 LZ_CONSTEXPR_CXX_17 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
 	return *std::get<I>(iterators);
 }
@@ -152,10 +152,10 @@ class ConcatenateIterator {
 
 public:
 	using value_type = typename FirstTupleIterator::value_type;
-	using difference_type = typename std::common_type<DiffType < Iterators>...>::type;
+	using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
 	using reference = typename FirstTupleIterator::reference;
 	using pointer = typename FirstTupleIterator::pointer;
-	using iterator_category = typename std::common_type<IterCat < Iterators>...>::type;
+	using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
 
 private:
 	template<std::size_t... I>

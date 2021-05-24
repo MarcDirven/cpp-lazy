@@ -85,7 +85,11 @@ groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class Comparer = std::equal_to<internal::ValueType<Iterator>>>
+#else
+template<class Iterator, class Comparer = std::equal_to<>>
+#endif // LZ_HAS_CXX_11
 GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer keySelector = {}) {
 	return GroupBy<Iterator, Comparer>(std::move(begin), std::move(end), std::move(keySelector));
 }
@@ -98,7 +102,11 @@ GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer 
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class Comparer = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<Iterable>>>>
+#else
+template<class Iterable, class Comparer = std::equal_to<>>
+#endif // LZ_HAS_CXX_11
 GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer>
 groupBy(Iterable&& iterable, Comparer comparer = {}) {
 	return groupByRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),

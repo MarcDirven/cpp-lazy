@@ -73,13 +73,18 @@ private:
 	template<std::size_t... Is>
 	LZ_CONSTEXPR_CXX_20 difference_type distanceImpl(IndexSequence<Is...>, const CartesianProductIterator& c) const {
 		using lz::distance; using std::distance;
+#ifdef LZ_HAS_CXX_11
+		auto mulFn = std::multiplies<difference_type>());
+#else
+		const auto mulFn = std::multiplies<>();
+#endif // LZ_HAS_CXX_11
 		const difference_type distances[] =
 			{static_cast<difference_type>(distance(std::get<Is>(_iterator), std::get<Is>(c._iterator)))...};
-		return std::accumulate(std::begin(distances), std::end(distances), static_cast<difference_type>(1),
-							   std::multiplies<difference_type>()); // NOLINT
+		return std::accumulate(std::begin(distances), std::end(distances), static_cast<difference_type>(1), mulFn);
 	}
 
 	using IndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
+
 public:
 	constexpr CartesianProductIterator() = default;
 
