@@ -114,7 +114,7 @@ This library is not a replacement for `ranges::v3` but rather a (smaller) altern
 compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Important note
-To garantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
+To guarantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
 ```cpp
 auto view = lz::chunks(array, 3);
 // Calculate distance:
@@ -126,12 +126,13 @@ using std::next; using lz::next;
 auto nth = next(view.begin(), 4);
 ```
 
-If, for some reason, you do not wish do do this, then be sure to use `lz::next/lz::distance` for the following iterators:
+If, for some reason, you do not wish to do this, then be sure to use `lz::next/lz::distance` for the following iterators:
 - `CartesianProductIterator` created by `lz::cartesian::begin`
 - `Range` created by `lz::range::begin`
 - `TakeEveryIterator` created by `lz::takeEvery::begin`
 - `ChunksIterator` created by `lz::chunks::begin`
 - `FlattenIterator` created by `lz::flatten::begin`
+- `ExcludeIterator` created by `lz::exclude::begin`
 
 
 # Installation
