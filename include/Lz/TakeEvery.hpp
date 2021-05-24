@@ -48,8 +48,8 @@ public:
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
-											 const internal::DiffType<Iterator> start = 0) {
+LZ_NODISCARD constexpr TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
+														  const internal::DiffType<Iterator> start = 0) {
 	using lz::distance; using std::distance; using std::next; using lz::next;
 	return TakeEvery<Iterator>(next(begin, start), end, offset, distance(begin, end));
 }
@@ -65,8 +65,8 @@ constexpr TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-constexpr TakeEvery<Iterator> takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset,
-										const internal::DiffType<Iterator> start = 0) {
+LZ_NODISCARD constexpr TakeEvery<Iterator> takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset,
+													 const internal::DiffType<Iterator> start = 0) {
 	return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						  offset, start);
 }
