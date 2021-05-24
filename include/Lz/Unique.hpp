@@ -63,7 +63,7 @@ public:
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<>>
-constexpr Unique<Execution, Iterator, Compare>
+LZ_NODISCARD constexpr Unique<Execution, Iterator, Compare>
 uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPolicy = std::execution::seq) {
 	return Unique<Execution, Iterator, Compare>(std::move(begin), std::move(end), std::move(compare), execPolicy);
 }
@@ -81,7 +81,7 @@ uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPo
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
 	class It = internal::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
-constexpr Unique<Execution, It, Compare>
+LZ_NODISCARD constexpr Unique<Execution, It, Compare>
 unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
 	return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					   std::move(compare), execPolicy);
