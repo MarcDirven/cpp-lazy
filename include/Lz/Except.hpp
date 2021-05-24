@@ -73,7 +73,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept,
 	class Comparer = std::less<>, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 Except<Iterator, IteratorToExcept, Comparer, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Except<Iterator, IteratorToExcept, Comparer, Execution>
 exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {},
 			Execution execPolicy = std::execution::seq) {
 	return Except<Iterator, IteratorToExcept, Comparer, Execution>(std::move(begin), std::move(end), std::move(toExceptBegin),
@@ -91,7 +91,7 @@ exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, Iterat
  */
 template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept, class Comparer = std::less<>,
 	class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Comparer, Execution>
 except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}, Execution execPolicy = std::execution::seq) {
 	return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),

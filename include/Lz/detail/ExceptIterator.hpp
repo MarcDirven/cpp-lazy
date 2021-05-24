@@ -80,11 +80,11 @@ public:
 		find();
 	}
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -100,11 +100,11 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
 		return !(a != b); // NOLINT
 	}
 };
