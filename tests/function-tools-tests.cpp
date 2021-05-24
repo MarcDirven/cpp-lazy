@@ -62,22 +62,22 @@ TEST_CASE("Function tools") {
         std::string toFind = "hel";
         std::string def = "default";
 
-        toFind = lz::firstOrDefault(s, toFind, def);
+        toFind = lz::findFirstOrDefault(s, toFind, def);
         CHECK(toFind == "default");
 
         toFind = "hello world!";
-        toFind = lz::firstOrDefault(s, toFind, def);
+        toFind = lz::findFirstOrDefault(s, toFind, def);
         CHECK(toFind == "hello world!");
 
         def = ' ';
-        toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
-            return s.find('!') != std::string::npos;
-        }, def);
+        toFind = lz::findFirstOrDefaultIf(s, [](const std::string& s) {
+			return s.find('!') != std::string::npos;
+		}, def);
         CHECK(toFind == "hello world!");
 
-        toFind = lz::firstOrDefaultIf(s, [](const std::string& s) {
-            return s.find('z') != std::string::npos;
-        }, "default");
+        toFind = lz::findFirstOrDefaultIf(s, [](const std::string& s) {
+			return s.find('z') != std::string::npos;
+		}, "default");
         CHECK(toFind == "default");
     }
 
@@ -86,17 +86,17 @@ TEST_CASE("Function tools") {
         std::string toFind = "hel";
         std::string def = "default";
 
-        toFind = lz::lastOrDefault(s, toFind, def);
+        toFind = lz::findLastOrDefault(s, toFind, def);
         CHECK(toFind == def);
 
-        toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
-            return s.find('\'') != std::string::npos;
-        }, def);
+        toFind = lz::findLastOrDefaultIf(s, [](const std::string& s) {
+			return s.find('\'') != std::string::npos;
+		}, def);
         CHECK(toFind == "what's up");
 
-        toFind = lz::lastOrDefaultIf(s, [](const std::string& s) {
-            return lz::contains(s, 'q');
-        }, def);
+        toFind = lz::findLastOrDefaultIf(s, [](const std::string& s) {
+			return lz::contains(s, 'q');
+		}, def);
         CHECK(toFind == def);
     }
 
