@@ -27,11 +27,11 @@ public:
 
 	constexpr RangeIterator() = default;
 
-	constexpr value_type operator*() const {
+	LZ_NODISCARD constexpr value_type operator*() const {
 		return _iterator;
 	}
 
-	constexpr pointer operator->() const {
+	LZ_NODISCARD constexpr pointer operator->() const {
 		return &_iterator;
 	}
 
@@ -46,7 +46,7 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
 		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
 		if (a._step < 0) {
 			return a._iterator > b._iterator;
@@ -54,11 +54,11 @@ public:
 		return a._iterator < b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RangeIterator& a, const RangeIterator& b) {
 		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
 		const auto difference = static_cast<difference_type>(a._iterator) - static_cast<difference_type>(b._iterator);
 		if (a._step == 1) {
@@ -67,7 +67,7 @@ public:
 		return static_cast<difference_type>(std::ceil(difference / static_cast<float>(a._step)));
 	}
 
-	constexpr RangeIterator operator+(const Arithmetic value) const {
+	LZ_NODISCARD constexpr RangeIterator operator+(const Arithmetic value) const {
 		return RangeIterator(_iterator + value * _step, _step);
 	}
 };
@@ -79,8 +79,8 @@ public:
  * @param end Ending of the sequence.
  * @return The distance between begin and end.
  */
-template<class Arithmetic>
-typename internal::RangeIterator<Arithmetic>::difference_type
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
 distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIterator<Arithmetic>& b) {
 	return b - a;
 }
@@ -91,8 +91,8 @@ distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIter
  * @param value The amount to add.
  * @return A chunks iterator with offset iter + value.
  */
-template<class Arithmetic>
-constexpr internal::RangeIterator<Arithmetic>
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
 next(const internal::RangeIterator<Arithmetic>& iter, const internal::DiffType<internal::RangeIterator<Arithmetic>> value) {
 	LZ_ASSERT(value >= 0, "Range iterator is not bidirectional, offset must be >= 0");
 	return iter + value;
