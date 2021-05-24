@@ -76,7 +76,7 @@ public:
  * over.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 Filter<Iterator, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<Iterator, UnaryPredicate, Execution>
 filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution = std::execution::seq) {
 	static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
 				  "function must return type that can be converted to bool");
@@ -85,7 +85,7 @@ filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution ex
 }
 
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
 filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std::execution::seq) {
 	return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					   std::move(predicate), execPolicy);

@@ -67,11 +67,11 @@ public:
 
 	constexpr FilterIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -87,11 +87,11 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
 		return !(a != b); // NOLINT
 	}
 };
