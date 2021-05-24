@@ -117,10 +117,5 @@ public:
 		return _func(std::forward<Args>(args)...);
 	}
 };
-
-template<class F>
-constexpr FunctionContainer<F> makeFunctionContainer(F&& f) {
-	return FunctionContainer<F>(std::forward<F>(f));
-}
 }}
 #endif // LZ_FUNCTION_CONTAINER_HPP
