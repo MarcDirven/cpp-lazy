@@ -82,8 +82,8 @@ template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
 template<class SubString = std::string, class String = std::string>
 #endif // LZ_HAS_STRING_VIEW
-StringSplitter<SubString, String> lines(String& string) {
-	return lz::split<SubString>(string, "\n");
+StringSplitter<SubString, String, char> lines(String& string) {
+	return lz::split<SubString>(string, '\n');
 }
 
 #ifdef LZ_HAS_STRING_VIEW
@@ -162,8 +162,8 @@ constexpr T sumTo(const T upToAndIncluding) {
  * @param strings The container of `std::string` or `std::string_view`.
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
-template<class Strings, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Strings>>
-Join<Iterator> unlines(Strings&& strings) {
+template<class Strings>
+Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
 	return lz::join(strings, "\n");
 }
 
