@@ -133,15 +133,6 @@ If, for some reason, you do not wish do do this, then be sure to use `lz::next/l
 - `ChunksIterator` created by `lz::chunks::begin`
 - `FlattenIterator` created by `lz::flatten::begin`
 
-What's also important is that there is 1 iterator that is not safe to return from a function. This is `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
-```cpp
-auto foo() {
-    return lz::split(std::string("hello, world!"), ", ");
-}
-
-auto f = foo(); // dangling reference
-```
-After storing the result of this function, the variable will contain dangling references.
 
 # Installation
 
