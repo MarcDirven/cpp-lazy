@@ -12,11 +12,19 @@
 #endif
 
 namespace lz { namespace internal {
-template<class SubString, class String>
+template<class SubString, class String, class StringType>
 class SplitIterator {
 	std::size_t _currentPos{}, _last{};
-	String* _string{nullptr};
-	std::string _delimiter;
+	const String* _string{nullptr};
+	StringType _delimiter{};
+
+	std::size_t getLength(std::true_type /* isChar */) const {
+		return 1;
+	}
+
+	std::size_t getLength(std::false_type /* isChar */) const {
+		return _delimiter.length();
+	}
 
 public:
 	using iterator_category = std::forward_iterator_tag;
@@ -25,7 +33,7 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = FakePointerProxy<reference>;
 
-	SplitIterator(const std::size_t startingPosition, String& string, std::string delimiter) :
+	SplitIterator(const std::size_t startingPosition, const String& string, StringType delimiter) :
 		_currentPos(startingPosition),
 		_string(&string),
 		_delimiter(std::move(delimiter)) {
@@ -59,7 +67,7 @@ public:
 	}
 
 	SplitIterator& operator++() {
-		const std::size_t delimLen = _delimiter.length();
+		const std::size_t delimLen = getLength(std::is_same<StringType, char>());
 		const std::size_t stringLen = _string->length();
 		if (_last == std::string::npos) {
 			_currentPos = stringLen;

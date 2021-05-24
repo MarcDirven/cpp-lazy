@@ -7,10 +7,10 @@
 #include "detail/BasicIteratorView.hpp"
 
 namespace lz {
-template<class SubString, class String>
-class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String>> {
+template<class SubString, class String, class StringType>
+class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String, StringType>> {
 public:
-	using const_iterator = internal::SplitIterator<SubString, String>;
+	using const_iterator = internal::SplitIterator<SubString, String, StringType>;
 	using iterator = const_iterator;
 
 public:
@@ -21,31 +21,12 @@ public:
 	 * @param str The string to split.
 	 * @param delimiter The delimiter to split on.
 	 */
-	StringSplitter(String& str, std::string delimiter) :
-		internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, "")) {
+	StringSplitter(const String& str, StringType delimiter) :
+		internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
 	}
 
 	StringSplitter() = default;
 };
-
-#ifdef LZ_HAS_STRING_VIEW
-
-template
-class StringSplitter<std::string_view, std::string>;
-
-template
-class StringSplitter<std::string_view, std::string_view>;
-
-template<class SubString = std::string_view>
-#elif !defined(LZ_STANDALONE)
-template class StringSplitter<fmt::string_view, std::string>;
-
-template<class SubString = fmt::string_view>
-#else
-template class StringSplitter<std::string, std::string>;
-
-template<class SubString = std::string>
-#endif
 
 // Start of group
 /**
@@ -53,6 +34,14 @@ template<class SubString = std::string>
  * @{
  */
 
+#if defined(LZ_HAS_STRING_VIEW)
+
+template<class SubString = std::string_view>
+#elif defined(LZ_STANDALONE)
+template<class SubString = std::string>
+#else
+template<class SubString = fmt::string_view>
+#endif
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
  * Its `begin()` and `end()` return an forward iterator.
@@ -65,9 +54,50 @@ template<class SubString = std::string>
  * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::split(...))`.
  */
-StringSplitter<SubString, std::string> split(std::string& str, std::string delimiter) {
-	return StringSplitter<SubString, std::string>(str, std::move(delimiter));
+LZ_NODISCARD StringSplitter<SubString, std::string, std::string> split(const std::string& str, std::string delimiter) {
+	return StringSplitter<SubString, std::string, std::string>(str, std::move(delimiter));
 }
+
+#if defined(LZ_HAS_STRING_VIEW)
+template<class SubString = std::string_view>
+#elif defined(LZ_STANDALONE)
+template<class SubString = std::string>
+#else
+template<class SubString = fmt::string_view>
+#endif
+/**
+* @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
+* Its `begin()` and `end()` return an forward iterator.
+* This will most likely crash your application.
+* @tparam SubString The string type of the substring. If C++17, this will default to `std::string_view`. If `LZ_STANDALONE` is not defined
+* and C++17 is not defined, this will default to `std::string`. Otherwise it will default to `fmt::string_view`. Furthermore, `SubString`
+* should have a constructor which looks like `SubString([const]char*, std::size_t length)`:
+* @param str The string to split.
+* @param delimiter The delimiter to split on.
+* @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
+* `for (auto... lz::split(...))`.
+*/
+LZ_NODISCARD StringSplitter<SubString, std::string, char> split(const std::string& str, char delimiter) {
+	return StringSplitter<SubString, std::string, char>(str, delimiter);
+}
+
+#if defined(LZ_HAS_STRING_VIEW)
+template<class SubString = std::string_view>
+#elif defined(LZ_STANDALONE)
+template<class SubString = std::string>
+#else
+template<class SubString = fmt::string_view>
+#endif
+StringSplitter<SubString, std::string, char> split(std::string&& str, char delimiter) = delete;
+
+#if defined(LZ_HAS_STRING_VIEW)
+template<class SubString = std::string_view>
+#elif defined(LZ_STANDALONE)
+template<class SubString = std::string>
+#else
+template<class SubString = fmt::string_view>
+#endif
+StringSplitter<SubString, std::string, std::string> split(std::string&& str, std::string delimiter) = delete;
 
 #ifdef LZ_HAS_STRING_VIEW
 
@@ -82,11 +112,22 @@ StringSplitter<SubString, std::string> split(std::string& str, std::string delim
  * `for (auto... lz::split(...))`.
  */
 template<class SubString = std::string_view>
-StringSplitter<SubString, std::string_view> split(std::string_view& str, std::string delimiter) {
-	return StringSplitter<SubString, std::string_view>(str, std::move(delimiter));
+LZ_NODISCARD StringSplitter<SubString, std::string_view, std::string> split(const std::string_view& str, std::string delimiter) {
+	return StringSplitter<SubString, std::string_view, std::string>(str, std::move(delimiter));
 }
 
-#endif
+template<class SubString = std::string_view>
+LZ_NODISCARD StringSplitter<SubString, std::string_view, std::string> split(const std::string_view& str, char delimiter) {
+	return StringSplitter<SubString, std::string_view, char>(str, delimiter);
+}
+
+template<class SubString = std::string_view>
+StringSplitter<SubString, std::string_view, std::string> split(std::string_view&& str, char delimiter) = delete;
+
+template<class SubString = std::string_view>
+StringSplitter<SubString, std::string_view, std::string> split(std::string_view&& str, std::string delimiter) = delete;
+
+#endif // LZ_HAS_STRING_VIEW
 
 
 // End of group
@@ -95,4 +136,4 @@ StringSplitter<SubString, std::string_view> split(std::string_view& str, std::st
  */
 }
 
-#endif
+#endif // LZ_STRING_SPLITTER_HPP
