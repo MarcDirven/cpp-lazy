@@ -6,75 +6,87 @@
 #include <tuple>
 #include <iterator>
 
-
-#ifdef __has_include
-  #define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
+#if defined(__has_include)
+#define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
 #else
-  #define LZ_HAS_INCLUDE(FILE) 0
-#endif
+#define LZ_HAS_INCLUDE(FILE) 0
+#endif // __has_include
+
+
+#if defined(__has_cpp_attribute)
+#define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
+#else
+#define LZ_HAS_ATTRIBUTE(ATTR) 0
+#endif // __has_cpp_attribute
+
+#if LZ_HAS_ATTRIBUTE(nodiscard)
+#define LZ_NODISCARD [[nodiscard]]
+#else
+#define LZ_NODISCARD
+#endif // LZ_HAS_ATTRIBUTE(nodiscard
 
 #if (defined(__GNUC__)) && !(defined(__clang__))
-  #define LZ_GCC_VERSION __GNUC__
-#endif
+#define LZ_GCC_VERSION __GNUC__
+#endif // GNU/clang
 
 #if defined(_MSVC_LANG)
-  #define LZ_MSVC _MSVC_LANG
-#endif
+#define LZ_MSVC _MSVC_LANG
+#endif // _MSVC_LANG
 
 #if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
-  #define LZ_HAS_CXX_11
+#define LZ_HAS_CXX_11
 #endif // end has cxx 11
 
 #if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
-  #define LZ_CONSTEXPR_CXX_14 constexpr
+#define LZ_CONSTEXPR_CXX_14 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_14 inline
+#define LZ_CONSTEXPR_CXX_14 inline
 #endif // has cxx 14
 
 #if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
-  #define LZ_HAS_CXX_17
-  #define LZ_CONSTEXPR_CXX_17 constexpr
+#define LZ_HAS_CXX_17
+#define LZ_CONSTEXPR_CXX_17 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_17 inline
+#define LZ_CONSTEXPR_CXX_17 inline
 #endif // Has cxx 17
 
 #if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
-  #define LZ_HAS_CXX_20
-  #define LZ_CONSTEXPR_CXX_20 constexpr
+#define LZ_HAS_CXX_20
+#define LZ_CONSTEXPR_CXX_20 constexpr
 #else
-  #define LZ_CONSTEXPR_CXX_20 inline
+#define LZ_CONSTEXPR_CXX_20 inline
 #endif // Has cxx 20
 
 #ifdef __cpp_ref_qualifiers
-  #define LZ_HAS_REF_QUALIFIER
-  #define LZ_CONST_REF_QUALIFIER const&
+#define LZ_HAS_REF_QUALIFIER
+#define LZ_CONST_REF_QUALIFIER const&
 #else
-  #define LZ_CONST_REF_QUALIFIER
+#define LZ_CONST_REF_QUALIFIER
 #endif // __cpp_ref_qualifiers
 
 #if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
-  #define LZ_HAS_EXECUTION
-  #include <execution>
+#define LZ_HAS_EXECUTION
+#include <execution>
 #endif // has execution
 
 #if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
-  #define LZ_HAS_STRING_VIEW
+#define LZ_HAS_STRING_VIEW
 #endif // has string view
 
 #if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
-  #define LZ_HAS_CONCEPTS
-  #include <concepts>
+#define LZ_HAS_CONCEPTS
+#include <concepts>
 #endif // has concepts
 
 #ifdef __cpp_if_constexpr
-  #define LZ_CONSTEXPR_IF constexpr
+#define LZ_CONSTEXPR_IF constexpr
 #else
-  #define LZ_CONSTEXPR_IF
-#endif
+#define LZ_CONSTEXPR_IF
+#endif // __cpp_if_constexpr
 
 #if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>))
-  #define LZ_HAS_FORMAT
-#endif
+#define LZ_HAS_FORMAT
+#endif // format
 
 #ifdef LZ_HAS_CONCEPTS
 namespace lz {
@@ -118,48 +130,41 @@ namespace lz {
 } // End namespace lz
 
 #define LZ_CONCEPT_ARITHMETIC                lz::Arithmetic
-  #define LZ_CONCEPT_INTEGRAL               std::integral
-  #define LZ_CONCEPT_INVOCABLE              std::invocable
-  #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
-  #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
-  #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
-  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
+#define LZ_CONCEPT_INTEGRAL               std::integral
+#define LZ_CONCEPT_INVOCABLE              std::invocable
+#define LZ_CONCEPT_ITERABLE               lz::BasicIterable
+#define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
 #else  // ^^^ has concepts !has concepts vvv
-  #define LZ_CONCEPT_ARITHMETIC             class
-  #define LZ_CONCEPT_INTEGRAL               class
-  #define LZ_CONCEPT_ITERATOR               class
-  #define LZ_CONCEPT_INVOCABLE              class
-  #define LZ_CONCEPT_ITERABLE               class
-  #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
-  #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-
-  #define LZ_REQUIRES_LESS_THAN(A, B)
+#define LZ_CONCEPT_ARITHMETIC class
+#define LZ_CONCEPT_INTEGRAL class
+#define LZ_CONCEPT_ITERATOR class
+#define LZ_CONCEPT_INVOCABLE class
+#define LZ_CONCEPT_ITERABLE class
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
 #endif  // lz has concepts
 
-#define LZ_STRINGIFY(x) #x
-#define LZ_TO_STRING(x) LZ_STRINGIFY(x)
-#define LZ_FILE_LINE __FILE__ ": " LZ_TO_STRING(__LINE__)
-
 #ifndef NDEBUG
-  #include <exception>
-#endif
+#include <exception>
+#endif // NDEBUG
 
 namespace lz {
 namespace internal {
 
 #ifdef NDEBUG
-  #define LZ_ASSERT(CONDITION, MSG) ((void)0)
+#define LZ_ASSERT(CONDITION, MSG) ((void)0)
 #else
-
 [[noreturn]]
 inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
-	std::fprintf(stderr, "'%s':%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
+	std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
 	std::terminate();
 }
 
-  #define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
-#endif
+#define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#endif // NDEBUG
 
 /* forward declarations of all iterators that contain a custom distance implementation */
 template<class... Iterators>
@@ -177,23 +182,26 @@ class ChunksIterator;
 template<class Iterator, int N>
 class FlattenIterator;
 
+template<class Iterator>
+class ExcludeIterator;
+
 template<class Iterable>
-constexpr auto begin(Iterable&& c) -> decltype(std::forward<Iterable>(c).begin()) {
+constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin()) {
 	return std::forward<Iterable>(c).begin();
 }
 
 template<class Iterable>
-constexpr auto end(Iterable&& c) -> decltype(std::forward<Iterable>(c).end()) {
+constexpr auto end(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).end()) {
 	return std::forward<Iterable>(c).end();
 }
 
 template<class T, size_t N>
-constexpr T* begin(T(& array)[N]) {
+constexpr T* begin(T(& array)[N]) noexcept {
 	return std::begin(array);
 }
 
 template<class T, size_t N>
-constexpr T* end(T(& array)[N]) {
+constexpr T* end(T(& array)[N]) noexcept {
 	return std::end(array);
 }
 
@@ -269,12 +277,10 @@ using ValueTypeIterable = typename Decay<Iterable>::value_type;
 
 #ifdef LZ_HAS_EXECUTION
 template<class T>
-struct IsSequencedPolicy : std::bool_constant<std::is_same_v<std::decay_t<T>, std::execution::sequenced_policy>> {
-};
+struct IsSequencedPolicy : std::is_same<T, std::execution::sequenced_policy> {};
 
 template<class T>
-struct IsForwardOrStronger : public std::bool_constant<std::is_convertible_v<IterCat<T>, std::forward_iterator_tag>> {
-};
+struct IsForwardOrStronger : std::is_convertible<IterCat<T>, std::forward_iterator_tag> {};
 
 template<class T>
 constexpr bool IsSequencedPolicyV = IsSequencedPolicy<T>::value;
@@ -292,7 +298,6 @@ constexpr bool checkForwardAndPolicies() {
 	}
 	return isSequenced;
 }
-
 #endif // LZ_HAS_EXECUTION
 
 template<class T>
@@ -321,10 +326,10 @@ template<class T, class U>
 struct IsAllSame<T, U> : std::is_same<T, U> {};
 
 template<class Iterator>
-struct IsBidirectional : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value> {};
+struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag> {};
 
 template<class Iterator>
-struct IsForward : std::integral_constant<bool, std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag>::value> {};
+struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) {
@@ -332,45 +337,54 @@ inline constexpr bool isEven(const Arithmetic value) {
 }
 } // internal
 
-template<class... Iterators>
-LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
+template<LZ_CONCEPT_ITERATOR... Iterators>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
 distance(const internal::CartesianProductIterator<Iterators...>&, const internal::CartesianProductIterator<Iterators...>&);
 
-template<class Arithmetic>
-LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
+template<LZ_CONCEPT_ITERATOR Arithmetic>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
 distance(const internal::RangeIterator<Arithmetic>&, const internal::RangeIterator<Arithmetic>&);
 
-template<class Iterator>
-LZ_CONSTEXPR_CXX_17 typename internal::TakeEveryIterator<Iterator>::difference_type
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 typename internal::TakeEveryIterator<Iterator>::difference_type
 distance(const internal::TakeEveryIterator<Iterator>&, const internal::TakeEveryIterator<Iterator>&);
 
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
 distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
 
-template<class Iterator, int N>
-LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
 distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
 
-template<class... Iterators>
-LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 typename internal::ExcludeIterator<Iterator>::difference_type
+distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
+
+
+template<LZ_CONCEPT_ITERATOR... Iterators>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
 next(const internal::CartesianProductIterator<Iterators...>&, internal::DiffType<internal::CartesianProductIterator<Iterators...>> = 1);
 
-template<class Arithmetic>
-constexpr internal::RangeIterator<Arithmetic>
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
 next(const internal::RangeIterator<Arithmetic>&, internal::DiffType<internal::RangeIterator<Arithmetic>> = 1);
 
-template<class Iterator>
-LZ_CONSTEXPR_CXX_17 internal::TakeEveryIterator<Iterator>
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::TakeEveryIterator<Iterator>
 next(const internal::TakeEveryIterator<Iterator>&, internal::DiffType<internal::TakeEveryIterator<Iterator>> = 1);
 
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
 next(const internal::ChunksIterator<Iterator>&, internal::DiffType<internal::ChunksIterator<Iterator>> = 1);
 
-template<class Iterator, int N>
-LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
 next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal::FlattenIterator<Iterator, N>> = 1);
+
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
+next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
 } // lz
 
 #endif // LZ_LZ_TOOLS_HPP

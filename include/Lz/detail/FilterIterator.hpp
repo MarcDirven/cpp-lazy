@@ -3,19 +3,16 @@
 #ifndef LZ_FILTER_ITERATOR_HPP
 #define LZ_FILTER_ITERATOR_HPP
 
-
 #include <algorithm>
 
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 #ifdef LZ_HAS_EXECUTION
-
-
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
 #else // ^^^lz has execution vvv ! lz has execution
+
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 #endif // LZ_HAS_EXECUTION
 class FilterIterator {
@@ -29,16 +26,16 @@ public:
 	using reference = typename IterTraits::reference;
 
 	LZ_CONSTEXPR_CXX_20 void find() {
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 		if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) { // prevent verbose errors when iter cat < forward
 			_iterator = std::find_if(std::move(_iterator), _end, _predicate);
 		}
 		else {
 			_iterator = std::find_if(_execution, std::move(_iterator), _end, _predicate);
 		}
-  #else // ^^^lz has execution vvv ! lz has execution
+#else // ^^^lz has execution vvv ! lz has execution
 		_iterator = std::find_if(std::move(_iterator), _end, _predicate);
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 	}
 
 private:
@@ -51,9 +48,9 @@ private:
 
 public:
 #ifdef LZ_HAS_EXECUTION
-
 	LZ_CONSTEXPR_CXX_20 FilterIterator(Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
 #else // ^^^lz has execution vvv ! lz has execution
+
 	FilterIterator(Iterator begin, Iterator end, UnaryPredicate function)
 #endif // LZ_HAS_EXECUTION
 		:
@@ -61,8 +58,8 @@ public:
 		_end(std::move(end)),
 		_predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
-		,
-		_execution(execution)
+	,
+	_execution(execution)
 #endif // LZ_HAS_EXECUTION
 	{
 		find();
@@ -70,11 +67,11 @@ public:
 
 	constexpr FilterIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_iterator;
 	}
 
@@ -90,11 +87,11 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
 		return !(a != b); // NOLINT
 	}
 };

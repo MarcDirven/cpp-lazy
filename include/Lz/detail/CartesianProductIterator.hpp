@@ -6,7 +6,6 @@
 #include <numeric>
 #include "LzTools.hpp"
 
-
 namespace lz {
 namespace internal {
 // Edited version of https://github.com/mirandaconrado/product-iterator
@@ -28,9 +27,9 @@ private:
 	constexpr EnableIf<I == 0> next() const {}
 
 #ifdef LZ_MSVC
-  #pragma warning(push)
-  #pragma warning(disable:4127)
-#endif
+#pragma warning(push)
+#pragma warning(disable:4127)
+#endif // LZ_MSVC
 
 	template<std::size_t I>
 	LZ_CONSTEXPR_CXX_17 EnableIf<(I > 0)> next() {
@@ -46,8 +45,8 @@ private:
 	}
 
 #ifdef LZ_MSVC
-  #pragma warning(pop)
-#endif
+#pragma warning(pop)
+#endif // LZ_MSVC
 
 	template<std::size_t I, EnableIf<I == 0, bool> = true>
 	LZ_CONSTEXPR_CXX_17 void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {
@@ -67,7 +66,7 @@ private:
 	}
 
 	template<std::size_t... Is>
-	LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) {
 		return {*std::get<Is>(_iterator)...};
 	}
 
@@ -89,7 +88,7 @@ public:
 		_iterator(begin),
 		_end(std::move(end)) {}
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() {
 		return dereference(IndexSequenceForThis());
 	}
 
@@ -107,19 +106,19 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return std::get<0>(lhs._iterator) == std::get<0>(rhs._iterator);
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return !(lhs == rhs); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
 		return b.distanceImpl(IndexSequenceForThis(), a);
 	}
 
-	LZ_CONSTEXPR_CXX_17 CartesianProductIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 CartesianProductIterator operator+(const difference_type offset) const {
 		CartesianProductIterator tmp(*this);
 		operatorPlusImpl<sizeof...(Iterators) - 1>(tmp, offset);
 		return tmp;
@@ -134,8 +133,8 @@ public:
  * @param end Ending of the sequence
  * @return The difference between a and b.
  */
-template<class... Iterators>
-LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
+template<LZ_CONCEPT_ITERATOR... Iterators>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
 distance(const internal::CartesianProductIterator<Iterators...>& begin, const internal::CartesianProductIterator<Iterators...>& end) {
 	return end - begin;
 }
@@ -147,8 +146,8 @@ distance(const internal::CartesianProductIterator<Iterators...>& begin, const in
  * @param offset The amount to add.
  * @return An iterator that contains `iter + offset` value.
  */
-template<class... Iterators>
-LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
+template<LZ_CONCEPT_ITERATOR... Iterators>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
 next(const internal::CartesianProductIterator<Iterators...>& iter,
 	 const internal::DiffType<internal::CartesianProductIterator<Iterators...>> offset) {
 	LZ_ASSERT(offset >= 0, "Cartesian product iterator is not random access, offset must be >= 0");

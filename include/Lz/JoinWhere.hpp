@@ -9,7 +9,6 @@
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
 
-
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
 class JoinWhere final :
 	public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>> {
@@ -17,9 +16,10 @@ class JoinWhere final :
 public:
 	using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
+
 	template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
-class JoinWhere final :
-	public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
+	class JoinWhere final :
+		public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
 		using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
 #endif
 public:
@@ -35,11 +35,13 @@ public:
 											  iterator(endA, endA, endB, endB, a, b, resultSelector, execution)) {}
 
 #else
-	JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
+
+	LZ_CONSTEXPR_CXX_20 JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector)
+		:
 		internal::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
 											  iterator(endA, endA, endB, endB, a, b, resultSelector)) {}
-#endif
 
+#endif // LZ_HAS_EXECUTION
 
 	constexpr JoinWhere() = default;
 };
@@ -49,7 +51,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -71,7 +73,7 @@ public:
  */
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector,
 	class Execution = std::execution::sequenced_policy>
-JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
 joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
 		  Execution execution = std::execution::seq) {
 	return JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>(
@@ -97,9 +99,10 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
  * @return A join where iterator view object, which can be used to iterate over.
  */
 template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
-	class Execution = std::execution::sequenced_policy>
-JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA,
-	SelectorB, ResultSelector, Execution>
+    class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+JoinWhere<internal::IterTypeFromIterable<IterableA>,  internal::IterTypeFromIterable<IterableB>,
+    SelectorA, SelectorB, ResultSelector, Execution>
 joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
 		  Execution execution = std::execution::seq) {
 	return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
@@ -107,7 +110,7 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 std::move(a), std::move(b), std::move(resultSelector), execution);
 }
 
-  #else
+#else
 
 /**
 * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -157,7 +160,8 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
 					 std::move(a), std::move(b), std::move(resultSelector));
 }
-  #endif
+
+#endif // LZ_HAS_EXECUTION
 
 // End of group
 /**

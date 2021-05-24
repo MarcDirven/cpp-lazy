@@ -3,7 +3,6 @@
 #ifndef LZ_FUNCTION_TOOLS_HPP
 #define LZ_FUNCTION_TOOLS_HPP
 
-
 #include <numeric>
 #include <algorithm>
 #include <iterator>
@@ -17,9 +16,9 @@
 #include "Concatenate.hpp"
 
 #ifdef LZ_HAS_CXX_17
-  #define LZ_INLINE_VAR inline
+#define LZ_INLINE_VAR inline
 #else // ^^^ has cxx 17 vvv !has cxx 17
-  #define LZ_INLINE_VAR
+#define LZ_INLINE_VAR
 #endif // lz has cxx17
 
 namespace lz {
@@ -27,25 +26,23 @@ namespace internal {
 template<class To>
 struct ConvertFn {
 	template<class From>
-	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const {
+	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const noexcept {
 		return static_cast<To>(f);
 	}
 
 	template<class From>
-	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) {
+	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) noexcept {
 		return static_cast<To>(f);
 	}
 };
 
-
 template<std::size_t I>
 struct TupleGet {
 	template<class Tuple>
-	LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(std::get<I>(tuple)) {
+	LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) noexcept -> decltype(std::get<I>(tuple)) {
 		return std::get<I>(tuple);
 	}
 };
-
 
 template<class Fn, class RefTuple, std::size_t... I>
 struct TupleExpand {
@@ -60,7 +57,6 @@ struct TupleExpand {
 		return fn(std::get<I>(tuple)...);
 	}
 };
-
 
 template<class RefTuple, class Fn, std::size_t... I>
 constexpr internal::TupleExpand<Fn, RefTuple, I...> makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>) {
@@ -84,14 +80,13 @@ constexpr LZ_INLINE_VAR std::size_t npos = std::numeric_limits<std::size_t>::max
 
 template<class SubString = std::string_view, class String = std::string>
 #else // ^^^ Lz has string view vvv !lz has string view
-
 template<class SubString = std::string, class String = std::string>
 #endif // LZ_HAS_STRING_VIEW
-StringSplitter<SubString, String> lines(const String& string) {
-	return lz::split<SubString, String>(string, "\n");
+StringSplitter<SubString, String, char> lines(String& string) {
+	return lz::split<SubString>(string, '\n');
 }
 
-  #ifdef LZ_HAS_STRING_VIEW
+#ifdef LZ_HAS_STRING_VIEW
 
 /**
  * Concatenates a sequence of string-like values to std::string_view
@@ -107,8 +102,7 @@ LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&& ... strings) -> lz::Concat
 	return lz::concat(static_cast<std::string_view>(strings)...);
 }
 
-  #elif !defined(LZ_STANDALONE)
-
+#elif !defined(LZ_STANDALONE)
 /**
 * Concatenates a sequence of string-like values to fmt::string_view
 * @param strings The string-like values, may be: `lz::concatAsStringView("hello", std::string("world"))`
@@ -123,8 +117,7 @@ lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
 	);
 	return lz::concat(static_cast<fmt::string_view>(strings)...);
 }
-
-  #endif // LZ_HAS_STRING_VIEW
+#endif // LZ_HAS_STRING_VIEW
 
 /**
  * Sums all the values from [from, upToAndIncluding]
@@ -169,8 +162,8 @@ constexpr T sumTo(const T upToAndIncluding) {
  * @param strings The container of `std::string` or `std::string_view`.
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
-template<class Strings, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Strings>>
-Join<Iterator> unlines(Strings&& strings) {
+template<class Strings>
+Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
 	return lz::join(strings, "\n");
 }
 
@@ -186,8 +179,14 @@ reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
 	static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #endif // LZ_HAS_CONCEPTS
-	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(end),
-																			std::reverse_iterator<Iterator>(begin));
+#ifdef LZ_HAS_CXX_11
+	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(
+		std::reverse_iterator<Iterator>(end), std::reverse_iterator<Iterator>(begin));
+#else
+	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(
+		std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
+#endif
+
 }
 
 /**
@@ -224,13 +223,13 @@ constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end)
  */
 template<class T, LZ_CONCEPT_ITERABLE Iterable>
 constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
-	return lz::as<T>(internal::begin(std::forward<Iterable>(iterable)),
-					 internal::end(std::forward<Iterable>(iterable)));
+	return lz::as<T>(
+		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 /**
  * Zips n containers and applies (simultaneously) the function given as argument, containing each of the containers' value types.
- * Signature must look like: `fn(ValueTypeIterable1[, ValueTypeIterable2[, ValueTypeIterable3[, ValueTypeIterable-n[, ...]]]])`
+ * Signature must look like: `fn(ValueTypeIterable1, ValueTypeIterable2[, ValueTypeIterable3[, ValueTypeIterable-n[, ...]]])`
  * @param fn The function to apply to each elements in all containers.
  * @param begin The beginning of all the iterables
  * @param end The ending of all the iterables
@@ -436,26 +435,26 @@ LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
 	return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
- * @param exec The execution policy.
+ * @param execution The execution policy.
  * @return The mean of the sequence.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 double mean(Iterator begin, Iterator end, Execution exec = std::execution::seq) {
+template<LZ_CONCEPT_ITERATOR Iterator, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
+LZ_CONSTEXPR_CXX_20 double mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
 	using ValueType = internal::ValueType<Iterator>;
 	using lz::distance; using std::distance;
 	const internal::DiffType<Iterator> dist = distance(begin, end);
 	ValueType sum;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-		sum = std::reduce(begin, end);
+		sum = std::reduce(begin, end, ValueType(0), std::move(binaryOp));
 	}
 	else {
-		sum = std::reduce(exec, begin, end);
+		sum = std::reduce(execution, begin, end, ValueType(0), std::move(binaryOp));
 	}
 	return static_cast<double>(sum) / dist;
 }
@@ -463,12 +462,12 @@ LZ_CONSTEXPR_CXX_20 double mean(Iterator begin, Iterator end, Execution exec = s
 /**
  * Gets the mean of a sequence.
  * @param container The container to calculate the mean of.
- * @param exec The execution policy
+ * @param execution The execution policy
  * @return The mean of the container.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, Execution exec = std::execution::seq) {
-	return lz::mean(std::begin(container), std::end(container), exec);
+template<LZ_CONCEPT_ITERABLE Iterable, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
+LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, BinaryOp binOp = {}, Execution execution = std::execution::seq) {
+	return lz::mean(std::begin(container), std::end(container), std::move(binOp), execution);
 }
 
 /**
@@ -483,8 +482,7 @@ LZ_CONSTEXPR_CXX_20 double mean(const Iterable& container, Execution exec = std:
  */
 template<class Execution = std::execution::sequenced_policy, class UnaryFilterFunc, class UnaryMapFunc, LZ_CONCEPT_ITERATOR Iterator>
 LZ_CONSTEXPR_CXX_20 Map<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>
-filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
-		  Execution execPolicy = std::execution::seq) {
+filterMap(Iterator begin, Iterator end, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execPolicy = std::execution::seq) {
 	auto filterView = lz::filterRange(std::move(begin), std::move(end), std::move(filterFunc), execPolicy);
 	return lz::map(std::move(filterView), std::move(mapFunc));
 }
@@ -585,13 +583,13 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Ex
  * Gets the median of a sequence.
  * @param begin The beginning of the sequence
  * @param end The ending of the sequence
- * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+ * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom comparer can be used.
  * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
  * even.
  * @return The median of the sequence.
  */
-template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<>>
-LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Compare compare = {}, Execution execution = std::execution::seq) {
+template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::less<>>
+LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
 	using lz::distance; using std::distance; using std::next; using lz::next;
 	const internal::DiffType<Iterator> len = distance(begin, end);
 	constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
@@ -600,18 +598,18 @@ LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Compare compare 
 	const Iterator midIter = next(begin, mid);
 	if constexpr (isSequenced) {
 		static_cast<void>(execution);
-		std::nth_element(begin, midIter, end, compare);
+		std::nth_element(begin, midIter, end, comparer);
 	}
 	else {
-		std::nth_element(execution, begin, midIter, end, compare);
+		std::nth_element(execution, begin, midIter, end, comparer);
 	}
 	if (internal::isEven(len)) {
 		if constexpr (isSequenced) {
-			const Iterator leftHalf = std::max_element(begin, midIter);
+			const Iterator leftHalf = std::max_element(begin, midIter, comparer);
 			return (static_cast<double>(*leftHalf) + *midIter) / 2.;
 		}
 		else {
-			const Iterator leftHalf = std::max_element(execution, begin, midIter);
+			const Iterator leftHalf = std::max_element(execution, begin, midIter, comparer);
 			return (static_cast<double>(*leftHalf) + *midIter) / 2.;
 		}
 	}
@@ -621,15 +619,15 @@ LZ_CONSTEXPR_CXX_20 double median(Iterator begin, Iterator end, Compare compare 
 /**
  * Gets the median of a sequence.
  * @param iterable The container/sequence by reference.
- * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+ * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
  * @param execution Uses the execution to perform the nth_element algorithm + the std::max element if the length of the sequence is
  * even.
  * @return The median of the sequence.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
-	class Compare = std::less<>>
-LZ_CONSTEXPR_CXX_20 double median(Iterable& iterable, Compare compare = {}, Execution execution = std::execution::seq) {
-	return lz::median(std::begin(iterable), std::end(iterable), std::move(compare), execution);
+	class Comparer = std::less<>>
+LZ_CONSTEXPR_CXX_20 double median(Iterable& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
+	return lz::median(std::begin(iterable), std::end(iterable), std::move(comparer), execution);
 }
 
 /**
@@ -871,8 +869,8 @@ LZ_CONSTEXPR_CXX_20 std::size_t indexOfIf(const Iterable& iterable, UnaryFunc pr
  * @return True if `iterable` contains `value`, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, Execution exec = std::execution::seq) {
-	return lz::indexOf(begin, end, value, exec) != lz::npos;
+LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
+	return lz::indexOf(begin, end, value, execution) != lz::npos;
 }
 
 /**
@@ -882,8 +880,8 @@ LZ_CONSTEXPR_CXX_20 bool contains(Iterator begin, Iterator end, const T& value, 
  * @return True if `iterable` contains `value`, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Execution exec = std::execution::seq) {
-	return lz::contains(std::begin(iterable), std::end(iterable), value, exec);
+LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Execution execution = std::execution::seq) {
+	return lz::contains(std::begin(iterable), std::end(iterable), value, execution);
 }
 
 /**
@@ -894,8 +892,8 @@ LZ_CONSTEXPR_CXX_20 bool contains(const Iterable& iterable, const T& value, Exec
  * @return Returns true if `predicate` returns true, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution exec = std::execution::seq) {
-	return lz::indexOfIf(begin, end, predicate, exec) != lz::npos;
+LZ_CONSTEXPR_CXX_20 bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
+	return lz::indexOfIf(begin, end, predicate, execution) != lz::npos;
 }
 
 /**
@@ -906,11 +904,11 @@ LZ_CONSTEXPR_CXX_20 bool containsIf(Iterator begin, Iterator end, BinaryPredicat
  * @return Returns true if `predicate` returns true, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 bool containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution exec = std::execution::seq) {
-	return lz::containsIf(std::begin(iterable), std::end(iterable), predicate, exec);
+LZ_CONSTEXPR_CXX_20 bool containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
+	return lz::containsIf(std::begin(iterable), std::end(iterable), predicate, execution);
 }
 
-  #else // ^^^ Lz has execution vvv !Lz has execution
+#else // ^^^ Lz has execution vvv !Lz has execution
 
 /**
  * Gets the mean of a sequence.
@@ -918,12 +916,12 @@ LZ_CONSTEXPR_CXX_20 bool containsIf(const Iterable& iterable, BinaryPredicate pr
  * @param end The ending of the sequence.
  * @return The mean of the sequence.
  */
-template<class Iterator>
-double mean(Iterator begin, Iterator end) {
+template<class Iterator, class BinaryOp = std::plus<internal::ValueType<Iterator>>>
+double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
 	using lz::distance; using std::distance;
 	using ValueType = internal::ValueType<Iterator>;
 	const internal::DiffType<Iterator> dist = distance(begin, end);
-	const ValueType sum = std::accumulate(begin, end, ValueType(0));
+	const ValueType sum = std::accumulate(begin, end, ValueType(0), std::move(binOp));
 	return static_cast<double>(sum) / dist;
 }
 
@@ -932,29 +930,28 @@ double mean(Iterator begin, Iterator end) {
  * @param container The container to calculate the mean of.
  * @return The mean of the container.
  */
-template<class Iterable>
-double mean(const Iterable& container) {
-	return lz::mean(std::begin(container), std::end(container));
+template<class Iterable, class BinaryOp = std::plus<internal::ValueTypeIterable<Iterable>>>
+double mean(const Iterable& container, BinaryOp binOp = {}) {
+	return lz::mean(std::begin(container), std::end(container), std::move(binOp));
 }
-
 
 /**
  * Gets the median of a sequence.
  * @param begin The beginning of the sequence
  * @param end The ending of the sequence
- * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+ * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom comparer can be used.
  * @return The median of the sequence.
  */
-template<class Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
-double median(Iterator begin, Iterator end, Compare compare = {}) {
+template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator>>>
+double median(Iterator begin, Iterator end, Comparer comparer = {}) {
 	using lz::distance; using std::distance;  using std::next; using lz::next;
 	const internal::DiffType<Iterator> len = distance(begin, end);
-	if (len == 0) return 0.;
+	if (len == 0) { return 0.; }
 	const internal::DiffType<Iterator> mid = len >> 1;
 	const Iterator midIter = next(begin, mid);
-	std::nth_element(begin, midIter, end, compare);
+	std::nth_element(begin, midIter, end, comparer);
 	if (internal::isEven(len)) {
-		const Iterator leftHalf = std::max_element(begin, midIter);
+		const Iterator leftHalf = std::max_element(begin, midIter, comparer);
 		return (static_cast<double>(*leftHalf) + *midIter) / 2.;
 	}
 	return *midIter;
@@ -963,12 +960,12 @@ double median(Iterator begin, Iterator end, Compare compare = {}) {
 /**
  * Gets the median of a sequence.
  * @param iterable The container/sequence by reference.
- * @param compare The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
+ * @param comparer The sequence gets sorted with nth_element. A default operator of < is used, however a custom compare can be used.
  * @return The median of the sequence.
  */
-template<class Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
-double median(Iterable& iterable, Compare compare = {}) {
-	return lz::median(std::begin(iterable), std::end(iterable), compare);
+template<class Iterable, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
+double median(Iterable& iterable, Comparer comparer = {}) {
+	return lz::median(std::begin(iterable), std::end(iterable), std::move(comparer));
 }
 
 /**
@@ -1009,7 +1006,7 @@ internal::ValueTypeIterable<Iterable> firstOrDefault(const Iterable& iterable, c
 template<class Iterator, class T, class UnaryPredicate>
 internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
 	using CastType = internal::ValueType<Iterator>;
-	const Iterator pos = std::find_if(begin, end, predicate);
+	const Iterator pos = std::find_if(begin, end, std::move(predicate));
 	return static_cast<CastType>(pos == end ? defaultValue : *pos);
 }
 
@@ -1024,7 +1021,7 @@ internal::ValueType<Iterator> firstOrDefaultIf(Iterator begin, Iterator end, Una
  */
 template<class Iterable, class T, class UnaryPredicate>
 internal::ValueTypeIterable<Iterable> firstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
-	return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
+	return lz::firstOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
 }
 
 /**
@@ -1067,7 +1064,7 @@ template<class Iterator, class T, class UnaryPredicate>
 internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
 	auto endReverse = std::reverse_iterator<Iterator>(end);
 	auto beginReverse = std::reverse_iterator<Iterator>(begin);
-	const auto pos = std::find_if(endReverse, beginReverse, predicate);
+	const auto pos = std::find_if(endReverse, beginReverse, std::move(predicate));
 	return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
 
@@ -1080,7 +1077,7 @@ internal::ValueType<Iterator> lastOrDefaultIf(Iterator begin, Iterator end, Unar
  */
 template<class Iterable, class T, class UnaryPredicate>
 internal::ValueTypeIterable<Iterable> lastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue) {
-	return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), predicate, defaultValue);
+	return lz::lastOrDefaultIf(std::begin(iterable), std::end(iterable), std::move(predicate), defaultValue);
 }
 
 /**
@@ -1118,7 +1115,7 @@ std::size_t indexOf(const Iterable& iterable, const T& val) {
 template<class Iterator, class UnaryFunc>
 std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate) {
 	using lz::distance; using std::distance;
-	const Iterator pos = std::find_if(begin, end, predicate);
+	const Iterator pos = std::find_if(begin, end, std::move(predicate));
 	return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
 }
 
@@ -1130,9 +1127,8 @@ std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate) {
 */
 template<class Iterable, class UnaryFunc>
 std::size_t indexOfIf(const Iterable& iterable, UnaryFunc predicate) {
-	return lz::indexOfIf(std::begin(iterable), std::end(iterable), predicate);
+	return lz::indexOfIf(std::begin(iterable), std::end(iterable), std::move(predicate));
 }
-
 
 /**
  * Check whether `iterable` contains `value`.
@@ -1167,7 +1163,7 @@ bool contains(const Iterable& iterable, const T& value) {
  */
 template<class Iterator, class BinaryPredicate>
 bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate) {
-	return std::find_if(begin, end, predicate) != end;
+	return std::find_if(begin, end, std::move(predicate)) != end;
 }
 
 /**
@@ -1179,7 +1175,7 @@ bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate) {
  */
 template<class Iterable, class BinaryPredicate>
 bool containsIf(const Iterable& iterable, BinaryPredicate predicate) {
-	return containsIf(std::begin(iterable), std::end(iterable), predicate);
+	return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate));
 }
 
 /**
@@ -1275,7 +1271,7 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
 					std::move(first), std::move(last));
 }
 
-  #endif // End LZ_HAS_EXECUTION
+#endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 
 #endif // End LZ_FUNCTION_TOOLS_HPP

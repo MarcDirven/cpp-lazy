@@ -5,7 +5,6 @@
 
 #include "LzTools.hpp"
 
-
 namespace lz { namespace internal {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 class RandomIterator {
@@ -18,39 +17,39 @@ public:
 	using result_type = value_type;
 
 private:
+	Distribution _distribution{};
 	std::ptrdiff_t _current{};
 	bool _isWhileTrueLoop{};
-	Distribution _distribution{};
 	Generator* _generator{nullptr};
 
 public:
 	RandomIterator(const Distribution& distribution, Generator& generator, const std::ptrdiff_t current,
 				   const bool isWhileTrueLoop) :
+		_distribution(distribution),
 		_current(current),
 		_isWhileTrueLoop(isWhileTrueLoop),
-		_distribution(distribution),
 		_generator(&generator) {
 	}
 
 	RandomIterator() = default;
 
-	value_type operator*() {
+	LZ_NODISCARD value_type operator*() {
 		return _distribution(*_generator);
 	}
 
-	value_type operator()() {
+	LZ_NODISCARD value_type operator()() {
 		return _distribution(*_generator);
 	}
 
-	pointer operator->() {
+	LZ_NODISCARD pointer operator->() {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
-	result_type (min)() const {
+	LZ_NODISCARD result_type (min)() const {
 		return _distribution->min();
 	}
 
-	result_type (max)() const {
+	LZ_NODISCARD result_type (max)() const {
 		return _distribution->max();
 	}
 
@@ -74,7 +73,7 @@ public:
 		return *this;
 	}
 
-	RandomIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD RandomIterator operator+(const difference_type offset) const {
 		RandomIterator tmp(*this);
 		tmp += offset;
 		return tmp;
@@ -87,18 +86,18 @@ public:
 		return *this;
 	}
 
-	RandomIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD RandomIterator operator-(const difference_type offset) const {
 		RandomIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	friend difference_type operator-(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend difference_type operator-(const RandomIterator& a, const RandomIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current - b._current;
 	}
 
-	value_type operator[](const difference_type offset) const {
+	LZ_NODISCARD value_type operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
@@ -115,29 +114,29 @@ public:
 		return tmp;
 	}
 
-	friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator!=(const RandomIterator& a, const RandomIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}
 
-	friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator==(const RandomIterator& a, const RandomIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	friend bool operator<(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator<(const RandomIterator& a, const RandomIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current < b._current;
 	}
 
-	friend bool operator>(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator>(const RandomIterator& a, const RandomIterator& b) {
 		return b < a;
 	}
 
-	friend bool operator<=(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator<=(const RandomIterator& a, const RandomIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	friend bool operator>=(const RandomIterator& a, const RandomIterator& b) {
+	LZ_NODISCARD friend bool operator>=(const RandomIterator& a, const RandomIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };

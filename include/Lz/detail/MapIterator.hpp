@@ -3,10 +3,8 @@
 #ifndef LZ_MAP_ITERATOR_HPP
 #define LZ_MAP_ITERATOR_HPP
 
-
 #include "LzTools.hpp"
 #include "FunctionContainer.hpp"
-
 
 namespace lz { namespace internal {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
@@ -30,11 +28,11 @@ public:
 
 	constexpr MapIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return _function(*_iterator);
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -70,47 +68,47 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_17 MapIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 MapIterator operator+(const difference_type offset) const {
 		MapIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 MapIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 MapIterator operator-(const difference_type offset) const {
 		MapIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const MapIterator& a, const MapIterator& b) {
 		return a._iterator - b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const MapIterator& a, const MapIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const MapIterator& a, const MapIterator& b) {
 		return a._iterator != b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator<(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator<(const MapIterator& a, const MapIterator& b) {
 		return a._iterator < b._iterator;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator>(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator>(const MapIterator& a, const MapIterator& b) {
 		return b < a;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator<=(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator<=(const MapIterator& a, const MapIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator>=(const MapIterator& a, const MapIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator>=(const MapIterator& a, const MapIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };

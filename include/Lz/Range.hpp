@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/RangeIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
@@ -51,7 +50,7 @@ public:
  * `for (auto... lz::range(...))`.
  */
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
 #ifndef LZ_HAS_CONCEPTS
 	static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
 #endif
@@ -67,7 +66,7 @@ constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, 
  * `for (auto... lz::range(...))`.
  */
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-constexpr Range<Arithmetic> range(const Arithmetic end) {
+LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) {
 	return range<Arithmetic>(0, end, 1);
 }
 

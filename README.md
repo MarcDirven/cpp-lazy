@@ -5,7 +5,7 @@
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Excample:
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake or do not want to use `fmt`, use `#define LZ_STANDALONE` before including. Example:
 
 ```cpp
 #define LZ_STANDALONE
@@ -114,7 +114,7 @@ This library is not a replacement for `ranges::v3` but rather a (smaller) altern
 compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
 
 # Important note
-To garantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
+To guarantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
 ```cpp
 auto view = lz::chunks(array, 3);
 // Calculate distance:
@@ -126,22 +126,14 @@ using std::next; using lz::next;
 auto nth = next(view.begin(), 4);
 ```
 
-If, for some reason, you do not wish do do this, then be sure to use `lz::next/lz::distance` for the following iterators:
+If, for some reason, you do not wish to do this, then be sure to use `lz::next/lz::distance` for the following iterators:
 - `CartesianProductIterator` created by `lz::cartesian::begin`
 - `Range` created by `lz::range::begin`
 - `TakeEveryIterator` created by `lz::takeEvery::begin`
 - `ChunksIterator` created by `lz::chunks::begin`
 - `FlattenIterator` created by `lz::flatten::begin`
+- `ExcludeIterator` created by `lz::exclude::begin`
 
-What's also important is that there is 1 iterator that is not safe to return from a function. This is `StringSplitter` created by `lz::split`. This therefore, is illegal in C++:
-```cpp
-auto foo() {
-    return lz::split(std::string("hello, world!"), ", ");
-}
-
-auto f = foo(); // dangling reference
-```
-After storing the result of this function, the variable will contain dangling references.
 
 # Installation
 

@@ -5,7 +5,6 @@
 
 #include "FunctionContainer.hpp"
 
-
 namespace lz { namespace internal {
 template<class GeneratorFunc>
 class GenerateIterator {
@@ -29,19 +28,19 @@ public:
 		_generator(std::move(generatorFunc)),
 		_isWhileTrueLoop(isWhileTrueLoop) {}
 
-	constexpr reference operator*() const {
+	LZ_NODISCARD constexpr reference operator*() const {
 		return _generator();
 	}
 
-	LZ_CONSTEXPR_CXX_14 reference operator*() {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator*() {
 		return _generator();
 	}
 
-	constexpr pointer operator->() const {
+	LZ_NODISCARD constexpr pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
-	LZ_CONSTEXPR_CXX_14 pointer operator->() {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 pointer operator->() {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -85,50 +84,50 @@ public:
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
 		GenerateIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
 		GenerateIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	constexpr friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current - b._current;
 	}
 
-	LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
 		return *(*this + offset);
 	}
 
-	constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
-	constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}
 
-	constexpr friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current < b._current;
 	}
 
-	constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
 		return b < a;
 	}
 
-	constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
 		return !(b < a); // NOLINT
 	}
 
-	constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
 		return !(a < b); // NOLINT
 	}
 };

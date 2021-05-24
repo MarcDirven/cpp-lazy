@@ -15,11 +15,10 @@ public:
 	using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>;
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
-
-	template<class Iterator, class UnaryPredicate>
-	class ChunkIf final : public internal::BasicIteratorView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> {
-	public:
-		using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate>;
+template<class Iterator, class UnaryPredicate>
+class ChunkIf final : public internal::BasicIteratorView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> {
+public:
+	using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate>;
 #endif // LZ_HAS_EXECUTION
 	using const_iterator = iterator;
 	using value_type = typename iterator::value_type;
@@ -45,7 +44,7 @@ public:
  * @{
  */
 
-  #ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 
 /**
  * Chops the sequence into pieces of iterators, when `unaryPredicate` function returns true.
@@ -56,7 +55,7 @@ public:
  * @return A chunk if iterator view object.
  */
 template<class Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
 chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
 	return ChunkIf<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(unaryPredicate), execution);
 }
@@ -69,13 +68,13 @@ chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execut
  * @return A chunk if iterator view object.
  */
 template<class Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
 chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
 	return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						std::move(unaryPredicate), execution);
 }
 
-  #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 /**
  * Chops the sequence into pieces of iterators, when `unaryPredicate` function returns true.
@@ -88,7 +87,6 @@ template<class Iterator, class UnaryPredicate>
 ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate) {
 	return ChunkIf<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(unaryPredicate));
 }
-
 
 /**
  * Chops the sequence into pieces of iterators, when `unaryPredicate` function returns true.
@@ -103,7 +101,7 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
 						std::move(unaryPredicate));
 }
 
-  #endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 
 // End of group
 /**

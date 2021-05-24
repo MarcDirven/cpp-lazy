@@ -20,7 +20,7 @@ TEST_CASE("Iterator chaining") {
         .zip(arr2)
         .map(std::move(tupFn))
         .concat(arr2)
-        .foldl(0, [](int acc, int next) { return acc + next; });
+        .foldl(0, std::plus<int>()); // NOLINT
 
     CHECK(result == 240);
 
@@ -146,6 +146,8 @@ TEST_CASE("Iterator chaining") {
 	CHECK(lz::toIter(arr).sum() == 120);
 	CHECK(lz::toIter(arr).max() == 15);
 	CHECK(lz::toIter(arr).min() == 0);
+	CHECK(lz::toIter(arr).mean() == 7.5);
+	CHECK(lz::toIter(arr).median() == 7.5);
 	CHECK(lz::toIter(arr).any([](int i) { return i == 0; }));
 	CHECK(lz::toIter(arr).none([](int i) { return i == 16;}));
 	CHECK(lz::toIter(arr).count(0) == 1);

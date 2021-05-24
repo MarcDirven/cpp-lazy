@@ -58,6 +58,35 @@ TEST_CASE("Exclude binary operations", "[Exclude][Binary ops]") {
 		CHECK(exBeg2 != exEnd2);
 		CHECK(exBeg3 != exEnd3);
 	}
+
+	SECTION("Lz next") {
+		CHECK(*lz::next(exBeg1, 0) == 1);
+		CHECK(*lz::next(exBeg1, 3) == 6);
+		CHECK(*lz::next(exBeg1, 2) == 3);
+		CHECK(*lz::next(exBeg1, 5) == 8);
+		CHECK(*lz::next(exBeg1, 6) == 9);
+
+		CHECK(*lz::next(exBeg2, 0) == 3);
+		CHECK(*lz::next(exBeg2, 1) == 4);
+		CHECK(*lz::next(exBeg2, 2) == 5);
+		CHECK(*lz::next(exBeg2, 3) == 6);
+
+		CHECK(*lz::next(exBeg3, 0) == 1);
+		CHECK(*lz::next(exBeg3, 5) == 6);
+		CHECK(*lz::next(exBeg3, 6) == 7);
+		CHECK(lz::next(exBeg3, 7) == exEnd3);
+	}
+
+	SECTION("Lz distance") {
+		CHECK(lz::distance(exBeg1, exEnd1) == 8);
+		CHECK(lz::distance(lz::next(exBeg1, 3), exEnd1) == 5);
+
+		CHECK(lz::distance(exBeg2, exEnd2) == 8);
+		CHECK(lz::distance(lz::next(exBeg2, 1), exEnd2) == 7);
+
+		CHECK(lz::distance(exBeg3, exEnd3) == 7);
+		CHECK(lz::distance(lz::next(exBeg3, 7), exEnd3) == 0);
+	}
 }
 
 TEST_CASE("Exclude to containers", "[Exclude][To container]") {

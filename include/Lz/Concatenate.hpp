@@ -6,7 +6,6 @@
 #include "detail/ConcatenateIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
 
-
 namespace lz {
 template<class... Iterators>
 class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
@@ -40,7 +39,7 @@ public:
  * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_CONSTEXPR_CXX_14 Concatenate<Iterators...> concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Concatenate<Iterators...> concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
 	static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
 	static_assert(internal::IsAllSame<internal::ValueType<Iterators>...>::value, "value types of iterators do no match");
 	return Concatenate<Iterators...>(std::move(begin), std::move(end));
@@ -55,9 +54,9 @@ LZ_CONSTEXPR_CXX_14 Concatenate<Iterators...> concatRange(std::tuple<Iterators..
  * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&& ... iterables) {
 	return concatRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
-			 		   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
+					   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
 
 // End of group

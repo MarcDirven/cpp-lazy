@@ -62,7 +62,7 @@ TEST_CASE("ChunkIf to containers", "[ChunkIf][To container]") {
 
 	SECTION("To vector") {
 		std::vector<std::string> vec;
-		std::transform(chunked.begin(), chunked.end(), std::inserter(vec, vec.begin()), [](const Iterator& it) {
+		std::transform(chunked.begin(), chunked.end(), std::back_inserter(vec), [](const Iterator& it) {
 			return it.toString();
 		});
 		CHECK(vec == decltype(vec){"hello world", " this is a message"});

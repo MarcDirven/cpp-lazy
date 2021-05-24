@@ -53,11 +53,11 @@ public:
 
 	constexpr ChunksIterator() = default;
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return reference(_subRangeBegin, _subRangeEnd);
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
@@ -73,23 +73,23 @@ public:
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 		LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
 		return lhs._subRangeBegin != rhs._subRangeBegin;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 		return !(lhs != rhs); // NOLINT
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
 		using std::distance; using lz::distance;
 		LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
 		const auto dist = distance(rhs._subRangeBegin, lhs._end) / static_cast<float>(lhs._chunkSize);
 		return static_cast<difference_type>(std::ceil(dist));
 	}
 
-	LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
 		using lz::distance; using std::distance; using std::next; using lz::next;
 		ChunksIterator tmp(*this);
 		auto dist = distance(tmp._subRangeEnd, tmp._end);
@@ -115,8 +115,8 @@ public:
  * @param end Ending of the sequence.
  * @return The distance between begin and end.
  */
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
 distance(const internal::ChunksIterator<Iterator>& begin, const internal::ChunksIterator<Iterator>& end) {
 	return end - begin;
 }
@@ -127,8 +127,8 @@ distance(const internal::ChunksIterator<Iterator>& begin, const internal::Chunks
  * @param value The amount to add.
  * @return A chunks iterator with offset iter + value.
  */
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
 next(const internal::ChunksIterator<Iterator>& iter, const internal::DiffType<internal::ChunksIterator<Iterator>> value) {
 	LZ_ASSERT(value >= 0, "Chunks iterator is not random access, offset must be >= 0");
 	return iter + value;

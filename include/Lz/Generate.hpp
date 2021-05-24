@@ -6,7 +6,6 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/GenerateIterator.hpp"
 
-
 namespace lz {
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
 class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {
@@ -50,8 +49,8 @@ public:
  * @return A generator random access iterator view object.
  */
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-constexpr Generate<GeneratorFunc> generate(GeneratorFunc generatorFunc,
-										   const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+LZ_NODISCARD constexpr Generate<GeneratorFunc> generate(GeneratorFunc generatorFunc,
+														const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
 	return Generate<GeneratorFunc>(std::move(generatorFunc), amount, amount == std::numeric_limits<std::size_t>::max());
 }
 

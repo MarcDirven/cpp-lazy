@@ -10,7 +10,6 @@ namespace lz { namespace internal {
 template<class>
 struct AlwaysFalse : std::false_type {};
 
-
 template<class Func>
 class FunctionContainer {
 	Func _func;
@@ -118,11 +117,5 @@ public:
 		return _func(std::forward<Args>(args)...);
 	}
 };
-
-
-template<class F>
-constexpr FunctionContainer<F> makeFunctionContainer(F&& f) {
-	return FunctionContainer<F>(std::forward<F>(f));
-}
 }}
 #endif // LZ_FUNCTION_CONTAINER_HPP
