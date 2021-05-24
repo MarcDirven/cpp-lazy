@@ -327,27 +327,27 @@ public:
 	constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end) :
 		_range(std::move(it), std::move(begin), std::move(end)) {}
 
-	LZ_CONSTEXPR_CXX_17 bool hasSome() const {
+	LZ_CONSTEXPR_CXX_17 bool hasSome() const { // NOLINT
 		return _range.hasSome();
 	}
 
-	LZ_CONSTEXPR_CXX_17 bool hasPrev() const {
+	LZ_CONSTEXPR_CXX_17 bool hasPrev() const { // NOLINT
 		return _range.hasPrev();
 	}
 
-	LZ_CONSTEXPR_CXX_17 reference operator*() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return *_range;
 	}
 
-	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return &*_range;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
 		return a._range != b._range;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
 		return !(a != b); // NOLINT
 	}
 
@@ -377,11 +377,11 @@ public:
 		return _range.distance();
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const FlattenIterator&, const FlattenIterator& b) {
 		return b._range.distance();
 	}
 
-	LZ_CONSTEXPR_CXX_17 FlattenIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 FlattenIterator operator+(const difference_type offset) const {
 		FlattenIterator tmp(*this);
 		tmp._range = tmp._range + offset;
 		return tmp;
@@ -396,8 +396,8 @@ public:
  * @param begin The flatten iterator created from `lz::flatten(...).begin()`
  * @return The distance (size/length) of the iterator.
  */
-template<class Iterator, int N>
-LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
 distance(const internal::FlattenIterator<Iterator, N>& begin, const internal::FlattenIterator<Iterator, N>&) {
 	return begin.distance();
 }
@@ -410,8 +410,8 @@ distance(const internal::FlattenIterator<Iterator, N>& begin, const internal::Fl
  * @param value The amount to increment
  * @return A flatten iterator with iter + value.
  */
-template<class Iterator, int N>
-LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
 next(const internal::FlattenIterator<Iterator, N>& iter, const internal::DiffType<internal::FlattenIterator<Iterator, N>> value) {
 	if (value < 0) {
 		return std::next(iter, value);

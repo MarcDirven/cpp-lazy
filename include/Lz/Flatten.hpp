@@ -34,7 +34,7 @@ public:
  * @return A flatten view object, where its iterator is a forward iterator.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
+LZ_NODISCARD constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
 	static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
 	return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
 }
@@ -47,7 +47,7 @@ constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
 template<LZ_CONCEPT_ITERABLE Iterable,
 	class Iterator = internal::IterTypeFromIterable<Iterable>,
 	int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
+LZ_NODISCARD constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
 	return flattenRange<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -56,7 +56,7 @@ struct Dimensions;
 
 template<LZ_CONCEPT_ITERABLE Iterable>
 struct Dimensions<Iterable, internal::EnableIf<!std::is_array<Iterable>::value>> :
-	std::integral_constant<int, internal::CountDims<internal::IterTypeFromIterable<Iterable>>::value> {
+	internal::CountDims<internal::IterTypeFromIterable<Iterable>> {
 };
 
 template<LZ_CONCEPT_ITERABLE Iterable>
