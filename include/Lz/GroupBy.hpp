@@ -54,7 +54,7 @@ public:
  * @return A GroupBy iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 GroupBy<Iterator, Comparer, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<Iterator, Comparer, Execution>
 groupByRange(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
 	return GroupBy<Iterator, Comparer, Execution>(std::move(begin), std::move(end), std::move(comparer), execution);
 }
@@ -68,7 +68,7 @@ groupByRange(Iterator begin, Iterator end, Comparer comparer = {}, Execution exe
  * @return A GroupBy iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-LZ_CONSTEXPR_CXX_20 GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer, Execution>
 groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
 	return groupByRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 						std::move(comparer), execution);
