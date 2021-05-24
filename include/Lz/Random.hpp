@@ -53,7 +53,7 @@ public:
 	 * ```
 	 * @return A new random `value_type` between [min, max].
 	 */
-	value_type nextRandom() const {
+	LZ_NODISCARD value_type nextRandom() const {
 		return *this->begin();
 	}
 
@@ -61,7 +61,7 @@ public:
 	 * Gets the minimum random value.
 	 * @return The min value
 	 */
-	value_type minRandom() const {
+	LZ_NODISCARD value_type minRandom() const {
 		return this->begin().min();
 	}
 
@@ -69,7 +69,7 @@ public:
 	 * Gets the maximum random value.
 	 * @return The max value
 	 */
-	value_type maxRandom() const {
+	LZ_NODISCARD value_type maxRandom() const {
 		return this->begin().max();
 	}
 };
@@ -87,7 +87,7 @@ public:
  * @return A random view object that generates a sequence of `Generator::result_type`
  */
 template<class Generator, class Distribution>
-Random<typename Distribution::result_type, Distribution, Generator>
+LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
 random(const Distribution& distribution, Generator& generator, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
 	return Random<typename Distribution::result_type, Distribution, Generator>(
 		distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == std::numeric_limits<std::size_t>::max());
@@ -106,7 +106,7 @@ random(const Distribution& distribution, Generator& generator, const std::size_t
  * @return A random view object that generates a sequence of random numbers
 */
 template<class Integral, internal::EnableIf<std::is_integral<Integral>::value, bool> = true>
-Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>
+LZ_NODISCARD Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>
 random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
 	static std::mt19937 gen = internal::createMtEngine();
 	std::uniform_int_distribution<Integral> dist(min, max);
@@ -127,7 +127,7 @@ random(const Integral min, const Integral max, const std::size_t amount = std::n
  * @return A random view object that generates a sequence of random floating point values.
  */
 template<class Floating, internal::EnableIf<std::is_floating_point<Floating>::value, bool> = true>
-Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>
+LZ_NODISCARD Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>
 random(const Floating min, const Floating max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
 	static std::mt19937 gen = internal::createMtEngine();
 	std::uniform_real_distribution<Floating> dist(min, max);
