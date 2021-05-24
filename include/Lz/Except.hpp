@@ -112,7 +112,11 @@ except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {},
  * @param comparer Comparer for binary search (operator < is default) in IteratorToExcept.
  * @return An Except view object.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class IteratorToExcept, class Comparer = std::less<internal::ValueType<Iterator>>>
+#else
+template<class Iterator, class IteratorToExcept, class Comparer = std::less<>>
+#endif // LZ_HAS_CXX_11
 Except<Iterator, IteratorToExcept, Comparer>
 exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {}) {
 	return Except<Iterator, IteratorToExcept, Comparer>(std::move(begin), std::move(end), std::move(toExceptBegin),
@@ -127,7 +131,11 @@ exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, Iterat
  * @param comparer Comparer for binary search (operator < is default) in IterableToExcept
  * @return An Except view object.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class IterableToExcept, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
+#else
+template<class Iterable, class IterableToExcept, class Comparer = std::less<>>
+#endif // LZ_HAS_CXX_11
 Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Comparer>
 except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}) {
 	return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),

@@ -98,7 +98,11 @@ unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::ex
  * @param sortFunc (Optional) to find adjacent elements.
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
+#else
+template<class Iterator, class Compare = std::less<>>
+#endif // LZ_HAS_CXX_11
 constexpr Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = {}) {
 	return Unique<Iterator, Compare>(std::move(begin), std::move(end), std::move(compare));
 }
@@ -111,7 +115,11 @@ constexpr Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Co
  * @param sortFunc (Optional) to find adjacent elements.
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
  */
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
+#else
+template<class Iterable, class Compare = std::less<>>
+#endif // LZ_HAS_CXX_11
 constexpr Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
 	return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
 					   std::move(compare));
