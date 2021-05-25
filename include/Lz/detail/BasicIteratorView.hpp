@@ -12,13 +12,13 @@
 #include <numeric>
 
 #if defined(LZ_STANDALONE)
-#ifdef LZ_HAS_FORMAT
-#include <format>
+  #ifdef LZ_HAS_FORMAT
+	#include <format>
+  #else
+	#include <sstream>
+  #endif // LZ_HAS_FORMAT
 #else
-#include <sstream>
-#endif // LZ_HAS_FORMAT
-#else
-#include "fmt/ostream.h"
+  #include "fmt/ostream.h"
 #endif // LZ_STANDALONE
 
 #include "LzTools.hpp"
@@ -26,11 +26,13 @@
 namespace lz {
 namespace internal {
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+
 template<class Iterator>
 std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::true_type /* isArithmetic */) {
 	std::string result;
-	std::for_each(begin, end, [&result, &delimiter](const ValueType<Iterator>& t) {
-		result += std::to_string(t);
+	using Arithmetic = ValueType<Iterator>;
+	std::for_each(begin, end, [&result, &delimiter](const Arithmetic a) {
+		result += std::to_string(a);
 		result += delimiter;
 	});
 	return result;
@@ -44,18 +46,18 @@ std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::str
 	});
 	return oss.str();
 }
+
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
 #ifdef LZ_HAS_EXECUTION
 
 template<class Iterator, class Execution>
 LZ_CONSTEXPR_CXX_20 std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter, Execution execution) {
-	using TValueType = ValueType<Iterator>;
-	using std::distance; using lz::distance;
 #else
 	template<class Iterator>
 	std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
 #endif // LZ_HAS_EXECUTION
+	using TValueType = ValueType<Iterator>;
 	if (begin == end) { return ""; }
 	std::string result;
 #if defined(LZ_HAS_FORMAT) || (!defined(LZ_STANDALONE)) // std::format_to or fmt::format_to backInserter
@@ -64,55 +66,56 @@ LZ_CONSTEXPR_CXX_20 std::string toStringImpl(Iterator begin, Iterator end, const
 
 #ifdef LZ_HAS_EXECUTION
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT)) // std::ostringstream or std::to_string is used
-		result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<ValueType<Iterator>>());
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT)) // std::ostringstream, std::to_string is used
+		result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
 #elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
 		std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
 			std::format_to(backInserter, "{}{}", v, delimiter);
 		});
 #else // fmt::format_to is used
 		std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
-			fmt::format_to(backInserter, "{}{}", v, delimiter);
+			fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
 		});
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 	} // end if check if std::execution::seq
 	else {
 		std::mutex m;
-#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream or std::to_string
-		if constexpr (std::is_arithmetic_v<ValueType<Iterator>>) {
-			std::for_each(execution, begin, end, [&result, &delimiter, &m](const TValueType& v) {
+#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream, std::to_string
+		if constexpr (std::is_arithmetic_v<TValueType>) {
+			std::for_each(execution, begin, end, [&result, &delimiter, &m](const TValueType v) {
 				std::lock_guard guard(m);
-				result += std::to_string(v) + delimiter;
+				result += std::to_string(v);
+				result += delimiter;
 			});
 		}
 		else {
 			std::ostringstream oss;
-			std::for_each(execution, begin, end, [&delimiter, &oss, &m](const ValueType& v) {
+			std::for_each(execution, begin, end, [&delimiter, &oss, &m](const TValueType& v) {
 				std::lock_guard guard(m);
 				oss << v << delimiter;
 			});
 			result = oss.str();
 		}
 #elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-		std::for_each(execution, begin, end, [&delimiter, backInserter, &m](const ValueType<Iterator>& v) {
+		std::for_each(execution, begin, end, [&delimiter, backInserter, &m](const TValueType& v) {
 			std::lock_guard guard(m);
-			std::format_to(backInserter, "{}{}", v, delimiter);
+			std::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
 		});
 #else // fmt::format_to is used
 		std::for_each(execution, begin, end, [&delimiter, &m, backInserter](const TValueType& v) {
 			std::lock_guard guard(m);
-			fmt::format_to(backInserter, "{}{}", v, delimiter);
+			fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
 		});
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 	} // end if check if higher than std::execution::seq
 #else // ^^^ LZ_HAS_EXECUTION vvv !LZ_HAS_EXECUTION
-#if !defined(LZ_STANDALONE)
-	std::for_each(begin, end, [&delimiter, backInserter](const ValueType<Iterator>& v) {
-		fmt::format_to(backInserter, "{}{}", v, delimiter);
+  #if !defined(LZ_STANDALONE)
+	std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
+		fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
 	});
-#else // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
-	result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<ValueType<Iterator>>());
-#endif // !defined(LZ_STANDALONE)
+  #else // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
+	result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
+  #endif // !defined(LZ_STANDALONE)
 #endif // LZ_HAS_EXECUTION
 	const auto resultEnd = result.end();
 	result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.length()), resultEnd);
@@ -190,7 +193,7 @@ private:
 		return map;
 	}
 
-#ifdef LZ_HAS_EXECUTION
+  #ifdef LZ_HAS_EXECUTION
 
 	template<class Container, class... Args, class Execution>
 	LZ_CONSTEXPR_CXX_20 Container copyContainer(Execution execution, Args&& ... args) const {
@@ -232,7 +235,7 @@ private:
 		return array;
 	}
 
-#else // ^^^ has execution vvv ! has execution
+  #else // ^^^ has execution vvv ! has execution
 
 	template<class Container, class Iter>
 	Container makeContainer(Container& container, Iter where) const {
@@ -257,7 +260,7 @@ private:
 		return array;
 	}
 
-#endif // LZ_HAS_EXECUTION
+  #endif // LZ_HAS_EXECUTION
 public:
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER {
 		return _begin;
@@ -267,7 +270,7 @@ public:
 		return _end;
 	}
 
-#ifdef LZ_HAS_REF_QUALIFIER
+  #ifdef LZ_HAS_REF_QUALIFIER
 
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin()&& {
 		return std::move(_begin);
@@ -277,7 +280,7 @@ public:
 		return std::move(_end);
 	}
 
-#endif // LZ_HAS_REF_QUALIFIER
+  #endif // LZ_HAS_REF_QUALIFIER
 
 	constexpr BasicIteratorView() = default;
 
@@ -287,7 +290,7 @@ public:
 
 	virtual ~BasicIteratorView() = default;
 
-#ifdef LZ_HAS_EXECUTION
+  #ifdef LZ_HAS_EXECUTION
 
 	/**
 	 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
@@ -359,7 +362,7 @@ public:
 		return toStringImpl(begin(), end(), delimiter, execution);
 	}
 
-#else
+  #else
 	/**
 	 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
 	 * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
@@ -421,7 +424,7 @@ public:
 	std::string toString(const std::string& delimiter = "") const {
 		return toStringImpl(begin(), end(), delimiter);
 	}
-#endif
+  #endif
 
 	/**
 	 * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
