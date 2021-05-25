@@ -6,43 +6,25 @@
 #include "LzTools.hpp"
 
 #ifdef LZ_STANDALONE
-#ifdef LZ_HAS_FORMAT
-#include <format>
+  #ifdef LZ_HAS_FORMAT
+	#include <format>
+  #else
+	#include <sstream>
+  #endif // LZ_HAS_FORMAT
 #else
-#include <sstream>
-#endif // LZ_HAS_FORMAT
-#else
-#include <fmt/ostream.h>
+  #include <fmt/ostream.h>
 #endif // LZ_STANDALONE
 
 namespace lz { namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-// Small wrapper for ostringstream. Constructing ostringstream each time in `toStringSpecialized` is approx 12x slower.
-class OStringStreamSingleton {
-	std::ostringstream _oss;
-
-	OStringStreamSingleton() = default;
-
-public:
-	static OStringStreamSingleton& get() {
-		static OStringStreamSingleton instance;
-		return instance;
-	}
-
-	std::ostringstream& getStream() {
-		return _oss;
-	}
-};
-
 template<class T>
-std::string toStringSpecialized(std::true_type /* isArithmetic */, const T& value) {
+std::string toStringSpecialized(std::true_type /* isArithmetic */, const T value) {
 	return std::to_string(value);
 }
 
 template<class T>
 std::string toStringSpecialized(std::false_type /* isArithmetic */, const T& value) {
-	auto& oss = OStringStreamSingleton::get().getStream();
-	oss.str("");
+	std::ostringstream oss;
 	oss << value;
 	return oss.str();
 }
@@ -71,13 +53,13 @@ private:
 	reference deref(std::false_type /* isSameContainerTypeString */) const {
 		if (_isIteratorTurn) {
 #ifdef LZ_STANDALONE
-#ifdef LZ_HAS_FORMAT
+  #ifdef LZ_HAS_FORMAT
 			return std::format("{}", *_iterator);
+  #else
+			return toStringSpecialized(std::is_arithmetic<ContainerType>(), *_iterator);
+  #endif // LZ_HAS_FORMAT
 #else
-			return toStringSpecialized(std::is_arithmetic<value_type>(), *_iterator);
-#endif // LZ_HAS_FORMAT
-#else
-			return fmt::format("{}", *_iterator);
+			return fmt::format(FMT_STRING("{}"), *_iterator);
 #endif // LZ_STANDALONE
 		}
 		return _delimiter;
