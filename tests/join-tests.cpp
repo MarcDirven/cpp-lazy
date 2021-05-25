@@ -1,6 +1,5 @@
 #include <catch2/catch.hpp>
 #include <Lz/Join.hpp>
-#include <iostream>
 #include <sstream>
 
 TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
