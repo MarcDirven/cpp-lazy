@@ -14,15 +14,6 @@ public:
 	using const_iterator = iterator;
 	using value_type = typename iterator::value_type;
 
-	/**
-	 * @brief Creates a Join object.
-	 * @details Combines the iterator values followed by the delimiter. It is evaluated in a
-	 * `"[value][delimiter][value][delimiter]..."`-like fashion.
-	 * @param begin The beginning of the sequence.
-	 * @param end The ending of the sequence.
-	 * @param delimiter The delimiter to separate the previous and the next values in the sequence.
-	 * @param difference The difference between `begin` and `end`
-	 */
 	Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference) :
 		internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true, difference),
 											  iterator(std::move(end), delimiter, false, difference)) {
@@ -30,12 +21,6 @@ public:
 
 	Join() = default;
 
-	/**
-	 * Because a join iterator already has a delimiter, an additional overload is necessary, where the delimiter is defaulted to blank.
-	 * @param o The output stream.
-	 * @param it The Join object to print.
-	 * @return The output stream.
-	 */
 	friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& it) {
 		// Join already has a delimiter, default to blank string
 		return o << it.toString();
@@ -73,8 +58,60 @@ LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string 
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
 	return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-					 std::move(delimiter));
+				  std::move(delimiter));
 }
+
+#ifdef LZ_HAS_EXECUTION
+/**
+ * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * @param begin The beginning of the sequence
+ * @param end The ending of the sequence
+ * @param delimiter The delimiter to separate each value from the sequence.
+ * @param execution The execution policy. Must be one of std::execution::* policies.
+ * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
+ */
+template<class Iterator, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::string_view delimiter = "",
+									  Execution execution = std::execution::seq) {
+	return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter, execution);
+}
+/**
+ * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * @param iterable The iterable to convert to string
+ * @param delimiter The delimiter to separate each value from the sequence.
+ * @param execution The execution policy. Must be one of std::execution::* policies.
+ * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
+ */
+template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD std::string strJoin(Iterable&& iterable, const std::string_view delimiter = "", Execution execution = std::execution::seq) {
+	return strJoinRange(
+		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), delimiter, execution);
+}
+#else
+/**
+ * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * @param begin The beginning of the sequence
+ * @param end The ending of the sequence
+ * @param delimiter The delimiter to separate each value from the sequence.
+ * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
+ */
+template<class Iterator>
+LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::string& delimiter = "") {
+	return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter);
+}
+/**
+ * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * @param iterable The iterable to convert to string
+ * @param delimiter The delimiter to separate each value from the sequence.
+ * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
+ */
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD std::string strJoin(Iterable&& iterable, const std::string& delimiter = "") {
+	return strJoinRange(
+		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), delimiter);
+}
+#endif // LZ_HAS_EXECUTION
+
 
 // End of group
 /**
