@@ -30,7 +30,7 @@
 // Zip.hpp
 
 namespace lz {
-#ifndef LZ_HAS_CXX_17
+#ifndef LZ_HAS_EXECUTION
 namespace internal {
 template<class Iterator, class T, class BinOp>
 T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
