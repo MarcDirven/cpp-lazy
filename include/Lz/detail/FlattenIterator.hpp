@@ -91,8 +91,8 @@ class FlattenWrapper {
 
 	using IterTraits = std::iterator_traits<Iterator>;
 public:
-	using pointer = typename IterTraits::pointer;
 	using reference = typename IterTraits::reference;
+	using pointer = FakePointerProxy<reference>;
 	using value_type = typename IterTraits::value_type;
 	using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>::type;
 	using difference_type = typename IterTraits::difference_type;
@@ -116,7 +116,7 @@ public:
 		return a._current != b._current;
 	}
 
-	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
+	LZ_CONSTEXPR_CXX_17 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b)  {
 		return !(a != b); // NOLINT
 	}
 
@@ -125,7 +125,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &*_current;
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_17 FlattenWrapper& operator++() {
@@ -172,8 +172,8 @@ class FlattenIterator {
 	using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
 
 public:
-	using pointer = typename Inner::pointer;
 	using reference = typename Inner::reference;
+	using pointer = FakePointerProxy<reference>;
 	using value_type = typename Inner::value_type;
 	using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
 	using difference_type = typename std::iterator_traits<Iterator>::difference_type;
@@ -225,7 +225,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &*_innerIter;
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_17 FlattenIterator& operator++() {

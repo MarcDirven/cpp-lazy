@@ -30,7 +30,7 @@ public:
 		return {_index, *_iterator};
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 FakePointerProxy<reference> operator->() {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 FakePointerProxy<reference> operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 

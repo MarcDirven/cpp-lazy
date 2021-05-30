@@ -21,8 +21,8 @@ public:
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = typename IterTraits::value_type;
 	using difference_type = typename IterTraits::difference_type;
-	using pointer = typename IterTraits::pointer;
 	using reference = typename IterTraits::reference;
+	using pointer = FakePointerProxy<reference>;
 
 private:
 	Iterator _iterator{};
@@ -85,7 +85,7 @@ public:
 	}
 
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &*_iterator;
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_20 ExceptIterator& operator++() {

@@ -22,8 +22,8 @@ public:
 	using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
 	using value_type = typename IterTraits::value_type;
 	using difference_type = typename IterTraits::difference_type;
-	using pointer = typename IterTraits::pointer;
 	using reference = typename IterTraits::reference;
+	using pointer = FakePointerProxy<reference>;
 
 	LZ_CONSTEXPR_CXX_20 void find() {
 #ifdef LZ_HAS_EXECUTION
@@ -41,7 +41,7 @@ public:
 private:
 	Iterator _iterator{};
 	Iterator _end{};
-	mutable FunctionContainer <UnaryPredicate> _predicate{};
+	mutable FunctionContainer<UnaryPredicate> _predicate{};
 #ifdef LZ_HAS_EXECUTION
 	Execution _execution{};
 #endif // LZ_HAS_EXECUTION
@@ -72,7 +72,7 @@ public:
 	}
 
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &*_iterator;
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_20 FilterIterator& operator++() {

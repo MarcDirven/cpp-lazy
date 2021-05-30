@@ -28,7 +28,7 @@ LZ_CONSTEXPR_CXX_17 void operator()(const Tuple& /*iterators*/, const Tuple& /*e
 
 template<class Tuple, std::size_t I, class = void>
 struct NotEqual {
-	LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
+	LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const  {
 		const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
 		return iterHasValue ? iterHasValue : NotEqual<Tuple, I + 1>()(iterators, end);
 	}
@@ -154,7 +154,7 @@ public:
 	using value_type = typename FirstTupleIterator::value_type;
 	using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
 	using reference = typename FirstTupleIterator::reference;
-	using pointer = typename FirstTupleIterator::pointer;
+	using pointer = FakePointerProxy<reference>;
 	using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
 
 private:
@@ -179,7 +179,7 @@ public:
 	}
 
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &(**this);
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_17 ConcatenateIterator& operator++() {

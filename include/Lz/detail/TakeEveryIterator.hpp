@@ -24,7 +24,7 @@ public:
 	using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
 	using difference_type = typename IterTraits::difference_type;
 	using reference = typename IterTraits::reference;
-	using pointer = typename IterTraits::pointer;
+	using pointer = FakePointerProxy<reference>;
 
 	constexpr TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
 		_iterator(std::move(iterator)),
@@ -41,7 +41,7 @@ public:
 	}
 
 	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
-		return &*_iterator;
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_17 TakeEveryIterator& operator++() {

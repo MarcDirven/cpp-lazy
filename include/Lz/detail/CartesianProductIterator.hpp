@@ -14,7 +14,7 @@ class CartesianProductIterator {
 public:
 	using value_type = std::tuple<ValueType<Iterators>...>;
 	using reference = std::tuple<RefType<Iterators>...>;
-	using pointer = std::tuple<PointerType<Iterators>...>;
+	using pointer = FakePointerProxy<reference>;
 	using iterator_category = typename std::common_type<std::forward_iterator_tag, IterCat<Iterators>...>::type;
 	using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
 
@@ -27,8 +27,8 @@ private:
 	constexpr EnableIf<I == 0> next() const {}
 
 #ifdef LZ_MSVC
-#pragma warning(push)
-#pragma warning(disable:4127)
+  #pragma warning(push)
+  #pragma warning(disable:4127)
 #endif // LZ_MSVC
 
 	template<std::size_t I>
@@ -45,7 +45,7 @@ private:
 	}
 
 #ifdef LZ_MSVC
-#pragma warning(pop)
+  #pragma warning(pop)
 #endif // LZ_MSVC
 
 	template<std::size_t I, EnableIf<I == 0, bool> = true>
@@ -66,7 +66,7 @@ private:
 	}
 
 	template<std::size_t... Is>
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) {
+	LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) noexcept {
 		return {*std::get<Is>(_iterator)...};
 	}
 
@@ -93,8 +93,12 @@ public:
 		_iterator(begin),
 		_end(std::move(end)) {}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*()  {
 		return dereference(IndexSequenceForThis());
+	}
+
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->()  {
+		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
 	LZ_CONSTEXPR_CXX_17 CartesianProductIterator& operator++() {
@@ -111,15 +115,18 @@ public:
 		return tmp;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool
+	operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return std::get<0>(lhs._iterator) == std::get<0>(rhs._iterator);
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool
+	operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) {
 		return !(lhs == rhs); // NOLINT
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type
+	operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
 		return b.distanceImpl(IndexSequenceForThis(), a);
 	}
 
