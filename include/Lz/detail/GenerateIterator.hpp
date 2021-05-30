@@ -105,11 +105,11 @@ public:
 		return *(*this + offset);
 	}
 
-	LZ_NODISCARD constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_NODISCARD constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}

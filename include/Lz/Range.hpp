@@ -25,7 +25,7 @@ public:
 	 * @param end The end of the counting.
 	 * @param step The step that gets added every iteration.
 	 */
-	constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) :
+	constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :
 		Base(iterator(start, step), iterator(end, step)) {
 	}
 
@@ -50,7 +50,7 @@ public:
  * `for (auto... lz::range(...))`.
  */
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) {
+LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) noexcept {
 #ifndef LZ_HAS_CONCEPTS
 	static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
 #endif
@@ -66,7 +66,7 @@ LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Ari
  * `for (auto... lz::range(...))`.
  */
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) {
+LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) noexcept {
 	return range<Arithmetic>(0, end, 1);
 }
 

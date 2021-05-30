@@ -20,33 +20,33 @@ public:
 	using pointer = Arithmetic*;
 	using reference = Arithmetic&;
 
-	constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) :
+	constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) noexcept :
 		_iterator(iterator),
 		_step(step) {
 	}
 
 	constexpr RangeIterator() = default;
 
-	LZ_NODISCARD constexpr value_type operator*() const {
+	LZ_NODISCARD constexpr value_type operator*() const noexcept {
 		return _iterator;
 	}
 
-	LZ_NODISCARD constexpr pointer operator->() const {
-		return &_iterator;
+	LZ_NODISCARD constexpr pointer operator->() const noexcept {
+		return FakePointerProxy<value_type>(**this);
 	}
 
-	LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() {
+	LZ_CONSTEXPR_CXX_14 RangeIterator& operator++() noexcept {
 		_iterator += _step;
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_14 RangeIterator operator++(int) noexcept {
 		RangeIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RangeIterator& a, const RangeIterator& b) noexcept {
 		LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
 		if (a._step < 0) {
 			return a._iterator > b._iterator;
@@ -54,7 +54,7 @@ public:
 		return a._iterator < b._iterator;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator==(const RangeIterator& a, const RangeIterator& b) noexcept {
 		return !(a != b); // NOLINT
 	}
 
@@ -67,7 +67,7 @@ public:
 		return static_cast<difference_type>(std::ceil(difference / static_cast<float>(a._step)));
 	}
 
-	LZ_NODISCARD constexpr RangeIterator operator+(const Arithmetic value) const {
+	LZ_NODISCARD constexpr RangeIterator operator+(const Arithmetic value) const noexcept {
 		return RangeIterator(_iterator + value * _step, _step);
 	}
 };

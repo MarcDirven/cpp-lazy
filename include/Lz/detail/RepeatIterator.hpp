@@ -29,98 +29,98 @@ public:
 
 	constexpr RepeatIterator() = default;
 
-	LZ_NODISCARD constexpr reference operator*() const {
+	LZ_NODISCARD constexpr reference operator*() const noexcept {
 		return _toRepeat;
 	}
 
-	LZ_NODISCARD constexpr pointer operator->() const {
+	LZ_NODISCARD constexpr pointer operator->() const noexcept {
 		return &_toRepeat;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator++() {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator++() noexcept {
 		if (_amount != std::numeric_limits<std::size_t>::max()) {
 			++_iterator;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator operator++(int) noexcept {
 		RepeatIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator--() {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator--() noexcept {
 		if (_amount != std::numeric_limits<std::size_t>::max()) {
 			--_iterator;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator operator--(int) noexcept {
 		RepeatIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator+=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator+=(const difference_type offset) noexcept {
 		if (_amount != std::numeric_limits<std::size_t>::max()) {
 			_iterator += static_cast<std::size_t>(offset);
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator-=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator-=(const difference_type offset) noexcept {
 		if (_amount != std::numeric_limits<std::size_t>::max()) {
 			_iterator -= static_cast<std::size_t>(offset);
 		}
 		return *this;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RepeatIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RepeatIterator operator+(const difference_type offset) const noexcept {
 		RepeatIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RepeatIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RepeatIterator operator-(const difference_type offset) const noexcept {
 		RepeatIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		LZ_ASSERT(a._amount == b._amount, "incompatible iterator types: amount of times to repeat not the same");
 		return a._iterator - b._iterator;
 	}
 
-	LZ_NODISCARD constexpr reference operator[](const difference_type) const {
+	LZ_NODISCARD constexpr reference operator[](const difference_type) const noexcept {
 		return **this;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		LZ_ASSERT(a._amount == b._amount, "incompatible iterator types: amount of times to repeat not the same");
 		return a._iterator != b._iterator;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator==(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator==(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		return !(a != b); // NOLINT
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		LZ_ASSERT(a._amount == b._amount, "incompatible iterator types: amount of times to repeat not the same");
 		return a._iterator < b._iterator;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator>(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator>(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		return b < a;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<=(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		return !(b < a); // NOLINT
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator>=(const RepeatIterator& a, const RepeatIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator>=(const RepeatIterator& a, const RepeatIterator& b) noexcept {
 		return !(a < b); // NOLINT
 	}
 };

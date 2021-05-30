@@ -26,12 +26,12 @@ namespace internal {
 template<class To>
 struct ConvertFn {
 	template<class From>
-	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const noexcept {
+	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const {
 		return static_cast<To>(f);
 	}
 
 	template<class From>
-	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) noexcept {
+	LZ_CONSTEXPR_CXX_14 To operator()(From&& f) {
 		return static_cast<To>(f);
 	}
 };
