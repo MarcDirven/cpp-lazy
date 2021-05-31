@@ -22,7 +22,7 @@ static void CartesianProduct(benchmark::State& state) {
 static void ChunkIf(benchmark::State& state) {
 	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
 	auto half = static_cast<int>(SizePolicy / 2);
-	auto chunk = lz::chunkIf(a, [half](int i) { return i == half; });
+	auto chunk = lz::chunkIf(a, [half](int i) noexcept { return i == half; });
 	for (auto _ : state) {
 		for (auto&& x : chunk) {
 			for (int y : x) {
@@ -61,9 +61,9 @@ static void JoinWhere(benchmark::State& state) {
     toJoin[randomIndex.nextRandom()] = arr[randomIndex.nextRandom()]; // Create a value where both values are equal
 	std::sort(toJoin.begin(), toJoin.end());
     auto joiner = lz::joinWhere(arr, toJoin,
-                                [](int i) { return i; },
-                                [](int i) { return i; },
-                                [](int a, int b) { return std::make_tuple(a, b);});
+                                [](int i) noexcept { return i; },
+                                [](int i) noexcept { return i; },
+                                [](int a, int b) noexcept { return std::make_tuple(a, b);});
     assert(std::is_sorted(arr.begin(), arr.end()));
 
     for (auto _ : state) {
@@ -96,7 +96,7 @@ static void Exclude(benchmark::State& state) {
 
 static void Filter(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
-    auto filter = lz::filter(arr, [](const int i) { return i == 0; });
+    auto filter = lz::filter(arr, [](const int i) noexcept { return i == 0; });
 
     for (auto _ : state) {
         for (const int filtered : filter) {
@@ -107,7 +107,7 @@ static void Filter(benchmark::State& state) {
 
 static void Map(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
-    auto map = lz::map(arr, [](const int i) { return i == 0 ? 10 : 5; });
+    auto map = lz::map(arr, [](const int i) noexcept { return i == 0 ? 10 : 5; });
 
     for (auto _ : state) {
         for (const int mapped : map) {
@@ -146,7 +146,7 @@ static void StringSplitter(benchmark::State& state) {
 
 static void TakeWhile(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    auto takeWhile = lz::takeWhile(array, [](const int i) { return i != SizePolicy - 1; });
+    auto takeWhile = lz::takeWhile(array, [](const int i) noexcept { return i != SizePolicy - 1; });
 
     for (auto _ : state) {
         for (const int taken : takeWhile) {
@@ -270,7 +270,7 @@ static void DropWhile(benchmark::State& state) {
         return 1;
     }, SizePolicy).toArray<SizePolicy>();
 
-    auto drop = lz::dropWhile(array, [](const int i) {
+    auto drop = lz::dropWhile(array, [](const int i) noexcept {
         return i == 1;
     });
 
@@ -283,7 +283,7 @@ static void DropWhile(benchmark::State& state) {
 
 static void Generate(benchmark::State& state) {
     size_t cnt = 0;
-    auto generator = lz::generate([&cnt]() { return cnt++; }, SizePolicy);
+    auto generator = lz::generate([&cnt]() noexcept { return cnt++; }, SizePolicy);
 
     for (auto _ : state) {
         for (const auto i : generator) {
