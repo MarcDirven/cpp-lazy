@@ -17,10 +17,10 @@ public:
 	using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
 
-	template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
-	class JoinWhere final :
-		public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
-		using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
+template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
+class JoinWhere final :
+	public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
+	using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
 #endif
 public:
 	using const_iterator = iterator;
@@ -51,7 +51,7 @@ public:
  * @{
  */
 
-#ifdef LZ_HAS_EXECUTION
+  #ifdef LZ_HAS_EXECUTION
 
 /**
  * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -99,10 +99,10 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
  * @return A join where iterator view object, which can be used to iterate over.
  */
 template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
-    class Execution = std::execution::sequenced_policy>
+	class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 JoinWhere<internal::IterTypeFromIterable<IterableA>,  internal::IterTypeFromIterable<IterableB>,
-    SelectorA, SelectorB, ResultSelector, Execution>
+	SelectorA, SelectorB, ResultSelector, Execution>
 joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
 		  Execution execution = std::execution::seq) {
 	return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
@@ -110,7 +110,7 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 std::move(a), std::move(b), std::move(resultSelector), execution);
 }
 
-#else
+  #else
 
 /**
 * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are equal.
@@ -161,7 +161,7 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 					 std::move(a), std::move(b), std::move(resultSelector));
 }
 
-#endif // LZ_HAS_EXECUTION
+  #endif // LZ_HAS_EXECUTION
 
 // End of group
 /**
