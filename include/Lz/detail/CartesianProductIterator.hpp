@@ -66,7 +66,7 @@ private:
 	}
 
 	template<std::size_t... Is>
-	LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) noexcept {
+	LZ_CONSTEXPR_CXX_17 reference dereference(IndexSequence<Is...>) const {
 		return {*std::get<Is>(_iterator)...};
 	}
 
@@ -93,11 +93,11 @@ public:
 		_iterator(begin),
 		_end(std::move(end)) {}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*()  {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
 		return dereference(IndexSequenceForThis());
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->()  {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
