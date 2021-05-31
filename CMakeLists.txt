@@ -24,7 +24,7 @@ else()
     include(FetchContent)
     FetchContent_Declare(fmt
             GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-            GIT_TAG d1aebdbde0fc59c7aa047af19ac58784f8a99e1d
+            GIT_TAG 11a14db286e874bed34e1843d13e1d5c4caa1a45
             UPDATE_DISCONNECTED YES)
     FetchContent_MakeAvailable(fmt)
 endif()
