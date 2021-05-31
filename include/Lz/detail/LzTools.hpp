@@ -46,7 +46,7 @@
 #if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
   #define LZ_HAS_CXX_20
   #if defined(__cpp_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_string) && \
-  	  defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_algorithms)
+      defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_algorithms)
 	#define LZ_CONSTEXPR_CXX_20 constexpr
   #else
 	#define LZ_CONSTEXPR_CXX_20 inline
@@ -107,37 +107,14 @@ concept BidirectionalIterable = requires(I i) {
 };
 
 template<class I>
-concept RandomAccessIterable = requires(I i) {
-	{ std::begin(i) } -> std::random_access_iterator;
-	{ std::end(i) } -> std::random_access_iterator;
-};
-
-template<class I>
-concept ContiguousIterable = requires(I i) {
-	{ std::begin(i) } -> std::contiguous_iterator;
-	{ std::end(i) } -> std::contiguous_iterator;
-};
-
-template<class I>
-concept RandomAccessOrHigherIterable = ContiguousIterable<I> || RandomAccessIterable<I>;
-
-template<class I>
-concept RandomAccessOrHigherIterator = std::random_access_iterator<I> || std::contiguous_iterator<I>;
-
-template<class A, class B>
-concept LessThanComparable = requires(A a, B b) {
-	{ a < b } -> std::convertible_to<bool>;
-};
-
-template<class I>
 concept Arithmetic = std::is_arithmetic_v<I>;
 } // End namespace lz
 
-  #define LZ_CONCEPT_ARITHMETIC                lz::Arithmetic
-  #define LZ_CONCEPT_INTEGRAL               std::integral
-  #define LZ_CONCEPT_INVOCABLE              std::invocable
-  #define LZ_CONCEPT_ITERABLE               lz::BasicIterable
-  #define LZ_CONCEPT_ITERATOR               std::input_or_output_iterator
+  #define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
+  #define LZ_CONCEPT_INTEGRAL std::integral
+  #define LZ_CONCEPT_INVOCABLE std::invocable
+  #define LZ_CONCEPT_ITERABLE lz::BasicIterable
+  #define LZ_CONCEPT_ITERATOR std::input_or_output_iterator
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
   #define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
@@ -168,7 +145,7 @@ inline void assertionFail(const char* file, const int line, const char* func, co
 	std::terminate();
 }
 
-  #define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
 #endif // NDEBUG
 
 /* forward declarations of all iterators that contain a custom distance implementation */
@@ -316,11 +293,11 @@ public:
 		_t(t) {
 	}
 
-	LZ_CONSTEXPR_CXX_17 Pointer operator->() {
+	LZ_CONSTEXPR_CXX_17 Pointer operator->() noexcept {
 		return std::addressof(_t);
 	}
 
-	LZ_CONSTEXPR_CXX_17 Pointer operator->() const {
+	LZ_CONSTEXPR_CXX_17 Pointer operator->() const noexcept {
 		return std::addressof(_t);
 	}
 };
@@ -338,7 +315,7 @@ template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
-inline constexpr bool isEven(const Arithmetic value) {
+inline constexpr bool isEven(const Arithmetic value) noexcept {
 	return (value & 1) == 0;
 }
 } // internal
