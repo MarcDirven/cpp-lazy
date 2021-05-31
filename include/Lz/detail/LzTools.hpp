@@ -293,10 +293,6 @@ public:
 		_t(t) {
 	}
 
-	LZ_CONSTEXPR_CXX_17 Pointer operator->() noexcept {
-		return std::addressof(_t);
-	}
-
 	LZ_CONSTEXPR_CXX_17 Pointer operator->() const noexcept {
 		return std::addressof(_t);
 	}

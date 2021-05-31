@@ -74,7 +74,7 @@ private:
 	LZ_CONSTEXPR_CXX_20 difference_type distanceImpl(IndexSequence<Is...>, const CartesianProductIterator& c) const {
 		using lz::distance; using std::distance;
 #ifdef LZ_HAS_CXX_11
-		auto mulFn = std::multiplies<difference_type>());
+		auto mulFn = std::multiplies<difference_type>();
 #else
 		const auto mulFn = std::multiplies<>();
 #endif // LZ_HAS_CXX_11

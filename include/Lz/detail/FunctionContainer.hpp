@@ -70,7 +70,7 @@ public:
 		FunctionContainer(std::is_default_constructible<Func>()) {
 	}
 
-	constexpr FunctionContainer(FunctionContainer&& other) noexcept:
+	LZ_CONSTEXPR_CXX_14 FunctionContainer(FunctionContainer&& other) noexcept :
 		_func(std::move(other._func)),
 		_isConstructed(true) {
 		other._isConstructed = false;
@@ -109,11 +109,6 @@ public:
 
 	template<class... Args>
 	constexpr auto operator()(Args&& ... args) const -> decltype(_func(std::forward<Args>(args)...)) {
-		return _func(std::forward<Args>(args)...);
-	}
-
-	template<class... Args>
-	constexpr auto operator()(Args&& ... args) -> decltype(_func(std::forward<Args>(args)...)) {
 		return _func(std::forward<Args>(args)...);
 	}
 };
