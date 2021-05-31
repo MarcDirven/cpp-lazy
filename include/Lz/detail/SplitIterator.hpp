@@ -58,15 +58,15 @@ public:
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
-	friend bool operator!=(const SplitIterator& a, const SplitIterator& b) {
+	friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
 		return a._currentPos != b._currentPos;
 	}
 
-	friend bool operator==(const SplitIterator& a, const SplitIterator& b) {
+	friend bool operator==(const SplitIterator& a, const SplitIterator& b) noexcept {
 		return !(a != b); // NOLINT
 	}
 
-	SplitIterator& operator++() {
+	SplitIterator& operator++() noexcept {
 		const std::size_t delimLen = getLength(std::is_same<StringType, char>());
 		const std::size_t stringLen = _string->length();
 		if (_last == std::string::npos) {
@@ -84,7 +84,7 @@ public:
 		return *this;
 	}
 
-	SplitIterator operator++(int) {
+	SplitIterator operator++(int) noexcept {
 		SplitIterator tmp(*this);
 		++*this;
 		return tmp;

@@ -32,76 +32,68 @@ public:
 		return _generator();
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator*() {
-		return _generator();
-	}
-
 	LZ_NODISCARD constexpr pointer operator->() const {
 		return FakePointerProxy<decltype(**this)>(**this);
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 pointer operator->() {
-		return FakePointerProxy<decltype(**this)>(**this);
-	}
-
-	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() noexcept {
 		if (!_isWhileTrueLoop) {
 			++_current;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) noexcept {
 		GenerateIterator tmp(*this);
 		++*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() noexcept {
 		if (!_isWhileTrueLoop) {
 			--_current;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) noexcept {
 		GenerateIterator tmp(*this);
 		--*this;
 		return tmp;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) noexcept {
 		if (!_isWhileTrueLoop) {
 			_current += offset;
 		}
 		return *this;
 	}
 
-	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) {
+	LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) noexcept {
 		if (!_isWhileTrueLoop) {
 			_current -= offset;
 		}
 		return *this;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const noexcept {
 		GenerateIterator tmp(*this);
 		tmp += offset;
 		return tmp;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const noexcept {
 		GenerateIterator tmp(*this);
 		tmp -= offset;
 		return tmp;
 	}
 
-	LZ_NODISCARD constexpr friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current - b._current;
 	}
 
-	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const noexcept {
 		return *(*this + offset);
 	}
 
@@ -109,25 +101,25 @@ public:
 		return !(a != b); // NOLINT
 	}
 
-	LZ_NODISCARD constexpr friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current != b._current;
 	}
 
-	LZ_NODISCARD constexpr friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
 		return a._current < b._current;
 	}
 
-	LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		return b < a;
 	}
 
-	LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		return !(b < a); // NOLINT
 	}
 
-	LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
+	LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
 		return !(a < b); // NOLINT
 	}
 };
