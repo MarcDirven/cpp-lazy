@@ -45,11 +45,11 @@ public:
 	}
 
 	LZ_NODISCARD result_type (min)() const noexcept {
-		return _distribution->min();
+		return (_distribution->min)();
 	}
 
 	LZ_NODISCARD result_type (max)() const noexcept {
-		return _distribution->max();
+		return (_distribution->max)();
 	}
 
 	RandomIterator& operator--() noexcept {

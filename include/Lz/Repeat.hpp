@@ -35,7 +35,7 @@ public:
  * @return A repeat object, containing the random access iterator.
  */
 template<class T>
-LZ_NODISCARD constexpr Repeat<T> repeat(T toRepeat, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+LZ_NODISCARD constexpr Repeat<T> repeat(T toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
 	return Repeat<T>(std::move(toRepeat), amount);
 }
 

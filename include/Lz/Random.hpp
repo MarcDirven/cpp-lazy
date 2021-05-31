@@ -88,9 +88,9 @@ public:
  */
 template<class Generator, class Distribution>
 LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
-random(const Distribution& distribution, Generator& generator, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+random(const Distribution& distribution, Generator& generator, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
 	return Random<typename Distribution::result_type, Distribution, Generator>(
-		distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == std::numeric_limits<std::size_t>::max());
+		distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)());
 }
 
 /**
@@ -107,7 +107,7 @@ random(const Distribution& distribution, Generator& generator, const std::size_t
 */
 template<class Integral, internal::EnableIf<std::is_integral<Integral>::value, bool> = true>
 LZ_NODISCARD Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>
-random(const Integral min, const Integral max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
 	static std::mt19937 gen = internal::createMtEngine();
 	std::uniform_int_distribution<Integral> dist(min, max);
 	return random(dist, gen, amount);
@@ -128,7 +128,7 @@ random(const Integral min, const Integral max, const std::size_t amount = std::n
  */
 template<class Floating, internal::EnableIf<std::is_floating_point<Floating>::value, bool> = true>
 LZ_NODISCARD Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>
-random(const Floating min, const Floating max, const std::size_t amount = std::numeric_limits<std::size_t>::max()) {
+random(const Floating min, const Floating max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
 	static std::mt19937 gen = internal::createMtEngine();
 	std::uniform_real_distribution<Floating> dist(min, max);
 	return random(dist, gen, amount);

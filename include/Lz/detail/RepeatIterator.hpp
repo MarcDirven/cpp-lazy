@@ -38,7 +38,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator++() noexcept {
-		if (_amount != std::numeric_limits<std::size_t>::max()) {
+		if (_amount != (std::numeric_limits<std::size_t>::max)()) {
 			++_iterator;
 		}
 		return *this;
@@ -51,7 +51,7 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator--() noexcept {
-		if (_amount != std::numeric_limits<std::size_t>::max()) {
+		if (_amount != (std::numeric_limits<std::size_t>::max)()) {
 			--_iterator;
 		}
 		return *this;
@@ -64,14 +64,14 @@ public:
 	}
 
 	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator+=(const difference_type offset) noexcept {
-		if (_amount != std::numeric_limits<std::size_t>::max()) {
+		if (_amount != (std::numeric_limits<std::size_t>::max)()) {
 			_iterator += static_cast<std::size_t>(offset);
 		}
 		return *this;
 	}
 
 	LZ_CONSTEXPR_CXX_14 RepeatIterator& operator-=(const difference_type offset) noexcept {
-		if (_amount != std::numeric_limits<std::size_t>::max()) {
+		if (_amount != (std::numeric_limits<std::size_t>::max)()) {
 			_iterator -= static_cast<std::size_t>(offset);
 		}
 		return *this;

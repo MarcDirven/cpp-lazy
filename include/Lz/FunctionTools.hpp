@@ -67,7 +67,7 @@ constexpr internal::TupleExpand<Fn, RefTuple, I...> makeExpandFn(Fn fn, lz::inte
 /**
  * This value is returned when indexOf(If) does not find the value specified.
  */
-constexpr LZ_INLINE_VAR std::size_t npos = std::numeric_limits<std::size_t>::max();
+constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::max)();
 
 /**
   * Returns a StringSplitter iterator, that splits the string on `'\n'`.
