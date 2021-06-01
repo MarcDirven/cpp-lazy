@@ -39,28 +39,29 @@ struct ConvertFn {
 template<std::size_t I>
 struct TupleGet {
 	template<class Tuple>
-	LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) noexcept -> decltype(std::get<I>(tuple)) {
-		return std::get<I>(tuple);
+	LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) noexcept -> decltype(std::get<I>(std::forward<Tuple>(tuple))) {
+		return std::get<I>(std::forward<Tuple>(tuple));
 	}
 };
 
-template<class Fn, class RefTuple, std::size_t... I>
+template<class Fn, std::size_t... I>
 struct TupleExpand {
-	internal::FunctionContainer<Fn> fn{};
+	FunctionContainer<Fn> fn{};
 
 	constexpr TupleExpand() = default;
 
 	explicit constexpr TupleExpand(Fn fn) :
 		fn(std::move(fn)) {}
 
-	constexpr auto operator()(RefTuple tuple) -> decltype(fn(std::get<I>(tuple)...)) {
-		return fn(std::get<I>(tuple)...);
+	template<class Tuple>
+	constexpr auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
+		return fn(std::get<I>(std::forward<Tuple>(tuple))...);
 	}
 };
 
-template<class RefTuple, class Fn, std::size_t... I>
-constexpr internal::TupleExpand<Fn, RefTuple, I...> makeExpandFn(Fn fn, lz::internal::IndexSequence<I...>) {
-	return internal::TupleExpand<Fn, RefTuple, I...>(std::move(fn));
+template<class Fn, std::size_t... I>
+constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
+	return TupleExpand<Fn, I...>(std::move(fn));
 }
 } // namespace internal
 
@@ -77,48 +78,15 @@ constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::ma
   * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
   */
 #ifdef LZ_HAS_STRING_VIEW
-
 template<class SubString = std::string_view, class String = std::string>
-#else // ^^^ Lz has string view vvv !lz has string view
+#elif !defined(LZ_STANDALONE) // ^^^ Lz has string view vvv !lz has string view
+template<class SubString = fmt::string_view, class String = std::string>
+#else
 template<class SubString = std::string, class String = std::string>
 #endif // LZ_HAS_STRING_VIEW
 LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string) {
 	return lz::split<SubString>(string, '\n');
 }
-
-#ifdef LZ_HAS_STRING_VIEW
-
-/**
- * Concatenates a sequence of string-like values to std::string_view
- * @param strings The string-like values, may be: `lz::concatAsStringView("hello", std::string("world"))`
- * @return A concatenate view object with a `value_type` of `char`.
- */
-template<class... Strings>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto
-concatAsStringView(Strings&& ... strings) -> lz::Concatenate<decltype(std::begin(std::string_view(strings)))...> {
-	static_assert(
-		internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
-		"the character type of the strings must use `char`"
-	);
-	return lz::concat(static_cast<std::string_view>(strings)...);
-}
-
-#elif !defined(LZ_STANDALONE)
-/**
-* Concatenates a sequence of string-like values to fmt::string_view
-* @param strings The string-like values, may be: `lz::concatAsStringView("hello", std::string("world"))`
-* @return A concatenate view object with a `value_type` of `char`.
-*/
-template<class... Strings>
-LZ_CONSTEXPR_CXX_14 auto concatAsStringView(Strings&& ... strings) ->
-lz::Concatenate<decltype(std::begin(fmt::string_view(strings)))...> {
-	static_assert(
-		internal::IsAllSame<char, internal::ValueType<decltype(internal::begin(strings))>...>::value,
-		"the character type of the strings must use `char`"
-	);
-	return lz::concat(static_cast<fmt::string_view>(strings)...);
-}
-#endif // LZ_HAS_STRING_VIEW
 
 /**
  * Sums all the values from [from, upToAndIncluding]
@@ -182,10 +150,10 @@ reverse(Iterator begin, Iterator end) {
 #endif // LZ_HAS_CONCEPTS
 #ifdef LZ_HAS_CXX_11
 	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(
-		std::reverse_iterator<Iterator>(end), std::reverse_iterator<Iterator>(begin));
+		std::reverse_iterator<Iterator>(std::move(end)), std::reverse_iterator<Iterator>(std::move(begin)));
 #else
 	return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(
-		std::make_reverse_iterator(end), std::make_reverse_iterator(begin));
+		std::make_reverse_iterator(std::move(end)), std::make_reverse_iterator(std::move(begin)));
 #endif // LZ_HAS_CXX_11
 
 }
@@ -236,14 +204,12 @@ LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::C
  * @param end The ending of all the iterables
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
-template<class Fn, LZ_CONCEPT_ITERATOR... Iterators,
-	class Zipper = lz::Zip<Iterators...>,
-	class ReferenceType = decltype(*std::begin(std::declval<Zipper>()))>
+template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class Zipper = lz::Zip<Iterators...>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) ->
 lz::Map<decltype(std::begin(std::declval<Zipper>())),
-	decltype(internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
+	decltype(internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
 	Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
-	auto tupleExpanderFunc = internal::makeExpandFn<ReferenceType>(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
+	auto tupleExpanderFunc = internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
 	return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
 }
 
@@ -254,12 +220,10 @@ lz::Map<decltype(std::begin(std::declval<Zipper>())),
  * @param iterables The iterables.
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
-template<class Fn, class... Iterables,
-	class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>,
-	class ValueType = decltype(*std::begin(std::declval<Zipper>()))>
+template<class Fn, class... Iterables, class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&& ... iterables) ->
 lz::Map<decltype(std::begin(std::declval<Zipper>())),
-	decltype(internal::makeExpandFn<ValueType>(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
+	decltype(internal::makeExpandFn(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
 	return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
 				   std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
@@ -459,10 +423,10 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
 	const internal::DiffType<Iterator> dist = distance(begin, end);
 	ValueType sum;
 	if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-		sum = std::reduce(begin, end, ValueType(0), std::move(binaryOp));
+		sum = std::reduce(begin, end, ValueType{0}, std::move(binaryOp));
 	}
 	else {
-		sum = std::reduce(execution, begin, end, ValueType(0), std::move(binaryOp));
+		sum = std::reduce(execution, begin, end, ValueType{0}, std::move(binaryOp));
 	}
 	return static_cast<double>(sum) / dist;
 }
@@ -934,7 +898,7 @@ double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
 	using lz::distance; using std::distance;
 	using ValueType = internal::ValueType<Iterator>;
 	const internal::DiffType<Iterator> dist = distance(begin, end);
-	const ValueType sum = std::accumulate(begin, end, ValueType(0), std::move(binOp));
+	const ValueType sum = std::accumulate(begin, end, ValueType{0}, std::move(binOp));
 	return static_cast<double>(sum) / dist;
 }
 
@@ -997,8 +961,8 @@ double median(Iterable& iterable, Comparer comparer = {}) {
  * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
- * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
- * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
+ * @param toFind The value to find.
+ * @param defaultValue The value to return if `toFind` is not found.
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Iterator, class T, class U>
@@ -1009,8 +973,8 @@ internal::ValueType<Iterator> findFirstOrDefault(Iterator begin, Iterator end, c
 /**
  * Checks if `toFind` is in the sequence [begin, end). If so, it returns `toFind`, otherwise it returns `defaultValue`.
  * @param iterable The iterable to search.
- * @param toFind The value to find. One can use `std::move(defaultValue)` to avoid copies.
- * @param defaultValue The value to return if `toFind` is not found.  One can use `std::move(toFind)` to avoid copies.
+ * @param toFind The value to find.
+ * @param defaultValue The value to return if `toFind` is not found.
  * @return Either `toFind` or `defaultValue`.
  */
 template<class Iterable, class T, class U>
