@@ -92,7 +92,7 @@ struct MinIs {
 			const auto dist = static_cast<DifferenceType>(distance(std::get<I>(begin), std::get<I>(end)));
 			if (dist <= offset) {
 				std::get<I>(iterators) = std::get<I>(begin);
-				MinIs<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? 1 : offset - dist);
+				MinIs<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{1} : offset - dist);
 			}
 			else {
 				std::get<I>(iterators) -= offset;
@@ -162,7 +162,7 @@ private:
 	LZ_CONSTEXPR_CXX_20 difference_type minus(IndexSequence<I...>, const ConcatenateIterator& other) const {
 		const difference_type totals[] = {
 			static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(other._iterators))...};
-		return std::accumulate(std::begin(totals), std::end(totals), static_cast<difference_type>(0));
+		return std::accumulate(std::begin(totals), std::end(totals), difference_type{0});
 	}
 
 public:

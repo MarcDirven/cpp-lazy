@@ -80,7 +80,7 @@ private:
 #endif // LZ_HAS_CXX_11
 		const difference_type distances[] =
 			{static_cast<difference_type>(distance(std::get<Is>(_iterator), std::get<Is>(c._iterator)))...};
-		return std::accumulate(std::begin(distances), std::end(distances), static_cast<difference_type>(1), mulFn);
+		return std::accumulate(std::begin(distances), std::end(distances), difference_type{1}, mulFn);
 	}
 
 	using IndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
@@ -162,7 +162,7 @@ template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::CartesianProductIterator<Iterators...>
 next(const internal::CartesianProductIterator<Iterators...>& iter,
 	 const internal::DiffType<internal::CartesianProductIterator<Iterators...>> offset) {
-	LZ_ASSERT(offset >= 0, "Cartesian product iterator is not random access, offset must be >= 0");
+	LZ_ASSERT(offset >= 0, "Cartesian product iterator is not random access/bidirectional, offset must be >= 0");
 	return iter + offset;
 }
 }// lz
