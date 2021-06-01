@@ -62,7 +62,7 @@ public:
 	 * @return The min value
 	 */
 	LZ_NODISCARD value_type minRandom() const {
-		return this->begin().min();
+		return (this->begin().min)();
 	}
 
 	/**
@@ -70,7 +70,7 @@ public:
 	 * @return The max value
 	 */
 	LZ_NODISCARD value_type maxRandom() const {
-		return this->begin().max();
+		return (this->begin().max)();
 	}
 };
 
