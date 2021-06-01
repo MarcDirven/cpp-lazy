@@ -285,7 +285,7 @@ constexpr bool checkForwardAndPolicies() {
 
 template<class T>
 class FakePointerProxy {
-	T _t;
+	mutable T _t;
 
 	using Pointer = decltype(std::addressof(_t));
 public:

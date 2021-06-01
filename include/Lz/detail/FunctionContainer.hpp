@@ -12,7 +12,7 @@ struct AlwaysFalse : std::false_type {};
 
 template<class Func>
 class FunctionContainer {
-	Func _func;
+	mutable Func _func;
 	bool _isConstructed{false};
 
 	constexpr explicit FunctionContainer(std::false_type /*isDefaultConstructible*/) {
@@ -39,7 +39,7 @@ class FunctionContainer {
 		construct(std::move(f));
 	}
 
-	constexpr void reset() {
+	constexpr void reset() noexcept {
 		if (_isConstructed) {
 			_func.~Func();
 			_isConstructed = false;
@@ -61,7 +61,7 @@ public:
 		_isConstructed(true) {
 	}
 
-	constexpr explicit FunctionContainer(Func&& func) :
+	constexpr explicit FunctionContainer(Func&& func) noexcept :
 		_func(std::move(func)),
 		_isConstructed(true) {
 	}
