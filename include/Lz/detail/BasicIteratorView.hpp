@@ -42,11 +42,11 @@ std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::str
 }
 
 template<class Iterator>
-  #if defined(LZ_HAS_STRING_VIEW)
+#if defined(LZ_HAS_STRING_VIEW)
 std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::string_view delimiter, std::false_type /* isArithmetic */) {
-  #else
+#else
 std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::false_type /* isArithmetic */) {
-  #endif // defined(LZ_HAS_STRING_VIEW)
+#endif // defined(LZ_HAS_STRING_VIEW)
 	std::ostringstream oss;
 	std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) {
 		oss << t << delimiter;
@@ -60,8 +60,9 @@ std::string toStringImplSpecialized(Iterator begin, Iterator end, const std::str
 template<class Iterator, class Execution>
 LZ_CONSTEXPR_CXX_20 std::string toStringImpl(Iterator begin, Iterator end, const std::string_view delimiter, Execution execution) {
 #else
-	template<class Iterator>
-	std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
+
+template<class Iterator>
+std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
 #endif // LZ_HAS_EXECUTION
 	using TValueType = ValueType<Iterator>;
 	if (begin == end) { return ""; }
@@ -169,10 +170,12 @@ protected:
 
 public:
 	using value_type = internal::ValueType<LzIterator>;
+	using iterator = LzIterator;
+	using const_iterator = iterator;
 
 private:
 	template<class KeySelectorFunc>
-	using KeyType = FunctionReturnType<KeySelectorFunc, value_type>;
+	using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
 
 	template<class Container, class It = LzIterator, EnableIf<!HasReserve<Container>::value || !IsForward<It>::value, bool> = true>
 	LZ_CONSTEXPR_CXX_20 void tryReserve(Container&) const {}
@@ -188,13 +191,18 @@ private:
 	MapType createMap(const KeySelectorFunc keyGen) const {
 		MapType map;
 #else
-
 	template<class MapType, class Allocator, class KeySelectorFunc>
 	LZ_CONSTEXPR_CXX_20 MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
 		MapType map(allocator);
+		tryReserve(map);
 #endif // END LZ_GCC_VERSION
-		std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](const value_type& value) {
+#ifdef LZ_HAS_CXX_11
+		std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
 			return std::make_pair(keyGen(value), value);
+#else
+		std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
+			return std::make_pair(keyGen(std::forward<decltype(value)>(value)), value);
+#endif // LZ_HAS_CXX_11
 		});
 		return map;
 	}
@@ -369,6 +377,7 @@ public:
 	}
 
   #else
+
 	/**
 	 * @brief Returns an arbitrary container type, of which its constructor signature looks like:
 	 * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
@@ -430,6 +439,7 @@ public:
 	std::string toString(const std::string& delimiter = "") const {
 		return toStringImpl(begin(), end(), delimiter);
 	}
+
   #endif // LZ_HAS_EXECUTION
 
 	/**
@@ -516,6 +526,7 @@ public:
 };
 } // namespace internal
 #ifndef LZ_HAS_EXECUTION
+
 /**
  * Use this function to check if two lz iterators are the same.
  * @param a An iterable, its underlying value type should have an operator== with `b`
@@ -537,6 +548,7 @@ template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to
 bool notEqual(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
 	return !lz::equal(a, b, std::move(predicate));
 }
+
 #else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
 
 /**
