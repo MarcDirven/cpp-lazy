@@ -142,13 +142,6 @@ TEST_CASE("Function tools") {
         CHECK(lz::reverse(s).toString() == "olleh");
     }
 
-    SECTION("Concat as string view") {
-        std::string world = "world ";
-
-        auto concat = lz::concatAsStringView("hello ", world, "what's ", "Up");
-        CHECK(concat.toString() == "hello world what's Up");
-    }
-
     SECTION("Last, first, length, isEmpty") {
         std::vector<int> vec = {1, 3, 5, 7, 9};
         auto filterEven = lz::filter(vec, [](const int i) { return i % 2 == 0; });
