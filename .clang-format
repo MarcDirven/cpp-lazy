@@ -1,0 +1,44 @@
+---
+AllowShortFunctionsOnASingleLine: None
+AllowShortEnumsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLambdasOnASingleLine: Inline
+AllowShortLoopsOnASingleLine: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AllowAllConstructorInitializersOnNextLine : false
+BasedOnStyle: LLVM
+BreakConstructorInitializers: AfterColon
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 130
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterCaseLabel: false
+    AfterClass: false
+    AfterControlStatement: Never
+    AfterEnum: false
+    AfterFunction: false
+    AfterNamespace: false
+    AfterStruct: false
+    AfterUnion: false
+    AfterExternBlock: false
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeLambdaBody: false
+    BeforeWhile: false
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+    SplitEmptyNamespace: false
+FixNamespaceComments: true
+IncludeBlocks: Regroup
+IndentPPDirectives: None
+PenaltyReturnTypeOnItsOwnLine: 6
+PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
+IndentWidth: 4
+TabWidth: 4
+
+...

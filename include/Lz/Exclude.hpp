@@ -9,15 +9,16 @@
 namespace lz {
 template<class Iterator>
 class Exclude final : public internal::BasicIteratorView<internal::ExcludeIterator<Iterator>> {
-public:
-	using iterator = internal::ExcludeIterator<Iterator>;
-	using const_iterator = iterator;
+  public:
+    using iterator = internal::ExcludeIterator<Iterator>;
+    using const_iterator = iterator;
 
-	constexpr Exclude() = default;
+    constexpr Exclude() = default;
 
-	LZ_CONSTEXPR_CXX_17 Exclude(Iterator begin, Iterator end, const internal::DiffType<Iterator> from,
-								const internal::DiffType<Iterator> to) :
-		internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {}
+    LZ_CONSTEXPR_CXX_17
+    Exclude(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to)
+        : internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {
+    }
 };
 
 /**
@@ -34,11 +35,12 @@ public:
  * @return An Exclude iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator> excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> from,
-																const internal::DiffType<Iterator> to) {
-	using lz::distance; using std::distance;
-	LZ_ASSERT(distance(begin, end) - to >= 0, "cannot access elements after end or before begin");
-	return Exclude<Iterator>(std::move(begin), std::move(end), from, to);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator>
+excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
+    using lz::distance;
+    using std::distance;
+    LZ_ASSERT(distance(begin, end) - to >= 0, "cannot access elements after end or before begin");
+    return Exclude<Iterator>(std::move(begin), std::move(end), from, to);
 }
 
 /**
@@ -49,16 +51,16 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator> excludeRange(Iterator begin, 
  * @return An Exclude iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator> exclude(Iterable&& iterable, const internal::DiffType<Iterator> from,
-														   const internal::DiffType<Iterator> to) {
-	return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from, to);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator>
+exclude(Iterable&& iterable, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
+    return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from,
+                        to);
 }
 
 // End of group
 /**
  * @}
  */
-} // lz
-
+} // namespace lz
 
 #endif // LZ_SKIP_HPP

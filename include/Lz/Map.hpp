@@ -9,22 +9,22 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {
-public:
-	using iterator = internal::MapIterator<Iterator, Function>;
-	using const_iterator = iterator;
-	using value_type = typename iterator::value_type;
+  public:
+    using iterator = internal::MapIterator<Iterator, Function>;
+    using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
 
-	/**
-	 * @brief The Map constructor.
-	 * @param begin Beginning of the iterator.
-	 * @param end End of the iterator.
-	 * @param function A function with parameter the value type. It may return anything.
-	 */
-	constexpr Map(Iterator begin, Iterator end, Function function) :
-		internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
-	}
+    /**
+     * @brief The Map constructor.
+     * @param begin Beginning of the iterator.
+     * @param end End of the iterator.
+     * @param function A function with parameter the value type. It may return anything.
+     */
+    constexpr Map(Iterator begin, Iterator end, Function function)
+        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
+    }
 
-	constexpr Map() = default;
+    constexpr Map() = default;
 };
 
 // Start of group
@@ -46,7 +46,7 @@ public:
  */
 template<class Function, LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD constexpr Map<Iterator, Function> mapRange(Iterator begin, Iterator end, Function function) {
-	return Map<Iterator, Function>(std::move(begin), std::move(end), std::move(function));
+    return Map<Iterator, Function>(std::move(begin), std::move(end), std::move(function));
 }
 
 /**
@@ -60,14 +60,14 @@ LZ_NODISCARD constexpr Map<Iterator, Function> mapRange(Iterator begin, Iterator
  */
 template<class Function, LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, Function> map(Iterable&& iterable, Function function) {
-	return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-					std::move(function));
+    return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                    std::move(function));
 }
 
 // End of group
 /**
  * @}
  */
-}
+} // namespace lz
 
 #endif

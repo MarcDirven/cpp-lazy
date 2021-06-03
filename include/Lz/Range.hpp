@@ -9,27 +9,27 @@
 namespace lz {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
-public:
-	using iterator = internal::RangeIterator<Arithmetic>;
-	using const_iterator = iterator;
-	using reverse_iterator = std::reverse_iterator<iterator>;
-	using value_type = typename iterator::value_type;
+  public:
+    using iterator = internal::RangeIterator<Arithmetic>;
+    using const_iterator = iterator;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using value_type = typename iterator::value_type;
 
-private:
-	using Base = internal::BasicIteratorView<iterator>;
+  private:
+    using Base = internal::BasicIteratorView<iterator>;
 
-public:
-	/**
-	 * @brief Range iterator constructor from [start, end) with step.
-	 * @param start The start of the counting.
-	 * @param end The end of the counting.
-	 * @param step The step that gets added every iteration.
-	 */
-	constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :
-		Base(iterator(start, step), iterator(end, step)) {
-	}
+  public:
+    /**
+     * @brief Range iterator constructor from [start, end) with step.
+     * @param start The start of the counting.
+     * @param end The end of the counting.
+     * @param step The step that gets added every iteration.
+     */
+    constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept
+        : Base(iterator(start, step), iterator(end, step)) {
+    }
 
-	constexpr Range() = default;
+    constexpr Range() = default;
 };
 
 // Start of group
@@ -52,9 +52,9 @@ public:
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
 LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) noexcept {
 #ifndef LZ_HAS_CONCEPTS
-	static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
+    static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
 #endif
-	return Range<Arithmetic>(start, end, step);
+    return Range<Arithmetic>(start, end, step);
 }
 
 /**
@@ -67,13 +67,13 @@ LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Ari
  */
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
 LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) noexcept {
-	return range<Arithmetic>(0, end, 1);
+    return range<Arithmetic>(0, end, 1);
 }
 
 // End of group
 /**
  * @}
  */
-}
+} // namespace lz
 
 #endif

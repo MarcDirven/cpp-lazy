@@ -3,28 +3,28 @@
 #ifndef LZ_JOIN_HPP
 #define LZ_JOIN_HPP
 
-#include "detail/JoinIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
+#include "detail/JoinIterator.hpp"
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Join final : public internal::BasicIteratorView<internal::JoinIterator<Iterator>> {
-public:
-	using iterator = internal::JoinIterator<Iterator>;
-	using const_iterator = iterator;
-	using value_type = typename iterator::value_type;
+  public:
+    using iterator = internal::JoinIterator<Iterator>;
+    using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
 
-	Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference) :
-		internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true, difference),
-											  iterator(std::move(end), delimiter, false, difference)) {
-	}
+    Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference)
+        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true, difference),
+                                                iterator(std::move(end), delimiter, false, difference)) {
+    }
 
-	Join() = default;
+    Join() = default;
 
-	friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& it) {
-		// Join already has a delimiter, default to blank string
-		return o << it.toString();
-	}
+    friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& it) {
+        // Join already has a delimiter, default to blank string
+        return o << it.toString();
+    }
 };
 
 /**
@@ -43,8 +43,9 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
-	using lz::distance; using std::distance;
-	return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1);
+    using lz::distance;
+    using std::distance;
+    return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1);
 }
 
 /**
@@ -57,8 +58,8 @@ LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string 
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
-	return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-					 std::move(delimiter));
+    return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                     std::move(delimiter));
 }
 
 #ifdef LZ_HAS_EXECUTION
@@ -72,9 +73,9 @@ LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iter
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<class Iterator, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::string_view delimiter = "",
-									  Execution execution = std::execution::seq) {
-	return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter, execution);
+LZ_NODISCARD std::string
+strJoinRange(Iterator begin, Iterator end, const std::string_view delimiter = "", Execution execution = std::execution::seq) {
+    return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter, execution);
 }
 
 /**
@@ -85,9 +86,10 @@ LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::s
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD std::string strJoin(Iterable&& iterable, const std::string_view delimiter = "", Execution execution = std::execution::seq) {
-	return strJoinRange(
-		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), delimiter, execution);
+LZ_NODISCARD std::string
+strJoin(Iterable&& iterable, const std::string_view delimiter = "", Execution execution = std::execution::seq) {
+    return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        delimiter, execution);
 }
 
 #else
@@ -100,7 +102,7 @@ LZ_NODISCARD std::string strJoin(Iterable&& iterable, const std::string_view del
  */
 template<class Iterator>
 LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::string& delimiter = "") {
-	return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter);
+    return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter);
 }
 /**
  * Converts a sequence to a  `std::string` without creating an iterator Join object.
@@ -110,16 +112,15 @@ LZ_NODISCARD std::string strJoinRange(Iterator begin, Iterator end, const std::s
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD std::string strJoin(Iterable&& iterable, const std::string& delimiter = "") {
-	return strJoinRange(
-		internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), delimiter);
+    return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        delimiter);
 }
 #endif // LZ_HAS_EXECUTION
-
 
 // End of group
 /**
  * @}
  */
-}
+} // namespace lz
 
 #endif

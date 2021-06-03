@@ -8,33 +8,34 @@
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
 
-
 template<class Iterator, class UnaryPredicate, class Execution>
 class ChunkIf final : public internal::BasicIteratorView<internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>> {
-public:
-	using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>;
-#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+  public:
+    using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>;
+#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 template<class Iterator, class UnaryPredicate>
 class ChunkIf final : public internal::BasicIteratorView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> {
-public:
-	using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate>;
+  public:
+    using iterator = internal::ChunkIfIterator<Iterator, UnaryPredicate>;
 #endif // LZ_HAS_EXECUTION
-	using const_iterator = iterator;
-	using value_type = typename iterator::value_type;
+    using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
 
-	constexpr ChunkIf() = default;
+    constexpr ChunkIf() = default;
 
 #ifdef LZ_HAS_EXECUTION
 
-	LZ_CONSTEXPR_CXX_20 ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
-		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate, execution),
-											  iterator(end, end, predicate, execution)) {}
+    LZ_CONSTEXPR_CXX_20 ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution)
+        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate, execution),
+                                                iterator(end, end, predicate, execution)) {
+    }
 
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
-	ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate) :
-		internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate), iterator(end, end, predicate)) {}
+    ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate)
+        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate), iterator(end, end, predicate)) {
+    }
 
 #endif // LZ_HAS_EXECUTION
 };
@@ -57,7 +58,7 @@ public:
 template<class Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
 chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
-	return ChunkIf<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(unaryPredicate), execution);
+    return ChunkIf<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(unaryPredicate), execution);
 }
 
 /**
@@ -70,8 +71,8 @@ chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execut
 template<class Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
 chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
-	return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-						std::move(unaryPredicate), execution);
+    return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        std::move(unaryPredicate), execution);
 }
 
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
@@ -85,7 +86,7 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution 
  */
 template<class Iterator, class UnaryPredicate>
 ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate) {
-	return ChunkIf<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(unaryPredicate));
+    return ChunkIf<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(unaryPredicate));
 }
 
 /**
@@ -95,10 +96,9 @@ ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, Una
  * @return A chunk if iterator view object.
  */
 template<class Iterable, class UnaryPredicate>
-ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate>
-chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
-	return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-						std::move(unaryPredicate));
+ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
+    return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                        std::move(unaryPredicate));
 }
 
 #endif // LZ_HAS_EXECUTION
@@ -107,6 +107,6 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
 /**
  * @}
  */
-} // lz
+} // namespace lz
 
 #endif // LZ_CHUNK_IF_HPP

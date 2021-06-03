@@ -3,22 +3,21 @@
 #ifndef LZ_REPEAT_HPP
 #define LZ_REPEAT_HPP
 
-#include "detail/RepeatIterator.hpp"
 #include "detail/BasicIteratorView.hpp"
+#include "detail/RepeatIterator.hpp"
 
 namespace lz {
 template<class T>
 class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
-public:
-	using iterator = internal::RepeatIterator<T>;
-	using value_type = T;
+  public:
+    using iterator = internal::RepeatIterator<T>;
+    using value_type = T;
 
-	constexpr Repeat(T toRepeat, const std::size_t amount) :
-		internal::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount))
-	{
-	}
+    constexpr Repeat(T toRepeat, const std::size_t amount)
+        : internal::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
+    }
 
-	constexpr Repeat() = default;
+    constexpr Repeat() = default;
 };
 
 // Start of group
@@ -36,13 +35,13 @@ public:
  */
 template<class T>
 LZ_NODISCARD constexpr Repeat<T> repeat(T toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-	return Repeat<T>(std::move(toRepeat), amount);
+    return Repeat<T>(std::move(toRepeat), amount);
 }
 
-//End of group
+// End of group
 /**
  * @}
  */
-}
+} // namespace lz
 
 #endif
