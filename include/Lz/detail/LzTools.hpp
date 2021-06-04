@@ -282,13 +282,11 @@ constexpr bool checkForwardAndPolicies() {
 
 #endif // LZ_HAS_EXECUTION
 
+#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 constexpr char to_string(const char c) {
     return c;
 }
-
-LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
-    return b ? "true" : "false";
-}
+#endif
 
 template<class T>
 class FakePointerProxy {
