@@ -223,4 +223,4 @@ C++20
 
 ## Special thanks
 Special thanks to the [JetBrains open source programme](https://jb.gg/OpenSource).
-
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/meta/jetbrains.png" /></div>

@@ -2,6 +2,7 @@
 #include <catch2/catch.hpp>
 #include <algorithm>
 #include <cctype>
+#include <fmt/format.h>
 
 template class lz::IterView<lz::Take<std::vector<int>::iterator>::iterator>;
 
@@ -120,7 +121,7 @@ TEST_CASE("Iterator chaining") {
 
 	CHECK(lz::toIter(arr).filterMap(
 		[](int i) { return i % 2 == 0; },
-		[](int i) { return fmt::format("{}", i); })
+		[](int i) { return fmt::to_string(i); })
 		.toString(" ") == "0 2 4 6 8 10 12 14");
 	std::function<bool(int)> selFunc = [](int i) { return i % 2 == 0; };
 	auto selectors = lz::map(arr, std::move(selFunc));

@@ -2,6 +2,7 @@
 
 #include <catch2/catch.hpp>
 #include <Lz/StringSplitter.hpp>
+#include <fmt/format.h>
 
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {

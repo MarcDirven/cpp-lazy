@@ -1,6 +1,5 @@
 #include <catch2/catch.hpp>
 #include <Lz/Join.hpp>
-#include <iostream>
 #include <sstream>
 
 TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
@@ -15,7 +14,6 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     std::ostringstream ss;
     ss << joinInt;
     CHECK(ss.str() == "1, 2, 3, 4, 5");
-    CHECK(ss.str() != "1 , 2 , 3 , 4 , 5 ");
 
     SECTION("Should convert to string") {
         CHECK(*joinInt.begin() == "1");
@@ -30,6 +28,10 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     SECTION("Should be correct size") {
         CHECK(std::distance(joinInt.begin(), joinInt.end()) == 9);
         CHECK(std::distance(joinStr.begin(), joinStr.end()) == 9);
+    }
+
+    SECTION("Immediate to string") {
+    	CHECK(lz::strJoin(v) == "12345");
     }
 }
 
