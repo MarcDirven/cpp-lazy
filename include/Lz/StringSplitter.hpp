@@ -35,7 +35,6 @@ class StringSplitter final : public internal::BasicIteratorView<internal::SplitI
  */
 
 #if defined(LZ_HAS_STRING_VIEW)
-
 template<class SubString = std::string_view>
 #elif defined(LZ_STANDALONE)
 template<class SubString = std::string>
@@ -96,7 +95,6 @@ template<class SubString = fmt::string_view>
 StringSplitter<SubString, std::string, std::string> split(std::string&& str, std::string delimiter) = delete;
 
 #ifdef LZ_HAS_STRING_VIEW
-
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
  * @tparam SubString The string type of the substring.
@@ -120,7 +118,6 @@ StringSplitter<SubString, std::string_view, std::string> split(std::string_view&
 
 template<class SubString = std::string_view>
 StringSplitter<SubString, std::string_view, std::string> split(std::string_view&& str, std::string delimiter) = delete;
-
 #endif // LZ_HAS_STRING_VIEW
 
 // End of group
