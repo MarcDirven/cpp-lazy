@@ -47,7 +47,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
-          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+          # -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -58,7 +58,7 @@ jobs:
       - name: Configure tests
         run: cmake -S tests -B build/tests
           -D CMAKE_BUILD_TYPE:STRING=Release
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.12.2
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
@@ -72,7 +72,7 @@ jobs:
   clang:
     strategy:
       matrix:
-        version: [9, 10, 11]
+        version: [9, 11, 12]
         standard: [11, 20]
 
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
-          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+          # -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
