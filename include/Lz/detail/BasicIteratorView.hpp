@@ -68,7 +68,9 @@ std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimi
         return "";
     }
     std::string result;
+#if !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
     auto backInserter = std::back_inserter(result);
+#endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
 #if !defined(LZ_STANDALONE)
     std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
         fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);

@@ -92,7 +92,7 @@ LZ_NODISCARD std::string
 #ifdef LZ_HAS_STRING_VIEW
 strJoin(Iterable&& iterable, const std::string_view delimiter = "") {
 #else
-strJoin(Iterable&& iterable, Iterator end, const std::string& delimiter = "") {
+strJoin(Iterable&& iterable, const std::string& delimiter = "") {
 #endif // LZ_HAS_STRING_VIEW
     return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         delimiter);
