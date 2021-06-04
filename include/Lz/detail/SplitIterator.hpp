@@ -7,10 +7,6 @@
 
 #include <string>
 
-#ifdef LZ_HAS_STRING_VIEW
-#include <string_view>
-#endif
-
 namespace lz {
 namespace internal {
 template<class SubString, class String, class StringType>
