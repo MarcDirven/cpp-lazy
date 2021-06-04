@@ -70,7 +70,7 @@ LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iter
  * @param execution The execution policy. Must be one of std::execution::* policies.
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
-template<class Iterator, class Execution = std::execution::sequenced_policy>
+template<class Iterator>
 LZ_NODISCARD std::string
 #ifdef LZ_HAS_STRING_VIEW
 strJoinRange(Iterator begin, Iterator end, const std::string_view delimiter = "") {
@@ -87,7 +87,7 @@ strJoinRange(Iterator begin, Iterator end, const std::string& delimiter = "") {
  * @param execution The execution policy. Must be one of std::execution::* policies.
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Execution = std::execution::sequenced_policy>
+template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD std::string
 #ifdef LZ_HAS_STRING_VIEW
 strJoin(Iterable&& iterable, const std::string_view delimiter = "") {
