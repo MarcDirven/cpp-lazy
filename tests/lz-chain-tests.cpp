@@ -2,6 +2,7 @@
 #include <catch2/catch.hpp>
 #include <algorithm>
 #include <cctype>
+#include <fmt/format.h>
 
 template class lz::IterView<lz::Take<std::vector<int>::iterator>::iterator>;
 
