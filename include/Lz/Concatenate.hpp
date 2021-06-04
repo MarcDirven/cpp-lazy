@@ -18,8 +18,8 @@ class Concatenate final : public internal::BasicIteratorView<internal::Concatena
      * @param begin All the beginnings of the containers/iterables.
      * @param end All the endings of the containers/iterables.
      */
-    LZ_CONSTEXPR_CXX_14 Concatenate(std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
-        : internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+    LZ_CONSTEXPR_CXX_14 Concatenate(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 
     constexpr Concatenate() = default;

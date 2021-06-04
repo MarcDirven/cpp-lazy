@@ -22,8 +22,8 @@ class Generate final : public internal::BasicIteratorView<internal::GenerateIter
      * @param amount The amount of times to execute. If `amount` is equal to `std::numeric_limits<size_t>::max()`
      * it is interpreted as a `while-true` loop.
      */
-    constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop)
-        : internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop)) {
+    constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop) :
+        internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop)) {
     }
 
     constexpr Generate() = default;

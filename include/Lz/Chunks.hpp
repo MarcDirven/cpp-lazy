@@ -13,8 +13,8 @@ class Chunks final : public internal::BasicIteratorView<internal::ChunksIterator
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    LZ_CONSTEXPR_CXX_17 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize), iterator(end, end, chunkSize)) {
+    LZ_CONSTEXPR_CXX_17 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize), iterator(end, end, chunkSize)) {
     }
 
     constexpr Chunks() = default;

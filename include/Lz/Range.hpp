@@ -25,8 +25,8 @@ class Range final : public internal::BasicIteratorView<internal::RangeIterator<A
      * @param end The end of the counting.
      * @param step The step that gets added every iteration.
      */
-    constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept
-        : Base(iterator(start, step), iterator(end, step)) {
+    constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :
+        Base(iterator(start, step), iterator(end, step)) {
     }
 
     constexpr Range() = default;

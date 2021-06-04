@@ -20,8 +20,8 @@ namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
 std::string toStringSpecialized(std::true_type /* isArithmetic */, const T value) {
-    using std::to_string;
     using lz::internal::to_string;
+    using std::to_string;
     return to_string(value);
 }
 
@@ -61,7 +61,7 @@ class JoinIterator {
             return toStringSpecialized(std::is_arithmetic<ContainerType>(), *_iterator);
 #endif // LZ_HAS_FORMAT
 #else
-            return fmt::format(FMT_STRING("{}"), *_iterator);
+            return fmt::to_string(*_iterator);
 #endif // LZ_STANDALONE
         }
         return _delimiter;

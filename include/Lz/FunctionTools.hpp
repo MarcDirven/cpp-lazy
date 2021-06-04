@@ -78,13 +78,7 @@ constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::ma
  * @param string The string to split on.
  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
  */
-#ifdef LZ_HAS_STRING_VIEW
-template<class SubString = std::string_view, class String = std::string>
-#elif !defined(LZ_STANDALONE) // ^^^ Lz has string view vvv !lz has string view
-template<class SubString = fmt::string_view, class String = std::string>
-#else
 template<class SubString = std::string, class String = std::string>
-#endif // LZ_HAS_STRING_VIEW
 LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string) {
     return lz::split<SubString>(string, '\n');
 }
@@ -409,7 +403,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& ite
 }
 
 #ifdef LZ_HAS_EXECUTION
-
 /**
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
@@ -427,7 +420,8 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     ValueType sum;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         sum = std::reduce(begin, end, ValueType{ 0 }, std::move(binaryOp));
-    } else {
+    }
+    else {
         sum = std::reduce(execution, begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
     return static_cast<double>(sum) / dist;
@@ -585,14 +579,16 @@ median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution
     if constexpr (isSequenced) {
         static_cast<void>(execution);
         std::nth_element(begin, midIter, end, comparer);
-    } else {
+    }
+    else {
         std::nth_element(execution, begin, midIter, end, comparer);
     }
     if (internal::isEven(len)) {
         if constexpr (isSequenced) {
             const Iterator leftHalf = std::max_element(begin, midIter, comparer);
             return (static_cast<double>(*leftHalf) + *midIter) / 2.;
-        } else {
+        }
+        else {
             const Iterator leftHalf = std::max_element(execution, begin, midIter, comparer);
             return (static_cast<double>(*leftHalf) + *midIter) / 2.;
         }
@@ -631,7 +627,8 @@ findFirstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defau
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         return static_cast<ValueType>(std::find(std::move(begin), end, toFind) == end ? defaultValue : toFind);
-    } else {
+    }
+    else {
         return static_cast<ValueType>(std::find(execution, std::move(begin), end, toFind) == end ? defaultValue : toFind);
     }
 }
@@ -670,7 +667,8 @@ findFirstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, con
         static_cast<void>(execution);
         const Iterator pos = std::find_if(std::move(begin), end, std::move(predicate));
         return static_cast<ValueType>(pos == end ? defaultValue : *pos);
-    } else {
+    }
+    else {
         const Iterator pos = std::find_if(execution, std::move(begin), end, std::move(predicate));
         return static_cast<ValueType>(pos == end ? defaultValue : *pos);
     }
@@ -686,7 +684,7 @@ findFirstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, con
  * @param execution Uses the execution to perform the find.
  * @return Either the element that has been found by `predicate` or `defaultValue` if no such item exists.
  */
-template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate>
+template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable>
 findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue,
                      Execution execution = std::execution::seq) {
@@ -712,7 +710,8 @@ findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaul
         static_cast<void>(execution);
         const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
         return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    } else {
+    }
+    else {
         const auto pos = std::find(execution, std::move(endReverse), beginReverse, toFind);
         return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
     }
@@ -741,7 +740,8 @@ findLastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultVal
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element
  * exists.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class T, class UnaryPredicate,
+         class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
                     Execution execution = std::execution::seq) {
@@ -752,7 +752,8 @@ findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, cons
         static_cast<void>(execution);
         const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
         return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    } else {
+    }
+    else {
         const auto pos = std::find_if(execution, std::move(endReverse), beginReverse, std::move(predicate));
         return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
     }
@@ -767,7 +768,8 @@ findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, cons
  * @return Either the last occurrence where `predicate` returns `true` in [begin, end) or `defaultValue` if no such element
  * exists.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class T, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class T, class UnaryPredicate,
+         class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable>
 findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T& defaultValue,
                     Execution execution = std::execution::seq) {
@@ -791,7 +793,8 @@ indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::e
         static_cast<void>(execution);
         const Iterator pos = std::find(begin, end, val);
         return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
-    } else {
+    }
+    else {
         const Iterator pos = std::find(execution, begin, end, val);
         return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
     }
@@ -828,7 +831,8 @@ indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution
         static_cast<void>(execution);
         const Iterator pos = std::find_if(begin, end, std::move(predicate));
         return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
-    } else {
+    }
+    else {
         const Iterator pos = std::find_if(execution, begin, end, std::move(predicate));
         return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
     }
@@ -897,7 +901,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
     return lz::containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
-
 #else // ^^^ Lz has execution vvv !Lz has execution
 
 /**
@@ -1050,8 +1053,13 @@ findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T
  */
 template<class Iterator, class T, class U>
 internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
+#ifdef LZ_HAS_CXX_11
     auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
     auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
+#else
+    auto endReverse = std::make_reverse_iterator(std::move(end));
+    auto beginReverse = std::make_reverse_iterator(std::move(begin));
+#endif
     const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
     return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }

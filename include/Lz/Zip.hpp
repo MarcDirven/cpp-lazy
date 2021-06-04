@@ -28,8 +28,8 @@ class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Itera
      * @param begin The beginning of all the containers
      * @param end The ending of all the containers
      */
-    LZ_CONSTEXPR_CXX_14 explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
+    LZ_CONSTEXPR_CXX_14 explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 
     constexpr Zip() = default;

@@ -21,8 +21,8 @@ class StringSplitter final : public internal::BasicIteratorView<internal::SplitI
      * @param str The string to split.
      * @param delimiter The delimiter to split on.
      */
-    StringSplitter(const String& str, StringType delimiter)
-        : internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
+    StringSplitter(const String& str, StringType delimiter) :
+        internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
     }
 
     StringSplitter() = default;

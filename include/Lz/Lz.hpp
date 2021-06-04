@@ -29,7 +29,7 @@
 // Zip.hpp
 
 namespace lz {
-#ifndef LZ_HAS_EXECUTION
+#ifndef LZ_HAS_CXX_EXECUTION
 namespace internal {
 template<class Iterator, class T, class BinOp>
 T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
@@ -385,7 +385,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& forEach(UnaryFunc func, Execution execution = std::execution::seq) {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             std::for_each(Base::begin(), Base::end(), std::move(func));
-        } else {
+        }
+        else {
             std::for_each(execution, Base::begin(), Base::end(), std::move(func));
         }
         return *this;
@@ -402,7 +403,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
-        } else {
+        }
+        else {
             return std::reduce(execution, Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
         }
     }
@@ -420,7 +422,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
             static_cast<void>(execution);
             return std::reduce(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
                                std::forward<T>(init), std::move(function));
-        } else {
+        }
+        else {
             return std::reduce(execution, internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
                                std::forward<T>(init), std::move(function));
         }
@@ -447,7 +450,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
-        } else {
+        }
+        else {
             return *std::max_element(execution, Base::begin(), Base::end(), std::move(cmp));
         }
     }
@@ -464,7 +468,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
-        } else {
+        }
+        else {
             return *std::min_element(execution, Base::begin(), Base::end(), std::move(cmp));
         }
     }
@@ -492,7 +497,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::all_of(Base::begin(), Base::end(), std::move(predicate));
-        } else {
+        }
+        else {
             return std::all_of(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
@@ -508,7 +514,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::any_of(Base::begin(), Base::end(), std::move(predicate));
-        } else {
+        }
+        else {
             return std::any_of(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
@@ -534,7 +541,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count(Base::begin(), Base::end(), value);
-        } else {
+        }
+        else {
             return std::count(execution, Base::begin(), Base::end(), value);
         }
     }
@@ -550,7 +558,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count_if(Base::begin(), Base::end(), std::move(predicate));
-        } else {
+        }
+        else {
             return std::count_if(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
@@ -565,7 +574,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
         if constexpr (internal::checkForwardAndPolicies<Execution, IterView>()) {
             static_cast<void>(execution);
             std::sort(Base::begin(), Base::end(), std::move(predicate));
-        } else {
+        }
+        else {
             std::sort(execution, Base::begin(), Base::end(), std::move(predicate));
         }
         return *this;
@@ -581,7 +591,8 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
     isSorted(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
-        } else {
+        }
+        else {
             return std::is_sorted(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }

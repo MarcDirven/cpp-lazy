@@ -23,9 +23,8 @@ class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIt
      * @param end Ending of the iterator.
      * @param start The start of the counting index. 0 is assumed by default.
      */
-    LZ_CONSTEXPR_CXX_17 Enumerate(Iterator begin, Iterator end, const IntType start = 0)
-        : internal::BasicIteratorView<iterator>(iterator(start, begin),
-                                                iterator(static_cast<IntType>(distance(begin, end)), end)) {
+    LZ_CONSTEXPR_CXX_17 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
+        internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance(begin, end)), end)) {
     }
 
     constexpr Enumerate() = default;

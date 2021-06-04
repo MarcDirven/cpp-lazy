@@ -20,8 +20,8 @@ class Map final : public internal::BasicIteratorView<internal::MapIterator<Itera
      * @param end End of the iterator.
      * @param function A function with parameter the value type. It may return anything.
      */
-    constexpr Map(Iterator begin, Iterator end, Function function)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
+    constexpr Map(Iterator begin, Iterator end, Function function) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
     }
 
     constexpr Map() = default;

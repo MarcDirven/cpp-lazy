@@ -15,8 +15,8 @@ class CartesianProduct final : public internal::BasicIteratorView<internal::Cart
 
     constexpr CartesianProduct() = default;
 
-    LZ_CONSTEXPR_CXX_14 CartesianProduct(std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end), iterator(end, end)) {
+    LZ_CONSTEXPR_CXX_14 CartesianProduct(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end), iterator(end, end)) {
     }
 };
 

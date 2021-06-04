@@ -13,8 +13,8 @@ class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator
     using iterator = internal::RepeatIterator<T>;
     using value_type = T;
 
-    constexpr Repeat(T toRepeat, const std::size_t amount)
-        : internal::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
+    constexpr Repeat(T toRepeat, const std::size_t amount) :
+        internal::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
     }
 
     constexpr Repeat() = default;
@@ -34,8 +34,9 @@ class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator
  * @return A repeat object, containing the random access iterator.
  */
 template<class T>
-LZ_NODISCARD constexpr Repeat<T> repeat(T toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return Repeat<T>(std::move(toRepeat), amount);
+LZ_NODISCARD constexpr Repeat<internal::Decay<T>>
+repeat(T&& toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
+    return Repeat<internal::Decay<T>>(std::forward<T>(toRepeat), amount);
 }
 
 // End of group

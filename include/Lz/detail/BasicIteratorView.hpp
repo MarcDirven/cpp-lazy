@@ -27,11 +27,10 @@ namespace lz {
 namespace internal {
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterator>
-#if defined(LZ_HAS_STRING_VIEW)
 std::string
+#if defined(LZ_HAS_STRING_VIEW)
 toStringImplSpecialized(Iterator begin, Iterator end, const std::string_view delimiter, std::true_type /* isArithmetic */) {
 #else
-std::string
 toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::true_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
     std::string result;
@@ -46,11 +45,10 @@ toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimit
 }
 
 template<class Iterator>
-#if defined(LZ_HAS_STRING_VIEW)
 std::string
+#if defined(LZ_HAS_STRING_VIEW)
 toStringImplSpecialized(Iterator begin, Iterator end, const std::string_view delimiter, std::false_type /* isArithmetic */) {
 #else
-std::string
 toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::false_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
     std::ostringstream oss;
@@ -59,75 +57,29 @@ toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimit
 }
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
-#ifdef LZ_HAS_EXECUTION
-template<class Iterator, class Execution>
-LZ_CONSTEXPR_CXX_20 std::string
-toStringImpl(Iterator begin, Iterator end, const std::string_view delimiter, Execution execution) {
-#else
 template<class Iterator>
+#ifdef LZ_HAS_STRING_VIEW
+std::string toStringImpl(Iterator begin, Iterator end, const std::string_view delimiter) {
+#else
 std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
-#endif // LZ_HAS_EXECUTION
+#endif
     using TValueType = ValueType<Iterator>;
     if (begin == end) {
         return "";
     }
     std::string result;
-#if defined(LZ_HAS_FORMAT) || (!defined(LZ_STANDALONE)) // std::format_to or fmt::format_to backInserter
     auto backInserter = std::back_inserter(result);
-#endif // LZ_HAS_FORMAT || !LZ_STANDALONE
-
-#ifdef LZ_HAS_EXECUTION
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT)) // std::ostringstream, std::to_string is used
-        result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
-#elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-        std::for_each(begin, end,
-                      [delimiter, backInserter](const TValueType& v) { std::format_to(backInserter, "{}{}", v, delimiter); });
-#else                                                  // fmt::format_to is used
-        std::for_each(begin, end, [delimiter, backInserter](const TValueType& v) {
-            fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
-        });
-#endif                                                 // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-    }                                                  // end if check if std::execution::seq
-    else {
-        std::mutex m;
-#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT) // Use std::ostringstream, std::to_string
-        if constexpr (std::is_arithmetic_v<TValueType>) {
-            std::for_each(execution, begin, end, [&result, delimiter, &m](const TValueType v) {
-                std::lock_guard guard(m);
-                result += std::to_string(v);
-                result += delimiter;
-            });
-        }
-        else {
-            std::ostringstream oss;
-            std::for_each(execution, begin, end, [delimiter, &oss, &m](const TValueType& v) {
-                std::lock_guard guard(m);
-                oss << v << delimiter;
-            });
-            result = oss.str();
-        }
-#elif defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) // std::format_to is used
-        std::for_each(execution, begin, end, [delimiter, backInserter, &m](const TValueType& v) {
-            std::lock_guard guard(m);
-            std::format_to(backInserter, "{}{}", v, delimiter);
-        });
-#else                                                  // fmt::format_to is used
-        std::for_each(execution, begin, end, [delimiter, &m, backInserter](const TValueType& v) {
-            std::lock_guard guard(m);
-            fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
-        });
-#endif                                                 // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-    }                                                  // end if check if higher than std::execution::seq
-#else
 #if !defined(LZ_STANDALONE)
     std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
         fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
     });
-#else  // ^^^ !LZ_STANDALONE vvv LZ_STANDALONE
-    result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
-#endif // !defined(LZ_STANDALONE)
-#endif // LZ_HAS_EXECUTION
+#elif defined(LZ_HAS_FORMAT)
+    std::for_each(begin, end,
+                  [&delimiter, backInserter](const TValueType& v) { std::format_to(backInserter, "{}{}", v, delimiter); });
+#else
+result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
+#endif // LZ_STANDALONE
+
     const auto resultEnd = result.end();
     result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.length()), resultEnd);
     return result;
@@ -377,21 +329,7 @@ class BasicIteratorView {
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const {
         return copyArray<N>(execution);
     }
-
-    /**
-     * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
-     * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
-     * @param delimiter The delimiter between the previous value and the next.
-     * @param execution The execution policy. Must be one of `std::execution`'s tags.
-     * @return The converted iterator in string format.
-     */
-    template<class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
-    toString(const std::string_view delimiter = "", Execution execution = std::execution::seq) const {
-        return toStringImpl(begin(), end(), delimiter, execution);
-    }
 #else
-
     /**
      * @brief Returns an arbitrary container type, of which its constructor signature looks like:
      * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
@@ -443,17 +381,6 @@ class BasicIteratorView {
     std::array<value_type, N> toArray() const {
         return copyArray<N>();
     }
-
-    /**
-     * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
-     * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
-     * @param delimiter The delimiter between the previous value and the next.
-     * @return The converted iterator in string format.
-     */
-    std::string toString(const std::string& delimiter = "") const {
-        return toStringImpl(begin(), end(), delimiter);
-    }
-
 #endif // LZ_HAS_EXECUTION
 
     /**
@@ -527,6 +454,21 @@ class BasicIteratorView {
     }
 
     /**
+     * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
+     * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+     * @param delimiter The delimiter between the previous value and the next.
+     * @return The converted iterator in string format.
+     */
+#ifdef LZ_HAS_STRING_VIEW
+    LZ_NODISCARD std::string toString(const std::string_view delimiter = "") const {
+#else
+    LZ_NODISCARD std::string toString(const std::string& delimiter = "") const {
+#endif
+        return toStringImpl(begin(), end(), delimiter);
+    // clang-format off
+    }
+
+    /**
      * Function to stream the iterator to an output stream e.g. `std::cout`.
      * @param o The stream object.
      * @param it The iterator to print.
@@ -535,6 +477,7 @@ class BasicIteratorView {
     friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
         return o << it.toString(" ");
     }
+    // clang format on
 };
 } // namespace internal
 #ifndef LZ_HAS_EXECUTION

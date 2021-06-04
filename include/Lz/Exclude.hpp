@@ -16,8 +16,8 @@ class Exclude final : public internal::BasicIteratorView<internal::ExcludeIterat
     constexpr Exclude() = default;
 
     LZ_CONSTEXPR_CXX_17
-    Exclude(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to)
-        : internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {
+    Exclude(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) :
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {
     }
 };
 

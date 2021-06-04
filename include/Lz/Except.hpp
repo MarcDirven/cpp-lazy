@@ -8,12 +8,10 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
-
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer, class Execution>
 class Except final
     : public internal::BasicIteratorView<internal::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>> {
 #else
-
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer>
 class Except final : public internal::BasicIteratorView<internal::ExceptIterator<Iterator, IteratorToExcept, Comparer>> {
 #endif
@@ -34,20 +32,16 @@ class Except final : public internal::BasicIteratorView<internal::ExceptIterator
      * @param toExceptEnd The ending of the actual elements to except.
      */
 #ifdef LZ_HAS_EXECUTION
-
     LZ_CONSTEXPR_CXX_20 Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
-                               Comparer comparer, Execution execPolicy)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
-                                                iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
+                               Comparer comparer, Execution execPolicy) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
+                                              iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
     }
-
 #else // ^^^ has execution vvv ! has execution
-
-    Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
-                                                iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {
+    Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
+                                              iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {
     }
-
 #endif // LZ_HAS_EXECUTION
 
     constexpr Except() = default;
@@ -59,7 +53,6 @@ class Except final : public internal::BasicIteratorView<internal::ExceptIterator
  */
 
 #ifdef LZ_HAS_EXECUTION
-
 /**
  * @brief Skips elements in [begin, end) that is contained by [toExceptBegin, toExceptEnd). [toExceptBegin, toExceptEnd) must be
  * sorted manually before creating this view.
@@ -101,7 +94,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20
 }
 
 #else // ^^^ has execution vvv ! has execution
-
 /**
  * @brief Skips elements in [begin, end) that is contained by [toExceptBegin, toExceptEnd). [toExceptBegin, toExceptEnd) must be
  * sorted manually before creating this view.
@@ -143,7 +135,6 @@ except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {})
                        internal::begin(std::forward<IterableToExcept>(toExcept)),
                        internal::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer));
 }
-
 #endif // LZ_HAS_EXECUTION
 
 // End of group

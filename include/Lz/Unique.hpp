@@ -8,11 +8,9 @@
 
 namespace lz {
 #ifdef LZ_HAS_EXECUTION
-
 template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
 #else
-
 template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
 class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
 #endif
@@ -26,17 +24,13 @@ class Unique final : public internal::BasicIteratorView<internal::UniqueIterator
     using value_type = typename iterator::value_type;
 
 #ifdef LZ_HAS_EXECUTION
-
-    constexpr Unique(Iterator begin, Iterator end, Compare compare, Execution e)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
+    constexpr Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
     }
-
 #else
-
-    constexpr Unique(Iterator begin, Iterator end, Compare compare)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
+    constexpr Unique(Iterator begin, Iterator end, Compare compare) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
     }
-
 #endif
 
     constexpr Unique() = default;
@@ -49,7 +43,6 @@ class Unique final : public internal::BasicIteratorView<internal::UniqueIterator
  */
 
 #ifdef LZ_HAS_EXECUTION
-
 /**
  * @brief Returns an Unique iterator view object.
  * @attention [begin, end) must be sorted in order to work properly.
@@ -85,9 +78,7 @@ unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::ex
     return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                        std::move(compare), execPolicy);
 }
-
 #else // ^^^ has execution vvv !has execution
-
 /**
  * @brief Returns an Unique iterator view object.
  * @attention [begin, end) must be sorted in order to work properly.

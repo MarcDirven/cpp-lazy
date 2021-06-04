@@ -15,12 +15,12 @@ class Take final : public internal::BasicIteratorView<Iterator> {
     using value_type = internal::ValueType<Iterator>;
 
     template<class Function>
-    constexpr Take(Iterator begin, Iterator end, Function predicate)
-        : internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end) {
+    constexpr Take(Iterator begin, Iterator end, Function predicate) :
+        internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end) {
     }
 
-    constexpr Take(Iterator begin, Iterator end, std::nullptr_t)
-        : internal::BasicIteratorView<iterator>(std::move(begin), std::move(end)) {
+    constexpr Take(Iterator begin, Iterator end, std::nullptr_t) :
+        internal::BasicIteratorView<iterator>(std::move(begin), std::move(end)) {
     }
 
     constexpr Take() = default;
@@ -152,7 +152,6 @@ slice(Iterable&& iterable, const internal::DiffType<IterType> from, const intern
 }
 
 #ifdef LZ_HAS_EXECUTION
-
 /**
  * @brief Creates a Take iterator view object.
  * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
@@ -172,7 +171,8 @@ dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execu
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         begin = std::find_if_not(std::move(begin), end, std::move(predicate));
-    } else {
+    }
+    else {
         begin = std::find_if_not(execution, std::move(begin), end, std::move(predicate));
     }
     return takeRange(begin, end, distance(begin, end));
@@ -193,7 +193,6 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
 }
-
 #else // ^^^ lz has execution vvv lz ! has execution
 
 /**

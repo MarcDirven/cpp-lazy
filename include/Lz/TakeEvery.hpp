@@ -22,9 +22,9 @@ class TakeEvery final : public internal::BasicIteratorView<internal::TakeEveryIt
      * @param offset The offset to add each iteration, aka the amount of elements to skip.
      * @param distance The distance between `begin` and `end`.
      */
-    constexpr TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance)
-        : internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
-                                                iterator(end, end, offset, distance)) {
+    constexpr TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
+                                              iterator(end, end, offset, distance)) {
     }
 
     constexpr TakeEvery() = default;
