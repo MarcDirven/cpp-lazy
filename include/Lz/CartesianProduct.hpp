@@ -3,8 +3,8 @@
 #ifndef LZ_CARTESIAN_PRODUCT_HPP
 #define LZ_CARTESIAN_PRODUCT_HPP
 
-#include "Lz/detail/BasicIteratorView.hpp"
-#include "Lz/detail/CartesianProductIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/CartesianProductIterator.hpp"
 
 namespace lz {
 template<class... Iterators>
