@@ -18,7 +18,7 @@
 #include <sstream>
 #endif // LZ_HAS_FORMAT
 #else
-#include "fmt/ostream.h"
+#include <fmt/ostream.h>
 #endif // LZ_STANDALONE
 
 #include "LzTools.hpp"
