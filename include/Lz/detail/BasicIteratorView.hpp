@@ -37,7 +37,9 @@ toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimit
     std::string result;
     using Arithmetic = ValueType<Iterator>;
     std::for_each(begin, end, [&result, &delimiter](const Arithmetic a) {
-        result += std::to_string(a);
+        using std::to_string;
+        using lz::internal::to_string;
+        result += to_string(a);
         result += delimiter;
     });
     return result;

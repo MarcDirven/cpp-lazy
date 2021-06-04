@@ -20,7 +20,9 @@ namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
 std::string toStringSpecialized(std::true_type /* isArithmetic */, const T value) {
-    return std::to_string(value);
+    using std::to_string;
+    using lz::internal::to_string;
+    return to_string(value);
 }
 
 template<class T>
