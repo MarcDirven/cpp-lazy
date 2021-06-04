@@ -47,7 +47,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
-          # -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
@@ -94,7 +94,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
-          # -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+          -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
         run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
