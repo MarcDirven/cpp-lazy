@@ -17,14 +17,14 @@ template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, cla
 class ExceptIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     Iterator _iterator{};
     Iterator _end{};
     IteratorToExcept _toExceptBegin{};
@@ -53,7 +53,7 @@ class ExceptIterator {
 #endif // LZ_HAS_EXECUTION
     }
 
-  public:
+public:
     constexpr ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
@@ -78,11 +78,11 @@ class ExceptIterator {
         find();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return *_iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
@@ -98,11 +98,11 @@ class ExceptIterator {
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
         return !(a != b); // NOLINT
     }
 };

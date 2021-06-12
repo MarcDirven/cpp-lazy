@@ -1,10 +1,10 @@
-#include <catch2/catch.hpp>
 #include <Lz/Join.hpp>
+#include <catch2/catch.hpp>
 #include <sstream>
 
 TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
-    std::vector<int> v = {1, 2, 3, 4, 5};
-    std::vector<std::string> s = {"h", "e", "l", "l", "o"};
+    std::vector<int> v = { 1, 2, 3, 4, 5 };
+    std::vector<std::string> s = { "h", "e", "l", "l", "o" };
     auto joinInt = lz::join(v, ", ");
     auto joinStr = lz::join(s, ", ");
 
@@ -31,13 +31,13 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     }
 
     SECTION("Immediate to string") {
-    	CHECK(lz::strJoin(v) == "12345");
+        CHECK(lz::strJoin(v) == "12345");
     }
 }
 
 TEST_CASE("Join binary operations", "[Join][Binary ops]") {
-    std::vector<int> v = {1, 2, 3, 4, 5};
-    std::vector<std::string> s = {"h", "e", "l", "l", "o"};
+    std::vector<int> v = { 1, 2, 3, 4, 5 };
+    std::vector<std::string> s = { "h", "e", "l", "l", "o" };
     auto joinInt = lz::join(v, ", ");
     auto joinStr = lz::join(s, ", ");
 
@@ -61,7 +61,7 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
         CHECK(*--joinIntBegin == "1");
         auto joinIntEnd = joinInt.end();
         CHECK(*--joinIntEnd == "5");
-		CHECK(*--joinIntEnd == ", ");
+        CHECK(*--joinIntEnd == ", ");
 
         --joinStrBegin;
         CHECK(*joinStrBegin == "h");

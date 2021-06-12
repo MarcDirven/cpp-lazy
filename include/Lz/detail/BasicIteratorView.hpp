@@ -27,47 +27,47 @@ namespace lz {
 namespace internal {
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterator>
-std::string
+void
 #if defined(LZ_HAS_STRING_VIEW)
-toStringImplSpecialized(Iterator begin, Iterator end, const std::string_view delimiter, std::true_type /* isArithmetic */) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const std::string_view delimiter,
+                        std::true_type /* isArithmetic */) {
 #else
-toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::true_type /* isArithmetic */) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const std::string& delimiter,
+                        std::true_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
-    std::string result;
-    using Arithmetic = ValueType<Iterator>;
-    std::for_each(begin, end, [&result, &delimiter](const Arithmetic a) {
+    std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
         using std::to_string;
         using lz::internal::to_string;
-        result += to_string(a);
+        result += to_string(vt);
         result += delimiter;
     });
-    return result;
 }
 
 template<class Iterator>
-std::string
+void
 #if defined(LZ_HAS_STRING_VIEW)
-toStringImplSpecialized(Iterator begin, Iterator end, const std::string_view delimiter, std::false_type /* isArithmetic */) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const std::string_view delimiter,
+                        std::false_type /* isArithmetic */) {
 #else
-toStringImplSpecialized(Iterator begin, Iterator end, const std::string& delimiter, std::false_type /* isArithmetic */) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const std::string& delimiter,
+                        std::false_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
     std::ostringstream oss;
     std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) { oss << t << delimiter; });
-    return oss.str();
+    result = oss.str();
 }
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
 template<class Iterator>
 #ifdef LZ_HAS_STRING_VIEW
-std::string toStringImpl(Iterator begin, Iterator end, const std::string_view delimiter) {
+LZ_CONSTEXPR_CXX_20 void toStringImpl(std::string& result, Iterator begin, Iterator end, const std::string_view delimiter) {
 #else
-std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimiter) {
+void toStringImpl(std::string& result, Iterator begin, Iterator end, const std::string& delimiter) {
 #endif
     using TValueType = ValueType<Iterator>;
     if (begin == end) {
-        return "";
+        return;
     }
-    std::string result;
 #if !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
     auto backInserter = std::back_inserter(result);
 #endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
@@ -78,12 +78,45 @@ std::string toStringImpl(Iterator begin, Iterator end, const std::string& delimi
 #elif defined(LZ_HAS_FORMAT)
     std::for_each(begin, end,
                   [&delimiter, backInserter](const TValueType& v) { std::format_to(backInserter, "{}{}", v, delimiter); });
+    // clang-format off
 #else
-result = toStringImplSpecialized(begin, end, delimiter, std::is_arithmetic<TValueType>());
+    toStringImplSpecialized(result, begin, end, delimiter, std::is_arithmetic<TValueType>());
 #endif // LZ_STANDALONE
-
+    // clang-format on
     const auto resultEnd = result.end();
     result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.length()), resultEnd);
+}
+
+template<class Iterator>
+#ifdef LZ_HAS_STRING_VIEW
+LZ_CONSTEXPR_CXX_20 std::string
+doMakeString(Iterator b, Iterator e, const std::string_view delimiter, std::true_type /* isChar */) {
+#else
+std::string doMakeString(Iterator b, Iterator e, const std::string& delimiter, std::true_type /* isChar */) {
+#endif // LZ_HAS_STRING_VIEW
+    if (delimiter.empty()) {
+        return std::string(b, e);
+    }
+    std::string result;
+    if LZ_CONSTEXPR_IF (IsForward<Iterator>::value) {
+        using lz::distance;
+        using std::distance;
+        const auto len = static_cast<std::size_t>(distance(b, e));
+        result.reserve(len + delimiter.size() * len + 1);
+    }
+    toStringImpl(result, b, e, delimiter);
+    return result;
+}
+
+template<class Iterator>
+#ifdef LZ_HAS_STRING_VIEW
+LZ_CONSTEXPR_CXX_20 std::string
+doMakeString(Iterator b, Iterator e, const std::string_view delimiter, std::false_type /* isChar */) {
+#else
+std::string doMakeString(Iterator b, Iterator e, const std::string& delimiter, std::false_type /* isChar */) {
+#endif // LZ_HAS_STRING_VIEW
+    std::string result;
+    toStringImpl(result, std::move(b), std::move(e), delimiter);
     return result;
 }
 
@@ -104,7 +137,7 @@ class HasResize {
         return {};
     }
 
-  public:
+public:
     // clang-format off
     enum {
         value = sizeof(test<Container>(nullptr)) == sizeof(One)
@@ -124,7 +157,7 @@ class HasReserve {
         return {};
     }
 
-  public:
+public:
     // clang-format off
     enum {
         value = sizeof(test<Container>(nullptr)) == sizeof(One)
@@ -134,16 +167,16 @@ class HasReserve {
 
 template<class LzIterator>
 class BasicIteratorView {
-  protected:
+protected:
     LzIterator _begin{};
     LzIterator _end{};
 
-  public:
+public:
     using value_type = internal::ValueType<LzIterator>;
     using iterator = LzIterator;
     using const_iterator = iterator;
 
-  private:
+private:
     template<class KeySelectorFunc>
     using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
 
@@ -246,7 +279,7 @@ class BasicIteratorView {
         return array;
     }
 #endif // LZ_HAS_EXECUTION
-  public:
+public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER noexcept {
         return _begin;
     }
@@ -462,11 +495,11 @@ class BasicIteratorView {
      * @return The converted iterator in string format.
      */
 #ifdef LZ_HAS_STRING_VIEW
-    LZ_NODISCARD std::string toString(const std::string_view delimiter = "") const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string toString(const std::string_view delimiter = "") const {
 #else
     LZ_NODISCARD std::string toString(const std::string& delimiter = "") const {
 #endif
-        return toStringImpl(begin(), end(), delimiter);
+        return internal::doMakeString(begin(), end(), delimiter, std::is_same<char, value_type>());
     // clang-format off
     }
 

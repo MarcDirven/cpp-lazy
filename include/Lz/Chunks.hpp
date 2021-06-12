@@ -8,12 +8,12 @@
 namespace lz {
 template<class Iterator>
 class Chunks final : public internal::BasicIteratorView<internal::ChunksIterator<Iterator>> {
-  public:
+public:
     using iterator = internal::ChunksIterator<Iterator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    LZ_CONSTEXPR_CXX_17 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
+    LZ_CONSTEXPR_CXX_20 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize), iterator(end, end, chunkSize)) {
     }
 
@@ -34,7 +34,7 @@ class Chunks final : public internal::BasicIteratorView<internal::ChunksIterator
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
     return Chunks<Iterator>(std::move(begin), std::move(end), chunkSize);
 }
 
@@ -46,7 +46,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Chunks<Iterator> chunksRange(Iterator begin, It
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Chunks<internal::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<internal::IterTypeFromIterable<Iterable>>
 chunks(Iterable&& iterable, const std::size_t chunkSize) {
     return chunksRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                        chunkSize);

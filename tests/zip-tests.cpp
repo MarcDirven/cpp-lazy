@@ -1,13 +1,11 @@
+#include <Lz/Zip.hpp>
+#include <catch2/catch.hpp>
 #include <list>
 
-#include <catch2/catch.hpp>
-#include <Lz/Zip.hpp>
-
-
 TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
-    std::vector<int> a = {1, 2, 3, 4};
-    std::vector<float> b = {1.f, 2.f, 3.f, 4.f};
-    std::array<short, 4> c = {1, 2, 3, 4};
+    std::vector<int> a = { 1, 2, 3, 4 };
+    std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
+    std::array<short, 4> c = { 1, 2, 3, 4 };
 
     SECTION("Should zip") {
         std::size_t i = 0;
@@ -18,11 +16,11 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
     }
 
     SECTION("Should stop at smallest container") {
-        std::vector<int> smallest = {1, 2};
+        std::vector<int> smallest = { 1, 2 };
         std::size_t counter = 0;
 
         for (const auto& tup : lz::zip(a, b, smallest)) {
-            (void) tup;
+            (void)tup;
             counter++;
         }
 
@@ -47,9 +45,9 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
 
 TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
     constexpr std::size_t size = 4;
-    std::vector<int> a = {1, 2, 3, 4};
-    std::vector<float> b = {1.f, 2.f, 3.f, 4.f};
-    std::array<short, size> c = {1, 2, 3, 4};
+    std::vector<int> a = { 1, 2, 3, 4 };
+    std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
+    std::array<short, size> c = { 1, 2, 3, 4 };
 
     auto zipper = lz::zip(a, b, c);
     auto begin = zipper.begin();
@@ -83,7 +81,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
     SECTION("Operator-(Iterator)") {
         CHECK((zipper.end() - zipper.begin()) == 4);
 
-        std::array<short, 3> shortest = {1, 2, 3};
+        std::array<short, 3> shortest = { 1, 2, 3 };
         auto zip = lz::zip(c, shortest);
         CHECK(std::distance(zip.begin(), zip.end()) == 3);
     }
@@ -105,9 +103,9 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
 
 TEST_CASE("Zip to containers", "[Zip][To container]") {
     constexpr std::size_t size = 4;
-    std::vector<int> a = {1, 2, 3, 4};
-    std::vector<float> b = {1.f, 2.f, 3.f, 4.f};
-    std::array<short, size> c = {1, 2, 3, 4};
+    std::vector<int> a = { 1, 2, 3, 4 };
+    std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
+    std::array<short, size> c = { 1, 2, 3, 4 };
 
     SECTION("To array") {
         auto array = lz::zip(a, b, c).toArray<size>();
@@ -156,10 +154,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
 
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
-        std::map<int, Tuple> actual = lz::zip(a, b, c).toMap(
-            [](const Tuple& tup) {
-                return std::get<0>(tup);
-            });
+        std::map<int, Tuple> actual = lz::zip(a, b, c).toMap([](const Tuple& tup) { return std::get<0>(tup); });
         std::map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),
             std::make_pair(2, std::make_tuple(2, 2.f, static_cast<short>(2))),
@@ -172,10 +167,8 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
 
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
-        std::unordered_map<int, Tuple> actual = lz::zip(a, b, c).toUnorderedMap(
-            [](const Tuple& tup) {
-                return std::get<0>(tup);
-            });
+        std::unordered_map<int, Tuple> actual =
+            lz::zip(a, b, c).toUnorderedMap([](const Tuple& tup) { return std::get<0>(tup); });
 
         std::unordered_map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),

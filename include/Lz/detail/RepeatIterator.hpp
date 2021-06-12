@@ -15,7 +15,7 @@ class RepeatIterator {
     std::size_t _amount{};
     std::size_t _iterator{};
 
-  public:
+public:
     using iterator_category = std::random_access_iterator_tag;
     using value_type = T;
     using difference_type = std::ptrdiff_t;

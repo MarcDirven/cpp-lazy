@@ -9,16 +9,16 @@
 namespace lz {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
-  public:
+public:
     using iterator = internal::RangeIterator<Arithmetic>;
     using const_iterator = iterator;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using value_type = typename iterator::value_type;
 
-  private:
+private:
     using Base = internal::BasicIteratorView<iterator>;
 
-  public:
+public:
     /**
      * @brief Range iterator constructor from [start, end) with step.
      * @param start The start of the counting.

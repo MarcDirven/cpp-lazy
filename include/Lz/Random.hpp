@@ -23,7 +23,7 @@ inline std::mt19937 createMtEngine() {
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 class Random final : public internal::BasicIteratorView<internal::RandomIterator<Arithmetic, Distribution, Generator>> {
-  public:
+public:
     using iterator = internal::RandomIterator<Arithmetic, Distribution, Generator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

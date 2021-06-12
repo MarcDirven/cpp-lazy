@@ -15,7 +15,7 @@ class Except final
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer>
 class Except final : public internal::BasicIteratorView<internal::ExceptIterator<Iterator, IteratorToExcept, Comparer>> {
 #endif
-  public:
+public:
 #ifdef LZ_HAS_EXECUTION
     using iterator = internal::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>;
 #else
@@ -37,7 +37,7 @@ class Except final : public internal::BasicIteratorView<internal::ExceptIterator
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
                                               iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
     }
-#else // ^^^ has execution vvv ! has execution
+#else  // ^^^ has execution vvv ! has execution
     Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
                                               iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {

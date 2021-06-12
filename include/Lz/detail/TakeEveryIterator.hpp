@@ -19,7 +19,7 @@ class TakeEveryIterator {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using value_type = typename IterTraits::value_type;
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using difference_type = typename IterTraits::difference_type;
@@ -36,15 +36,15 @@ class TakeEveryIterator {
 
     constexpr TakeEveryIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return *_iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_17 TakeEveryIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator++() {
         using lz::next;
         using std::next;
         if (_current + _offset >= _distance) {
@@ -57,22 +57,22 @@ class TakeEveryIterator {
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 TakeEveryIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator operator++(int) {
         TakeEveryIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         using lz::distance;
         using std::distance;
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
@@ -80,7 +80,7 @@ class TakeEveryIterator {
         return static_cast<difference_type>(std::ceil(dist));
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 TakeEveryIterator operator+(const difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEveryIterator operator+(const difference_type offset) const {
         using lz::distance;
         using lz::next;
         using std::distance;
@@ -102,7 +102,7 @@ class TakeEveryIterator {
  * @return The distance between begin and end.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 typename internal::TakeEveryIterator<Iterator>::difference_type
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::TakeEveryIterator<Iterator>::difference_type
 distance(const internal::TakeEveryIterator<Iterator>& begin, const internal::TakeEveryIterator<Iterator>& end) {
     return end - begin;
 }
@@ -114,9 +114,9 @@ distance(const internal::TakeEveryIterator<Iterator>& begin, const internal::Tak
  * @return A take every iterator with offset iter + value.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::TakeEveryIterator<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::TakeEveryIterator<Iterator>
 next(const internal::TakeEveryIterator<Iterator>& t, const internal::DiffType<internal::TakeEveryIterator<Iterator>> value) {
-    LZ_ASSERT(value >= 0, "Take every iterator is not random access, offset must be >= 0");
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return t + value;
 }
 } // namespace lz

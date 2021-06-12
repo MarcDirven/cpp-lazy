@@ -30,11 +30,6 @@ jobs:
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
 
-      #      - name: Add repository for GCC 10
-      #        if: matrix.version == 10
-      #        run: |
-      #          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-      #          sudo apt-get update
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
           gcc-${{ matrix.version }} g++-${{ matrix.version }}
@@ -94,6 +89,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D CMAKE_CXX_COMPILER=clang++
           -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
@@ -107,6 +103,7 @@ jobs:
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
           -D TEST_INSTALLED_VERSION:BOOL=YES
+          -D CMAKE_CXX_COMPILER=clang++
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests

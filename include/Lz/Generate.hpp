@@ -9,7 +9,7 @@
 namespace lz {
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
 class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {
-  public:
+public:
     using iterator = internal::GenerateIterator<GeneratorFunc>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

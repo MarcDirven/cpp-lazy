@@ -70,7 +70,7 @@ class IterView final : public internal::BasicIteratorView<Iterator> {
     using Base = internal::BasicIteratorView<Iterator>;
     using Traits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator = Iterator;
     using const_iterator = iterator;
     using difference_type = typename Traits::difference_type;

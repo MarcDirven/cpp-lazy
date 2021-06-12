@@ -1,8 +1,6 @@
-#include <catch2/catch.hpp>
-
 #include <Lz/Concatenate.hpp>
+#include <catch2/catch.hpp>
 #include <list>
-
 
 TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality]") {
     std::string a = "hello ";
@@ -26,11 +24,11 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
     }
 
     SECTION("Should (be) sort(ed)") {
-    	std::array<int, 10> arr1 = {5, 2, 67, 1235, 654, 23, 6, 1324, 6, 34};
-    	std::array<int, 10> arr2 = {756, 23, 465, 1, 6, 4, 1234, 65, 567, 2};
-    	auto concatted = lz::concat(arr1, arr2);
-    	std::sort(concatted.begin(), concatted.end());
-    	CHECK(std::is_sorted(concatted.begin(), concatted.end()));
+        std::array<int, 10> arr1 = { 5, 2, 67, 1235, 654, 23, 6, 1324, 6, 34 };
+        std::array<int, 10> arr2 = { 756, 23, 465, 1, 6, 4, 1234, 65, 567, 2 };
+        auto concatted = lz::concat(arr1, arr2);
+        std::sort(concatted.begin(), concatted.end());
+        CHECK(std::is_sorted(concatted.begin(), concatted.end()));
     }
 }
 
@@ -95,48 +93,35 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
     }
 }
 
-
 TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
-    std::vector<int> v1 = {1, 2, 3};
-    std::vector<int> v2 = {4, 5, 6};
+    std::vector<int> v1 = { 1, 2, 3 };
+    std::vector<int> v2 = { 4, 5, 6 };
     auto concat = lz::concat(v1, v2);
 
     SECTION("To array") {
         constexpr std::size_t size = 3 + 3;
-        CHECK(concat.toArray<size>() == std::array<int, size>{1, 2, 3, 4, 5, 6});
+        CHECK(concat.toArray<size>() == std::array<int, size>{ 1, 2, 3, 4, 5, 6 });
     }
 
     SECTION("To vector") {
-        CHECK(concat.toVector() == std::vector<int>{1, 2, 3, 4, 5, 6});
+        CHECK(concat.toVector() == std::vector<int>{ 1, 2, 3, 4, 5, 6 });
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(concat.to<std::list>() == std::list<int>{1, 2, 3, 4, 5, 6});
+        CHECK(concat.to<std::list>() == std::list<int>{ 1, 2, 3, 4, 5, 6 });
     }
 
     SECTION("To map") {
         std::map<int, int> map = concat.toMap([](const int i) { return i; });
-        std::map<int, int> expected = {
-            std::make_pair(1, 1),
-            std::make_pair(2, 2),
-            std::make_pair(3, 3),
-            std::make_pair(4, 4),
-            std::make_pair(5, 5),
-            std::make_pair(6, 6)
-        };
+        std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3),
+                                        std::make_pair(4, 4), std::make_pair(5, 5), std::make_pair(6, 6) };
         CHECK(map == expected);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<int, int> map = concat.toUnorderedMap([](const int i) { return i; });
-        std::unordered_map<int, int> expected = {
-            std::make_pair(1, 1),
-            std::make_pair(2, 2),
-            std::make_pair(3, 3),
-            std::make_pair(4, 4),
-            std::make_pair(5, 5),
-            std::make_pair(6, 6)
-        };
+        std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3),
+                                                  std::make_pair(4, 4), std::make_pair(5, 5), std::make_pair(6, 6) };
         CHECK(map == expected);
     }
 }

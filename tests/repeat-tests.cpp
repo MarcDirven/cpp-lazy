@@ -1,10 +1,7 @@
-#include <list>
-#include <array>
-
-#include <catch2/catch.hpp>
-
 #include <Lz/Repeat.hpp>
-
+#include <array>
+#include <catch2/catch.hpp>
+#include <list>
 
 TEST_CASE("Repeat changing and creating elements", "[Repeat][Basic functionality]") {
     int toRepeat = 20;
@@ -24,7 +21,6 @@ TEST_CASE("Repeat changing and creating elements", "[Repeat][Basic functionality
         CHECK(&(*start) != &toRepeat);
     }
 }
-
 
 TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
     const int amount = 5;

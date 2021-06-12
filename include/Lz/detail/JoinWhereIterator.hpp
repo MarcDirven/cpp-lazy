@@ -15,7 +15,7 @@ template<class IterA, class IterB, class SelectorA, class SelectorB, class Resul
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 #endif // LZ_HAS_EXECUTION
 class JoinWhereIterator {
-  private:
+private:
     using IterTraitsA = std::iterator_traits<IterA>;
     using IterTraitsB = std::iterator_traits<IterB>;
     using ValueTypeB = typename IterTraitsB::value_type;
@@ -79,7 +79,7 @@ class JoinWhereIterator {
 #endif // LZ_HAS_EXECUTION
     }
 
-  public:
+public:
     using reference = decltype(_resultSelector(*_iterA, *_iterB));
     using value_type = Decay<reference>;
     using iterator_category = std::forward_iterator_tag;
@@ -87,8 +87,8 @@ class JoinWhereIterator {
     using pointer = FakePointerProxy<reference>;
 
 #ifdef LZ_HAS_EXECUTION
-    JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
-                      Execution execution)
+    LZ_CONSTEXPR_CXX_20 JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b,
+                                          ResultSelector resultSelector, Execution execution)
 #else
     LZ_CONSTEXPR_CXX_20
     JoinWhereIterator(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector)
@@ -113,31 +113,31 @@ class JoinWhereIterator {
 
     constexpr JoinWhereIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return _resultSelector(*_iterA, *_iterB);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_17 JoinWhereIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 JoinWhereIterator& operator++() {
         ++_iterB;
         findNext();
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 JoinWhereIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_20 JoinWhereIterator operator++(int) {
         JoinWhereIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
         return a._iterA == b._iterA;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
         return !(a == b); // NOLINT
     }
 };

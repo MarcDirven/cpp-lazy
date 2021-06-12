@@ -1,8 +1,6 @@
-#include <list>
-
-#include <catch2/catch.hpp>
 #include <Lz/Range.hpp>
-
+#include <catch2/catch.hpp>
+#include <list>
 
 TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]") {
     SECTION("Looping upwards") {
@@ -17,7 +15,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping backwards") {
         int expectedCounter = 5;
 
-        for (int i: lz::range(5, 0, -1)) {
+        for (int i : lz::range(5, 0, -1)) {
             CHECK(expectedCounter == i);
             expectedCounter--;
         }
@@ -26,7 +24,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping upwards with step") {
         int expectedCounter = 0;
 
-        for (int i: lz::range(0, 5, 2)) {
+        for (int i : lz::range(0, 5, 2)) {
             CHECK(expectedCounter == i);
             expectedCounter += 2;
         }
@@ -35,7 +33,7 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
     SECTION("Looping backwards with step") {
         int expectedCounter = 5;
 
-        for (int i: lz::range(5, 0, -2)) {
+        for (int i : lz::range(5, 0, -2)) {
             CHECK(expectedCounter == i);
             expectedCounter -= 2;
         }
@@ -60,19 +58,19 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         CHECK(it == range.end());
     }
 
-	SECTION("Lz distance") {
-		CHECK(lz::distance(range.begin(), range.end()) == 10);
-		range = lz::range(5, 10, 2);
-		CHECK(lz::distance(range.begin(), range.end()) == 3);
-		range = lz::range(5, 10, 3);
-		CHECK(lz::distance(range.begin(), range.end()) == 2);
-	}
+    SECTION("Lz distance") {
+        CHECK(lz::distance(range.begin(), range.end()) == 10);
+        range = lz::range(5, 10, 2);
+        CHECK(lz::distance(range.begin(), range.end()) == 3);
+        range = lz::range(5, 10, 3);
+        CHECK(lz::distance(range.begin(), range.end()) == 2);
+    }
 
-	SECTION("Lz next") {
-    	CHECK(*lz::next(it, 5) == 5);
-    	CHECK(*lz::next(it, 11)  == 11);
-    	range = lz::range(5, 10, 2);
-    	CHECK(*lz::next(range.begin(), 2) == 9);
+    SECTION("Lz next") {
+        CHECK(*lz::next(it, 5) == 5);
+        CHECK(*lz::next(it, 11) == 11);
+        range = lz::range(5, 10, 2);
+        CHECK(*lz::next(range.begin(), 2) == 9);
     }
 }
 
@@ -81,21 +79,21 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     auto range = lz::range(size);
 
     SECTION("To array") {
-        std::array<int, static_cast<std::size_t>(size)> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::array<int, static_cast<std::size_t>(size)> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         auto actual = range.toArray<static_cast<std::size_t>(size)>();
 
         CHECK(expected == actual);
     }
 
     SECTION("To vector") {
-        std::vector<int> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::vector<int> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         auto actual = range.toVector();
 
         CHECK(expected == actual);
     }
 
     SECTION("To other container using to<>()") {
-        std::list<int> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::list<int> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         auto actual = range.to<std::list>();
 
         CHECK(expected == actual);

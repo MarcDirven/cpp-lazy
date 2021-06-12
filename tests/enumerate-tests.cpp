@@ -1,20 +1,17 @@
-#include <list>
-
-#include <catch2/catch.hpp>
 #include <Lz/Enumerate.hpp>
-
+#include <catch2/catch.hpp>
+#include <list>
 
 TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functionality]") {
     constexpr std::size_t size = 2;
-    std::array<int, size> array = {1, 2};
-
+    std::array<int, size> array = { 1, 2 };
 
     SECTION("Enumerate should create pair with {idx, elm}") {
         auto enumerate = lz::enumerate(array);
         auto element = *enumerate.begin();
 
         CHECK(element.first == 0);  // Idx
-        CHECK(element.second == 1);  // Element
+        CHECK(element.second == 1); // Element
     }
 
     SECTION("Enumerate should create pair with {idx, elm} with offset") {
@@ -22,7 +19,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
         auto element = *enumerate.begin();
 
         CHECK(element.first == 2);  // Idx
-        CHECK(element.second == 1);  // Element
+        CHECK(element.second == 1); // Element
     }
 
     SECTION("Enumerate should be by reference") {
@@ -34,23 +31,22 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
     }
 }
 
-
 TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     constexpr std::size_t size = 3;
-    std::array<int, size> array = {1, 2, 3};
+    std::array<int, size> array = { 1, 2, 3 };
     auto enumerate = lz::enumerate(array);
     auto begin = enumerate.begin();
     ++begin; // Increment by one
 
     SECTION("Operator++") {
-        CHECK(begin->first == 1); // Index
+        CHECK(begin->first == 1);  // Index
         CHECK(begin->second == 2); // element
     }
 
     SECTION("Operator--") {
         --begin;
         // Decrement by one, back at begin()
-        CHECK(begin->first == 0); // Index
+        CHECK(begin->first == 0);  // Index
         CHECK(begin->second == 1); // element
     }
 
@@ -61,12 +57,12 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        CHECK((begin + 1)->first == 2); // Index
+        CHECK((begin + 1)->first == 2);  // Index
         CHECK((begin + 1)->second == 3); // element
     }
 
     SECTION("Operator-(int), tests -= as well") {
-        CHECK((begin - 1)->first == 0); // Index
+        CHECK((begin - 1)->first == 0);  // Index
         CHECK((begin - 1)->second == 1); // element
     }
 
@@ -93,8 +89,8 @@ TEST_CASE("Enumerate binary operations", "[Enumerate][Binary ops]") {
 
 TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     constexpr std::size_t size = 3;
-    std::array<int, size> array = {1, 2, 3};
-    std::vector<int> vec = {1, 2, 3};
+    std::array<int, size> array = { 1, 2, 3 };
+    std::vector<int> vec = { 1, 2, 3 };
 
     SECTION("To array") {
         std::array<std::pair<int, int>, size> actualArray = lz::enumerate(array).toArray<size>();
@@ -128,9 +124,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
 
     SECTION("To map") {
         auto enumerator = lz::enumerate(array);
-        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) {
-            return pair.second;
-        });
+        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) { return pair.second; });
 
         std::map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),
@@ -143,10 +137,8 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
 
     SECTION("To unordered map") {
         auto enumerator = lz::enumerate(array);
-        std::unordered_map<int, std::pair<int, int>> actual = enumerator.toUnorderedMap(
-            [](const std::pair<int, int> pair) {
-                return pair.second;
-            });
+        std::unordered_map<int, std::pair<int, int>> actual =
+            enumerator.toUnorderedMap([](const std::pair<int, int> pair) { return pair.second; });
 
         std::unordered_map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),

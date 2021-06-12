@@ -15,22 +15,22 @@ class SplitIterator {
     const String* _string{ nullptr };
     StringType _delimiter{};
 
-    std::size_t getLength(std::true_type /* isChar */) const {
+    constexpr std::size_t getLength(std::true_type /* isChar */) const {
         return 1;
     }
 
-    std::size_t getLength(std::false_type /* isChar */) const {
+    LZ_CONSTEXPR_CXX_20 std::size_t getLength(std::false_type /* isChar */) const {
         return _delimiter.length();
     }
 
-  public:
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = SubString;
     using reference = SubString;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
 
-    SplitIterator(const std::size_t startingPosition, const String& string, StringType delimiter) :
+    LZ_CONSTEXPR_CXX_20 SplitIterator(const std::size_t startingPosition, const String& string, StringType delimiter) :
         _currentPos(startingPosition),
         _string(&string),
         _delimiter(std::move(delimiter)) {
@@ -42,7 +42,7 @@ class SplitIterator {
 
     SplitIterator() = default;
 
-    value_type operator*() const {
+    LZ_CONSTEXPR_CXX_20 value_type operator*() const {
         if (_last != std::string::npos) {
             return SubString(&(*_string)[_currentPos], _last - _currentPos);
         }
@@ -51,19 +51,19 @@ class SplitIterator {
         }
     }
 
-    pointer operator->() const {
+    LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
+    constexpr friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
         return a._currentPos != b._currentPos;
     }
 
-    friend bool operator==(const SplitIterator& a, const SplitIterator& b) noexcept {
+    constexpr friend bool operator==(const SplitIterator& a, const SplitIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 
-    SplitIterator& operator++() noexcept {
+    LZ_CONSTEXPR_CXX_20 SplitIterator& operator++() noexcept {
         const std::size_t delimLen = getLength(std::is_same<StringType, char>());
         const std::size_t stringLen = _string->length();
         if (_last == std::string::npos) {
@@ -81,7 +81,7 @@ class SplitIterator {
         return *this;
     }
 
-    SplitIterator operator++(int) noexcept {
+    LZ_CONSTEXPR_CXX_20 SplitIterator operator++(int) noexcept {
         SplitIterator tmp(*this);
         ++*this;
         return tmp;

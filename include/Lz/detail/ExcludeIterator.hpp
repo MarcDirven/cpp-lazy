@@ -9,14 +9,14 @@ template<class Iterator>
 class ExcludeIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     Iterator _iterator{};
     Iterator _begin{};
     Iterator _end{};
@@ -24,8 +24,8 @@ class ExcludeIterator {
     difference_type _from{};
     difference_type _to{};
 
-  public:
-    LZ_CONSTEXPR_CXX_17
+public:
+    LZ_CONSTEXPR_CXX_20
     ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from, const difference_type to) :
         _iterator(std::move(it)),
         _begin(std::move(begin)),
@@ -42,15 +42,15 @@ class ExcludeIterator {
 
     constexpr ExcludeIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return *_iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_17 ExcludeIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 ExcludeIterator& operator++() {
         using lz::next;
         using std::next;
         ++_iterator;
@@ -61,22 +61,22 @@ class ExcludeIterator {
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 ExcludeIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_20 ExcludeIterator operator++(int) {
         ExcludeIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
         LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ExcludeIterator& a, const ExcludeIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ExcludeIterator& a, const ExcludeIterator& b) {
         LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
         using lz::distance;
         using std::distance;
@@ -86,7 +86,7 @@ class ExcludeIterator {
         return distance(b._iterator, a._iterator) - (a._to - b._from);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ExcludeIterator operator+(difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ExcludeIterator operator+(difference_type offset) const {
         using lz::distance;
         using lz::next;
         using std::distance;
@@ -111,14 +111,15 @@ class ExcludeIterator {
 } // namespace internal
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 typename internal::ExcludeIterator<Iterator>::difference_type
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
 distance(const internal::ExcludeIterator<Iterator>& begin, const internal::ExcludeIterator<Iterator>& end) {
     return end - begin;
 }
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>& iter, internal::DiffType<internal::ExcludeIterator<Iterator>> value) {
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz

@@ -13,7 +13,7 @@ class RangeIterator {
     Arithmetic _iterator{};
     Arithmetic _step{};
 
-  public:
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = Arithmetic;
     using difference_type = typename std::make_signed<Arithmetic>::type;
@@ -92,7 +92,7 @@ distance(const internal::RangeIterator<Arithmetic>& a, const internal::RangeIter
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
 next(const internal::RangeIterator<Arithmetic>& iter, const internal::DiffType<internal::RangeIterator<Arithmetic>> value) {
-    LZ_ASSERT(value >= 0, "Range iterator is not bidirectional, offset must be >= 0");
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz
