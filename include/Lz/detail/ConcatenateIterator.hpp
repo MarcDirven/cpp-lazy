@@ -11,7 +11,7 @@ namespace lz {
 namespace internal {
 template<class Tuple, std::size_t I, class = void>
 struct PlusPlus {
-    LZ_CONSTEXPR_CXX_17 void operator()(Tuple& iterators, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end) const {
         if (std::get<I>(iterators) != std::get<I>(end)) {
             ++std::get<I>(iterators);
         }
@@ -23,13 +23,13 @@ struct PlusPlus {
 
 template<class Tuple, std::size_t I>
 struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value>> {
-    LZ_CONSTEXPR_CXX_17 void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(const Tuple& /*iterators*/, const Tuple& /*end*/) const {
     }
 };
 
 template<class Tuple, std::size_t I, class = void>
 struct NotEqual {
-    LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const {
         const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
         return iterHasValue ? iterHasValue : NotEqual<Tuple, I + 1>()(iterators, end);
     }
@@ -37,28 +37,28 @@ struct NotEqual {
 
 template<class Tuple, std::size_t I>
 struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_17 bool operator()(const Tuple& iterators, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const {
         return std::get<I>(iterators) != std::get<I>(end);
     }
 };
 
 template<class Tuple, std::size_t I, class = void>
 struct Deref {
-    LZ_CONSTEXPR_CXX_17 auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
+    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const Tuple& end) const -> decltype(*std::get<I>(iterators)) {
         return std::get<I>(iterators) != std::get<I>(end) ? *std::get<I>(iterators) : Deref<Tuple, I + 1>()(iterators, end);
     }
 };
 
 template<class Tuple, std::size_t I>
 struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_17 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
+    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
         return *std::get<I>(iterators);
     }
 };
 
 template<class Tuple, std::size_t I>
 struct MinusMinus {
-    LZ_CONSTEXPR_CXX_17 void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
         using lz::distance;
         using std::distance;
         if (distance(std::get<I>(begin), std::get<I>(iterators)) > 0) {
@@ -72,7 +72,7 @@ struct MinusMinus {
 
 template<class Tuple>
 struct MinusMinus<Tuple, 0> {
-    LZ_CONSTEXPR_CXX_17 void operator()(Tuple& iterators, const Tuple&, const Tuple&) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple&, const Tuple&) const {
         --std::get<0>(iterators);
     }
 };
@@ -80,7 +80,7 @@ struct MinusMinus<Tuple, 0> {
 template<class Tuple, std::size_t I>
 struct MinIs {
     template<class DifferenceType>
-    LZ_CONSTEXPR_CXX_17 void
+    LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
         using lz::distance;
         using std::distance;
@@ -107,7 +107,7 @@ struct MinIs {
 template<class Tuple>
 struct MinIs<Tuple, 0> {
     template<class DifferenceType>
-    LZ_CONSTEXPR_CXX_17 void
+    LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& /*end*/, const DifferenceType offset) const {
         using TupElem = TupleElement<0, Tuple>;
         TupElem& current = std::get<0>(iterators);
@@ -120,7 +120,7 @@ struct MinIs<Tuple, 0> {
 template<class Tuple, std::size_t I, class = void>
 struct PlusIs {
     template<class DifferenceType>
-    LZ_CONSTEXPR_CXX_17 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
         using lz::distance;
         using std::distance;
         using TupElem = TupleElement<I, Tuple>;
@@ -142,7 +142,7 @@ struct PlusIs {
 template<class Tuple, std::size_t I>
 struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
     template<class DifferenceType>
-    LZ_CONSTEXPR_CXX_17 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
+    constexpr void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
     }
 };
 
@@ -179,53 +179,53 @@ public:
 
     constexpr ConcatenateIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return Deref<IterTuple, 0>()(_iterators, _end);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator++() {
         PlusPlus<IterTuple, 0>()(_iterators, _end);
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator++(int) {
         ConcatenateIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator--() {
         MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end);
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator--(int) {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator--(int) {
         ConcatenateIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator& operator+=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator+=(const difference_type offset) {
         PlusIs<IterTuple, 0>()(_iterators, _end, offset);
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 ConcatenateIterator& operator-=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator-=(const difference_type offset) {
         MinIs<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end, offset);
         return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator+(const difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator+(const difference_type offset) const {
         ConcatenateIterator tmp(*this);
         tmp += offset;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 ConcatenateIterator operator-(const difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator-(const difference_type offset) const {
         ConcatenateIterator tmp(*this);
         tmp -= offset;
         return tmp;
@@ -235,15 +235,15 @@ public:
         return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
         return NotEqual<IterTuple, 0>()(a._iterators, b._iterators);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator[](const difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
         return *(*this + offset);
     }
 

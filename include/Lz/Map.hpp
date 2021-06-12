@@ -20,7 +20,7 @@ public:
      * @param end End of the iterator.
      * @param function A function with parameter the value type. It may return anything.
      */
-    constexpr Map(Iterator begin, Iterator end, Function function) :
+    LZ_CONSTEXPR_CXX_20 Map(Iterator begin, Iterator end, Function function) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
     }
 
@@ -45,7 +45,7 @@ public:
  * using `for (auto... lz::map(...))`.
  */
 template<class Function, LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr Map<Iterator, Function> mapRange(Iterator begin, Iterator end, Function function) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, Function> mapRange(Iterator begin, Iterator end, Function function) {
     return Map<Iterator, Function>(std::move(begin), std::move(end), std::move(function));
 }
 
@@ -59,7 +59,8 @@ LZ_NODISCARD constexpr Map<Iterator, Function> mapRange(Iterator begin, Iterator
  * `for (auto... lz::map(...))`.
  */
 template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, Function> map(Iterable&& iterable, Function function) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, Function>
+map(Iterable&& iterable, Function function) {
     return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                     std::move(function));
 }

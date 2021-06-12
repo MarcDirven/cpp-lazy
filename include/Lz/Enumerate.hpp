@@ -23,7 +23,7 @@ public:
      * @param end Ending of the iterator.
      * @param start The start of the counting index. 0 is assumed by default.
      */
-    LZ_CONSTEXPR_CXX_17 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
+    LZ_CONSTEXPR_CXX_20 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
         internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance(begin, end)), end)) {
     }
 
@@ -49,7 +49,7 @@ public:
  * @return Enumerate iterator object from [begin, end).
  */
 template<LZ_CONCEPT_INTEGRAL Arithmetic = int, LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Enumerate<Iterator, Arithmetic>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<Iterator, Arithmetic>
 enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
@@ -71,7 +71,7 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
  * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
  */
 template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
     return enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           start);

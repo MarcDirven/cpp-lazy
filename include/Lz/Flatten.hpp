@@ -18,7 +18,7 @@ private:
 public:
     constexpr Flatten() = default;
 
-    constexpr Flatten(Iterator begin, Iterator end) : Base(iterator(begin, begin, end), iterator(end, begin, end)) {
+    LZ_CONSTEXPR_CXX_20 Flatten(Iterator begin, Iterator end) : Base(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 };
 
@@ -34,7 +34,7 @@ public:
  * @return A flatten view object, where its iterator is a forward iterator.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-LZ_NODISCARD constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
     static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
     return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
 }
@@ -46,7 +46,7 @@ LZ_NODISCARD constexpr Flatten<Iterator, Dims> flattenRange(Iterator begin, Iter
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>,
          int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-LZ_NODISCARD constexpr Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
     return flattenRange<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)),
                                         internal::end(std::forward<Iterable>(iterable)));
 }

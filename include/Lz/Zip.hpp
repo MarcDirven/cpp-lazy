@@ -28,7 +28,7 @@ public:
      * @param begin The beginning of all the containers
      * @param end The ending of all the containers
      */
-    LZ_CONSTEXPR_CXX_14 explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+    LZ_CONSTEXPR_CXX_20 explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 
@@ -42,7 +42,7 @@ public:
  */
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
     static_assert(sizeof...(Iterators) > 1, "zip requires more than 1 containers/iterables");
     return Zip<Iterators...>(std::move(begin), std::move(end));
 }
@@ -59,7 +59,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterators...> zipRange(std::tuple<Iterators
  * `for (auto tuple :  lz::zip(...))`.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<internal::IterTypeFromIterable<Iterables>...> zip(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<internal::IterTypeFromIterable<Iterables>...> zip(Iterables&&... iterables) {
     return zipRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
                     std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }

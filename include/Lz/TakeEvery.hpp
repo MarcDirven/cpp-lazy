@@ -22,7 +22,8 @@ public:
      * @param offset The offset to add each iteration, aka the amount of elements to skip.
      * @param distance The distance between `begin` and `end`.
      */
-    constexpr TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
+    LZ_CONSTEXPR_CXX_20
+    TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
                                               iterator(end, end, offset, distance)) {
     }
@@ -49,8 +50,9 @@ public:
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
-                                                          const internal::DiffType<Iterator> start = 0) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator>
+takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
+               const internal::DiffType<Iterator> start = 0) {
     using lz::distance;
     using lz::next;
     using std::distance;
@@ -69,7 +71,7 @@ LZ_NODISCARD constexpr TakeEvery<Iterator> takeEveryRange(Iterator begin, Iterat
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD constexpr TakeEvery<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator>
 takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const internal::DiffType<Iterator> start = 0) {
     return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           offset, start);
