@@ -15,7 +15,7 @@ template<class IterA, class IterB, class SelectorA, class SelectorB, class Resul
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 #endif // LZ_HAS_EXECUTION
 class JoinWhereIterator {
-  private:
+private:
     using IterTraitsA = std::iterator_traits<IterA>;
     using IterTraitsB = std::iterator_traits<IterB>;
     using ValueTypeB = typename IterTraitsB::value_type;
@@ -79,7 +79,7 @@ class JoinWhereIterator {
 #endif // LZ_HAS_EXECUTION
     }
 
-  public:
+public:
     using reference = decltype(_resultSelector(*_iterA, *_iterB));
     using value_type = Decay<reference>;
     using iterator_category = std::forward_iterator_tag;

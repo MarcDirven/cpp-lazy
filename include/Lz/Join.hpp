@@ -9,7 +9,7 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Join final : public internal::BasicIteratorView<internal::JoinIterator<Iterator>> {
-  public:
+public:
     using iterator = internal::JoinIterator<Iterator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

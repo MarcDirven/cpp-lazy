@@ -1,16 +1,11 @@
-#include <list>
-
 #include <Lz/Generate.hpp>
-
 #include <catch2/catch.hpp>
-
+#include <list>
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    auto generator = lz::generate([&counter] {
-        return counter++;
-    }, amount);
+    auto generator = lz::generate([&counter] { return counter++; }, amount);
 
     SECTION("Should be 0, 1, 2, 3") {
         std::size_t expected = 0;
@@ -19,7 +14,6 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
         }
     }
 }
-
 
 TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     constexpr std::size_t amount = 4;
@@ -80,57 +74,42 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
 TEST_CASE("Generate to containers", "[Generate][To container]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    auto generator = lz::generate([&counter] {
-        return counter++;
-    }, amount);
+    auto generator = lz::generate([&counter] { return counter++; }, amount);
 
     SECTION("To array") {
         std::array<std::size_t, amount> array = generator.toArray<amount>();
-        std::array<std::size_t, amount> expected = {0, 1, 2, 3};
+        std::array<std::size_t, amount> expected = { 0, 1, 2, 3 };
 
         CHECK(array == expected);
     }
 
     SECTION("To vector") {
         std::vector<std::size_t> vector = generator.toVector();
-        std::vector<std::size_t> expected = {0, 1, 2, 3};
+        std::vector<std::size_t> expected = { 0, 1, 2, 3 };
 
         CHECK(vector == expected);
     }
 
     SECTION("To other container using to<>()") {
         std::list<std::size_t> vector = generator.to<std::list>();
-        std::list<std::size_t> expected = {0, 1, 2, 3};
+        std::list<std::size_t> expected = { 0, 1, 2, 3 };
 
         CHECK(vector == expected);
     }
 
     SECTION("To map") {
-        std::map<std::size_t, std::size_t> map = generator.toMap([](const std::size_t elm) {
-            return elm * 10;
-        });
+        std::map<std::size_t, std::size_t> map = generator.toMap([](const std::size_t elm) { return elm * 10; });
 
-        std::map<std::size_t, std::size_t> expected = {
-            {0, 0},
-            {10, 1},
-            {20, 2},
-            {30, 3}
-        };
+        std::map<std::size_t, std::size_t> expected = { { 0, 0 }, { 10, 1 }, { 20, 2 }, { 30, 3 } };
 
         CHECK(map == expected);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<std::size_t, std::size_t> map = generator.toUnorderedMap([](const std::size_t elm) {
-            return elm * 10;
-        });
+        std::unordered_map<std::size_t, std::size_t> map =
+            generator.toUnorderedMap([](const std::size_t elm) { return elm * 10; });
 
-        std::unordered_map<std::size_t, std::size_t> expected = {
-            {0, 0},
-            {10, 1},
-            {20, 2},
-            {30, 3}
-        };
+        std::unordered_map<std::size_t, std::size_t> expected = { { 0, 0 }, { 10, 1 }, { 20, 2 }, { 30, 3 } };
 
         CHECK(map == expected);
     }

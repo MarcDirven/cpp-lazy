@@ -25,7 +25,7 @@ class UniqueIterator {
     Execution _execution;
 #endif // LZ_HAS_EXECUTION
 
-  public:
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;

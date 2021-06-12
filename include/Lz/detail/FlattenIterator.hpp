@@ -88,7 +88,7 @@ class FlattenWrapper {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
     using value_type = typename IterTraits::value_type;
@@ -173,14 +173,14 @@ template<class Iterator, int N>
 class FlattenIterator {
     using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
 
-  public:
+public:
     using reference = typename Inner::reference;
     using pointer = FakePointerProxy<reference>;
     using value_type = typename Inner::value_type;
     using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
     using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
-  private:
+private:
     LZ_CONSTEXPR_CXX_17 void advance() {
         if (_innerIter.hasSome()) {
             return;
@@ -198,7 +198,7 @@ class FlattenIterator {
     FlattenWrapper<Iterator> _outerIter{};
     Inner _innerIter{};
 
-  public:
+public:
     constexpr FlattenIterator() = default;
 
     LZ_CONSTEXPR_CXX_17 FlattenIterator(Iterator it, Iterator begin, Iterator end) :
@@ -323,7 +323,7 @@ class FlattenIterator<Iterator, 0> {
     FlattenWrapper<Iterator> _range;
     using Traits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using pointer = typename Traits::pointer;
     using reference = typename Traits::reference;
     using value_type = typename Traits::value_type;

@@ -50,7 +50,7 @@ class GroupByIterator {
 #endif
     }
 
-  public:
+public:
     using iterator_category =
         typename std::common_type<std::forward_iterator_tag, typename std::iterator_traits<Iterator>::iterator_category>::type;
     using value_type = std::pair<Decay<Ref>, BasicIteratorView<Iterator>>;

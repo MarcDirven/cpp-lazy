@@ -12,14 +12,14 @@ namespace internal {
 // Edited version of https://github.com/mirandaconrado/product-iterator
 template<class... Iterators>
 class CartesianProductIterator {
-  public:
+public:
     using value_type = std::tuple<ValueType<Iterators>...>;
     using reference = std::tuple<RefType<Iterators>...>;
     using pointer = FakePointerProxy<reference>;
     using iterator_category = typename std::common_type<std::forward_iterator_tag, IterCat<Iterators>...>::type;
     using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
 
-  private:
+private:
     std::tuple<Iterators...> _begin{};
     std::tuple<Iterators...> _iterator{};
     std::tuple<Iterators...> _end{};
@@ -92,7 +92,7 @@ class CartesianProductIterator {
 
     using IndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
 
-  public:
+public:
     constexpr CartesianProductIterator() = default;
 
     LZ_CONSTEXPR_CXX_14 CartesianProductIterator(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :

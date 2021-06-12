@@ -9,7 +9,7 @@ namespace lz {
 namespace internal {
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 class RandomIterator {
-  public:
+public:
     using iterator_category = std::random_access_iterator_tag;
     using value_type = Arithmetic;
     using difference_type = std::ptrdiff_t;
@@ -17,13 +17,13 @@ class RandomIterator {
     using reference = value_type;
     using result_type = value_type;
 
-  private:
+private:
     mutable Distribution _distribution{};
     std::ptrdiff_t _current{};
     bool _isWhileTrueLoop{};
     Generator* _generator{ nullptr };
 
-  public:
+public:
     RandomIterator(const Distribution& distribution, Generator& generator, const std::ptrdiff_t current,
                    const bool isWhileTrueLoop) :
         _distribution(distribution),

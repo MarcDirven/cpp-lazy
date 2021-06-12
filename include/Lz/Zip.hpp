@@ -9,7 +9,7 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
-  public:
+public:
     using iterator = internal::ZipIterator<Iterators...>;
     using const_iterator = iterator;
 

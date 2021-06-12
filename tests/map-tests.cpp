@@ -1,27 +1,18 @@
-#include <list>
-
-#include <catch2/catch.hpp>
-
 #include <Lz/Map.hpp>
+#include <catch2/catch.hpp>
+#include <list>
 
 struct TestStruct {
     std::string testFieldStr;
     int testFieldInt;
 };
 
-
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     constexpr std::size_t size = 3;
-    std::array<TestStruct, size> array = {
-        TestStruct{"FieldA", 1},
-        TestStruct{"FieldB", 2},
-        TestStruct{"FieldC", 3}
-    };
+    std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
 
     SECTION("Should map out element") {
-        auto map = lz::map(array, [](const TestStruct& t) {
-            return t.testFieldStr;
-        });
+        auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
 
         auto it = map.begin();
         CHECK(*it == "FieldA");
@@ -31,7 +22,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
     SECTION("Should be by reference") {
         std::size_t count = 0;
-    	std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t) ->std::string& {
+        std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t) -> std::string& {
             CHECK(&t == &array[count++]);
             return t.testFieldStr;
         };
@@ -43,14 +34,9 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     }
 }
 
-
 TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     constexpr std::size_t size = 3;
-    std::array<TestStruct, size> array = {
-        TestStruct{"FieldA", 1},
-        TestStruct{"FieldB", 2},
-        TestStruct{"FieldC", 3}
-    };
+    std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
 
     std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
         return t.testFieldStr;
@@ -106,14 +92,8 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
 
 TEST_CASE("Map to containers", "[Map][To container]") {
     constexpr std::size_t size = 3;
-    std::array<TestStruct, size> array = {
-        TestStruct{"FieldA", 1},
-        TestStruct{"FieldB", 2},
-        TestStruct{"FieldC", 3}
-    };
-    auto map = lz::map(array, [](const TestStruct& t) {
-       return t.testFieldStr;
-    });
+    std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
+    auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
 
     SECTION("To array") {
         auto stringArray = map.toArray<size>();
@@ -141,9 +121,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To map") {
-        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) {
-            return s;
-        });
+        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) { return s; });
 
         std::map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),
@@ -155,9 +133,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<std::string, std::string> actual = map.toUnorderedMap([](const std::string& s) {
-            return s;
-        });
+        std::unordered_map<std::string, std::string> actual = map.toUnorderedMap([](const std::string& s) { return s; });
 
         std::unordered_map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),

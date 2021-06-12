@@ -7,15 +7,15 @@
 namespace lz {
 template<class Iterator, int Dims>
 class Flatten final : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
-  public:
+public:
     using iterator = internal::FlattenIterator<Iterator, Dims>;
     using const_iterator = iterator;
     using value_type = typename internal::FlattenIterator<Iterator, 0>::value_type;
 
-  private:
+private:
     using Base = internal::BasicIteratorView<iterator>;
 
-  public:
+public:
     constexpr Flatten() = default;
 
     constexpr Flatten(Iterator begin, Iterator end) : Base(iterator(begin, begin, end), iterator(end, begin, end)) {

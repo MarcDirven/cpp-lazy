@@ -9,7 +9,7 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class TakeEvery final : public internal::BasicIteratorView<internal::TakeEveryIterator<Iterator>> {
-  public:
+public:
     using iterator = internal::TakeEveryIterator<Iterator>;
     using const_iterator = iterator;
 

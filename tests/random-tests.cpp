@@ -1,9 +1,6 @@
 #include <Lz/Random.hpp>
-
 #include <catch2/catch.hpp>
-
 #include <list>
-
 
 TEST_CASE("Random should be random", "[Random][Basic functionality]") {
     constexpr std::size_t size = 5;
@@ -22,12 +19,12 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
 }
 
 TEST_CASE("Random with custom distro's and custom engine") {
-	static std::random_device rd;
-	std::mt19937_64 gen(rd());
-	std::poisson_distribution<> d(500'000);
-	auto r = lz::random(d, gen, 3);
-	CHECK(std::distance(r.begin(), r.end()) == 3);
-	CHECK(r.nextRandom() != r.nextRandom());
+    static std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::poisson_distribution<> d(500'000);
+    auto r = lz::random(d, gen, 3);
+    CHECK(std::distance(r.begin(), r.end()) == 3);
+    CHECK(r.nextRandom() != r.nextRandom());
 }
 
 TEST_CASE("Random binary operations", "[Random][Binary ops]") {
@@ -41,12 +38,12 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
         CHECK(prev != *it);
     }
 
-	SECTION("Operator--") {
-		++it;
-		double prev = *it;
-		--it;
-		CHECK(prev != *it);
-	}
+    SECTION("Operator--") {
+        ++it;
+        double prev = *it;
+        --it;
+        CHECK(prev != *it);
+    }
 
     SECTION("Operator== & Operator!=") {
         CHECK(it != random.end());
@@ -54,32 +51,32 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
         CHECK(it == random.end());
     }
 
-	SECTION("Operator+(int), tests += as well") {
-		std::ptrdiff_t offset = 1;
-		CHECK(std::distance(it + offset, random.end()) == size - offset);
-	}
+    SECTION("Operator+(int), tests += as well") {
+        std::ptrdiff_t offset = 1;
+        CHECK(std::distance(it + offset, random.end()) == size - offset);
+    }
 
-	SECTION("Operator-(int), tests -= as well") {
-		++it;
-		CHECK(std::distance(it - 1, random.end()) == size);
-	}
+    SECTION("Operator-(int), tests -= as well") {
+        ++it;
+        CHECK(std::distance(it - 1, random.end()) == size);
+    }
 
-	SECTION("Operator-(Iterator)") {
-		CHECK(random.end() - it == size);
-		CHECK(std::distance(it, random.end()) == size);
-	}
+    SECTION("Operator-(Iterator)") {
+        CHECK(random.end() - it == size);
+        CHECK(std::distance(it, random.end()) == size);
+    }
 
-	SECTION("Operator[]()") {
-		double prev = *it;
-		CHECK(it[1] != prev);
-	}
+    SECTION("Operator[]()") {
+        double prev = *it;
+        CHECK(it[1] != prev);
+    }
 
-	SECTION("Operator<, '<, <=, >, >='") {
-		CHECK(it < random.end());
-		CHECK(it + size + 1 > random.end());
-		CHECK(it + size <= random.end());
-		CHECK(it + size >= random.end());
-	}
+    SECTION("Operator<, '<, <=, >, >='") {
+        CHECK(it < random.end());
+        CHECK(it + size + 1 > random.end());
+        CHECK(it + size <= random.end());
+        CHECK(it + size >= random.end());
+    }
 }
 
 TEST_CASE("Random to containers", "[Random][To container]") {

@@ -8,7 +8,7 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Take final : public internal::BasicIteratorView<Iterator> {
-  public:
+public:
     using iterator = Iterator;
     using const_iterator = Iterator;
 

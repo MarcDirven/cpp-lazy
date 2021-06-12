@@ -12,7 +12,7 @@ using std::distance;
 
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
 class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {
-  public:
+public:
     using iterator = internal::EnumerateIterator<Iterator, IntType>;
     using const_iterator = iterator;
 

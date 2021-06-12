@@ -9,11 +9,11 @@
 namespace lz {
 template<class SubString, class String, class StringType>
 class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String, StringType>> {
-  public:
+public:
     using const_iterator = internal::SplitIterator<SubString, String, StringType>;
     using iterator = const_iterator;
 
-  public:
+public:
     using value_type = SubString;
 
     /**
@@ -21,7 +21,7 @@ class StringSplitter final : public internal::BasicIteratorView<internal::SplitI
      * @param str The string to split.
      * @param delimiter The delimiter to split on.
      */
-    StringSplitter(const String& str, StringType delimiter) :
+    LZ_CONSTEXPR_CXX_20 StringSplitter(const String& str, StringType delimiter) :
         internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
     }
 
@@ -51,7 +51,8 @@ template<class SubString = fmt::string_view>
  * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::split(...))`.
  */
-LZ_NODISCARD StringSplitter<SubString, std::string, std::string> split(const std::string& str, std::string delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string, std::string>
+split(const std::string& str, std::string delimiter) {
     return StringSplitter<SubString, std::string, std::string>(str, std::move(delimiter));
 }
 
@@ -72,7 +73,7 @@ template<class SubString = fmt::string_view>
  * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::split(...))`.
  */
-LZ_NODISCARD StringSplitter<SubString, std::string, char> split(const std::string& str, char delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string, char> split(const std::string& str, char delimiter) {
     return StringSplitter<SubString, std::string, char>(str, delimiter);
 }
 
@@ -104,12 +105,14 @@ StringSplitter<SubString, std::string, std::string> split(std::string&& str, std
  * `for (auto... lz::split(...))`.
  */
 template<class SubString = std::string_view>
-LZ_NODISCARD StringSplitter<SubString, std::string_view, std::string> split(const std::string_view& str, std::string delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string_view, std::string>
+split(const std::string_view& str, std::string delimiter) {
     return StringSplitter<SubString, std::string_view, std::string>(str, std::move(delimiter));
 }
 
 template<class SubString = std::string_view>
-LZ_NODISCARD StringSplitter<SubString, std::string_view, std::string> split(const std::string_view& str, char delimiter) {
+LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, std::string>
+split(const std::string_view& str, char delimiter) {
     return StringSplitter<SubString, std::string_view, char>(str, delimiter);
 }
 

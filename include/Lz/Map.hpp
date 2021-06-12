@@ -9,7 +9,7 @@
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {
-  public:
+public:
     using iterator = internal::MapIterator<Iterator, Function>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

@@ -18,14 +18,14 @@ class ChunksIterator {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using value_type = BasicIteratorView<Iterator>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
     using difference_type = typename IterTraits::difference_type;
 
-  private:
+private:
     LZ_CONSTEXPR_CXX_17 void nextChunk() {
         using lz::distance;
         using lz::next;
@@ -43,7 +43,7 @@ class ChunksIterator {
         }
     }
 
-  public:
+public:
     LZ_CONSTEXPR_CXX_17 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize) :
         _subRangeBegin(begin == end ? end : begin),
         _subRangeEnd(begin == end ? end : std::move(begin)),
@@ -138,7 +138,7 @@ distance(const internal::ChunksIterator<Iterator>& begin, const internal::Chunks
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
 next(const internal::ChunksIterator<Iterator>& iter, const internal::DiffType<internal::ChunksIterator<Iterator>> value) {
-    LZ_ASSERT(value >= 0, "Chunks iterator is not random access, offset must be >= 0");
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz

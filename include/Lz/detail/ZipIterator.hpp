@@ -11,14 +11,14 @@ namespace lz {
 namespace internal {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipIterator {
-  public:
+public:
     using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
     using value_type = std::tuple<ValueType<Iterators>...>;
     using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
     using reference = std::tuple<RefType<Iterators>...>;
     using pointer = std::tuple<PointerType<Iterators>...>;
 
-  private:
+private:
     using MakeIndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
     std::tuple<Iterators...> _iterators{};
 
@@ -71,7 +71,7 @@ class ZipIterator {
         return std::find(std::begin(boolValues), end, false) == end; // Check if false not in boolValues
     }
 
-  public:
+public:
     LZ_CONSTEXPR_CXX_14 explicit ZipIterator(std::tuple<Iterators...> iterators) : _iterators(std::move(iterators)) {
     }
 

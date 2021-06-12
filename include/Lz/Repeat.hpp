@@ -9,7 +9,7 @@
 namespace lz {
 template<class T>
 class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
-  public:
+public:
     using iterator = internal::RepeatIterator<T>;
     using value_type = T;
 

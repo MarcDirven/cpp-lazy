@@ -15,7 +15,7 @@ class MapIterator {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using reference = decltype(_function(*_iterator));
     using value_type = Decay<reference>;
     using iterator_category = typename IterTraits::iterator_category;

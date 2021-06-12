@@ -18,7 +18,7 @@ class GroupBy final : public internal::BasicIteratorView<internal::GroupByIterat
 #endif
     using const_iterator = iterator;
 
-  public:
+public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 GroupBy(Iterator begin, Iterator end, Comparer comparer, Execution execution) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer, execution),

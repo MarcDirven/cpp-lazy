@@ -9,7 +9,7 @@
 namespace lz {
 template<class... Iterators>
 class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
-  public:
+public:
     using iterator = internal::ConcatenateIterator<Iterators...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

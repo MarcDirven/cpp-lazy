@@ -9,7 +9,7 @@
 namespace lz {
 template<class... Iterators>
 class CartesianProduct final : public internal::BasicIteratorView<internal::CartesianProductIterator<Iterators...>> {
-  public:
+public:
     using iterator = internal::CartesianProductIterator<Iterators...>;
     using const_iterator = iterator;
 

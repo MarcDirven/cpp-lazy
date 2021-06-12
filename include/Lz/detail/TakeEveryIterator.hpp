@@ -19,7 +19,7 @@ class TakeEveryIterator {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using value_type = typename IterTraits::value_type;
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using difference_type = typename IterTraits::difference_type;
@@ -116,7 +116,7 @@ distance(const internal::TakeEveryIterator<Iterator>& begin, const internal::Tak
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::TakeEveryIterator<Iterator>
 next(const internal::TakeEveryIterator<Iterator>& t, const internal::DiffType<internal::TakeEveryIterator<Iterator>> value) {
-    LZ_ASSERT(value >= 0, "Take every iterator is not random access, offset must be >= 0");
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return t + value;
 }
 } // namespace lz

@@ -9,14 +9,14 @@ template<class Iterator>
 class ExcludeIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     Iterator _iterator{};
     Iterator _begin{};
     Iterator _end{};
@@ -24,7 +24,7 @@ class ExcludeIterator {
     difference_type _from{};
     difference_type _to{};
 
-  public:
+public:
     LZ_CONSTEXPR_CXX_17
     ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from, const difference_type to) :
         _iterator(std::move(it)),
@@ -119,6 +119,7 @@ distance(const internal::ExcludeIterator<Iterator>& begin, const internal::Exclu
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>& iter, internal::DiffType<internal::ExcludeIterator<Iterator>> value) {
+    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz

@@ -155,14 +155,14 @@ class ConcatenateIterator {
 
     using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
 
-  public:
+public:
     using value_type = typename FirstTupleIterator::value_type;
     using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
     using reference = typename FirstTupleIterator::reference;
     using pointer = FakePointerProxy<reference>;
     using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
 
-  private:
+private:
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 difference_type minus(IndexSequence<I...>, const ConcatenateIterator& other) const {
         const difference_type totals[] = { static_cast<difference_type>(std::get<I>(_iterators) -
@@ -170,7 +170,7 @@ class ConcatenateIterator {
         return std::accumulate(std::begin(totals), std::end(totals), difference_type{ 0 });
     }
 
-  public:
+public:
     LZ_CONSTEXPR_CXX_14 ConcatenateIterator(IterTuple iterators, IterTuple begin, IterTuple end) :
         _iterators(std::move(iterators)),
         _begin(std::move(begin)),

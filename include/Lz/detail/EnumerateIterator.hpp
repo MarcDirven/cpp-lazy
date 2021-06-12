@@ -14,7 +14,7 @@ class EnumerateIterator {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = typename IterTraits::iterator_category;
     using value_type = std::pair<Arithmetic, typename IterTraits::value_type>;
     using difference_type = typename IterTraits::difference_type;

@@ -15,7 +15,7 @@ class Filter final : public internal::BasicIteratorView<internal::FilterIterator
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
 #endif
-  public:
+public:
 #ifdef LZ_HAS_EXECUTION
     using iterator = internal::FilterIterator<Iterator, UnaryPredicate, Execution>;
 #else
@@ -84,7 +84,7 @@ filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std
                        std::move(predicate), execPolicy);
 }
 
-#else // ^^^ has execution vvv ! has execution
+#else  // ^^^ has execution vvv ! has execution
 /**
  * @brief Returns a forward filter iterator. If the `predicate` returns false, it is excluded.
  * @details I.e. `lz::filter({1, 2, 3, 4, 5}, [](int i){ return i % 2 == 0; });` will eventually remove all

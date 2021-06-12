@@ -8,7 +8,7 @@
 namespace lz {
 template<class Iterator>
 class Chunks final : public internal::BasicIteratorView<internal::ChunksIterator<Iterator>> {
-  public:
+public:
     using iterator = internal::ChunksIterator<Iterator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;

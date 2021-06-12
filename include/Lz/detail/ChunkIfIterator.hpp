@@ -24,14 +24,14 @@ class ChunkIfIterator {
 #endif // LZ_HAS_EXECUTION
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using value_type = BasicIteratorView<Iterator>;
     using difference_type = typename IterTraits::difference_type;
     using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
     using reference = value_type;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     LZ_CONSTEXPR_CXX_20 void findNext() {
 #ifdef LZ_HAS_EXECUTION
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
@@ -45,7 +45,7 @@ class ChunkIfIterator {
 #endif // LZ_HAS_EXECUTION
     }
 
-  public:
+public:
     constexpr ChunkIfIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION

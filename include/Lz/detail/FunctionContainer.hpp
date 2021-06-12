@@ -56,7 +56,7 @@ class FunctionContainer {
         construct(f);
     }
 
-  public:
+public:
     constexpr explicit FunctionContainer(const Func& func) : _func(func), _isConstructed(true) {
     }
 

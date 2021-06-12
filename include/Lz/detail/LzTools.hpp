@@ -296,7 +296,7 @@ class FakePointerProxy {
 
     using Pointer = decltype(std::addressof(_t));
 
-  public:
+public:
     constexpr explicit FakePointerProxy(const T& t) : _t(t) {
     }
 

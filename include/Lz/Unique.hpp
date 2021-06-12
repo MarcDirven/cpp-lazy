@@ -14,7 +14,7 @@ class Unique final : public internal::BasicIteratorView<internal::UniqueIterator
 template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
 class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
 #endif
-  public:
+public:
 #ifdef LZ_HAS_EXECUTION
     using iterator = internal::UniqueIterator<Execution, Iterator, Compare>;
 #else

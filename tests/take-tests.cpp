@@ -1,11 +1,9 @@
+#include <Lz/Take.hpp>
+#include <catch2/catch.hpp>
 #include <list>
 
-#include <catch2/catch.hpp>
-#include <Lz/Take.hpp>
-
-
 TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") {
-    std::array<int, 10> array = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    std::array<int, 10> array = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
     SECTION("Should take 3 elements, 0 offset") {
         auto taken = lz::take(array, 3);
@@ -50,19 +48,16 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
 
     SECTION("Should drop n elements") {
         auto dropped = lz::drop(array, 2);
-        CHECK(dropped.toVector() == std::vector<int>{3, 4, 5, 6, 7, 8, 9, 10});
+        CHECK(dropped.toVector() == std::vector<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
 
         dropped = lz::drop(array, 1);
-        CHECK(dropped.toVector() == std::vector<int>{2, 3, 4, 5, 6, 7, 8, 9, 10});
+        CHECK(dropped.toVector() == std::vector<int>{ 2, 3, 4, 5, 6, 7, 8, 9, 10 });
     }
 }
 
-
 TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     constexpr std::size_t size = 3;
-    std::array<int, size> array = {
-        1, 2, 3
-    };
+    std::array<int, size> array = { 1, 2, 3 };
     constexpr std::size_t takeAmount = 2;
     auto taken = lz::take(array, takeAmount);
     auto it = taken.begin();
@@ -113,32 +108,28 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     }
 }
 
-
 TEST_CASE("Take to containers", "[Take][To container]") {
     constexpr std::size_t size = 3;
-    std::array<int, size> array = {
-        1, 2, 3
-    };
-
+    std::array<int, size> array = { 1, 2, 3 };
 
     SECTION("To array") {
         constexpr std::size_t newSize = 2;
         auto actual = lz::take(array, newSize).toArray<newSize>();
-        std::array<int, 2> expected = {1, 2};
+        std::array<int, 2> expected = { 1, 2 };
 
         CHECK(actual == expected);
     }
 
     SECTION("To vector") {
         auto actual = lz::take(array, 2).toVector();
-        std::vector<int> expected = {1, 2};
+        std::vector<int> expected = { 1, 2 };
 
         CHECK(actual == expected);
     }
 
     SECTION("To other container using to<>()") {
         auto actual = lz::take(array, 2).to<std::list>();
-        std::list<int> expected = {1, 2};
+        std::list<int> expected = { 1, 2 };
 
         CHECK(expected == actual);
     }
@@ -146,24 +137,17 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     SECTION("To map") {
         constexpr std::size_t newSize = 2;
         std::map<int, int> actual = lz::take(array, newSize).toMap([](const int i) { return i; });
-        std::map<int, int> expected = {
-            std::make_pair(1, 1),
-            std::make_pair(2, 2)
-        };
+        std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(actual == expected);
     }
 
     SECTION("To map") {
         constexpr std::size_t newSize = 2;
         std::unordered_map<int, int> actual = lz::take(array, newSize).toUnorderedMap([](const int i) { return i; });
-        std::unordered_map<int, int> expected = {
-            std::make_pair(1, 1),
-            std::make_pair(2, 2)
-        };
+        std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(actual == expected);
     }
 }
-
 
 TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functionality]") {
     std::array<int, 4> arr = { 1, 1, 2, 1 };
@@ -184,7 +168,6 @@ TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functio
         CHECK(*begin == 1);
     }
 }
-
 
 TEST_CASE("DropWhile binary operations", "[DropWhile][Binary ops]") {
     std::vector<int> vec = { 1, 1, 2, 3, 4, 1 };
@@ -245,32 +228,26 @@ TEST_CASE("DropWhile to containers", "[DropWhile][To container]") {
 
     SECTION("To array") {
         constexpr std::size_t newSize = 2;
-        CHECK(dropped.toArray<newSize>() == std::array<int, newSize>{2, 1});
+        CHECK(dropped.toArray<newSize>() == std::array<int, newSize>{ 2, 1 });
     }
 
     SECTION("To vector") {
-        CHECK(dropped.toVector() == std::vector<int>{2, 1});
+        CHECK(dropped.toVector() == std::vector<int>{ 2, 1 });
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(dropped.to<std::list>() == std::list<int>{2, 1});
+        CHECK(dropped.to<std::list>() == std::list<int>{ 2, 1 });
     }
 
     SECTION("To map") {
         std::map<int, int> map = dropped.toMap([](const int i) { return i; });
-        std::map<int, int> expected = {
-            std::make_pair(2, 2),
-            std::make_pair(1, 1)
-        };
+        std::map<int, int> expected = { std::make_pair(2, 2), std::make_pair(1, 1) };
         CHECK(map == expected);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<int, int> map = dropped.toUnorderedMap([](const int i) { return i; });
-        std::unordered_map<int, int> expected = {
-            std::make_pair(2, 2),
-            std::make_pair(1, 1)
-        };
+        std::unordered_map<int, int> expected = { std::make_pair(2, 2), std::make_pair(1, 1) };
         CHECK(map == expected);
     }
 }

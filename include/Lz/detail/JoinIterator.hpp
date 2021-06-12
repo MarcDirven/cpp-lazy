@@ -39,14 +39,14 @@ class JoinIterator {
     using ContainerType = typename IterTraits::value_type;
     using IsContainerTypeString = std::is_same<ContainerType, std::string>;
 
-  public:
+public:
     using value_type = std::string;
     using iterator_category = typename IterTraits::iterator_category;
     using difference_type = typename IterTraits::difference_type;
     using reference = Conditional<std::is_same<std::string, ContainerType>::value, typename IterTraits::reference, std::string>;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     Iterator _iterator{};
     mutable std::string _delimiter{};
     mutable bool _isIteratorTurn{ true };
@@ -87,7 +87,7 @@ class JoinIterator {
         return *(*this + offset);
     }
 
-  public:
+public:
     JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
         _iterator(std::move(iterator)),
         _delimiter(std::move(delimiter)),

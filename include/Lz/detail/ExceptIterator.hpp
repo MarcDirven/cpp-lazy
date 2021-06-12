@@ -17,14 +17,14 @@ template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, cla
 class ExceptIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
-  public:
+public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-  private:
+private:
     Iterator _iterator{};
     Iterator _end{};
     IteratorToExcept _toExceptBegin{};
@@ -53,7 +53,7 @@ class ExceptIterator {
 #endif // LZ_HAS_EXECUTION
     }
 
-  public:
+public:
     constexpr ExceptIterator() = default;
 
 #ifdef LZ_HAS_EXECUTION
