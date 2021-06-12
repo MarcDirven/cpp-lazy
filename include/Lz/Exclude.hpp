@@ -15,7 +15,7 @@ public:
 
     constexpr Exclude() = default;
 
-    LZ_CONSTEXPR_CXX_17
+    LZ_CONSTEXPR_CXX_20
     Exclude(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) :
         internal::BasicIteratorView<iterator>(iterator(begin, begin, end, from, to), iterator(end, begin, end, from, to)) {
     }
@@ -35,7 +35,7 @@ public:
  * @return An Exclude iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Exclude<Iterator>
 excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
     using lz::distance;
     using std::distance;
@@ -51,7 +51,7 @@ excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> fr
  * @return An Exclude iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 Exclude<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Exclude<Iterator>
 exclude(Iterable&& iterable, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
     return excludeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), from,
                         to);

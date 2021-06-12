@@ -26,7 +26,7 @@ public:
     using difference_type = typename IterTraits::difference_type;
 
 private:
-    LZ_CONSTEXPR_CXX_17 void nextChunk() {
+    LZ_CONSTEXPR_CXX_20 void nextChunk() {
         using lz::distance;
         using lz::next;
         using std::distance;
@@ -44,7 +44,7 @@ private:
     }
 
 public:
-    LZ_CONSTEXPR_CXX_17 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize) :
+    LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize) :
         _subRangeBegin(begin == end ? end : begin),
         _subRangeEnd(begin == end ? end : std::move(begin)),
         _end(std::move(end)),
@@ -57,36 +57,36 @@ public:
 
     constexpr ChunksIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return reference(_subRangeBegin, _subRangeEnd);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_17 ChunksIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator++() {
         _subRangeBegin = _subRangeEnd;
         nextChunk();
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_17 ChunksIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_20 ChunksIterator operator++(int) {
         ChunksIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
         return lhs._subRangeBegin != rhs._subRangeBegin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
         return !(lhs != rhs); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
         using lz::distance;
         using std::distance;
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");

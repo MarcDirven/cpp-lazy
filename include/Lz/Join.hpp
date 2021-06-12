@@ -14,7 +14,7 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference) :
+    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true, difference),
                                               iterator(std::move(end), delimiter, false, difference)) {
     }
@@ -42,7 +42,7 @@ public:
  * @return A Join iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
     using lz::distance;
     using std::distance;
     return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1);
@@ -57,7 +57,7 @@ LZ_NODISCARD Join<Iterator> joinRange(Iterator begin, Iterator end, std::string 
  * @return A Join iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
     return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                      std::move(delimiter));
 }
@@ -71,7 +71,7 @@ LZ_NODISCARD Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iter
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<class Iterator>
-LZ_NODISCARD std::string
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
 #ifdef LZ_HAS_STRING_VIEW
 strJoinRange(Iterator begin, Iterator end, const std::string_view delimiter = "") {
 #else
@@ -88,7 +88,7 @@ strJoinRange(Iterator begin, Iterator end, const std::string& delimiter = "") {
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD std::string
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
 #ifdef LZ_HAS_STRING_VIEW
 strJoin(Iterable&& iterable, const std::string_view delimiter = "") {
 #else
