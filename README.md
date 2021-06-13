@@ -5,10 +5,10 @@
 Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
-Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. The two main reasons this is a fast library is because the library doesn't allocate anything. Another reason the iterators are fast is because the iterators are random access where possible. This makes operations such as `std::distance` an O(1) operation, either using "overloading" the `std::distance`/`std::next` functions using ADL lookup, or just a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one optional (!) dependency library `fmt`, which is automatically configured by CMake. If you do use CMake, do not want to use `fmt`, or already have C++20's `std::format`, use `#define LZ_STANDALONE` before including (or even better: its CMake equivalent `-D CPP-LAZY_USE_STANDALONE=ON`). Example:
+Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. This is a fast library because the library does not allocate any memory. Moreover, the iterators are random-access where possible. Therefore operations, for example `std::distance`, are an O(1) operation, either by "overloading" the `std::distance`/`std::next` functions using ADL lookup, or by adding a `std::random_access_iterator_tag`. Furthermore, the view object has many `std::execution::*` overloads. This library uses one (optional) dependency: the library `{fmt}`, more of which can be found out in the [installation section](https://github.com/MarcDirven/cpp-lazy#Installation). 
+Example:
 
 ```cpp
-#define LZ_STANDALONE
 #include <Lz/Map.hpp>
 
 int main() {
@@ -23,18 +23,14 @@ int main() {
 - Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `5.0.0` (previous 
 versions have not been checked, so I'd say at least a compiler with C++11 support).
 - Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
-- One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured, or none if you use `#define LZ_STANDALONE` before including or use CMake `-D CPP-LAZY_USE_STANDALONE`
+- One optional dependency ([`{fmt}`](https://github.com/fmtlib/fmt))
 - `std::format` compatible
 - STL compatible
 - Little overhead
-- Supported compiler versions:
-  - &gt;= GCC 4.8
-  - &gt;= clang 5
-  - &gt;= Visual Studio 15 2017; MSVC 19.16.27043.0
-  - Previous version have not been tested but C++11 is a minimum requirement
-- Easy [installation](https://github.com/MarcDirven/cpp-lazy#installation)
-- Clear [Examples](https://github.com/MarcDirven/cpp-lazy/wiki/Examples)
-- Readable using chaining dot (`.map([]{}()).filter([]{}()).enumerate()./* ... */`) notation
+- Any compiler with at least C++11 support is suitable
+- [Easy installation](https://github.com/MarcDirven/cpp-lazy#installation)
+- [Clear Examples](https://github.com/MarcDirven/cpp-lazy/wiki/Examples)
+- Readable, using [method chaining](https://en.wikipedia.org/wiki/Method_chaining)
 
 # What is lazy and why would I use it?
 Lazy evaluation is an evaluation strategy which holds the evaluation of an expression until its value is needed. In this
@@ -57,8 +53,8 @@ for (int i : lz::random(0, 32, n)) {
  std::cout << i;  // prints a random number n times, between [0, 32]
 }
 ```
-Both methods do not allocate anything but the second example is a much more convenient way of writing the same thing.
-Now what if we wanted to do eager evaluation? Well then you could do this:
+Both methods do not allocate any memory but the second example is a much more convenient way of writing the same thing.
+Now what if you wanted to do eager evaluation? Well then you could do this:
 
 ```cpp
 std::random_device rd;
@@ -87,7 +83,7 @@ for (int i = 0; i < n; i++) {
  }
 }
 ```
-In C++ using this library and because all iterators in this library are STL compatible, we could simply use `std::find`:
+In C++ using this library and because all iterators in this library are STL compatible, we could simply use `std::find`: 
 ```cpp
 auto random = lz::random(0, 32, n);
 if (std::find(random.begin(), random.end(), 6) != random.end()) {
@@ -137,8 +133,8 @@ If, for some reason, you do not wish to do this, then be sure to use `lz::next/l
 
 
 # Installation
-
-## Without CMake, without `fmt`
+## Without CMake
+### Without `{fmt}`
 - Clone the repository
 - Specify the include directory to `cpp-lazy/include`.
 - Include files as follows:
@@ -153,7 +149,7 @@ int main() {
 }
 ```
 
-## Without CMake, with `fmt`
+### With `{fmt}`
 - Clone the repository
 - Specify the include directory to `cpp-lazy/include` and `fmt/include`.
 - Define `FMT_HEADER_ONLY` before including any `lz` files.
@@ -169,8 +165,9 @@ int main() {
 }
 ```
 
-# CMake
-## Using `FetchContent`
+## With CMake
+If you want to use the standalone version, then use the CMake option `-D CPP-LAZY_USE_STANDALONE=ON`. This also prevents the cloning of the library `{fmt}`.
+### Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake
 include(FetchContent)
@@ -184,7 +181,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
 
-## Using `git clone`
+### Using `git clone`
 Clone the repository using `git clone https://github.com/MarcDirven/cpp-lazy/` and add to `CMakeLists.txt` the following:
 ```cmake
 add_subdirectory(cpp-lazy)
@@ -195,7 +192,7 @@ target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 
 Or add `cpp-lazy/include` to the additional include directories in e.g. Visual Studio.
 
-## Including
+# Including
 ```cpp
 #include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
 
@@ -222,6 +219,6 @@ C++20
 
 <div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B20.png" /></div>
 
-## Special thanks
+# Special thanks
 Special thanks to the [JetBrains open source programme](https://jb.gg/OpenSource).
 <div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/meta/jetbrains.png" /></div>
