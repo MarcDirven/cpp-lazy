@@ -22,7 +22,7 @@ int main() {
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `5.0.0` (previous 
 versions have not been checked, so I'd say at least a compiler with C++11 support).
-- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W3` for MSVC
+- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
 - One dependency ([`fmt`](https://github.com/fmtlib/fmt)) which is automatically configured, or none if you use `#define LZ_STANDALONE` before including or use CMake `-D CPP-LAZY_USE_STANDALONE`
 - `std::format` compatible
 - STL compatible
