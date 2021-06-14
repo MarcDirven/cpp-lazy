@@ -94,6 +94,36 @@ random(const Distribution& distribution, Generator& generator,
         distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)());
 }
 
+#ifdef __cpp_if_constexpr
+/**
+ * @brief Returns an output iterator view object that generates a sequence of random numbers, using a uniform distribution.
+ * @details This random access iterator view object can be used to generate a sequence of random numbers between
+ * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
+ * @param min The minimum value , included.
+ * @param max The maximum value, included.
+ * @tparam Distribution The distribution for generating the random numbers. `std::uniform_int_distribution` by default.
+ * @tparam Generator The random number generator. `std::mt19937` by default.
+ * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::size_t>::max()`
+ * it is interpreted as a `while-true` loop.
+ * @return A random view object that generates a sequence of random numbers
+ */
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+LZ_NODISCARD auto
+random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
+#ifndef LZ_HAS_CONCEPTS
+    static_assert(std::is_arithmetic_v<Arithmetic>, "min/max type should be arithmetic");
+#endif // LZ_HAS_CONCEPTS
+    static std::mt19937 gen = internal::createMtEngine();
+    if constexpr (std::is_integral_v<Arithmetic>) {
+        std::uniform_int_distribution<Arithmetic> dist(min, max);
+        return random(dist, gen, amount);
+    }
+    else {
+        std::uniform_real_distribution<Arithmetic> dist(min, max);
+        return random(dist, gen, amount);
+    }
+}
+#else
 /**
  * @brief Returns an output iterator view object that generates a sequence of random numbers, using a uniform distribution.
  * @details This random access iterator view object can be used to generate a sequence of random numbers between
@@ -135,10 +165,13 @@ random(const Floating min, const Floating max, const std::size_t amount = (std::
     return random(dist, gen, amount);
 }
 
+#endif // __cpp_if_constexpr
+
 // End of group
 /**
  * @}
  */
+
 } // namespace lz
 
 #endif
