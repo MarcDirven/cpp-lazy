@@ -249,7 +249,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty(const Iterable& iterable) {
  * @return True if it has one element exactly, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr bool hasOne(Iterator begin, const Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne(Iterator begin, const Iterator end) {
     return !lz::isEmpty(begin, end) && ++begin == end;
 }
 
