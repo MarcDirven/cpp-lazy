@@ -24,6 +24,7 @@ private:
     std::tuple<Iterators...> _iterator{};
     std::tuple<Iterators...> _end{};
 
+#ifndef __cpp_if_constexpr
     template<std::size_t I>
     constexpr EnableIf<I == 0> next() const {
     }
@@ -70,6 +71,45 @@ private:
         iterator = next(std::move(iterator), offsets.rem);
         operatorPlusImpl<I - 1>(tmp, offsets.quot);
     }
+
+#else
+    template<std::size_t I>
+    LZ_CONSTEXPR_CXX_20 void next() {
+        if constexpr (I == 0) {
+            return;
+        }
+        else {
+            auto& prev = std::get<I - 1>(_iterator);
+            ++prev;
+
+            if (prev == std::get<I - 1>(_end)) {
+                if LZ_CONSTEXPR_IF (I != 1) {
+                    prev = std::get<I - 1>(_begin);
+                    next<I - 1>();
+                }
+            }
+        }
+    }
+
+    template<std::size_t I>
+    void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {
+        using lz::next;
+        using std::next;
+
+        auto& iterator = std::get<I>(tmp._iterator);
+        if constexpr (I == 0) {
+            iterator = next(std::move(iterator), offset);
+        }
+        else {
+            using lz::distance;
+            using std::distance;
+            const auto dist = distance(iterator, std::get<I>(tmp._end));
+            const auto offsets = std::lldiv(offset, dist);
+            iterator = next(std::move(iterator), offsets.rem);
+            operatorPlusImpl<I - 1>(tmp, offsets.quot);
+        }
+    }
+#endif // __cpp_if_constexpr
 
     template<std::size_t... Is>
     LZ_CONSTEXPR_CXX_20 reference dereference(IndexSequence<Is...>) const {
