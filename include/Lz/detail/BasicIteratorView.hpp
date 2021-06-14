@@ -180,6 +180,7 @@ private:
     template<class KeySelectorFunc>
     using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
 
+#ifndef __cpp_if_constexpr
     template<class Container, class It = LzIterator,
              EnableIf<!HasReserve<Container>::value || !IsForward<It>::value, bool> = true>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container&) const {
@@ -191,6 +192,19 @@ private:
         using std::distance;
         container.reserve(distance(begin(), end()));
     }
+#else
+    template<class Container>
+    LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
+        if constexpr (!HasReserve<Container>::value || !IsForward<LzIterator>::value) {
+            return;
+        }
+        else {
+            using lz::distance;
+            using std::distance;
+            container.reserve(distance(begin(), end()));
+        }
+    }
+#endif // __cpp_if_constexpr
 
 #if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
     template<class MapType, class KeySelectorFunc>
@@ -204,7 +218,7 @@ private:
 #endif // END LZ_GCC_VERSION
 #ifdef LZ_HAS_CXX_11
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
-            return std::make_pair(keyGen(value), value);
+            return std::make_pair(keyGen(std::forward<decltype(value)>(value))), value);
 #else
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
             return std::make_pair(keyGen(std::forward<decltype(value)>(value)), value);
