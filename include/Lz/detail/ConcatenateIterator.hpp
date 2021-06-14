@@ -171,7 +171,7 @@ private:
     }
 
 public:
-    LZ_CONSTEXPR_CXX_14 ConcatenateIterator(IterTuple iterators, IterTuple begin, IterTuple end) :
+    LZ_CONSTEXPR_CXX_20 ConcatenateIterator(IterTuple iterators, IterTuple begin, IterTuple end) :
         _iterators(std::move(iterators)),
         _begin(std::move(begin)),
         _end(std::move(end)) {

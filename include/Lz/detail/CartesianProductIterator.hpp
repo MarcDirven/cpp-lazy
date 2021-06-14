@@ -95,7 +95,7 @@ private:
 public:
     constexpr CartesianProductIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 CartesianProductIterator(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+    LZ_CONSTEXPR_CXX_20 CartesianProductIterator(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
         _begin(begin),
         _iterator(std::move(begin)),
         _end(std::move(end)) {

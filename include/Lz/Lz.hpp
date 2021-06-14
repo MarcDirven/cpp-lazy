@@ -51,7 +51,7 @@ class IterView;
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-constexpr IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
+LZ_CONSTEXPR_CXX_20 IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
     return lz::IterView<Iterator>(std::move(begin), std::move(end));
 }
 
@@ -61,7 +61,7 @@ constexpr IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-constexpr IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
+LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
     return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -78,28 +78,28 @@ public:
     using value_type = typename Traits::value_type;
     using reference = typename Traits::reference;
 
-    constexpr IterView(Iterator begin, Iterator end) : Base(std::move(begin), std::move(end)) {
+    LZ_CONSTEXPR_CXX_20 IterView(Iterator begin, Iterator end) : Base(std::move(begin), std::move(end)) {
     }
 
-    constexpr IterView() = default;
+    LZ_CONSTEXPR_CXX_20 IterView() = default;
 
     //! See Concatenate.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
     LZ_NODISCARD
-        LZ_CONSTEXPR_CXX_14 IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+        LZ_CONSTEXPR_CXX_20 IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         concat(Iterables&&... iterables) const {
         return lz::toIter(lz::concat(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See Enumerate.hpp for documentation.
     template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<internal::EnumerateIterator<Iterator, Arithmetic>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::EnumerateIterator<Iterator, Arithmetic>>
     enumerate(const Arithmetic begin = 0) const {
         return lz::toIter(lz::enumerate(*this, begin));
     }
 
     //! See Exclude.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<internal::ExcludeIterator<Iterator>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ExcludeIterator<Iterator>>
     exclude(const difference_type from, const difference_type to) const {
         return lz::toIter(lz::exclude(*this, from, to));
     }
@@ -111,83 +111,83 @@ public:
 
     //! See Map.hpp for documentation
     template<class UnaryFunction>
-    LZ_NODISCARD constexpr IterView<internal::MapIterator<Iterator, UnaryFunction>> map(UnaryFunction unaryFunction) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, UnaryFunction>> map(UnaryFunction unaryFunction) const {
         return lz::toIter(lz::map(*this, std::move(unaryFunction)));
     }
 
     //! See Take.hpp for documentation.
     template<class UnaryPredicate>
-    LZ_NODISCARD constexpr IterView<Iterator> takeWhile(UnaryPredicate predicate) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> takeWhile(UnaryPredicate predicate) const {
         return lz::toIter(lz::takeWhile(*this, std::move(predicate)));
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<Iterator> take(const difference_type amount) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> take(const difference_type amount) const {
         return lz::toIter(lz::take(*this, amount));
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<Iterator> drop(const difference_type amount) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> drop(const difference_type amount) const {
         return lz::toIter(lz::drop(*this, amount));
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<Iterator> slice(const difference_type from, const difference_type to) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> slice(const difference_type from, const difference_type to) const {
         return lz::toIter(lz::slice(*this, from, to));
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD constexpr IterView<internal::TakeEveryIterator<Iterator>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator>>
     takeEvery(const difference_type offset, const difference_type start = 0) const {
         return lz::toIter(lz::takeEvery(*this, offset, start));
     }
 
     //! See Chunks.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
         return lz::toIter(lz::chunks(*this, chunkSize));
     }
 
     //! See Zip.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
     zip(Iterables&&... iterables) const {
         return lz::toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See FunctionTools.hpp `zipWith` for documentation
     template<class Fn, class... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&&... iterables) const
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables) const
         -> IterView<decltype(std::begin(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...)))> {
         return lz::toIter(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...));
     }
 
     //! See FunctionTools.hpp `as` for documentation.
     template<class T>
-    LZ_NODISCARD constexpr IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {
         return lz::toIter(lz::as<T>(*this));
     }
 
     //! See FunctionTools.hpp `reverse` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 IterView<std::reverse_iterator<Iterator>> reverse() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<std::reverse_iterator<Iterator>> reverse() const {
         return lz::toIter(lz::reverse(*this));
     }
 
     //! See FunctionTools.hpp `reverse` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
         return lz::toIter(lz::pairwise(*this));
     }
 
     //! See CartesianProduct.hpp for documentation
     template<class... Iterables>
     LZ_NODISCARD
-        LZ_CONSTEXPR_CXX_14 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+        LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         cartesian(Iterables&&... iterables) const {
         return lz::toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See Flatten.hpp for documentation
     template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-    LZ_NODISCARD constexpr IterView<internal::FlattenIterator<Iterator, N>> flatten() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FlattenIterator<Iterator, N>> flatten() const {
         return lz::toIter(lz::flatten(*this));
     }
 
@@ -196,53 +196,53 @@ public:
      * @param n The offset.
      * @return The element referred to by `begin() + n`
      */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 reference next(const difference_type n = 1) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference next(const difference_type n = 1) const {
         using lz::next;
         using std::next;
         return *next(Base::begin(), n);
     }
 
     //! See FunctionTools.hpp `length` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 difference_type distance() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type distance() const {
         using lz::distance;
         using std::distance;
         return distance(Base::begin(), Base::end());
     }
 
     //! See FunctionTools.hpp `isEmpty` for documentation.
-    LZ_NODISCARD constexpr bool isEmpty() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty() const {
         return lz::isEmpty(*this);
     }
 
     //! See FunctionTools.hpp `hasOne` for documentation.
-    LZ_NODISCARD constexpr bool hasOne() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne() const {
         return lz::hasOne(*this);
     }
 
     //! See FunctionTools.hpp `hasMany` for documentation.
-    LZ_NODISCARD constexpr bool hasMany() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany() const {
         return lz::hasMany(*this);
     }
 
     //! See FunctionTools.hpp `first` for documentation.
-    LZ_NODISCARD constexpr reference first() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference first() const {
         return lz::first(*this);
     }
 
     //! See FunctionTools.hpp `last` for documentation.
-    LZ_NODISCARD constexpr reference last() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference last() const {
         return lz::last(*this);
     }
 
     //! See FunctionTools.hpp `firstOr` for documentation.
     template<class T>
-    LZ_NODISCARD constexpr value_type firstOr(const T& defaultValue) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type firstOr(const T& defaultValue) const {
         return lz::firstOr(*this, defaultValue);
     }
 
     //! See FunctionTools.hpp `lastOr` for documentation.
     template<class T>
-    LZ_NODISCARD constexpr value_type lastOr(const T& defaultValue) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type lastOr(const T& defaultValue) const {
         return lz::lastOr(*this, defaultValue);
     }
 
@@ -265,7 +265,7 @@ public:
 
     //! See Unique.hpp for documentation.
     template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
-    LZ_NODISCARD constexpr IterView<internal::UniqueIterator<Execution, Iterator, Compare>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::UniqueIterator<Execution, Iterator, Compare>>
     unique(Compare compare = {}, Execution execution = std::execution::seq) const {
         return lz::toIter(lz::unique(*this, std::move(compare), execution));
     }
@@ -614,7 +614,7 @@ public:
 
     //! See Unique.hpp for documentation
     template<class Compare = std::less<value_type>>
-    constexpr IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
+    IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
         return lz::toIter(lz::unique(*this, std::move(compare)));
     }
 
