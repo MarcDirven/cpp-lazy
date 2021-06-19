@@ -180,17 +180,31 @@ private:
     template<class KeySelectorFunc>
     using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
 
+#ifndef __cpp_if_constexpr
     template<class Container, class It = LzIterator,
              EnableIf<!HasReserve<Container>::value || !IsForward<It>::value, bool> = true>
-    LZ_CONSTEXPR_CXX_20 void tryReserve(Container&) const {
+    void tryReserve(Container&) const {
     }
 
     template<class Container, class It = LzIterator, EnableIf<HasReserve<Container>::value && IsForward<It>::value, bool> = true>
-    LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
+    void tryReserve(Container& container) const {
         using lz::distance;
         using std::distance;
-        container.reserve(distance(begin(), end()));
+        container.reserve(static_cast<std::size_t>(distance(begin(), end())));
     }
+#else
+    template<class Container>
+    LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
+        if constexpr (!HasReserve<Container>::value || !IsForward<LzIterator>::value) {
+            return;
+        }
+        else {
+            using lz::distance;
+            using std::distance;
+            container.reserve(static_cast<std::size_t>(distance(begin(), end())));
+        }
+    }
+#endif // __cpp_if_constexpr
 
 #if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
     template<class MapType, class KeySelectorFunc>
@@ -256,12 +270,6 @@ private:
         return array;
     }
 #else  // ^^^ has execution vvv ! has execution
-    template<class Container, class Iter>
-    Container makeContainer(Container& container, Iter where) const {
-        std::copy(begin(), end(), std::move(where));
-        return container;
-    }
-
     template<class Container, class... Args>
     Container copyContainer(Args&&... args) const {
         Container cont(std::forward<Args>(args)...);

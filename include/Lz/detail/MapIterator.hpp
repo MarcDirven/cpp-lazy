@@ -85,7 +85,7 @@ public:
         return a._iterator - b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator[](const difference_type offset) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
         return *(*this + offset);
     }
 

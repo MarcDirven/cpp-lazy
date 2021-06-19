@@ -6,15 +6,20 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
     constexpr std::size_t size = 5;
 
     SECTION("Random doubles") {
-        auto randomArray = lz::random(0., 1., size).toArray<size>();
-        auto randomArray2 = lz::random(0., 1., size).toArray<size>();
-        CHECK(randomArray != randomArray2);
+        const auto randomArray = lz::random<long double>(0., 1., size).toArray<size>();
+        auto randomArray2 = lz::random<long double>(0., 1., size).toArray<size>();
+        while (randomArray == randomArray2) {
+            randomArray2 = lz::random<long double>(0., 1., size).toArray<size>();
+        }
+        REQUIRE(randomArray != randomArray2);
     }
 
     SECTION("Random ints") {
-        auto randomArray = lz::random(0, 10, size).toArray<size>();
-        auto randomArray2 = lz::random(0, 10, size).toArray<size>();
-        CHECK(randomArray != randomArray2);
+        const auto randomArray =
+            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).toArray<size>();
+        const auto randomArray2 =
+            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).toArray<size>();
+        REQUIRE(randomArray != randomArray2);
     }
 }
 
@@ -24,7 +29,13 @@ TEST_CASE("Random with custom distro's and custom engine") {
     std::poisson_distribution<> d(500'000);
     auto r = lz::random(d, gen, 3);
     CHECK(std::distance(r.begin(), r.end()) == 3);
-    CHECK(r.nextRandom() != r.nextRandom());
+
+    const auto currentRand = r.nextRandom();
+    auto nextRand = r.nextRandom();
+    while (currentRand == nextRand) {
+        nextRand = r.nextRandom();
+    }
+    REQUIRE(currentRand != nextRand);
 }
 
 TEST_CASE("Random binary operations", "[Random][Binary ops]") {
@@ -35,7 +46,7 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
     SECTION("Operator++") {
         double prev = *it;
         ++it;
-        CHECK(prev != *it);
+        REQUIRE(prev != *it);
     }
 
     SECTION("Operator--") {

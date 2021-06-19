@@ -26,12 +26,12 @@ namespace internal {
 template<class To>
 struct ConvertFn {
     template<class From>
-    LZ_CONSTEXPR_CXX_14 To operator()(From&& f) const {
+    LZ_CONSTEXPR_CXX_20 To operator()(From&& f) const {
         return static_cast<To>(f);
     }
 
     template<class From>
-    LZ_CONSTEXPR_CXX_14 To operator()(From&& f) {
+    LZ_CONSTEXPR_CXX_20 To operator()(From&& f) {
         return static_cast<To>(f);
     }
 };
@@ -39,7 +39,7 @@ struct ConvertFn {
 template<std::size_t I>
 struct TupleGet {
     template<class Tuple>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) noexcept -> decltype(std::get<I>(std::forward<Tuple>(tuple))) {
+    LZ_CONSTEXPR_CXX_20 auto operator()(Tuple&& tuple) noexcept -> decltype(std::get<I>(std::forward<Tuple>(tuple))) {
         return std::get<I>(std::forward<Tuple>(tuple));
     }
 };
@@ -127,7 +127,7 @@ LZ_NODISCARD constexpr T sumTo(const T upToAndIncluding) {
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
 template<class Strings>
-LZ_NODISCARD Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
     return lz::join(strings, "\n");
 }
 
@@ -138,7 +138,7 @@ LZ_NODISCARD Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& str
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
     static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
@@ -158,7 +158,7 @@ reverse(Iterator begin, Iterator end) {
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
 reverse(Iterable&& iterable) {
     // ADL std::reverse
     return lz::reverse(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
@@ -173,7 +173,7 @@ reverse(Iterable&& iterable) {
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, Iterator end) {
     return lz::mapRange(std::move(begin), std::move(end), internal::ConvertFn<T>());
 }
 
@@ -185,7 +185,7 @@ LZ_NODISCARD constexpr Map<Iterator, internal::ConvertFn<T>> as(Iterator begin, 
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::ConvertFn<T>> as(Iterable&& iterable) {
     return lz::as<T>(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -198,7 +198,7 @@ LZ_NODISCARD constexpr Map<internal::IterTypeFromIterable<Iterable>, internal::C
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
 template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class Zipper = lz::Zip<Iterators...>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
     -> lz::Map<decltype(std::begin(std::declval<Zipper>())),
                decltype(internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
     Zipper zipper = lz::zipRange(std::move(begin), std::move(end));
@@ -214,7 +214,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, std::tuple<Iterators...> be
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
 template<class Fn, class... Iterables, class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&&... iterables)
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables)
     -> lz::Map<decltype(std::begin(std::declval<Zipper>())),
                decltype(internal::makeExpandFn(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
     return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
@@ -228,7 +228,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_14 auto zipWith(Fn fn, Iterables&&... iterables)
  * @return True if it is empty, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr bool isEmpty(const Iterator begin, const Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty(const Iterator begin, const Iterator end) {
     return begin == end;
 }
 
@@ -238,7 +238,7 @@ LZ_NODISCARD constexpr bool isEmpty(const Iterator begin, const Iterator end) {
  * @return True if it is empty, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr bool isEmpty(const Iterable& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty(const Iterable& iterable) {
     return lz::isEmpty(std::begin(iterable), std::end(iterable));
 }
 
@@ -249,7 +249,7 @@ LZ_NODISCARD constexpr bool isEmpty(const Iterable& iterable) {
  * @return True if it has one element exactly, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr bool hasOne(Iterator begin, const Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne(Iterator begin, const Iterator end) {
     return !lz::isEmpty(begin, end) && ++begin == end;
 }
 
@@ -259,7 +259,7 @@ LZ_NODISCARD constexpr bool hasOne(Iterator begin, const Iterator end) {
  * @return True if it has one element exactly, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr bool hasOne(const Iterable& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne(const Iterable& iterable) {
     return lz::hasOne(std::begin(iterable), std::end(iterable));
 }
 
@@ -270,7 +270,7 @@ LZ_NODISCARD constexpr bool hasOne(const Iterable& iterable) {
  * @return True if the amount of values are >= 2, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr bool hasMany(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(Iterator begin, Iterator end) {
     return !lz::isEmpty(begin, end) && !lz::hasOne(begin, end);
 }
 
@@ -280,7 +280,7 @@ LZ_NODISCARD constexpr bool hasMany(Iterator begin, Iterator end) {
  * @return True if the amount of values are >= 2, false otherwise.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr bool hasMany(const Iterable& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(const Iterable& iterable) {
     return !lz::isEmpty(iterable) && !lz::hasOne(iterable);
 }
 
@@ -291,7 +291,7 @@ LZ_NODISCARD constexpr bool hasMany(const Iterable& iterable) {
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD constexpr internal::RefType<Iterator> first(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> first(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the first element");
     static_cast<void>(end);
     return *begin;
@@ -303,7 +303,7 @@ LZ_NODISCARD constexpr internal::RefType<Iterator> first(Iterator begin, Iterato
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD constexpr internal::RefType<internal::IterTypeFromIterable<Iterable>> first(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> first(Iterable&& iterable) {
     return lz::first(std::begin(iterable), std::end(iterable));
 }
 
@@ -314,7 +314,7 @@ LZ_NODISCARD constexpr internal::RefType<internal::IterTypeFromIterable<Iterable
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
     using lz::distance;
     using lz::next;
@@ -329,7 +329,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<Iterator> last(Iterator begin
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
     return lz::last(std::begin(iterable), std::end(iterable));
 }
 
@@ -341,7 +341,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::RefType<internal::IterTypeFromIterabl
  * @return Either the first element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
-LZ_NODISCARD constexpr internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
     return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : lz::first(begin, end);
 }
 
@@ -352,7 +352,7 @@ LZ_NODISCARD constexpr internal::ValueType<Iterator> firstOr(Iterator begin, Ite
  * @return Either the first element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T>
-LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable, const T& defaultValue) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable> firstOr(const Iterable& iterable, const T& defaultValue) {
     return lz::firstOr(std::begin(iterable), std::end(iterable), defaultValue);
 }
 
@@ -364,7 +364,7 @@ LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> firstOr(const Itera
  * @return Either the last element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
-LZ_NODISCARD constexpr internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
     return lz::isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : lz::last(begin, end);
 }
 
@@ -375,7 +375,7 @@ LZ_NODISCARD constexpr internal::ValueType<Iterator> lastOr(Iterator begin, Iter
  * @return Either the last element of `iterable` or `value` if the sequence is empty.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class T>
-LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable, const T& value) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable> lastOr(const Iterable& iterable, const T& value) {
     return lz::lastOr(std::begin(iterable), std::end(iterable), value);
 }
 
@@ -386,7 +386,7 @@ LZ_NODISCARD constexpr internal::ValueTypeIterable<Iterable> lastOr(const Iterab
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterator begin, Iterator end) {
     LZ_ASSERT(lz::hasMany(begin, end), "length of the sequence must be greater than or equal to 2");
     auto start = begin++;
     return lz::zipRange(std::make_tuple(std::move(start), std::move(begin)), std::make_tuple(end, end));
@@ -398,7 +398,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterator begin
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
     return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -419,6 +419,7 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     const internal::DiffType<Iterator> dist = distance(begin, end);
     ValueType sum;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        static_cast<void>(execution);
         sum = std::reduce(begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
     else {
