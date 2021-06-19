@@ -149,6 +149,8 @@ template<class Tuple, std::size_t I>
 struct PlusPlus {
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end) const {
         if constexpr (I == std::tuple_size_v<Decay<Tuple>>) {
+            static_cast<void>(iterators);
+            static_cast<void>(end);
             return;
         }
         else {
@@ -193,6 +195,8 @@ struct MinusMinus {
         using lz::distance;
         using std::distance;
         if constexpr (I == 0) {
+            static_cast<void>(begin);
+            static_cast<void>(end);
             --std::get<0>(iterators);
         }
         else {
@@ -249,6 +253,9 @@ struct PlusIs {
         using lz::distance;
         using std::distance;
         if constexpr (I == std::tuple_size_v<Decay<Tuple>> - 1) {
+            static_cast<void>(iterators);
+            static_cast<void>(end);
+            static_cast<void>(offset);
             return;
         }
         else {

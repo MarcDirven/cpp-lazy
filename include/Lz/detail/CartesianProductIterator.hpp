@@ -105,8 +105,8 @@ private:
             using std::distance;
             const auto dist = distance(iterator, std::get<I>(tmp._end));
             const auto offsets = std::lldiv(offset, dist);
-            iterator = next(std::move(iterator), offsets.rem);
-            operatorPlusImpl<I - 1>(tmp, offsets.quot);
+            iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
+            operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(offsets.quot));
         }
     }
 #endif // __cpp_if_constexpr
