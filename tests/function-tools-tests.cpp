@@ -34,6 +34,17 @@ TEST_CASE("Function tools") {
         CHECK(lz::sumTo(-10, -20) == -165);
     }
 
+    SECTION("Keys and values") {
+        const std::map<int, int> map = {{1, 2}, {2, 3}, {3, 4}};
+        auto values = lz::values(map);
+        auto expectedValues = {2, 3, 4};
+        CHECK(lz::equal(values, expectedValues));
+
+        auto keys = lz::keys(map);
+        auto expectedKeys = {1, 2, 3};
+        CHECK(lz::equal(keys, expectedKeys));
+    }
+
     SECTION("Unlines") {
         std::vector<std::string> strings = {"hello", "world", "what's", "up"};
         auto unlines = lz::unlines(strings).toString();
