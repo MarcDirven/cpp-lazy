@@ -419,6 +419,7 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     const internal::DiffType<Iterator> dist = distance(begin, end);
     ValueType sum;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        static_cast<void>(execution);
         sum = std::reduce(begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
     else {

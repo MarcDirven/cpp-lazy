@@ -384,6 +384,7 @@ public:
     template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& forEach(UnaryFunc func, Execution execution = std::execution::seq) {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+            static_cast<void>(execution);
             std::for_each(Base::begin(), Base::end(), std::move(func));
         }
         else {
@@ -590,6 +591,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
     isSorted(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+            static_cast<void>(execution);
             return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
         }
         else {
