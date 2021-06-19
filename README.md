@@ -49,10 +49,13 @@ for (int i = 0; i < n; i++) {
 
 This is actually exactly the same as:
 ```cpp
-for (int i : lz::random(0, 32, n)) {
- std::cout << i;  // prints a random number n times, between [0, 32]
-}
+// If standalone:
+std::cout << lz::random(0, 32, n);
+
+// If with fmt:
+fmt::print("{}", lz::random(0, 32, n));
 ```
+
 Both methods do not allocate any memory but the second example is a much more convenient way of writing the same thing.
 Now what if you wanted to do eager evaluation? Well then you could do this:
 
