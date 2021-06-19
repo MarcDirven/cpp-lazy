@@ -10,6 +10,7 @@ extraction:
       build_command:
       - cmake --version
       - cmake -S . -B build/install -D CMAKE_BUILD_TYPE:STRING=Release -D CMAKE_INSTALL_PREFIX=build/prefix -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
+      - cmake --build build/install
       - cmake --install build/install
       - cmake -S tests -B build/tests -D CMAKE_BUILD_TYPE:STRING=Release -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6 -D TEST_INSTALLED_VERSION:BOOL=YES -D CMAKE_INSTALL_PREFIX=build/prefix
       - cmake --build build/tests
