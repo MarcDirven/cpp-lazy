@@ -1,4 +1,4 @@
-[![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Total alerts](https://img.shields.io/lgtm/alerts/g/MarcDirven/cpp-lazy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/MarcDirven/cpp-lazy/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/MarcDirven/cpp-lazy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/MarcDirven/cpp-lazy/context:cpp)
 
 ![](https://i.ibb.co/ccn2V8N/Screenshot-2021-05-05-Make-A-High-Quality-Logo-In-Just-5-Minutes-For-Under-30-v1-cropped.png)
 
