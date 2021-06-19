@@ -32,8 +32,7 @@ def get_benchmark_names_and_time(bench_file, name_idx):
     return records, bench_unit
 
 
-def make_table(benchmark_records, unit, cxx_version, caches, n_iterations, title_iterations):
-    title = f'{cxx_version}\n{caches}'
+def make_table(benchmark_records, unit, cxx_version, n_iterations, title_iterations):
     fig_border = 'steelblue'
 
     benchmark_records = sorted(benchmark_records, key=lambda e: e.real_time)
@@ -105,7 +104,7 @@ def main():
 
         iterations = 32
         title_iterations = 1
-        make_table(bench_records, unit, cxx_version, caches, iterations, title_iterations)
+        make_table(bench_records, unit, cxx_version, iterations, title_iterations)
 
     green = '\033[32m'
     print(f'{green}Successfully created {filename.format(cxx_version)}')
