@@ -119,7 +119,7 @@ To guarantee the best performance, some iterators have custom `next`/`distance` 
 auto view = lz::chunks(array, 3);
 // Calculate distance:
 using std::distance; using lz::distance;
-auto distance = distance(view.begin(), view.end());
+auto dist = distance(view.begin(), view.end());
 
 // Get nth element:
 using std::next; using lz::next;
