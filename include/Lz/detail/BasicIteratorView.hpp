@@ -183,14 +183,14 @@ private:
 #ifndef __cpp_if_constexpr
     template<class Container, class It = LzIterator,
              EnableIf<!HasReserve<Container>::value || !IsForward<It>::value, bool> = true>
-    LZ_CONSTEXPR_CXX_20 void tryReserve(Container&) const {
+    void tryReserve(Container&) const {
     }
 
     template<class Container, class It = LzIterator, EnableIf<HasReserve<Container>::value && IsForward<It>::value, bool> = true>
-    LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
+    void tryReserve(Container& container) const {
         using lz::distance;
         using std::distance;
-        container.reserve(distance(begin(), end()));
+        container.reserve(static_cast<std::size_t>(distance(begin(), end())));
     }
 #else
     template<class Container>
@@ -201,7 +201,7 @@ private:
         else {
             using lz::distance;
             using std::distance;
-            container.reserve(distance(begin(), end()));
+            container.reserve(static_cast<std::size_t>(distance(begin(), end())));
         }
     }
 #endif // __cpp_if_constexpr
@@ -218,7 +218,7 @@ private:
 #endif // END LZ_GCC_VERSION
 #ifdef LZ_HAS_CXX_11
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
-            return std::make_pair(keyGen(std::forward<decltype(value)>(value))), value);
+            return std::make_pair(keyGen(value), value);
 #else
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
             return std::make_pair(keyGen(std::forward<decltype(value)>(value)), value);
@@ -270,12 +270,6 @@ private:
         return array;
     }
 #else  // ^^^ has execution vvv ! has execution
-    template<class Container, class Iter>
-    Container makeContainer(Container& container, Iter where) const {
-        std::copy(begin(), end(), std::move(where));
-        return container;
-    }
-
     template<class Container, class... Args>
     Container copyContainer(Args&&... args) const {
         Container cont(std::forward<Args>(args)...);
