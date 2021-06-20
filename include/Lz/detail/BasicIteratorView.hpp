@@ -60,9 +60,10 @@ toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const
 
 template<class Iterator>
 #ifdef LZ_HAS_STRING_VIEW
-LZ_CONSTEXPR_CXX_20 void toStringImpl(std::string& result, Iterator begin, Iterator end, const std::string_view delimiter) {
+LZ_CONSTEXPR_CXX_20 void
+toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const std::string_view delimiter) {
 #else
-void toStringImpl(std::string& result, Iterator begin, Iterator end, const std::string& delimiter) {
+void toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const std::string& delimiter) {
 #endif
     using TValueType = ValueType<Iterator>;
     if (begin == end) {
@@ -90,9 +91,9 @@ void toStringImpl(std::string& result, Iterator begin, Iterator end, const std::
 template<class Iterator>
 #ifdef LZ_HAS_STRING_VIEW
 LZ_CONSTEXPR_CXX_20 std::string
-doMakeString(Iterator b, Iterator e, const std::string_view delimiter, std::true_type /* isChar */) {
+doMakeString(const Iterator& b, const Iterator& e, const std::string_view delimiter, std::true_type /* isChar */) {
 #else
-std::string doMakeString(Iterator b, Iterator e, const std::string& delimiter, std::true_type /* isChar */) {
+std::string doMakeString(const Iterator& b, const Iterator& e, const std::string& delimiter, std::true_type /* isChar */) {
 #endif // LZ_HAS_STRING_VIEW
     if (delimiter.empty()) {
         return std::string(b, e);
@@ -109,14 +110,15 @@ std::string doMakeString(Iterator b, Iterator e, const std::string& delimiter, s
 }
 
 template<class Iterator>
+std::string
 #ifdef LZ_HAS_STRING_VIEW
-LZ_CONSTEXPR_CXX_20 std::string
-doMakeString(Iterator b, Iterator e, const std::string_view delimiter, std::false_type /* isChar */) {
+    LZ_CONSTEXPR_CXX_20
+    doMakeString(const Iterator& b, const Iterator& e, const std::string_view delimiter, std::false_type /* isChar */) {
 #else
-std::string doMakeString(Iterator b, Iterator e, const std::string& delimiter, std::false_type /* isChar */) {
+doMakeString(const Iterator& b, const Iterator& e, const std::string& delimiter, std::false_type /* isChar */) {
 #endif // LZ_HAS_STRING_VIEW
     std::string result;
-    toStringImpl(result, std::move(b), std::move(e), delimiter);
+    toStringImpl(result, b, e, delimiter);
     return result;
 }
 
@@ -308,7 +310,10 @@ public:
 
     constexpr BasicIteratorView() = default;
 
-    constexpr BasicIteratorView(LzIterator begin, LzIterator end) : _begin(std::move(begin)), _end(std::move(end)) {
+    constexpr BasicIteratorView(LzIterator&& begin, LzIterator&& end) : _begin(std::move(begin)), _end(std::move(end)) {
+    }
+
+    constexpr BasicIteratorView(const LzIterator& begin, const LzIterator& end) : _begin(begin), _end(end) {
     }
 
     virtual ~BasicIteratorView() = default;
