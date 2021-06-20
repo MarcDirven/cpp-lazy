@@ -451,7 +451,8 @@ public:
      * @param allocator Optional, can be used for using a custom allocator.
      * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
      */
-    template<class KeySelectorFunc, class Compare = std::less<KeyType<KeySelectorFunc>>,
+    template<class KeySelectorFunc,
+             class Compare = std::less<KeyType<KeySelectorFunc>>,
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5

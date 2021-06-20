@@ -67,9 +67,9 @@ private:
         using std::next;
         auto& iterator = std::get<I>(tmp._iterator);
         const auto dist = distance(iterator, std::get<I>(tmp._end));
-        const auto [quot, rem] = std::lldiv(offset, static_cast<long long>(dist));
-        iterator = next(std::move(iterator), static_cast<difference_type>(rem));
-        operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(quot));
+        const auto offsets = std::lldiv(offset, static_cast<long long>(dist));
+        iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
+        operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(offsets.quot));
     }
 
 #else
@@ -104,9 +104,9 @@ private:
             using lz::distance;
             using std::distance;
             const auto dist = distance(iterator, std::get<I>(tmp._end));
-            const auto offsets = std::lldiv(offset, static_cast<long long>(dist));
-            iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
-            operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(offsets.quot));
+            const auto [quot, rem] = std::lldiv(offset, static_cast<long long>(dist));
+            iterator = next(std::move(iterator), static_cast<difference_type>(rem));
+            operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(quot));
         }
     }
 #endif // __cpp_if_constexpr
