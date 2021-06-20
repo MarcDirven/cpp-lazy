@@ -451,7 +451,12 @@ public:
      * @param allocator Optional, can be used for using a custom allocator.
      * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
      */
-    template<class KeySelectorFunc, class Compare = std::less<KeyType<KeySelectorFunc>>,
+    template<class KeySelectorFunc,
+#ifdef LZ_HAS_CXX_11
+             class Compare = std::less<KeyType<KeySelectorFunc>>,
+#else
+             class Compare = std::less<>,
+#endif
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
@@ -487,7 +492,11 @@ public:
      * @return A `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`
      */
     template<class KeySelectorFunc, class Hasher = std::hash<KeyType<KeySelectorFunc>>,
+#ifdef LZ_HAS_CXX_11
              class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
+#else
+             class KeyEquality = std::equal_to<>,
+#endif
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
