@@ -11,6 +11,8 @@ namespace lz {
 namespace internal {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipIterator {
+    static_assert(sizeof...(Iterators) > 1, "zip requires more than 1 containers/iterables");
+
 public:
     using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
     using value_type = std::tuple<ValueType<Iterators>...>;

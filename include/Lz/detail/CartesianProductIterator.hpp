@@ -12,6 +12,8 @@ namespace internal {
 // Edited version of https://github.com/mirandaconrado/product-iterator
 template<class... Iterators>
 class CartesianProductIterator {
+    static_assert(sizeof...(Iterators) > 1, "The size of the iterators must be greater than 1");
+
 public:
     using value_type = std::tuple<ValueType<Iterators>...>;
     using reference = std::tuple<RefType<Iterators>...>;
