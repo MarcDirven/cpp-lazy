@@ -3,7 +3,6 @@
 #ifndef LZ_RANDOM_HPP
 #define LZ_RANDOM_HPP
 
-#include "Generate.hpp"
 #include "detail/BasicIteratorView.hpp"
 #include "detail/RandomIterator.hpp"
 
@@ -11,13 +10,64 @@
 
 namespace lz {
 namespace internal {
+template<std::size_t N>
+class SeedSequence {
+public:
+    using result_type = std::seed_seq::result_type;
+
+private:
+    using SeedArray = std::array<result_type, N>;
+    SeedArray _seed{};
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
+        using ValueType = ValueType<Iter>;
+        std::transform(begin, end, _seed.begin(), [](const ValueType val) {
+            return static_cast<result_type>(val);
+        });
+    }
+
+public:
+    constexpr SeedSequence() = default;
+
+    explicit SeedSequence(std::random_device& rd) {
+        std::generate(_seed.begin(), _seed.end(), [&rd]() {
+            return static_cast<result_type>(rd());
+        });
+    }
+
+    template<class T>
+    LZ_CONSTEXPR_CXX_20 SeedSequence(std::initializer_list<T> values) {
+        create(values.begin(), values.end());
+    }
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 SeedSequence(Iter first, Iter last) {
+        create(first, last);
+    }
+
+    SeedSequence(const SeedSequence&) = delete;
+    SeedSequence& operator=(const SeedSequence&) = delete;
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void generate(Iter begin, Iter) const {
+        std::copy(_seed.begin(), _seed.end(), begin);
+    }
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void param(Iter outputIterator) const {
+        generate(outputIterator, {});
+    }
+
+    static constexpr std::size_t size() {
+        return N;
+    }
+};
+
 inline std::mt19937 createMtEngine() {
     std::random_device rd;
-    const auto generator = lz::generate(
-        [&rd]() { return rd(); },
-        ((std::mt19937::state_size * sizeof(std::mt19937::result_type)) - 1) / sizeof(std::random_device::result_type) + 1);
-    std::seed_seq sd(generator.begin(), generator.end());
-    return std::mt19937(sd);
+    SeedSequence<8> seedSeq(rd);
+    return std::mt19937(seedSeq);
 }
 } // namespace internal
 
@@ -90,8 +140,7 @@ template<class Generator, class Distribution>
 LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
 random(const Distribution& distribution, Generator& generator,
        const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return Random<typename Distribution::result_type, Distribution, Generator>(
-        distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)());
+    return { distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)() };
 }
 
 #ifdef __cpp_if_constexpr
