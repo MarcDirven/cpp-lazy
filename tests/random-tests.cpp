@@ -107,12 +107,16 @@ TEST_CASE("Random to containers", "[Random][To container]") {
     }
 
     SECTION("To map") {
-        std::map<double, double> actual = range.toMap([](const double i) { return i; });
+        std::map<double, double> actual = range.toMap([](const double i) {
+            return i;
+        });
         CHECK(actual.size() == size);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) { return i; });
+        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) {
+            return i;
+        });
         CHECK(actual.size() == size);
     }
 }

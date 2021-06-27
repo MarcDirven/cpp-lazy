@@ -81,7 +81,9 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = except.toMap([](const int i) { return i; });
+        std::map<int, int> actual = except.toMap([](const int i) {
+            return i;
+        });
 
         std::map<int, int> expected = {
             std::make_pair(2, 2),
@@ -92,7 +94,9 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = except.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = except.toUnorderedMap([](const int i) {
+            return i;
+        });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(2, 2),
