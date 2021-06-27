@@ -19,17 +19,19 @@ option(CPP-LAZY_USE_STANDALONE "Standalone library without {fmt}" NO)
 option(CPP-LAZY_USE_INSTALLED_FMT "Import {fmt} using find_package" NO)
 
 if (CPP-LAZY_USE_STANDALONE)
+	message(STATUS "Using cpp-lazy standalone version")
 	add_compile_definitions(LZ_STANDALONE)
 else()
+	message(STATUS "Using cpp-lazy with {fmt} library")
 	if (CPP-LAZY_USE_INSTALLED_FMT)
-	    find_package(fmt 7 REQUIRED CONFIG)
+	    find_package(fmt 8 REQUIRED CONFIG)
 	else()
 	    set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 	    set(FMT_OS YES CACHE INTERNAL "")
 	    include(FetchContent)
 	    FetchContent_Declare(fmt
 	            GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-	            GIT_TAG e27b1ce50ca616a3c4e33c5db04523bb3312fac2
+	            GIT_TAG 9e8b86fd2d9806672cc73133d21780dd182bfd24
 	            UPDATE_DISCONNECTED YES)
 	    FetchContent_MakeAvailable(fmt)
 	endif()
