@@ -72,9 +72,12 @@ template<class IterA, class IterB, class SelectorA, class SelectorB, class Resul
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>
 joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector,
           Execution execution = std::execution::seq) {
-    return JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>(
+    // clang-format off
+    return {
         std::move(iterA), std::move(endA), std::move(iterB), std::move(endB), std::move(a), std::move(b),
-        std::move(resultSelector), execution);
+        std::move(resultSelector), execution
+    };
+    // clang-format on
 }
 
 /**
@@ -124,9 +127,12 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector>
 joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
-    return JoinWhere<IterA, IterB, SelectorA, SelectorB, ResultSelector>(std::move(iterA), std::move(endA), std::move(iterB),
-                                                                         std::move(endB), std::move(a), std::move(b),
-                                                                         std::move(resultSelector));
+    // clang-format off
+    return {
+        std::move(iterA), std::move(endA), std::move(iterB),  std::move(endB), std::move(a), std::move(b),
+        std::move(resultSelector)
+    };
+    // clang-format on
 }
 
 /**

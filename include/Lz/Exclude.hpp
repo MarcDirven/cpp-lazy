@@ -40,7 +40,7 @@ excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> fr
     using lz::distance;
     using std::distance;
     LZ_ASSERT(distance(begin, end) - to >= 0, "cannot access elements after end or before begin");
-    return Exclude<Iterator>(std::move(begin), std::move(end), from, to);
+    return { std::move(begin), std::move(end), from, to };
 }
 
 /**

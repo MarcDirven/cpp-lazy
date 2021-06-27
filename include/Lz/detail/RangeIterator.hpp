@@ -66,7 +66,7 @@ public:
     }
 
     LZ_NODISCARD constexpr RangeIterator operator+(const Arithmetic value) const noexcept {
-        return RangeIterator(_iterator + value * _step, _step);
+        return { _iterator + value * _step, _step };
     }
 };
 } // namespace internal

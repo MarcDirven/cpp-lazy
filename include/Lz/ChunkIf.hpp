@@ -51,7 +51,7 @@ public:
 template<class Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunkIf<Iterator, UnaryPredicate, Execution>
 chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate, Execution execution = std::execution::seq) {
-    return ChunkIf<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(unaryPredicate), execution);
+    return { std::move(begin), std::move(end), std::move(unaryPredicate), execution };
 }
 
 /**
@@ -67,7 +67,7 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution 
     return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         std::move(unaryPredicate), execution);
 }
-#else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 /**
  * Chops the sequence into pieces of iterators, when `unaryPredicate` function returns true.
  * @param begin The begin of the sequence to chop.
@@ -77,7 +77,7 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution 
  */
 template<class Iterator, class UnaryPredicate>
 ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate) {
-    return ChunkIf<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(unaryPredicate));
+    return { std::move(begin), std::move(end), std::move(unaryPredicate) };
 }
 
 /**

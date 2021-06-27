@@ -50,7 +50,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
-    return Take<Iterator>(std::move(begin), std::move(end), std::move(predicate));
+    return { std::move(begin), std::move(end), std::move(predicate) };
 }
 
 /**
@@ -63,7 +63,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, I
  * `for (auto... lz::takeWhile(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>> takeWhile(Iterable&& iterable, Function predicate) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+takeWhile(Iterable&& iterable, Function predicate) {
     return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate));
 }

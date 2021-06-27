@@ -54,7 +54,7 @@ LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Ari
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
 #endif
-    return Range<Arithmetic>(start, end, step);
+    return { start, end, step };
 }
 
 /**

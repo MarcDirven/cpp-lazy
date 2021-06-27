@@ -36,7 +36,7 @@ public:
 template<class T>
 LZ_NODISCARD constexpr Repeat<internal::Decay<T>>
 repeat(T&& toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return Repeat<internal::Decay<T>>(std::forward<T>(toRepeat), amount);
+    return { std::forward<T>(toRepeat), amount };
 }
 
 // End of group

@@ -35,7 +35,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
-    return Chunks<Iterator>(std::move(begin), std::move(end), chunkSize);
+    return { std::move(begin), std::move(end), chunkSize };
 }
 
 /**

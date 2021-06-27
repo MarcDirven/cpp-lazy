@@ -52,7 +52,7 @@ public:
 template<LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<Iterator, Comparer, Execution>
 groupByRange(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
-    return GroupBy<Iterator, Comparer, Execution>(std::move(begin), std::move(end), std::move(comparer), execution);
+    return { std::move(begin), std::move(end), std::move(comparer), execution };
 }
 
 /**
@@ -86,7 +86,7 @@ template<class Iterator, class Comparer = std::equal_to<internal::ValueType<Iter
 template<class Iterator, class Comparer = std::equal_to<>>
 #endif // LZ_HAS_CXX_11
 GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer keySelector = {}) {
-    return GroupBy<Iterator, Comparer>(std::move(begin), std::move(end), std::move(keySelector));
+    return { std::move(begin), std::move(end), std::move(keySelector) };
 }
 
 /**

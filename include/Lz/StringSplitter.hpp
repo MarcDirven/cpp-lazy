@@ -53,7 +53,7 @@ template<class SubString = fmt::string_view>
  */
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string, std::string>
 split(const std::string& str, std::string delimiter) {
-    return StringSplitter<SubString, std::string, std::string>(str, std::move(delimiter));
+    return { str, std::move(delimiter) };
 }
 
 #if defined(LZ_HAS_STRING_VIEW)
@@ -74,7 +74,7 @@ template<class SubString = fmt::string_view>
  * `for (auto... lz::split(...))`.
  */
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string, char> split(const std::string& str, char delimiter) {
-    return StringSplitter<SubString, std::string, char>(str, delimiter);
+    return { str, delimiter };
 }
 
 #if defined(LZ_HAS_STRING_VIEW)
@@ -107,13 +107,13 @@ StringSplitter<SubString, std::string, std::string> split(std::string&& str, std
 template<class SubString = std::string_view>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string_view, std::string>
 split(const std::string_view& str, std::string delimiter) {
-    return StringSplitter<SubString, std::string_view, std::string>(str, std::move(delimiter));
+    return { str, std::move(delimiter) };
 }
 
 template<class SubString = std::string_view>
 LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, std::string>
 split(const std::string_view& str, char delimiter) {
-    return StringSplitter<SubString, std::string_view, char>(str, delimiter);
+    return { str, delimiter };
 }
 
 template<class SubString = std::string_view>

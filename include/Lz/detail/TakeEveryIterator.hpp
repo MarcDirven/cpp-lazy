@@ -26,7 +26,7 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-    constexpr TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
         _offset(offset),
@@ -88,9 +88,9 @@ public:
         const auto dist = distance(_iterator, _end);
         const auto diffOffset = static_cast<difference_type>(_offset) * offset;
         if (diffOffset >= dist) {
-            return TakeEveryIterator(_end, _end, _offset, 0);
+            return { _end, _end, _offset, 0 };
         }
-        return TakeEveryIterator(next(_iterator, diffOffset), _end, _offset, dist);
+        return { next(_iterator, diffOffset), _end, _offset, static_cast<std::size_t>(dist) };
     }
 };
 } // namespace internal
