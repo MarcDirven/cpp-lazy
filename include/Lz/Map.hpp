@@ -46,7 +46,7 @@ public:
  */
 template<class Function, LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, Function> mapRange(Iterator begin, Iterator end, Function function) {
-    return Map<Iterator, Function>(std::move(begin), std::move(end), std::move(function));
+    return { std::move(begin), std::move(end), std::move(function) };
 }
 
 /**

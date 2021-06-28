@@ -5,7 +5,9 @@
 
 TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionality]") {
     std::string s = "hello world; this is a message;";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunkIf(s, [](const char c) {
+        return c == ';';
+    });
 
     SECTION("Length should be correct") {
         CHECK(std::distance(chunked.begin(), chunked.end()) == 2);
@@ -27,7 +29,9 @@ TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionali
 
 TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
     std::string s = "hello world; this is a message;";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunkIf(s, [](const char c) {
+        return c == ';';
+    });
     CHECK(chunked.begin()->toString() == "hello world");
 
     SECTION("Operator++") {
@@ -48,25 +52,32 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
 
 TEST_CASE("ChunkIf to containers", "[ChunkIf][To container]") {
     std::string s = "hello world; this is a message";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunkIf(s, [](const char c) {
+        return c == ';';
+    });
     using Iterator = decltype(*chunked.begin());
 
     SECTION("To array") {
         std::array<std::string, 2> arr;
-        std::transform(chunked.begin(), chunked.end(), arr.begin(), [](const Iterator& it) { return it.toString(); });
+        std::transform(chunked.begin(), chunked.end(), arr.begin(), [](const Iterator& it) {
+            return it.toString();
+        });
         CHECK(arr == decltype(arr){ "hello world", " this is a message" });
     }
 
     SECTION("To vector") {
         std::vector<std::string> vec;
-        std::transform(chunked.begin(), chunked.end(), std::back_inserter(vec), [](const Iterator& it) { return it.toString(); });
+        std::transform(chunked.begin(), chunked.end(), std::back_inserter(vec), [](const Iterator& it) {
+            return it.toString();
+        });
         CHECK(vec == decltype(vec){ "hello world", " this is a message" });
     }
 
     SECTION("To other container using to<>()") {
         std::list<std::string> list;
-        std::transform(chunked.begin(), chunked.end(), std::inserter(list, list.begin()),
-                       [](const Iterator& it) { return it.toString(); });
+        std::transform(chunked.begin(), chunked.end(), std::inserter(list, list.begin()), [](const Iterator& it) {
+            return it.toString();
+        });
         CHECK(list == decltype(list){ "hello world", " this is a message" });
     }
 }

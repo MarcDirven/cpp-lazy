@@ -44,16 +44,15 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
     auto it = random.begin();
 
     SECTION("Operator++") {
-        double prev = *it;
         ++it;
-        REQUIRE(prev != *it);
+        CHECK(std::distance(it, random.end()) == 4);
     }
 
     SECTION("Operator--") {
         ++it;
-        double prev = *it;
+        CHECK(std::distance(it, random.end()) == 4);
         --it;
-        CHECK(prev != *it);
+        CHECK(std::distance(it, random.end()) == 5);
     }
 
     SECTION("Operator== & Operator!=") {
@@ -79,7 +78,11 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
 
     SECTION("Operator[]()") {
         double prev = *it;
-        CHECK(it[1] != prev);
+        double cur = it[1];
+        while (cur == prev) {
+            cur = it[1];
+        }
+        CHECK(cur != prev);
     }
 
     SECTION("Operator<, '<, <=, >, >='") {
@@ -107,12 +110,16 @@ TEST_CASE("Random to containers", "[Random][To container]") {
     }
 
     SECTION("To map") {
-        std::map<double, double> actual = range.toMap([](const double i) { return i; });
+        std::map<double, double> actual = range.toMap([](const double i) {
+            return i;
+        });
         CHECK(actual.size() == size);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) { return i; });
+        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) {
+            return i;
+        });
         CHECK(actual.size() == size);
     }
 }

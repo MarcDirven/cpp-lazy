@@ -34,8 +34,7 @@ public:
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CartesianProduct<Iterators...>
 cartesianRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
-    static_assert(sizeof...(Iterators) > 1, "The size of the iterators must be greater than 1");
-    return CartesianProduct<Iterators...>(std::move(begin), std::move(end));
+    return { std::move(begin), std::move(end) };
 }
 
 /**

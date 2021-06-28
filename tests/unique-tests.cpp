@@ -68,7 +68,9 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = unique.toMap([](const int i) { return i; });
+        std::map<int, int> actual = unique.toMap([](const int i) {
+            return i;
+        });
 
         std::map<int, int> expected = {
             std::make_pair(1, 1),
@@ -80,7 +82,9 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = unique.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = unique.toUnorderedMap([](const int i) {
+            return i;
+        });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(1, 1),

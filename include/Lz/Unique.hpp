@@ -57,7 +57,7 @@ public:
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Compare = std::less<>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Unique<Execution, Iterator, Compare>
 uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPolicy = std::execution::seq) {
-    return Unique<Execution, Iterator, Compare>(std::move(begin), std::move(end), std::move(compare), execPolicy);
+    return { std::move(begin), std::move(end), std::move(compare), execPolicy };
 }
 
 /**
@@ -94,7 +94,7 @@ template<class Iterator, class Compare = std::less<internal::ValueType<Iterator>
 template<class Iterator, class Compare = std::less<>>
 #endif // LZ_HAS_CXX_11
 Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare compare = {}) {
-    return Unique<Iterator, Compare>(std::move(begin), std::move(end), std::move(compare));
+    return { std::move(begin), std::move(end), std::move(compare) };
 }
 
 /**

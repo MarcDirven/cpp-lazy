@@ -87,13 +87,17 @@ TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = takeEvery.toMap([](const int i) { return i; });
+        std::map<int, int> actual = takeEvery.toMap([](const int i) {
+            return i;
+        });
         std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(3, 3) };
         CHECK(actual == expected);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = takeEvery.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = takeEvery.toUnorderedMap([](const int i) {
+            return i;
+        });
         std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(3, 3) };
         CHECK(actual == expected);
     }

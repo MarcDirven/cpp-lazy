@@ -70,8 +70,9 @@ template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, cla
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Except<Iterator, IteratorToExcept, Comparer, Execution>
 exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {},
             Execution execPolicy = std::execution::seq) {
-    return Except<Iterator, IteratorToExcept, Comparer, Execution>(std::move(begin), std::move(end), std::move(toExceptBegin),
-                                                                   std::move(toExceptEnd), std::move(comparer), execPolicy);
+    return {
+        std::move(begin), std::move(end), std::move(toExceptBegin), std::move(toExceptEnd), std::move(comparer), execPolicy
+    };
 }
 
 /**
@@ -112,8 +113,7 @@ template<class Iterator, class IteratorToExcept, class Comparer = std::less<>>
 #endif // LZ_HAS_CXX_11
 Except<Iterator, IteratorToExcept, Comparer>
 exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {}) {
-    return Except<Iterator, IteratorToExcept, Comparer>(std::move(begin), std::move(end), std::move(toExceptBegin),
-                                                        std::move(toExceptEnd), std::move(comparer));
+    return { std::move(begin), std::move(end), std::move(toExceptBegin), std::move(toExceptEnd), std::move(comparer) };
 }
 
 /**

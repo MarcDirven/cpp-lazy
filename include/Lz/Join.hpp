@@ -45,7 +45,7 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
     using lz::distance;
     using std::distance;
-    return Join<Iterator>(std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1);
+    return { std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1 };
 }
 
 /**

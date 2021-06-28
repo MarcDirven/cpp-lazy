@@ -53,7 +53,9 @@ toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const
                         std::false_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
     std::ostringstream oss;
-    std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) { oss << t << delimiter; });
+    std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) {
+        oss << t << delimiter;
+    });
     result = oss.str();
 }
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
@@ -74,11 +76,12 @@ void toStringImpl(std::string& result, const Iterator& begin, const Iterator& en
 #endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
 #if !defined(LZ_STANDALONE)
     std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
-        fmt::format_to(backInserter, FMT_STRING("{}{}"), v, delimiter);
+        fmt::format_to(backInserter, "{}{}", v, delimiter);
     });
 #elif defined(LZ_HAS_FORMAT)
-    std::for_each(begin, end,
-                  [&delimiter, backInserter](const TValueType& v) { std::format_to(backInserter, "{}{}", v, delimiter); });
+    std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
+        std::format_to(backInserter, "{}{}", v, delimiter);
+    });
     // clang-format off
 #else
     toStringImplSpecialized(result, begin, end, delimiter, std::is_arithmetic<TValueType>());
@@ -451,8 +454,7 @@ public:
      * @param allocator Optional, can be used for using a custom allocator.
      * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
      */
-    template<class KeySelectorFunc,
-             class Compare = std::less<KeyType<KeySelectorFunc>>,
+    template<class KeySelectorFunc, class Compare = std::less<KeyType<KeySelectorFunc>>,
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
 #if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
@@ -513,8 +515,8 @@ public:
 #else
     LZ_NODISCARD std::string toString(const std::string& delimiter = "") const {
 #endif
+        // clang-format off
         return internal::doMakeString(begin(), end(), delimiter, std::is_same<char, value_type>());
-    // clang-format off
     }
 
     /**
@@ -526,9 +528,9 @@ public:
     friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
         return o << it.toString(" ");
     }
-    // clang format on
-};
-} // namespace internal
+}; // namespace internal
+// clang-format on
+} // namespace lz
 #ifndef LZ_HAS_EXECUTION
 /**
  * Use this function to check if two lz iterators are the same.

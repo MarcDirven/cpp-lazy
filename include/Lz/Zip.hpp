@@ -15,20 +15,7 @@ public:
 
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief This object can be used to iterate over multiple containers. It stops at its smallest container.
-     * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
-     * if one of the containers returns true with its corresponding `operator<`/`operator<=`/`operator>`/
-     * `operator>=`.
-     * @details The tuple that is returned by `operator*` returns a `std::tuple` by value and its elements by
-     * reference e.g. `std::tuple<Args&...>`. So it is possible to alter the values in the container/iterable),
-     * unless the iterator is const, making it a const reference.
-     * to alter the values in the iterator (and therefore also the container/iterable), unless the iterator is const,
-     * making it a const reference.
-     * @param begin The beginning of all the containers
-     * @param end The ending of all the containers
-     */
-    LZ_CONSTEXPR_CXX_20 explicit Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+    LZ_CONSTEXPR_CXX_20 Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 
@@ -41,10 +28,21 @@ public:
  * @{
  */
 
+/**
+ * @brief This function can be used to iterate over multiple containers. It stops at its smallest container.
+ * Its `begin()` function returns a random access iterator. The operators `<, <=, >, >=` will return true
+ * if one of the containers returns true with its corresponding `operator<`/`operator<=`/`operator>`/`operator>=`.
+ * @details The tuple that is returned by `operator*` returns a `std::tuple` by value and its elements by
+ * reference e.g. `std::tuple<Args&...>`. So it is possible to alter the values in the container/iterable),
+ * unless the iterator is const, making it a const reference.
+ * @param begin The beginning of the sequence
+ * @param end The ending of the sequence
+ * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto tuple :  lz::zip(...))`.
+ */
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
-    static_assert(sizeof...(Iterators) > 1, "zip requires more than 1 containers/iterables");
-    return Zip<Iterators...>(std::move(begin), std::move(end));
+    return { std::move(begin), std::move(end) };
 }
 
 /**

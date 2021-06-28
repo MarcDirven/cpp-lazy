@@ -74,7 +74,7 @@ filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution ex
     static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                   "function must return type that can be converted to bool");
     static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
-    return Filter<Iterator, UnaryPredicate, Execution>(std::move(begin), std::move(end), std::move(predicate), execution);
+    return { std::move(begin), std::move(end), std::move(predicate), execution };
 }
 
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
@@ -99,7 +99,7 @@ template<class Iterator, class UnaryPredicate>
 Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
     static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                   "function return type must be convertible to a bool");
-    return Filter<Iterator, UnaryPredicate>(std::move(begin), std::move(end), std::move(predicate));
+    return { std::move(begin), std::move(end), std::move(predicate) };
 }
 
 /**

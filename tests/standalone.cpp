@@ -11,7 +11,9 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     std::string combined = lz::join(array, ", ").toString();
 
     REQUIRE(combined == "1, 2, 3, 4");
-    REQUIRE(lz::map(array, [](int i) { return i + 1; }).toString(" ") == "2 3 4 5");
+    REQUIRE(lz::map(array, [](int i) {
+                return i + 1;
+            }).toString(" ") == "2 3 4 5");
 
     std::array<bool, 4> bools = { true, false, true, false };
     auto boolMap = lz::join(bools, ", ").toString();

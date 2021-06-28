@@ -54,7 +54,7 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
 #endif
-    return Enumerate<Iterator, Arithmetic>(std::move(begin), std::move(end), start);
+    return { std::move(begin), std::move(end), start };
 }
 
 /**

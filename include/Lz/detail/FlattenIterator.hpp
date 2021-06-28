@@ -98,7 +98,7 @@ public:
 
     constexpr FlattenWrapper() = default;
 
-    constexpr FlattenWrapper(Iterator current, Iterator begin, Iterator end) :
+    LZ_CONSTEXPR_CXX_20 FlattenWrapper(Iterator current, Iterator begin, Iterator end) :
         _begin(std::move(begin)),
         _current(std::move(current)),
         _end(std::move(end)) {
@@ -187,12 +187,12 @@ private:
         }
         for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
             const auto begin = std::begin(*_outerIter);
-            _innerIter = Inner(begin, begin, std::end(*_outerIter));
+            _innerIter = { begin, begin, std::end(*_outerIter) };
             if (_innerIter.hasSome()) {
                 return;
             }
         }
-        _innerIter = Inner();
+        _innerIter = {};
     }
 
     FlattenWrapper<Iterator> _outerIter{};
@@ -205,7 +205,7 @@ public:
         _outerIter(std::move(it), std::move(begin), std::move(end)) {
         if (_outerIter.hasSome()) {
             const auto beg = std::begin(*_outerIter);
-            _innerIter = Inner(beg, beg, std::end(*_outerIter));
+            _innerIter = { beg, beg, std::end(*_outerIter) };
             this->advance();
         }
     }
@@ -254,7 +254,7 @@ public:
         while (_outerIter.hasPrev()) {
             --_outerIter;
             const auto end = std::end(*_outerIter);
-            _innerIter = Inner(end, std::begin(*_outerIter), end);
+            _innerIter = { end, std::begin(*_outerIter), end };
             if (_innerIter.hasPrev()) {
                 --_innerIter;
                 return *this;
@@ -282,7 +282,7 @@ public:
                 break;
             }
             const auto begin = std::begin(*tmp._outerIter);
-            tmp._innerIter = Inner(begin, begin, std::end(*tmp._outerIter));
+            tmp._innerIter = { begin, begin, std::end(*tmp._outerIter) };
         }
         return total;
     }
@@ -301,16 +301,16 @@ public:
             ++tmp._outerIter;
             offset -= dist;
             if (!tmp._outerIter.hasSome()) {
-                tmp._innerIter = Inner();
+                tmp._innerIter = {};
                 break;
             }
             const auto begin = std::begin(*tmp._outerIter);
-            tmp._innerIter = Inner(begin, begin, std::end(*tmp._outerIter));
+            tmp._innerIter = { begin, begin, std::end(*tmp._outerIter) };
             dist = tmp._innerIter.distance();
         }
         if (!tmp._outerIter.hasSome() && !tmp._innerIter.hasSome()) {
             LZ_ASSERT(offset == 0, "cannot access elements after end");
-            tmp._innerIter = Inner();
+            tmp._innerIter = {};
             return tmp;
         }
         tmp._innerIter = tmp._innerIter + offset;

@@ -113,20 +113,26 @@ TEST_CASE("Exclude to containers", "[Exclude][To container]") {
     }
 
     SECTION("To map") {
-        CHECK(excluded1.toMap([](int i) { return i; }) ==
-              std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toMap([](int i) { return i; }) ==
-              std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toMap([](int i) { return i; }) ==
-              std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
+        CHECK(excluded1.toMap([](int i) {
+            return i;
+        }) == std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
+        CHECK(excluded2.toMap([](int i) {
+            return i;
+        }) == std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
+        CHECK(excluded3.toMap([](int i) {
+            return i;
+        }) == std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 
     SECTION("To unordered map") {
-        CHECK(excluded1.toUnorderedMap([](int i) { return i; }) ==
-              std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toUnorderedMap([](int i) { return i; }) ==
-              std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toUnorderedMap([](int i) { return i; }) ==
-              std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
+        CHECK(excluded1.toUnorderedMap([](int i) {
+            return i;
+        }) == std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
+        CHECK(excluded2.toUnorderedMap([](int i) {
+            return i;
+        }) == std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
+        CHECK(excluded3.toUnorderedMap([](int i) {
+            return i;
+        }) == std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 }

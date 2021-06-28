@@ -111,7 +111,8 @@ public:
 
     //! See Map.hpp for documentation
     template<class UnaryFunction>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, UnaryFunction>> map(UnaryFunction unaryFunction) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, UnaryFunction>>
+    map(UnaryFunction unaryFunction) const {
         return lz::toIter(lz::map(*this, std::move(unaryFunction)));
     }
 
@@ -247,7 +248,6 @@ public:
     }
 
 #ifdef LZ_HAS_EXECUTION
-
     //! See Filter.hpp for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>>
@@ -493,8 +493,8 @@ public:
      * @param predicate The function that checks if an element meets a certain condition.
      * @param execution The execution policy.
      */
-    template<class UnaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool all(UnaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
+    template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool all(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::all_of(Base::begin(), Base::end(), std::move(predicate));
@@ -510,8 +510,8 @@ public:
      * @param predicate The function that checks if an element meets a certain condition.
      * @param execution The execution policy.
      */
-    template<class UnaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool any(UnaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
+    template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool any(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::any_of(Base::begin(), Base::end(), std::move(predicate));
@@ -527,9 +527,15 @@ public:
      * @param predicate The function that checks if an element meets a certain condition.
      * @param execution The execution policy.
      */
-    template<class UnaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool none(UnaryPredicate predicate = {}, Execution execution = std::execution::seq) {
-        return !this->all(std::move(predicate), execution);
+    template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool none(UnaryPredicate predicate, Execution execution = std::execution::seq) {
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+            static_cast<void>(execution);
+            return std::none_of(Base::begin(), Base::end(), std::move(predicate));
+        }
+        else {
+            return std::none_of(execution, Base::begin(), Base::end(), std::move(predicate));
+        }
     }
 
     /**
@@ -598,7 +604,6 @@ public:
             return std::is_sorted(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
-
 #else // ^^^ lz has execution vvv ! lz has execution
 
     //! See Filter.hpp for documentation
@@ -727,7 +732,7 @@ public:
 
     /**
      * Performs a left fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
-     * `[](value_type init, value_type next) const { return init + value_type; }`
+     * `[](value_type init, value_type next) const { return std::move(init) + value_type; }`
      * @param init The starting value
      * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
      */
@@ -738,7 +743,7 @@ public:
 
     /**
      * Performs a right fold with as starting point `init`. Can be used to for e.g. sum all values. For this use:
-     * `[](value_type init, value_type next) const { return init + value_type; }`
+     * `[](value_type init, value_type next) const { return std::move(init) + value_type; }`
      * @param init The starting value
      * @param function A binary function with the following signature `value_type func(value_type init, value_type element)`
      */
@@ -754,7 +759,9 @@ public:
      */
     value_type sum() const {
 #ifdef LZ_HAS_CXX_11
-        return this->foldl(value_type(), [](value_type init, const value_type& val) { return std::move(init) + val; });
+        return this->foldl(value_type(), [](value_type init, const value_type& val) {
+            return std::move(init) + val;
+        });
 #else
         return this->foldl(value_type(), std::plus<>());
 #endif // LZ_HAS_CXX_11
@@ -815,12 +822,8 @@ public:
      * parameter.
      * @param predicate The function that checks if an element meets a certain condition.
      */
-#ifdef LZ_HAS_CXX_11
-    template<class UnaryPredicate = std::equal_to<value_type>>
-#else
-    template<class UnaryPredicate = std::equal_to<>>
-#endif // LZ_HAS_CXX_11
-    bool all(UnaryPredicate predicate = {}) const {
+    template<class UnaryPredicate>
+    bool all(UnaryPredicate predicate) const {
         return std::all_of(Base::begin(), Base::end(), std::move(predicate));
     }
 
@@ -829,12 +832,8 @@ public:
      * parameter.
      * @param predicate The function that checks if an element meets a certain condition.
      */
-#ifdef LZ_HAS_CXX_11
-    template<class UnaryPredicate = std::equal_to<value_type>>
-#else
-    template<class UnaryPredicate = std::equal_to<>>
-#endif // LZ_HAS_CXX_11
-    bool any(UnaryPredicate predicate = {}) const {
+    template<class UnaryPredicate>
+    bool any(UnaryPredicate predicate) const {
         return std::any_of(Base::begin(), Base::end(), std::move(predicate));
     }
 
@@ -843,13 +842,9 @@ public:
      * parameter.
      * @param predicate The function that checks if an element meets a certain condition.
      */
-#ifdef LZ_HAS_CXX_11
-    template<class UnaryPredicate = std::equal_to<value_type>>
-#else
-    template<class UnaryPredicate = std::equal_to<>>
-#endif // LZ_HAS_CXX_11
-    bool none(UnaryPredicate predicate = {}) const {
-        return !this->all(std::move(predicate));
+    template<class UnaryPredicate>
+    bool none(UnaryPredicate predicate) const {
+        return std::none_of(Base::begin(), Base::end(), std::move(predicate));
     }
 
     /**

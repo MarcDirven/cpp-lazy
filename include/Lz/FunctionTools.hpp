@@ -37,7 +37,7 @@ struct ConvertFn {
 };
 
 template<std::size_t I>
-struct StdGetFn {
+struct GetFn {
     template<class T>
     LZ_CONSTEXPR_CXX_20 auto operator()(T&& gettable) noexcept -> decltype(std::get<I>(std::forward<T>(gettable))) {
         return std::get<I>(std::forward<T>(gettable));
@@ -62,6 +62,22 @@ struct TupleExpand {
 template<class Fn, std::size_t... I>
 constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
+}
+
+template<class Iterator>
+LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator>
+lastImpl(Iterator, Iterator end, std::true_type /* convertibleToBidirectional */) {
+    return *--end;
+}
+
+template<class Iterator>
+LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator>
+lastImpl(Iterator begin, Iterator end, std::false_type /* convertibleToBidirectional */) {
+    using lz::distance;
+    using lz::next;
+    using std::distance;
+    using std::next;
+    return *next(begin, distance(begin, end) - 1);
 }
 } // namespace internal
 
@@ -95,16 +111,13 @@ LZ_NODISCARD constexpr T sumTo(const T from, const T upToAndIncluding) {
     static_assert(std::is_integral<T>::value, "T must be integral type");
     const T fromAbs = from < 0 ? -from : from;
     const T toAbs = upToAndIncluding < 0 ? -upToAndIncluding : upToAndIncluding;
-    const T error = ((fromAbs - 1) * (fromAbs)) / 2;
+    const T error = ((fromAbs - 1) * fromAbs) / 2;
     const T sum = (toAbs * (toAbs + 1)) / 2;
-    if (from < 0) {
-        if (upToAndIncluding < 0) {
-            return error - sum;
-        }
-        return -(error + fromAbs - sum);
-    }
     if (upToAndIncluding < 0) {
         return error - sum;
+    }
+    if (from < 0) {
+        return -(error + fromAbs - sum);
     }
     LZ_ASSERT(from < upToAndIncluding, "`from` cannot be smaller than `upToAndIncluding` if both are positive");
     return sum - error;
@@ -316,11 +329,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-    using lz::distance;
-    using lz::next;
-    using std::distance;
-    using std::next;
-    return *next(begin, distance(begin, end) - 1);
+    return internal::lastImpl(std::move(begin), std::move(end),
+                              std::is_convertible<internal::IterCat<Iterator>, std::bidirectional_iterator_tag>());
 }
 
 /**
@@ -402,7 +412,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterable&& ite
     return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
-
 /**
  * Returns an iterator object that returns all values from an iterable of which its `value_type` supports `std::get<1>`.
  * Useful for example getting the values from a `std::(unordered_)map`
@@ -412,8 +421,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterable&& ite
  * interface)`
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::StdGetFn<1>> valuesRange(Iterator begin, Iterator end) {
-    return mapRange(std::move(begin), std::move(end), internal::StdGetFn<1>());
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<1>> valuesRange(Iterator begin, Iterator end) {
+    return mapRange(std::move(begin), std::move(end), internal::GetFn<1>());
 }
 
 /**
@@ -424,7 +433,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::StdGetFn<1>> values
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::StdGetFn<1>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<1>>
 values(Iterable&& iterable) {
     return valuesRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
@@ -438,8 +447,8 @@ values(Iterable&& iterable) {
  * interface)`
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::StdGetFn<0>> keysRange(Iterator begin, Iterator end) {
-    return mapRange(std::move(begin), std::move(end), internal::StdGetFn<0>());
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<0>> keysRange(Iterator begin, Iterator end) {
+    return mapRange(std::move(begin), std::move(end), internal::GetFn<0>());
 }
 
 /**
@@ -450,11 +459,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::StdGetFn<0>> keysRa
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::StdGetFn<0>>
-keys(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<0>> keys(Iterable&& iterable) {
     return keysRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
-
 
 #ifdef LZ_HAS_EXECUTION
 /**
@@ -544,13 +551,13 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20
  */
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::StdGetFn<1>, Execution>,
-            internal::StdGetFn<0>>
+    lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
+            internal::GetFn<0>>
     select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector,
            Execution execution = std::execution::seq) {
     auto zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
                                std::make_tuple(std::move(end), std::move(endSelector)));
-    return lz::filterMap(std::move(zipper), internal::StdGetFn<1>(), internal::StdGetFn<0>(), execution);
+    return lz::filterMap(std::move(zipper), internal::GetFn<1>(), internal::GetFn<0>(), execution);
 }
 
 /**
@@ -564,8 +571,8 @@ template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, cla
          class Iterator = internal::IterTypeFromIterable<Iterable>,
          class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::StdGetFn<1>, Execution>,
-            internal::StdGetFn<0>>
+    lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
+            internal::GetFn<0>>
     select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = std::execution::seq) {
     return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                   internal::begin(std::forward<SelectorIterable>(selectors)),
@@ -1308,11 +1315,11 @@ filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc)
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
 template<class Iterator, class SelectorIterator>
-lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::StdGetFn<1>>, internal::StdGetFn<0>>
+lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>>, internal::GetFn<0>>
 select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector) {
     auto zipper = lz::zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
                                std::make_tuple(std::move(end), std::move(endSelector)));
-    return lz::filterMap(std::move(zipper), internal::StdGetFn<1>(), internal::StdGetFn<0>());
+    return lz::filterMap(std::move(zipper), internal::GetFn<1>(), internal::GetFn<0>());
 }
 
 /**
@@ -1323,7 +1330,7 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
  */
 template<class Iterable, class SelectorIterable, class Iterator = internal::IterTypeFromIterable<Iterable>,
          class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
-lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::StdGetFn<1>>, internal::StdGetFn<0>>
+lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>>, internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors) {
     return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                   internal::begin(std::forward<SelectorIterable>(selectors)),

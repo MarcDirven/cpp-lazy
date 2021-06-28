@@ -124,7 +124,9 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
 
     SECTION("To map") {
         auto enumerator = lz::enumerate(array);
-        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) { return pair.second; });
+        std::map<int, std::pair<int, int>> actual = enumerator.toMap([](const std::pair<int, int> pair) {
+            return pair.second;
+        });
 
         std::map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),
@@ -137,8 +139,9 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
 
     SECTION("To unordered map") {
         auto enumerator = lz::enumerate(array);
-        std::unordered_map<int, std::pair<int, int>> actual =
-            enumerator.toUnorderedMap([](const std::pair<int, int> pair) { return pair.second; });
+        std::unordered_map<int, std::pair<int, int>> actual = enumerator.toUnorderedMap([](const std::pair<int, int> pair) {
+            return pair.second;
+        });
 
         std::unordered_map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),

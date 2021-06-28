@@ -3,7 +3,6 @@
 #ifndef LZ_RANDOM_HPP
 #define LZ_RANDOM_HPP
 
-#include "Generate.hpp"
 #include "detail/BasicIteratorView.hpp"
 #include "detail/RandomIterator.hpp"
 
@@ -11,13 +10,111 @@
 
 namespace lz {
 namespace internal {
+template<std::size_t N>
+class SeedSequence {
+public:
+    using result_type = std::seed_seq::result_type;
+
+private:
+    using SeedArray = std::array<result_type, N>;
+    SeedArray _seed{};
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
+        using ValueType = ValueType<Iter>;
+        std::transform(begin, end, _seed.begin(), [](const ValueType val) {
+            return static_cast<result_type>(val);
+        });
+    }
+
+    result_type T(result_type x) const {
+        return x ^ (x >> 27u);
+    }
+
+public:
+    constexpr SeedSequence() = default;
+
+    explicit SeedSequence(std::random_device& rd) {
+        std::generate(_seed.begin(), _seed.end(), [&rd]() {
+            return static_cast<result_type>(rd());
+        });
+    }
+
+    template<class T>
+    LZ_CONSTEXPR_CXX_20 SeedSequence(std::initializer_list<T> values) {
+        create(values.begin(), values.end());
+    }
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 SeedSequence(Iter first, Iter last) {
+        create(first, last);
+    }
+
+    SeedSequence(const SeedSequence&) = delete;
+    SeedSequence& operator=(const SeedSequence&) = delete;
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void generate(Iter begin, Iter end) const {
+        if (begin == end) {
+            return;
+        }
+
+        std::fill(begin, end, 0x8b8b8b8b);
+        const auto n = static_cast<std::size_t>(end - begin);
+        constexpr auto s = N;
+        const std::size_t m = std::max(s + 1, n);
+        const std::size_t t = (n >= 623) ? 11 : (n >= 68) ? 7 : (n >= 39) ? 5 : (n >= 7) ? 3 : (n - 1) / 2;
+        const std::size_t p = (n - t) / 2;
+        const std::size_t q = p + t;
+
+        std::size_t k;
+        constexpr ValueType<Iter> mask{ std::numeric_limits<std::uint32_t>::max() };
+
+        for (k = 0; k < m - 1; k++) {
+            const std::size_t kPlusP = k + p;
+            const result_type r1 = 1664525 * T(begin[k % n] ^ begin[kPlusP % n] ^ begin[(k - 1) % n]);
+
+            result_type r2;
+            if (k == 0) {
+                r2 = static_cast<result_type>((r1 + s) & mask);
+            }
+            else if (k <= s) {
+                r2 = static_cast<result_type>((r1 + k % n + _seed[k - 1]) & mask);
+            }
+            else {
+                r2 = static_cast<result_type>((r1 + k % n) & mask);
+            }
+
+            begin[kPlusP % n] += (r1 & mask);
+            begin[(k + q) % n] += (r2 & mask);
+            begin[k % n] = r2;
+        }
+
+        for (k = m; k < m + n - 1; k++) {
+            const std::size_t kPlusP = k + p;
+            const result_type r3 = 1566083941 * T(begin[k % n] + begin[kPlusP % n] + begin[(k - 1) % n]);
+            const auto r4 = static_cast<result_type>((r3 - k % n) & mask);
+
+            begin[kPlusP % n] ^= (r3 & mask);
+            begin[(k + q) % n] ^= (r4 & mask);
+            begin[k % n] = r4;
+        }
+    }
+
+    template<class Iter>
+    LZ_CONSTEXPR_CXX_20 void param(Iter outputIterator) const {
+        std::copy(_seed.begin(), _seed.end(), outputIterator);
+    }
+
+    static constexpr std::size_t size() {
+        return N;
+    }
+};
+
 inline std::mt19937 createMtEngine() {
     std::random_device rd;
-    const auto generator = lz::generate(
-        [&rd]() { return rd(); },
-        ((std::mt19937::state_size * sizeof(std::mt19937::result_type)) - 1) / sizeof(std::random_device::result_type) + 1);
-    std::seed_seq sd(generator.begin(), generator.end());
-    return std::mt19937(sd);
+    SeedSequence<8> seedSeq(rd);
+    return std::mt19937(seedSeq);
 }
 } // namespace internal
 
@@ -90,8 +187,7 @@ template<class Generator, class Distribution>
 LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
 random(const Distribution& distribution, Generator& generator,
        const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return Random<typename Distribution::result_type, Distribution, Generator>(
-        distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)());
+    return { distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)() };
 }
 
 #ifdef __cpp_if_constexpr

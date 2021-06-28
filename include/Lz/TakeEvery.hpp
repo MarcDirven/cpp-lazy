@@ -57,7 +57,7 @@ takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> 
     using lz::next;
     using std::distance;
     using std::next;
-    return TakeEvery<Iterator>(next(begin, start), end, offset, distance(begin, end));
+    return { next(begin, start), end, static_cast<std::size_t>(offset), distance(begin, end) };
 }
 
 /**
