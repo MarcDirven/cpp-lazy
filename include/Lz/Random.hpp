@@ -27,7 +27,7 @@ private:
         });
     }
 
-    result_type T(result_type x) const {
+    result_type T(const result_type x) const { // NOLINT
         return x ^ (x >> 27u);
     }
 
@@ -59,6 +59,8 @@ public:
             return;
         }
 
+        using IterValueType = ValueType<Iter>;
+
         std::fill(begin, end, 0x8b8b8b8b);
         const auto n = static_cast<std::size_t>(end - begin);
         constexpr auto s = N;
@@ -67,37 +69,40 @@ public:
         const std::size_t p = (n - t) / 2;
         const std::size_t q = p + t;
 
-        std::size_t k;
-        constexpr ValueType<Iter> mask{ std::numeric_limits<std::uint32_t>::max() };
+        IterValueType mask = static_cast<IterValueType>(1) << 31;
+        mask <<= 1;
+        mask -= 1;
 
-        for (k = 0; k < m - 1; k++) {
-            const std::size_t kPlusP = k + p;
-            const result_type r1 = 1664525 * T(begin[k % n] ^ begin[kPlusP % n] ^ begin[(k - 1) % n]);
+        for (std::size_t k = 0; k < m - 1; k++) {
+            const std::size_t kModN = k % n;
+            const std::size_t kPlusPModN = (k + p) % n;
+            const result_type r1 = 1664525 * T(begin[kModN] ^ begin[kPlusPModN] ^ begin[(k - 1) % n]);
 
             result_type r2;
             if (k == 0) {
                 r2 = static_cast<result_type>((r1 + s) & mask);
             }
             else if (k <= s) {
-                r2 = static_cast<result_type>((r1 + k % n + _seed[k - 1]) & mask);
+                r2 = static_cast<result_type>((r1 + kModN + _seed[k - 1]) & mask);
             }
             else {
-                r2 = static_cast<result_type>((r1 + k % n) & mask);
+                r2 = static_cast<result_type>((r1 + kModN) & mask);
             }
 
-            begin[kPlusP % n] += (r1 & mask);
+            begin[kPlusPModN] += (r1 & mask);
             begin[(k + q) % n] += (r2 & mask);
-            begin[k % n] = r2;
+            begin[kModN] = r2;
         }
 
-        for (k = m; k < m + n - 1; k++) {
-            const std::size_t kPlusP = k + p;
-            const result_type r3 = 1566083941 * T(begin[k % n] + begin[kPlusP % n] + begin[(k - 1) % n]);
-            const auto r4 = static_cast<result_type>((r3 - k % n) & mask);
+        for (std::size_t k = m; k < m + n - 1; k++) {
+            const std::size_t kModN = k % n;
+            const std::size_t kPlusPModN = (k + p) % n;
+            const result_type r3 = 1566083941 * T(begin[kModN] + begin[kPlusPModN] + begin[(k - 1) % n]);
+            const auto r4 = static_cast<result_type>((r3 - kModN) & mask);
 
-            begin[kPlusP % n] ^= (r3 & mask);
+            begin[kPlusPModN] ^= (r3 & mask);
             begin[(k + q) % n] ^= (r4 & mask);
-            begin[k % n] = r4;
+            begin[kModN] = r4;
         }
     }
 
@@ -125,14 +130,6 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief Random view object constructor, from [`min, max`].
-     * @param min The minimum value of the random number (included).
-     * @param max The maximum value of the random number (included).
-     * @param amount The amount of random numbers to generate. If `std::numeric_limits<size_t>::max()` it is
-     * interpreted as a `while-true` loop.
-     * @param isWhileTrueLoop Boolean to indicate if it's a while true loop.
-     */
     Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
         internal::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
                                               iterator(distribution, generator, amount, isWhileTrueLoop)) {
@@ -192,10 +189,12 @@ random(const Distribution& distribution, Generator& generator,
 
 #ifdef __cpp_if_constexpr
 /**
- * @brief Returns an output iterator view object that generates a sequence of random numbers, using a uniform distribution.
+ * @brief Returns an iterator view object that generates a sequence of random numbers, using an uniform distribution.
  * @details This random access iterator view object can be used to generate a sequence of random numbers between
- * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
- * @param min The minimum value , included.
+ * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence of 8 x `std::random_device` as seed. The
+ * seed sequence is a custom implementation of `std::seed_seq`. Internally, it uses a `std::array` instead of a `std::vector` and
+ * tends to be more faster than its `std::seed_seq` implementation.
+ * @param min The minimum value, included.
  * @param max The maximum value, included.
  * @tparam Distribution The distribution for generating the random numbers. `std::uniform_int_distribution` by default.
  * @tparam Generator The random number generator. `std::mt19937` by default.
@@ -221,9 +220,11 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
 }
 #else
 /**
- * @brief Returns an output iterator view object that generates a sequence of random numbers, using a uniform distribution.
+ * @brief Returns an iterator view object that generates a sequence of random numbers, using an uniform distribution.
  * @details This random access iterator view object can be used to generate a sequence of random numbers between
- * [`min, max`]. It uses the std::mt19937 random engine and a seed of `std::random_device` as seed.
+ * [`min, max`]. It uses the std::mt19937 random engine and a seed sequence of 8 x `std::random_device` as seed. The
+ * seed sequence is a custom implementation of `std::seed_seq`. Internally, it uses a `std::array` instead of a `std::vector` and
+ * tends to be more faster than its `std::seed_seq` implementation.
  * @param min The minimum value , included.
  * @param max The maximum value, included.
  * @tparam Distribution The distribution for generating the random numbers. `std::uniform_int_distribution` by default.
