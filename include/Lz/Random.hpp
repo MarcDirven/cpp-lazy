@@ -22,9 +22,7 @@ private:
     template<class Iter>
     LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
         using ValueType = ValueType<Iter>;
-        std::transform(begin, end, _seed.begin(), [](const ValueType val) {
-            return static_cast<result_type>(val);
-        });
+        std::transform(begin, end, _seed.begin(), [](const ValueType val) { return static_cast<result_type>(val); });
     }
 
     result_type T(const result_type x) const { // NOLINT
@@ -35,9 +33,7 @@ public:
     constexpr SeedSequence() = default;
 
     explicit SeedSequence(std::random_device& rd) {
-        std::generate(_seed.begin(), _seed.end(), [&rd]() {
-            return static_cast<result_type>(rd());
-        });
+        std::generate(_seed.begin(), _seed.end(), [&rd]() { return static_cast<result_type>(rd()); });
     }
 
     template<class T>

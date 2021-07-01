@@ -759,9 +759,7 @@ public:
      */
     value_type sum() const {
 #ifdef LZ_HAS_CXX_11
-        return this->foldl(value_type(), [](value_type init, const value_type& val) {
-            return std::move(init) + val;
-        });
+        return this->foldl(value_type(), [](value_type init, const value_type& val) { return std::move(init) + val; });
 #else
         return this->foldl(value_type(), std::plus<>());
 #endif // LZ_HAS_CXX_11

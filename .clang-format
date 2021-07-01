@@ -5,7 +5,7 @@ AllowShortEnumsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Never
 AllowShortIfStatementsOnASingleLine: WithoutElse
-AllowShortLambdasOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Inline
 AllowShortLoopsOnASingleLine: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 AllowAllConstructorInitializersOnNextLine : false
