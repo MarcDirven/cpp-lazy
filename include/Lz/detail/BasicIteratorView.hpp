@@ -53,9 +53,7 @@ toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const
                         std::false_type /* isArithmetic */) {
 #endif // defined(LZ_HAS_STRING_VIEW)
     std::ostringstream oss;
-    std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) {
-        oss << t << delimiter;
-    });
+    std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) { oss << t << delimiter; });
     result = oss.str();
 }
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
@@ -75,13 +73,11 @@ void toStringImpl(std::string& result, const Iterator& begin, const Iterator& en
     auto backInserter = std::back_inserter(result);
 #endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
 #if !defined(LZ_STANDALONE)
-    std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
-        fmt::format_to(backInserter, "{}{}", v, delimiter);
-    });
+    std::for_each(begin, end,
+                  [&delimiter, backInserter](const TValueType& v) { fmt::format_to(backInserter, "{}{}", v, delimiter); });
 #elif defined(LZ_HAS_FORMAT)
-    std::for_each(begin, end, [&delimiter, backInserter](const TValueType& v) {
-        std::format_to(backInserter, "{}{}", v, delimiter);
-    });
+    std::for_each(begin, end,
+                  [&delimiter, backInserter](const TValueType& v) { std::format_to(backInserter, "{}{}", v, delimiter); });
     // clang-format off
 #else
     toStringImplSpecialized(result, begin, end, delimiter, std::is_arithmetic<TValueType>());

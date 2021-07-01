@@ -50,10 +50,10 @@ public:
 
 #ifdef LZ_HAS_EXECUTION
 /**
- * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are
- * equal. The selector for a must be a function with a parameter of type = `*iterA`. The selector for b must be a function with a
- * parameter of type = `*iterB`. The selector for the result must be a function with parameters: `fn(decltype(*iterA),
- * decltype(*iterB)`. It may return anything.
+ * Performs an SQL-like join where the result of the function `a` is compared with `b` using `operator<`, and returns
+ * `resultSelector` if those are equal. The selector for a must be a function with a parameter of type = `*iterA`. The selector
+ * for b must be a function with a parameter of type = `*iterB`. The selector for the result must be a function with parameters:
+ * `fn(decltype(*iterA), decltype(*iterB)`. It may return anything.
  * @attention [iterB, endB) must be sorted in order to work correctly.
  * @param iterA The beginning of the sequence A to join.
  * @param endA The ending of the sequence A to join.
@@ -81,10 +81,10 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
 }
 
 /**
- * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are
- * equal. The selector for a must be a function with a parameter of type = `decltype(iterableA[n])`. The selector for b must be a
- * function with a parameter of type = `decltype(iterableB[n])`. The selector for the result must be a function with parameters:
- * `fn(decltype(iterableA[n]), decltype(iterableB[n])`. It may return anything.
+ * Performs an SQL-like join where the result of the function `a` is compared with `b` using `operator<`, and returns
+ * `resultSelector` if those are equal. The selector for a must be a function with a parameter of type = `decltype(iterableA[n])`.
+ * The selector for b must be a function with a parameter of type = `decltype(iterableB[n])`. The selector for the result must be
+ * a function with parameters: `fn(decltype(iterableA[n]), decltype(iterableB[n])`. It may return anything.
  * @attention iterableB must be sorted in order to work correctly.
  * @param iterableA The sequence to join with `iterableB`.
  * @param iterableB The sequence to join with `iterableA`.
@@ -108,10 +108,10 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 }
 #else
 /**
- * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are
- * equal. The selector for a must be a function with a parameter of type = `*iterA`. The selector for b must be a function with a
- * parameter of type = `*iterB`. The selector for the result must be a function with parameters: `fn(decltype(*iterA),
- * decltype(*iterB)`. It may return anything.
+ * Performs an SQL-like join where the result of the function `a` is compared with `b` using `operator<`, and returns
+ * `resultSelector` if those are equal. The selector for a must be a function with a parameter of type = `*iterA`. The selector
+ * for b must be a function with a parameter of type = `*iterB`. The selector for the result must be a function with parameters:
+ * `fn(decltype(*iterA), decltype(*iterB)`. It may return anything.
  * @attention [iterB, endB) must be sorted in order to work correctly.
  * @param iterA The beginning of the sequence A to join.
  * @param endA The ending of the sequence A to join.
@@ -136,10 +136,10 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
 }
 
 /**
- * Performs an SQL-like join where the result of the function `a` is compared with `b, and returns `resultSelector` if those are
- * equal. The selector for a must be a function with a parameter of type = `decltype(iterableA[n])`. The selector for b must be a
- * function with a parameter of type = `decltype(iterableB[n])`. The selector for the result must be a function with parameters:
- * `fn(decltype(iterableA[n]), decltype(iterableB[n])`. It may return anything.
+ * Performs an SQL-like join where the result of the function `a` is compared with `b` using `operator<`, and returns
+ * `resultSelector` if those are equal. The selector for a must be a function with a parameter of type = `decltype(iterableA[n])`.
+ * The selector for b must be a function with a parameter of type = `decltype(iterableB[n])`. The selector for the result must be
+ * a function with parameters: `fn(decltype(iterableA[n]), decltype(iterableB[n])`. It may return anything.
  * @attention iterableB must be sorted in order to work correctly.
  * @param iterableA The sequence to join with `iterableB`.
  * @param iterableB The sequence to join with `iterableA`.

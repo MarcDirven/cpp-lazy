@@ -43,9 +43,8 @@ private:
                 std::lock_guard guard(mutex);
                 auto&& toFind = _selectorA(a);
                 _iterB =
-                    std::lower_bound(std::move(_iterB), _endB, toFind, [this](const ValueTypeB& b, const SelectorARetVal& val) {
-                        return _selectorB(b) < val;
-                    });
+                    std::lower_bound(std::move(_iterB), _endB, toFind,
+                                     [this](const ValueTypeB& b, const SelectorARetVal& val) { return _selectorB(b) < val; });
                 if (_iterB != _endB && !(toFind < _selectorB(*_iterB))) { // NOLINT
                     return true;
                 }
@@ -57,9 +56,8 @@ private:
             _iterA = std::find_if(_iterA, _endA, [this](const ValueType<IterA>& a) {
                 auto&& toFind = _selectorA(a);
                 _iterB =
-                    std::lower_bound(std::move(_iterB), _endB, toFind, [this](const ValueTypeB& b, const SelectorARetVal& val) {
-                        return _selectorB(b) < val;
-                    });
+                    std::lower_bound(std::move(_iterB), _endB, toFind,
+                                     [this](const ValueTypeB& b, const SelectorARetVal& val) { return _selectorB(b) < val; });
                 if (_iterB != _endB && !(toFind < _selectorB(*_iterB))) { // NOLINT
                     return true;
                 }
@@ -70,9 +68,8 @@ private:
 #else
         _iterA = std::find_if(_iterA, _endA, [this](const ValueType<IterA>& a) {
             auto&& toFind = _selectorA(a);
-            _iterB = std::lower_bound(std::move(_iterB), _endB, toFind, [this](const ValueTypeB& b, const SelectorARetVal& val) {
-                return _selectorB(b) < val;
-            });
+            _iterB = std::lower_bound(std::move(_iterB), _endB, toFind,
+                                      [this](const ValueTypeB& b, const SelectorARetVal& val) { return _selectorB(b) < val; });
             if (_iterB != _endB && !(toFind < _selectorB(*_iterB))) { // NOLINT
                 return true;
             }
