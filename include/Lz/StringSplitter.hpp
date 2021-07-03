@@ -16,11 +16,6 @@ public:
 public:
     using value_type = SubString;
 
-    /**
-     * @brief Creates a String splitter object. Its `begin()` and `end()` return an input iterator.
-     * @param str The string to split.
-     * @param delimiter The delimiter to split on.
-     */
     LZ_CONSTEXPR_CXX_20 StringSplitter(const String& str, StringType delimiter) :
         internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
     }
@@ -111,7 +106,7 @@ split(const std::string_view& str, std::string delimiter) {
 }
 
 template<class SubString = std::string_view>
-LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, std::string>
+LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, char>
 split(const std::string_view& str, char delimiter) {
     return { str, delimiter };
 }
