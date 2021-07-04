@@ -24,25 +24,12 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief The filter constructor.
-     * @param begin Beginning of the iterator.
-     * @param end End of the iterator.
-     * @param execution The execution policy.
-     * @param function A function with parameter the value type of the iterable and must return a bool.
-     */
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function, execution),
                                               iterator(end, end, function, execution)) {
     }
 #else
-    /**
-     * @brief The filter constructor.
-     * @param begin Beginning of the iterator.
-     * @param end End of the iterator.
-     * @param function A function with parameter the value type of the iterable and must return a bool.
-     */
     Filter(Iterator begin, Iterator end, UnaryPredicate function) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function), iterator(end, end, function)) {
     }

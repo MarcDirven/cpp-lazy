@@ -14,14 +14,6 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief Generator constructor.
-     * @details Creates a generator object. Executes `func` `amount` of times, and returns the value of this
-     * function.
-     * @param func The function to execute `amount` of times.
-     * @param amount The amount of times to execute. If `amount` is equal to `std::numeric_limits<size_t>::max()`
-     * it is interpreted as a `while-true` loop.
-     */
     constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop) :
         internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop)) {
     }

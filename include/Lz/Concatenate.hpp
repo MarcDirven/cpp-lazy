@@ -13,11 +13,7 @@ public:
     using iterator = internal::ConcatenateIterator<Iterators...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
-    /**
-     * @brief Concatenate constructor.
-     * @param begin All the beginnings of the containers/iterables.
-     * @param end All the endings of the containers/iterables.
-     */
+
     LZ_CONSTEXPR_CXX_20 Concatenate(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
         internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
