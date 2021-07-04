@@ -101,9 +101,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = repeater.toMap([](const int i) {
-            return i;
-        });
+        std::map<int, int> actual = repeater.toMap([](const int i) { return i; });
         std::map<int, int> expected;
 
         for (int i = 0; i < times; i++) {
@@ -114,9 +112,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) {
-            return i;
-        });
+        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) { return i; });
         std::unordered_map<int, int> expected;
 
         for (int i = 0; i < times; i++) {

@@ -1,9 +1,7 @@
-#include <list>
-
-#include <catch2/catch.hpp>
 #include <Lz/StringSplitter.hpp>
+#include <catch2/catch.hpp>
 #include <fmt/format.h>
-
+#include <list>
 
 TEST_CASE("String splitter changing and creating elements", "[String splitter][Basic functionality]") {
     const std::string toSplit = "Hello  world  test  123  ";
@@ -13,7 +11,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
-		std::vector<std::string> expected = {"Hello", "world", "test", "123"};
+        std::vector<std::string> expected = { "Hello", "world", "test", "123" };
 
         for (std::size_t i = 0; i < expected.size(); i++, ++it) {
             CHECK(*it == expected[i]);
@@ -31,7 +29,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 
     SECTION("Should contain std::string_view correctly") {
         std::vector<std::string_view> actual = splitter.toVector();
-        std::vector<std::string_view> expected = {"Hello", "world", "test", "123"};
+        std::vector<std::string_view> expected = { "Hello", "world", "test", "123" };
 
         CHECK(actual == expected);
     }
@@ -56,7 +54,6 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
     ++test;
     CHECK(test == splitter.end());
 
-
     SECTION("Operator++") {
         ++it;
         CHECK(*it == "world");
@@ -69,7 +66,6 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
     }
 }
 
-
 TEST_CASE("String splitter to containers", "[String splitter][To container]") {
     std::string toSplit = "Hello world test 123";
     std::string delimiter = " ";
@@ -77,21 +73,21 @@ TEST_CASE("String splitter to containers", "[String splitter][To container]") {
 
     SECTION("To array") {
         std::array<std::string, 4> actual = splitter.toArray<4>();
-        std::array<std::string, 4> expected = {"Hello", "world", "test", "123"};
+        std::array<std::string, 4> expected = { "Hello", "world", "test", "123" };
 
         CHECK(actual == expected);
     }
 
     SECTION("To vector") {
         std::vector<std::string> actual = splitter.toVector();
-        std::vector<std::string> expected = {"Hello", "world", "test", "123"};
+        std::vector<std::string> expected = { "Hello", "world", "test", "123" };
 
         CHECK(actual == expected);
     }
 
     SECTION("To other container using to<>()") {
         std::list<std::string> actual = splitter.to<std::list>();
-        std::list<std::string> expected = {"Hello", "world", "test", "123"};
+        std::list<std::string> expected = { "Hello", "world", "test", "123" };
 
         CHECK(actual == expected);
     }
@@ -109,8 +105,7 @@ TEST_CASE("String splitter to containers", "[String splitter][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<std::string, std::string> actual = splitter.toUnorderedMap(
-            [](const std::string& s) { return s; });
+        std::unordered_map<std::string, std::string> actual = splitter.toUnorderedMap([](const std::string& s) { return s; });
         std::unordered_map<std::string, std::string> expected = {
             std::make_pair(std::string("Hello"), std::string("Hello")),
             std::make_pair(std::string("world"), std::string("world")),

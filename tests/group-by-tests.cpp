@@ -5,12 +5,8 @@
 TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionality]") {
     std::vector<std::string> vec = { "hello", "hellp", "i'm", "done" };
 
-    std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) {
-        return a.length() < b.length();
-    });
-    auto grouper = lz::groupBy(vec, [](const std::string& a, const std::string& b) {
-        return a.length() == b.length();
-    });
+    std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
+    auto grouper = lz::groupBy(vec, [](const std::string& a, const std::string& b) { return a.length() == b.length(); });
 
     SECTION("Should be correct chunks") {
         std::size_t stringLength = 3;
@@ -34,12 +30,8 @@ TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionali
 TEST_CASE("GroupBy binary operations", "[GroupBy][Binary ops]") {
     std::vector<std::string> vec = { "hello", "hellp", "i'm", "done" };
 
-    std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) {
-        return a.length() < b.length();
-    });
-    auto grouper = lz::groupBy(vec, [](const std::string& a, const std::string& b) {
-        return a.length() == b.length();
-    });
+    std::sort(vec.begin(), vec.end(), [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
+    auto grouper = lz::groupBy(vec, [](const std::string& a, const std::string& b) { return a.length() == b.length(); });
 
     SECTION("Operator++") {
         auto it = grouper.begin();
