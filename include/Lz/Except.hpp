@@ -24,13 +24,6 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    /**
-     * Except constructor. Excepts all elements between [begin, end) contained by [toExceptBegin, toExceptEnd)
-     * @param begin The beginning of the iterator to skip.
-     * @param end The ending of the iterator to skip.
-     * @param toExceptBegin The beginning of the actual elements to except.
-     * @param toExceptEnd The ending of the actual elements to except.
-     */
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
                                Comparer comparer, Execution execPolicy) :

@@ -45,6 +45,12 @@ T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
 template<LZ_CONCEPT_ITERATOR Iterator>
 class IterView;
 
+// Start of group
+/**
+ * @addtogroup ItFns
+ * @{
+ */
+
 /**
  * Converts an iterable into a IterView, where one can chain iterators using dot operator (.filter().map().select().any())
  * @param iterable The iterable to view over.
@@ -64,6 +70,11 @@ template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
     return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
+
+// End of group
+/**
+ * @}
+ */
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 class IterView final : public internal::BasicIteratorView<Iterator> {

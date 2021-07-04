@@ -14,12 +14,6 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief The Map constructor.
-     * @param begin Beginning of the iterator.
-     * @param end End of the iterator.
-     * @param function A function with parameter the value type. It may return anything.
-     */
     LZ_CONSTEXPR_CXX_20 Map(Iterator begin, Iterator end, Function function) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
     }

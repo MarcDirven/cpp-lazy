@@ -18,11 +18,6 @@ public:
 
     using value_type = typename iterator::value_type;
 
-    /**
-     * @param begin Beginning of the iterator.
-     * @param end Ending of the iterator.
-     * @param start The start of the counting index. 0 is assumed by default.
-     */
     LZ_CONSTEXPR_CXX_20 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
         internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance(begin, end)), end)) {
     }

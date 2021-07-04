@@ -15,13 +15,6 @@ public:
 
     using value_type = typename iterator::value_type;
 
-    /**
-     * @brief TakeEvery constructor.
-     * @param begin The beginning of the sequence.
-     * @param end The ending of the sequence.
-     * @param offset The offset to add each iteration, aka the amount of elements to skip.
-     * @param distance The distance between `begin` and `end`.
-     */
     LZ_CONSTEXPR_CXX_20
     TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),

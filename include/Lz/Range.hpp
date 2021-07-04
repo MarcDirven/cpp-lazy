@@ -19,12 +19,6 @@ private:
     using Base = internal::BasicIteratorView<iterator>;
 
 public:
-    /**
-     * @brief Range iterator constructor from [start, end) with step.
-     * @param start The start of the counting.
-     * @param end The end of the counting.
-     * @param step The step that gets added every iteration.
-     */
     constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :
         Base(iterator(start, step), iterator(end, step)) {
     }

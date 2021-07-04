@@ -100,9 +100,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> expected = range.toMap([](const int i) {
-            return i;
-        });
+        std::map<int, int> expected = range.toMap([](const int i) { return i; });
         std::map<int, int> actual;
 
         for (int i : lz::range(size)) {
@@ -113,9 +111,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> expected = range.toUnorderedMap([](const int i) {
-            return i;
-        });
+        std::unordered_map<int, int> expected = range.toUnorderedMap([](const int i) { return i; });
         std::unordered_map<int, int> actual;
 
         for (int i : lz::range(size)) {

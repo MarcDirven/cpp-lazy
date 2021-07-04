@@ -527,6 +527,13 @@ public:
 }; // namespace internal
 // clang-format on
 } // namespace lz
+
+// Start of group
+/**
+ * @addtogroup ItFns
+ * @{
+ */
+
 #ifndef LZ_HAS_EXECUTION
 /**
  * Use this function to check if two lz iterators are the same.
@@ -564,5 +571,10 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 }
 #endif
 } // Namespace lz
+
+// End of group
+/**
+ * @}
+ */
 
 #endif // LZ_BASIC_ITERATOR_VIEW_HPP

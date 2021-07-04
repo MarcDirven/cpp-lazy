@@ -130,9 +130,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = flattened.toMap([](const int i) {
-            return i;
-        });
+        std::map<int, int> actual = flattened.toMap([](const int i) { return i; });
 
         std::map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),
@@ -143,9 +141,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = flattened.toUnorderedMap([](const int i) {
-            return i;
-        });
+        std::unordered_map<int, int> actual = flattened.toUnorderedMap([](const int i) { return i; });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),
