@@ -83,11 +83,12 @@ TEST_CASE("Iterator chaining") {
         CHECK(tup.first + 1 == std::get<1>(tup.second));
     }
 
+    std::array<int, 4> arrayToTrim = { 1, 1, 3, 4 };
+    CHECK(lz::toIter(arrayToTrim).trim([](int i) { return i == 1; }, [](int i) { return i == 4; }).toArray<1>() ==
+          std::array<int, 1>{ 3 });
+
     std::string toTrim = "\t  a b c \t";
-    auto spaceFn = [](char c) {
-        return std::isspace(c);
-    };
-    CHECK(lz::toIter(toTrim).trim(spaceFn, spaceFn).toString() == "a b c");
+    CHECK(lz::trimString(toTrim).toString() == "a b c");
 
     std::array<int, 2> a = { 1, 2 };
     std::array<int, 2> b = { 3, 4 };
