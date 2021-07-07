@@ -1384,7 +1384,7 @@ template<class Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
 lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
 trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
     auto takenFirst = dropWhileRange(std::move(begin), std::move(end), std::move(first));
-    auto takenLast = dropWhile(std::move(lz::reverse(takenFirst)), std::move(last));
+    auto takenLast = dropWhile(lz::reverse(std::move(takenFirst)), std::move(last));
     return lz::reverse(std::move(takenLast));
 }
 
