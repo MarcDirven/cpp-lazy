@@ -219,10 +219,11 @@ private:
 #endif // END LZ_GCC_VERSION
 #ifdef LZ_HAS_CXX_11
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
+            return std::make_pair(keyGen(value), value);
 #else
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
-#endif // LZ_HAS_CXX_11
             return std::make_pair(keyGen(std::forward<decltype(value)>(value)), value);
+#endif // LZ_HAS_CXX_11
         });
         return map;
     }
@@ -239,9 +240,7 @@ private:
             tryReserve(cont);
             // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the
             // contents. Here we can freely use std::inserter (output iterator)
-            std::transform(begin(), end(), std::inserter(cont, cont.end()), [](auto&& value) {
-                return std::forward<decltype(value)>(value);
-            });
+            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
         }
         else {
             static_assert(HasResize<Container>::value,
@@ -252,9 +251,7 @@ private:
                 // Container's iterator needs to be a bidirectional iterator at least, std::inserter will not suffice
                 cont.resize(iterLength);
             }
-            std::transform(execution, begin(), end(), cont.begin(), [](auto&& value) {
-                return std::forward<decltype(value)>(value);
-            });
+            std::copy(execution, begin(), end(), cont.begin());
         }
         return cont;
     }
@@ -266,14 +263,10 @@ private:
         std::array<value_type, N> array{};
         if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
             static_cast<void>(execution);
-            std::transform(begin(), end(), array.begin(), [](auto&& value) {
-                return std::forward<decltype(value)>(value);
-            });
+            std::copy(begin(), end(), array.begin());
         }
         else {
-            std::transform(execution, begin(), end(), array.begin(), [](auto&& value) {
-                return std::forward<decltype(value)>(value);
-            });
+            std::copy(execution, begin(), end(), array.begin());
         }
         return array;
     }
@@ -282,13 +275,7 @@ private:
     Container copyContainer(Args&&... args) const {
         Container cont(std::forward<Args>(args)...);
         tryReserve(cont);
-#ifdef LZ_HAS_CXX_11
-        std::transform(begin(), end(), std::inserter(cont, cont.end()), [keyGen](internal::RefType<LzIterator> value) {
-#else
-        std::transform(begin(), end(), std::inserter(cont, cont.end()), [keyGen](auto&& value) {
-#endif // LZ_HAS_CXX_11
-            return std::forward<decltype(value)>(value));
-        });
+        std::copy(begin(), end(), std::inserter(cont, cont.begin()));
         return cont;
     }
 
@@ -297,13 +284,7 @@ private:
         LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
                   "the iterator size is too large and/or array size is too small");
         auto array = std::array<value_type, N>();
-#ifdef LZ_HAS_CXX_11
-        std::transform(begin(), end(), std::inserter(array, array.end()), [keyGen](internal::RefType<LzIterator> value) {
-#else
-        std::transform(begin(), end(), std::inserter(array, array.end()), [keyGen](auto&& value) {
-#endif // LZ_HAS_CXX_11
-            return std::forward<decltype(value)>(value));
-        });
+        std::copy(begin(), end(), array.begin());
         return array;
     }
 #endif // LZ_HAS_EXECUTION
