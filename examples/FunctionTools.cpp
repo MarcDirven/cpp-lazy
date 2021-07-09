@@ -92,4 +92,7 @@ int main() {
     std::map<int, int> myMap = {{1, 2}, {2, 3}, {3, 4}};
     std::vector<int> values = lz::values(myMap).toVector(); // {2, 3, 4}
     std::vector<int> keys = lz::keys(myMap).toVector(); // {1, 2, 3}
+
+    std::string trimMe = "\t\t\n   trim me   \t\t";
+    fmt::print("{}\n", lz::trimString(trimMe).toString()); // 'trim me'
 }

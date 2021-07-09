@@ -41,7 +41,9 @@ endif()
 add_library(cpp-lazy INTERFACE)
 add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
-target_link_libraries(cpp-lazy INTERFACE fmt::fmt)
+if (NOT CPP-LAZY_USE_STANDALONE)
+	target_link_libraries(cpp-lazy INTERFACE fmt::fmt)
+endif ()
 
 target_compile_features(cpp-lazy INTERFACE cxx_std_11)
 
