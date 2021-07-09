@@ -283,11 +283,11 @@ private:
         Container cont(std::forward<Args>(args)...);
         tryReserve(cont);
 #ifdef LZ_HAS_CXX_11
-        std::transform(begin(), end(), std::inserter(cont, cont.end()), [](internal::RefType<LzIterator> value) {
+        std::transform(begin(), end(), std::inserter(cont, cont.end()), [keyGen](internal::RefType<LzIterator> value) {
 #else
-        std::transform(begin(), end(), std::inserter(cont, cont.end()), [](auto&& value) {
+        std::transform(begin(), end(), std::inserter(cont, cont.end()), [keyGen](auto&& value) {
 #endif // LZ_HAS_CXX_11
-            return std::forward<decltype(value)>(value);
+            return std::forward<decltype(value)>(value));
         });
         return cont;
     }
@@ -298,11 +298,11 @@ private:
                   "the iterator size is too large and/or array size is too small");
         auto array = std::array<value_type, N>();
 #ifdef LZ_HAS_CXX_11
-        std::transform(begin(), end(), array.begin(), [](internal::RefType<LzIterator> value) {
+        std::transform(begin(), end(), std::inserter(array, array.end()), [keyGen](internal::RefType<LzIterator> value) {
 #else
-        std::transform(begin(), end(), array.begin(), [](auto&& value) {
+        std::transform(begin(), end(), std::inserter(array, array.end()), [keyGen](auto&& value) {
 #endif // LZ_HAS_CXX_11
-            return std::forward<decltype(value)>(value);
+            return std::forward<decltype(value)>(value));
         });
         return array;
     }
