@@ -1413,7 +1413,7 @@ LZ_NODISCARD
 LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
 trimString(std::string::const_iterator begin, std::string::const_iterator end) {
     const auto isSpaceFn = [](const char c) {
-        return std::isspace(static_cast<unsigned char>(c));
+        return static_cast<bool>(std::isspace(static_cast<unsigned char>(c)));
     };
     return trim(begin, end, isSpaceFn, isSpaceFn);
 }
