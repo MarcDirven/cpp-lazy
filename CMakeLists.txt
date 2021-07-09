@@ -20,7 +20,6 @@ option(CPP-LAZY_USE_INSTALLED_FMT "Import {fmt} using find_package" NO)
 
 if (CPP-LAZY_USE_STANDALONE)
 	message(STATUS "Using cpp-lazy standalone version")
-	add_compile_definitions(LZ_STANDALONE)
 else()
 	message(STATUS "Using cpp-lazy with {fmt} library")
 	if (CPP-LAZY_USE_INSTALLED_FMT)
@@ -43,6 +42,8 @@ add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
 if (NOT CPP-LAZY_USE_STANDALONE)
 	target_link_libraries(cpp-lazy INTERFACE fmt::fmt)
+else ()
+	target_compile_definitions(cpp-lazy INTERFACE LZ_STANDALONE)
 endif ()
 
 target_compile_features(cpp-lazy INTERFACE cxx_std_11)
