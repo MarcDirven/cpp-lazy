@@ -219,11 +219,10 @@ private:
 #endif // END LZ_GCC_VERSION
 #ifdef LZ_HAS_CXX_11
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
-            return std::make_pair(keyGen(value), value);
 #else
         std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
-            return std::make_pair(keyGen(std::forward<decltype(value)>(value)), value);
 #endif // LZ_HAS_CXX_11
+            return std::make_pair(keyGen(value), value);
         });
         return map;
     }
@@ -257,7 +256,7 @@ private:
     }
 
     template<std::size_t N, class Execution>
-    LZ_CONSTEXPR_CXX_20 std::array<value_type, N> copyArray(Execution execution) const {
+    LZ_CONSTEXPR_CXX_20 std::array<value_type, N> copyArray(Execution execution) const noexcept {
         LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
                   "the iterator size is too large and/or array size is too small");
         std::array<value_type, N> array{};
@@ -280,7 +279,7 @@ private:
     }
 
     template<std::size_t N>
-    std::array<value_type, N> copyArray() const {
+    std::array<value_type, N> copyArray() const noexcept {
         LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
                   "the iterator size is too large and/or array size is too small");
         auto array = std::array<value_type, N>();
@@ -373,7 +372,7 @@ public:
      * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
      */
     template<std::size_t N, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const noexcept {
         return copyArray<N>(execution);
     }
 #else
@@ -425,7 +424,7 @@ public:
      * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
      */
     template<std::size_t N>
-    std::array<value_type, N> toArray() const {
+    std::array<value_type, N> toArray() const noexcept {
         return copyArray<N>();
     }
 #endif // LZ_HAS_EXECUTION
