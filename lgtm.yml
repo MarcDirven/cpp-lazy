@@ -10,4 +10,4 @@ extraction:
       build_command:
       - cmake --version
       - cmake -S examples -B build/examples -D CMAKE_BUILD_TYPE:STRING=Release
-      - cmake --build build/examples -j2
+      - cmake --build build/examples -j$(nproc)
