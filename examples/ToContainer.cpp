@@ -69,8 +69,8 @@ int main() {
 
     std::vector<int> transformToVec;
     using lz::distance; using std::distance; // optional
-    copyToVec.reserve(distance(generator.begin(), generator.end())); // optional
-    generator.transformTo(std::back_inserter(copyToVec), [](const char i) {
+    transformToVec.reserve(distance(generator.begin(), generator.end())); // optional
+    generator.transformTo(std::back_inserter(transformToVec), [](const char i) {
         return i + 1;
     });
     // transformToVec = {b, c, d, e}
