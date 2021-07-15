@@ -17,8 +17,8 @@ public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = Arithmetic;
     using difference_type = typename std::make_signed<Arithmetic>::type;
-    using pointer = Arithmetic*;
-    using reference = Arithmetic&;
+    using pointer = Arithmetic;
+    using reference = Arithmetic;
 
     constexpr RangeIterator(const Arithmetic iterator, const Arithmetic step) noexcept : _iterator(iterator), _step(step) {
     }
