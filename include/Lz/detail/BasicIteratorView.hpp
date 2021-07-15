@@ -121,50 +121,17 @@ doMakeString(const Iterator& b, const Iterator& e, const std::string& delimiter,
     return result;
 }
 
-using One = char;
-struct Two {
-    char x[2];
-};
+template<class T, class = int>
+struct HasResize : std::false_type {};
 
-template<class Container>
-class HasResize {
-    template<class C>
-    static constexpr One test(decltype(void(std::declval<C&>().resize(0)))*) {
-        return {};
-    }
+template<class T>
+struct HasResize<T, decltype((void)std::declval<T&>().resize(1), 0)> : std::true_type {};
 
-    template<class C>
-    static constexpr Two test(...) {
-        return {};
-    }
+template<class T, class = int>
+struct HasReserve : std::false_type {};
 
-public:
-    // clang-format off
-    enum {
-        value = sizeof(test<Container>(nullptr)) == sizeof(One)
-    };
-    // clang-format on
-};
-
-template<class Container>
-class HasReserve {
-    template<class C>
-    static constexpr One test(decltype(void(std::declval<C&>().reserve(0)))*) {
-        return {};
-    }
-
-    template<class C>
-    static constexpr Two test(...) {
-        return {};
-    }
-
-public:
-    // clang-format off
-    enum {
-        value = sizeof(test<Container>(nullptr)) == sizeof(One)
-    };
-    // clang-format on
-};
+template<class T>
+struct HasReserve<T, decltype((void)std::declval<T&>().reserve(1), 0)> : std::true_type {};
 
 template<class LzIterator>
 class BasicIteratorView {
@@ -191,102 +158,25 @@ private:
     void tryReserve(Container& container) const {
         using lz::distance;
         using std::distance;
-        container.reserve(static_cast<std::size_t>(distance(begin(), end())));
+        container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
     }
 #else
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
-        if constexpr (!HasReserve<Container>::value || !IsForward<LzIterator>::value) {
-            return;
-        }
-        else {
+        if constexpr (HasReserve<Container>::value && IsForward<LzIterator>::value) {
             using lz::distance;
             using std::distance;
-            container.reserve(static_cast<std::size_t>(distance(begin(), end())));
+            container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
         }
     }
 #endif // __cpp_if_constexpr
-
-#if defined(LZ_GCC_VERSION) && (__GNUC__ == 4) && (__GNUC__MINOR__ < 9)
     template<class MapType, class KeySelectorFunc>
-    MapType createMap(const KeySelectorFunc keyGen) const {
-        MapType map;
-#else
-    template<class MapType, class Allocator, class KeySelectorFunc>
-    LZ_CONSTEXPR_CXX_20 MapType createMap(const KeySelectorFunc keyGen, const Allocator& allocator) const {
-        MapType map(allocator);
-        tryReserve(map);
-#endif // END LZ_GCC_VERSION
-#ifdef LZ_HAS_CXX_11
-        std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
-#else
-        std::transform(begin(), end(), std::inserter(map, map.end()), [keyGen](auto&& value) {
-#endif // LZ_HAS_CXX_11
+    LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, const KeySelectorFunc keyGen) const {
+        transformTo(std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
             return std::make_pair(keyGen(value), value);
         });
-        return map;
     }
 
-#ifdef LZ_HAS_EXECUTION
-    template<class Container, class... Args, class Execution>
-    LZ_CONSTEXPR_CXX_20 Container copyContainer(Execution execution, Args&&... args) const {
-        using lz::distance;
-        using std::distance;
-        Container cont(std::forward<Args>(args)...);
-        // Prevent static assertion
-        if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
-            static_cast<void>(execution);
-            tryReserve(cont);
-            // If parallel execution, compilers throw an error if it's std::execution::seq. Use an output iterator to fill the
-            // contents. Here we can freely use std::inserter (output iterator)
-            std::copy(begin(), end(), std::inserter(cont, cont.begin()));
-        }
-        else {
-            static_assert(HasResize<Container>::value,
-                          "Container needs to have a method resize() in order to use parallel algorithms."
-                          " Use std::execution::seq instead");
-            const auto iterLength = static_cast<std::size_t>(distance(begin(), end()));
-            if (iterLength > cont.size()) {
-                // Container's iterator needs to be a bidirectional iterator at least, std::inserter will not suffice
-                cont.resize(iterLength);
-            }
-            std::copy(execution, begin(), end(), cont.begin());
-        }
-        return cont;
-    }
-
-    template<std::size_t N, class Execution>
-    LZ_CONSTEXPR_CXX_20 std::array<value_type, N> copyArray(Execution execution) const noexcept {
-        LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
-                  "the iterator size is too large and/or array size is too small");
-        std::array<value_type, N> array{};
-        if constexpr (internal::checkForwardAndPolicies<Execution, LzIterator>()) {
-            static_cast<void>(execution);
-            std::copy(begin(), end(), array.begin());
-        }
-        else {
-            std::copy(execution, begin(), end(), array.begin());
-        }
-        return array;
-    }
-#else  // ^^^ has execution vvv ! has execution
-    template<class Container, class... Args>
-    Container copyContainer(Args&&... args) const {
-        Container cont(std::forward<Args>(args)...);
-        tryReserve(cont);
-        std::copy(begin(), end(), std::inserter(cont, cont.begin()));
-        return cont;
-    }
-
-    template<std::size_t N>
-    std::array<value_type, N> copyArray() const noexcept {
-        LZ_ASSERT(std::distance(begin(), end()) <= static_cast<internal::DiffType<LzIterator>>(N),
-                  "the iterator size is too large and/or array size is too small");
-        auto array = std::array<value_type, N>();
-        std::copy(begin(), end(), array.begin());
-        return array;
-    }
-#endif // LZ_HAS_EXECUTION
 public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER noexcept {
         return _begin;
@@ -321,6 +211,11 @@ public:
      * @brief Returns an arbitrary container type, of which its constructor signature looks like:
      * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
      * the typedef `value_type`.
+     * @attention This function only works properly if the template types matches the container. Example:
+     * `to<std::vector, std::allocator<int>>() // fails `
+     * `to<std::vector, std::allocator<int>>(std::execution::seq, std::allocator<int>{}); // ok`
+     * `to<std::vector>(std::execution::seq, std::allocator<int>{}); // also ok, able to deduce type`
+     * `to<std::vector, std::allocator<int>>(std::execution::seq, {}); // also ok`
      * @details Use this function to convert the iterator to a container. Example:
      * ```cpp
      * auto list = lazyIterator.to<std::list>();
@@ -333,10 +228,63 @@ public:
      * @return An arbitrary container specified by the entered template parameter.
      */
     template<template<class, class...> class Container, class... Args, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Container<value_type, Args...>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Container<value_type, Decay<Args>...>
     to(Execution execution = std::execution::seq, Args&&... args) const {
-        using Cont = Container<value_type, Args...>;
-        return copyContainer<Cont>(execution, std::forward<Args>(args)...);
+        using Cont = Container<value_type, Decay<Args>...>;
+        Cont container(std::forward<Args>(args)...);
+        tryReserve(container);
+        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            tryReserve(container);
+            copyTo(std::inserter(container, container.begin()), execution);
+        }
+        else {
+            static_assert(HasResize<Cont>::value, "Container needs to have a method resize() in order to use parallel algorithms."
+                                                  " Use std::execution::seq instead");
+            using lz::distance;
+            using std::distance;
+            container.resize(distance(_begin, _end));
+            copyTo(container.begin(), execution);
+        }
+        return container;
+    }
+
+    /**
+     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`).
+     * @param outputIterator The output to fill into. Essentially the same as:
+     * `std::copy(lzView.begin(), lzView.end(), myContainer.begin());`
+     * @param execution The execution policy. Must be one of `std::execution`'s tags.
+     */
+    template<class OutputIterator, class Execution = std::execution::sequenced_policy>
+    LZ_CONSTEXPR_CXX_20 void copyTo(OutputIterator outputIterator, Execution execution = std::execution::seq) const {
+        if constexpr (internal::checkForwardAndPolicies<Execution, OutputIterator>()) {
+            std::copy(_begin, _end, outputIterator);
+        }
+        else {
+            static_assert(IsForward<LzIterator>::value,
+                          "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+            std::copy(execution, _begin, _end, outputIterator);
+        }
+    }
+
+    /**
+     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`), using `transformFunc`.
+     * @param outputIterator The output to fill into.
+     * @param transformFunc The transform function. Must be a callable object that has a parameter of the current value type.
+     * Essentially the same as: `std::transform(lzView.begin(), lzView.end(), myContainer.begin(), [](T value) { ... });`
+     * @param execution The execution policy. Must be one of `std::execution`'s tags.
+     */
+    template<class OutputIterator, class TransformFunc, class Execution = std::execution::sequenced_policy>
+    LZ_CONSTEXPR_CXX_20 void
+    transformTo(OutputIterator outputIterator, TransformFunc transformFunc, Execution execution = std::execution::seq) const {
+        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+            std::transform(_begin, _end, outputIterator, transformFunc);
+        }
+        else {
+            static_assert(IsForward<LzIterator>::value, "Iterator type must be at least forward to use parallel execution");
+            static_assert(IsForward<OutputIterator>::value,
+                          "Output iterator type must be at least forward to use parallel execution");
+            std::transform(execution, _begin, _end, outputIterator, transformFunc);
+        }
     }
 
     /**
@@ -372,14 +320,21 @@ public:
      * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
      */
     template<std::size_t N, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const noexcept {
-        return copyArray<N>(execution);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::array<value_type, N> toArray(Execution execution = std::execution::seq) const {
+        std::array<value_type, N> container{};
+        copyTo(container.begin(), execution);
+        return container;
     }
 #else
     /**
      * @brief Returns an arbitrary container type, of which its constructor signature looks like:
      * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
      * the typedef `value_type`.
+     * @attention This function only works properly if the template types matches the container. Example:
+     * `to<std::vector, std::allocator<int>>() // fails, no args given`
+     * `to<std::vector, std::allocator<int>>(std::allocator<int>{}); // ok`
+     * `to<std::vector>(std::allocator<int>{}); // also ok, able to deduce type`
+     * `to<std::vector, std::allocator<int>>({}); // also ok`
      * @details Use this function to convert the iterator to a container. Example:
      * ```cpp
      * auto list = lazyIterator.to<std::list>();
@@ -391,9 +346,33 @@ public:
      * @return An arbitrary container specified by the entered template parameter.
      */
     template<template<class, class...> class Container, class... Args>
-    Container<value_type, Args...> to(Args&&... args) const {
-        using Cont = Container<value_type, Args...>;
-        return copyContainer<Cont>(std::forward<Args>(args)...);
+    Container<value_type, Decay<Args>...> to(Args&&... args) const {
+        using Cont = Container<value_type, Decay<Args>...>;
+        Cont cont(std::forward<Args>(args)...);
+        tryReserve(cont);
+        copyTo(std::inserter(cont, cont.begin()));
+        return cont;
+    }
+
+    /**
+     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`)
+     * @param outputIterator The output to fill into. Essentially the same as:
+     * `std::copy(lzView.begin(), lzView.end(), myContainer.begin());`
+     */
+    template<class OutputIterator>
+    void copyTo(OutputIterator outputIterator) const {
+        std::copy(_begin, _end, outputIterator);
+    }
+
+    /**
+     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`), using `transformFunc`.
+     * @param outputIterator The output to fill into.
+     * @param transformFunc The transform function. Must be a callable object that has a parameter of the current value type.
+     * Essentially the same as: `std::transform(lzView.begin(), lzView.end(), myContainer.begin(), [](T value) { ... });`
+     */
+    template<class OutputIterator, class TransformFunc>
+    void transformTo(OutputIterator outputIterator, TransformFunc transformFunc) const {
+        std::transform(_begin, _end, outputIterator, transformFunc);
     }
 
     /**
@@ -424,79 +403,57 @@ public:
      * @throws `std::out_of_range` if the size of the iterator is bigger than `N`.
      */
     template<std::size_t N>
-    std::array<value_type, N> toArray() const noexcept {
-        return copyArray<N>();
+    std::array<value_type, N> toArray() const {
+        LZ_ASSERT(std::distance(_begin, _end) <= static_cast<internal::DiffType<LzIterator>>(N),
+                  "the iterator size is too large and/or array size is too small");
+        std::array<value_type, N> cont{};
+        copyTo(cont.begin());
+        return cont;
     }
 #endif // LZ_HAS_EXECUTION
 
     /**
-     * @brief Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`.
-     * @details Creates a new `std::map<Key, value_type[, Compare[, Allocator]]>`. Example:
-     * ```cpp
-     * std::vector<std::string> sequence = { "abc", "def", "ghi" };
-     * auto someLazyViewIterator = lz::SomeLazyViewIterator(sequence); // value_type = std::string
-     * std::map<char, std::string> map = someLazyViewIterator.toMap([](const std::string& s) {
-     *      return s[0]; // Return the dict key, first char of the string
-     * });
-     * // map yields:
-     * // 'a' : "abc"
-     * // 'd' : "def"
-     * // 'g' : "ghi"
-     * ```
-     * @tparam Compare Can be used for the STL `std::map` ordering, default is `std::less<Key>`.
-     * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
-     * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
-     * @param allocator Optional, can be used for using a custom allocator.
-     * @return A `std::map<Key, value_type[, Compare[, Allocator]]>`
+     * Creates a `std::map<<keyGen return type, value_type[, Compare[, Allocator]]>`. The keyGen function generates the keys
+     * for the `std::map`. The value type is the current type this view contains. (`typename decltype(view)::value_type`).
+     * @param keyGen Function generates the keys for the `std::map`. Must contains 1 arg that is equal to `typename
+     * decltype(view)::value_type`
+     * @param allocator Optional, a custom allocator. `std::allocator<decltype(func(*begin()))>` is default.
+     * @param cmp Optional, a custom key comparer. `std::less<decltype(func(*begin()))>` is default.
+     * @return A `std::map` with as key type the return type of `keyGen`, and as value the current values contained by this view.
      */
     template<class KeySelectorFunc, class Compare = std::less<KeyType<KeySelectorFunc>>,
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>
-#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
-    toMap(const KeySelectorFunc keyGen) const {
-        using Map = std::map<KeyType<KeySelectorFunc>, T, Compare, Allocator>;
-        return createMap<Map>(keyGen);
-#else  // ^^^gcc < 5 vvv gcc >= 5
-    toMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
+    toMap(const KeySelectorFunc keyGen, const Allocator& allocator = {}, const Compare& cmp = {}) const {
         using Map = std::map<KeyType<KeySelectorFunc>, value_type, Compare, Allocator>;
-        return createMap<Map>(keyGen, allocator);
-#endif // defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
+        Map m(cmp, allocator);
+        createMap(m, keyGen);
+        return m;
     }
 
     /**
-     * @brief Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`.
-     * @details Creates a new `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`. Example:
-     * ```cpp
-     * std::vector<std::string> sequence = { "abc", "def", "ghi" };
-     * auto someLazyViewIterator = lz::SomeLazyViewIterator(sequence); // value_type = std::string
-     * std::unordered_map<char, std::string> uMap = someLazyViewIterator.toMap([](const std::string& s) {
-     *      return s[0]; // Return the dict key, first char of the string
-     * });
-     * // uMap yields:
-     * // 'a' : "abc"
-     * // 'd' : "def"
-     * // 'g' : "ghi"
-     * ```
-     * @tparam Hasher The hash function, `std::hash<Key>` is used by default
-     * @tparam KeyEquality Key equality checker. `std::equal_to<Key>` is used by default.
-     * @tparam Allocator Can be used for the STL `std::map` allocator. Default is `std::allocator`.
-     * @param keyGen The function that returns the key for the dictionary, and takes a `value_type` as parameter.
-     * @param allocator Optional, can be used for using a custom allocator.
-     * @return A `std::unordered_map<Key, value_type[, Hasher[, KeyEquality[, Allocator]]]>`
+     * Creates a `std::unordered_map<<keyGen return type, value_type[, Hasher[, KeyEquality[, Allocator]]]>`. The keyGen function generates the keys
+     * for the `std::unordered_map`. The value type is the current type this view contains. (`typename decltype(view)::value_type`).
+     * @param keyGen Function generates the keys for the `std::unordered_map`. Must contains 1 arg that is equal to `typename
+     * decltype(view)::value_type`
+     * @param allocator Optional, a custom allocator. `std::allocator<decltype(func(*begin()))>` is default.
+     * @param cmp Optional, a custom key comparer. `std::less<decltype(func(*begin()))>` is default.
+     * @param cmp Optional, the key comparer. `std::equal_to<decltype(func(*begin()))>` is default.
+     * @param h Hash function. `std::hash<decltype(func(*begin()))>` is default.
+     * @return A `std::map` with as key type the return type of `keyGen`, and as value the current values contained by this view.
      */
     template<class KeySelectorFunc, class Hasher = std::hash<KeyType<KeySelectorFunc>>,
              class KeyEquality = std::equal_to<KeyType<KeySelectorFunc>>,
              class Allocator = std::allocator<std::pair<const KeyType<KeySelectorFunc>, value_type>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>
-#if defined(LZ_GCC_VERSION) && LZ_GCC_VERSION < 5
-    toUnorderedMap(const KeySelectorFunc keyGen) const {
-        using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality>;
-        return createMap<UnorderedMap>(keyGen);
-#else  // ^^^gcc < 5 vvv gcc >= 5
-    toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& allocator = Allocator()) const {
+    toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& alloc = {}, const KeyEquality& cmp = {},
+                   const Hasher& h = {}) const {
         using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>;
-        return createMap<UnorderedMap>(keyGen, allocator);
-#endif // end lz gcc version < 5
+        using lz::distance;
+        using std::distance;
+        UnorderedMap um(static_cast<std::size_t>(distance(_begin, _end)), h, cmp, alloc);
+        createMap(um, keyGen);
+        return um;
     }
 
     /**
@@ -511,7 +468,7 @@ public:
     LZ_NODISCARD std::string toString(const std::string& delimiter = "") const {
 #endif
         // clang-format off
-        return internal::doMakeString(begin(), end(), delimiter, std::is_same<char, value_type>());
+        return internal::doMakeString(_begin, _end, delimiter, std::is_same<char, value_type>());
     }
 
     /**
