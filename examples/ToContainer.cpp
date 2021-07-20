@@ -75,6 +75,13 @@ int main() {
     });
     // transformToVec = {b, c, d, e}
 
+    // Must match a constructor of template parameter Container (in this case std::vector)
     c = 'a';
-    auto cpy = generator.to<std::vector<long>>(); // cpy = std::vector<long> {97, 98, 99, 100}
+#ifdef LZ_HAS_CXX_17
+    // C++17
+    auto cpy = generator.to<std::vector<long>>(std::execution::seq, 100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
+#else
+    // pre c++17
+    auto cpy = generator.to<std::vector<long>>(100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
+#endif
 }
