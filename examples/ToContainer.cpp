@@ -74,4 +74,8 @@ int main() {
         return i + 1;
     });
     // transformToVec = {b, c, d, e}
+
+    std::vector<int> anotherWay(10);
+    auto iter = lz::toIter(anotherWay).map([](int i) { return i + 1; });
+    auto cpy = iter.to<std::vector<long>>(); // cpy = std::vector<long> {1,2,3,4,5,6,7,8,9}
 }
