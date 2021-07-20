@@ -60,13 +60,14 @@ int main() {
     // c b
     // d c
     // e d
-
+    c = 'a';
     std::vector<char> copyToVec;
     using lz::distance; using std::distance; // optional
     copyToVec.reserve(distance(generator.begin(), generator.end())); // optional
     generator.copyTo(std::back_inserter(copyToVec));
     // copyToVec = {a, b, c, d }
 
+    c = 'a';
     std::vector<int> transformToVec;
     using lz::distance; using std::distance; // optional
     transformToVec.reserve(distance(generator.begin(), generator.end())); // optional
