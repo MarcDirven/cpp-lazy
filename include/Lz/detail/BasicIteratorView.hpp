@@ -59,11 +59,11 @@ toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const
 #endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
 template<class Iterator>
-#ifdef LZ_HAS_STRING_VIEW
 LZ_CONSTEXPR_CXX_20 void
+#ifdef LZ_HAS_STRING_VIEW
 toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const std::string_view delimiter) {
 #else
-void toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const std::string& delimiter) {
+toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const std::string& delimiter) {
 #endif
     using TValueType = ValueType<Iterator>;
     if (begin == end) {
@@ -88,11 +88,11 @@ void toStringImpl(std::string& result, const Iterator& begin, const Iterator& en
 }
 
 template<class Iterator>
-#ifdef LZ_HAS_STRING_VIEW
 LZ_CONSTEXPR_CXX_20 std::string
+#ifdef LZ_HAS_STRING_VIEW
 doMakeString(const Iterator& b, const Iterator& e, const std::string_view delimiter, std::true_type /* isChar */) {
 #else
-std::string doMakeString(const Iterator& b, const Iterator& e, const std::string& delimiter, std::true_type /* isChar */) {
+doMakeString(const Iterator& b, const Iterator& e, const std::string& delimiter, std::true_type /* isChar */) {
 #endif // LZ_HAS_STRING_VIEW
     if (delimiter.empty()) {
         return std::string(b, e);
@@ -172,9 +172,8 @@ private:
 #endif // __cpp_if_constexpr
     template<class MapType, class KeySelectorFunc>
     LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, const KeySelectorFunc keyGen) const {
-        transformTo(std::inserter(map, map.end()), [keyGen](internal::RefType<LzIterator> value) {
-            return std::make_pair(keyGen(value), value);
-        });
+        transformTo(std::inserter(map, map.end()),
+                    [keyGen](internal::RefType<LzIterator> value) { return std::make_pair(keyGen(value), value); });
     }
 
 public:
@@ -231,15 +230,31 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Container<value_type, Decay<Args>...>
     to(Execution execution = std::execution::seq, Args&&... args) const {
         using Cont = Container<value_type, Decay<Args>...>;
-        Cont container(std::forward<Args>(args)...);
+        return to<Cont>(execution, std::forward<Args>(args)...);
+    }
+
+    /**
+     * @brief This function can be used to create a new container from the current view. The template parameter `Container`
+     * must be specified along with its value type: `view.to<std::vector<int>>()`. One could also use `view.to<std::vector>()`.
+     * See the other `to` function overload for documentation.
+     * @example `lzView.to<std::vector<int>>(std::execution::seq, 100); // This will create a vec of size 100 with containing the
+     * contents of lzView`
+     * @tparam Container The container along with its value type.
+     * @param execution The execution policy. Must be one of `std::execution`'s tags.
+     * @param args Additional container args. Must be compatible with the constructor of `Container`
+     * @return The container.
+     */
+    template<class Container, class... Args, class Execution = std::execution::sequenced_policy>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Container to(Execution execution = std::execution::seq, Args&&... args) const {
+        Container container(std::forward<Args>(args)...);
         tryReserve(container);
         if constexpr (internal::IsSequencedPolicyV<Execution>) {
             tryReserve(container);
             copyTo(std::inserter(container, container.begin()), execution);
         }
         else {
-            static_assert(HasResize<Cont>::value, "Container needs to have a method resize() in order to use parallel algorithms."
-                                                  " Use std::execution::seq instead");
+            static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel "
+                                                       " algorithms. Use std::execution::seq instead");
             using lz::distance;
             using std::distance;
             container.resize(distance(_begin, _end));
@@ -348,7 +363,21 @@ public:
     template<template<class, class...> class Container, class... Args>
     Container<value_type, Decay<Args>...> to(Args&&... args) const {
         using Cont = Container<value_type, Decay<Args>...>;
-        Cont cont(std::forward<Args>(args)...);
+        return to<Cont>(std::forward<Args>(args)...);
+    }
+
+    /**
+     * @brief This function can be used to create a new container from the current view. The template parameter `Container`
+     * must be specified along with its value type: `view.to<std::vector<int>>()`. One could also use `view.to<std::vector>()`.
+     * See the other `to` function overload for documentation.
+     * @tparam Container The container along with its value type.
+     * @example `lzView.to<std::vector<int>>(100); // This will create a vec of size 100 with containing the contents of lzView`
+     * @param args Additional container args. Must be compatible with the constructor of `Container`
+     * @return The container.
+     */
+    template<class Container, class... Args>
+    Container to(Args&&... args) const {
+        Container cont(std::forward<Args>(args)...);
         tryReserve(cont);
         copyTo(std::inserter(cont, cont.begin()));
         return cont;
@@ -432,8 +461,9 @@ public:
     }
 
     /**
-     * Creates a `std::unordered_map<<keyGen return type, value_type[, Hasher[, KeyEquality[, Allocator]]]>`. The keyGen function generates the keys
-     * for the `std::unordered_map`. The value type is the current type this view contains. (`typename decltype(view)::value_type`).
+     * Creates a `std::unordered_map<<keyGen return type, value_type[, Hasher[, KeyEquality[, Allocator]]]>`. The keyGen function
+     * generates the keys for the `std::unordered_map`. The value type is the current type this view contains. (`typename
+     * decltype(view)::value_type`).
      * @param keyGen Function generates the keys for the `std::unordered_map`. Must contains 1 arg that is equal to `typename
      * decltype(view)::value_type`
      * @param allocator Optional, a custom allocator. `std::allocator<decltype(func(*begin()))>` is default.
