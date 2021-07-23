@@ -143,7 +143,7 @@ If, for some reason, you do not wish to do this, then be sure to use `lz::next/l
 - Include files as follows:
 
 ```cpp
-#define LZ_STANDALONE // Important! Define it before including <Lz/*> files.
+// Important, preprocessor macro 'LZ_STANDALONE' has to be defined already
 #include <Lz/Map.hpp>
 
 int main() {
