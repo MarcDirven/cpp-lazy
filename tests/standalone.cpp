@@ -1,12 +1,14 @@
 #define LZ_STANDALONE
 
-#include <Lz/FunctionTools.hpp>
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <Lz/StringSplitter.hpp>
+
 #include <catch2/catch.hpp>
 
+
 TEST_CASE("Overall tests with LZ_STANDALONE defined") {
+
     std::array<int, 4> array = { 1, 2, 3, 4 };
     std::string combined = lz::join(array, ", ").toString();
 
@@ -27,11 +29,7 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     REQUIRE(std::is_same<decltype(*splitter.begin()), std::string>::value);
 #endif
 
-    std::string lines = "hello\nworld\n";
-    auto unlined = lz::lines(lines);
-    REQUIRE(lz::lines(lines).toVector() == std::vector<std::string>{ "hello", "world" });
-
-    std::vector<std::string> toLines = { "hello", "world" };
-    auto lined = lz::unlines(toLines);
-    REQUIRE(lz::unlines(toLines).toString() == std::string("hello\nworld"));
+    std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
+    auto doubles = lz::strJoin(vec, ", ");
+    CHECK(doubles == "1.1, 2.2, 3.3, 4.4");
 }

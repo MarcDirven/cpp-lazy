@@ -1,4 +1,5 @@
 #include <Lz/Join.hpp>
+#include <Lz/Map.hpp>
 #include <catch2/catch.hpp>
 #include <sstream>
 
@@ -127,5 +128,11 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
         CHECK(joinStrBegin + joinStrDistance - 1 > joinStrEnd - joinStrDistance);
         CHECK(joinStrBegin + joinStrDistance - 1 <= joinStrEnd);
         CHECK(joinStrBegin + joinStrDistance - 1 >= joinStrEnd - 1);
+    }
+
+    SECTION("String join double format") {
+        std::array<double, 4> vec = {1.1, 2.2, 3.3, 4.4};
+        auto doubles = lz::strJoin(vec, ", ", "{:.2f}");
+        CHECK(doubles == "1.1, 2.2, 3.3, 4.4");
     }
 }
