@@ -14,6 +14,7 @@
 #    include <algorithm>
 #    include <iterator>
 #    include <numeric>
+#    include <cctype>
 
 #    ifdef LZ_HAS_CXX_17
 #        define LZ_INLINE_VAR inline
