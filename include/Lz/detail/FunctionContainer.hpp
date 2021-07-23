@@ -31,15 +31,6 @@ class FunctionContainer {
         _isConstructed = true;
     }
 
-    constexpr void move(Func&& f, std::true_type /* isMoveAssignable */) {
-        _func = std::move(f);
-    }
-
-    LZ_CONSTEXPR_CXX_20 void move(Func&& f, std::false_type /* isMoveAssignable */) {
-        reset();
-        construct(std::move(f));
-    }
-
     constexpr void reset() noexcept {
         if (_isConstructed) {
             _func.~Func();
@@ -47,14 +38,49 @@ class FunctionContainer {
         }
     }
 
-    constexpr void copy(const Func& f, std::true_type /*isCopyAssignable*/) {
+#ifdef __cpp_if_constexpr
+    LZ_CONSTEXPR_CXX_20 void copy(const Func& f) {
+        if constexpr (std::is_copy_assignable_v<F>) {
+            _func = f;
+        }
+        else {
+            reset();
+            construct(f);
+        }
+    }
+
+    LZ_CONSTEXPR_CXX_20 void move(Func&& f) {
+        if constexpr (std::is_move_assignable_v<F>) {
+            _func = std::move(f);
+        }
+        else {
+            reset();
+            construct(std::move(f));
+        }
+    }
+#else
+    template<class F = Func>
+    LZ_CONSTEXPR_CXX_20 EnableIf<std::is_copy_assignable<F>::value> copy(const Func& f) {
         _func = f;
     }
 
-    LZ_CONSTEXPR_CXX_20 void copy(const Func& f, std::false_type /*isCopyAssignable*/) {
+    template<class F = Func>
+    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_copy_assignable<F>::value> copy(const Func& f) {
         reset();
         construct(f);
     }
+
+    template<class F = Func>
+    constexpr EnableIf<std::is_move_assignable<F>::value> move(Func&& f) {
+        _func = std::move(f);
+    }
+
+    template<class F = Func>
+    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_move_assignable<F>::value> move(Func&& f) {
+        reset();
+        construct(std::move(f));
+    }
+#endif
 
 public:
     constexpr explicit FunctionContainer(const Func& func) : _func(func), _isConstructed(true) {
@@ -77,7 +103,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 FunctionContainer& operator=(const FunctionContainer& other) {
         if (_isConstructed && other._isConstructed) {
-            copy(other._func, std::is_copy_assignable<Func>());
+            copy(other._func);
         }
         else if (other._isConstructed) {
             construct(other._func);
@@ -90,7 +116,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 FunctionContainer& operator=(FunctionContainer&& other) noexcept {
         if (_isConstructed && other._isConstructed) {
-            move(std::move(other._func), std::is_move_assignable<Func>());
+            move(std::move(other._func));
         }
         else if (other._isConstructed) {
             construct(std::move(other._func));
