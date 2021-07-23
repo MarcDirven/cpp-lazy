@@ -169,7 +169,7 @@ int main() {
 ```
 
 ## With CMake
-If you want to use the standalone version, then use the CMake option `-D CPP-LAZY_USE_STANDALONE=ON` or (`set(CPP-LAZY_USE_STANDALONE TRUE)`. This also prevents the cloning of the library `{fmt}`.
+If you want to use the standalone version, then use the CMake option `-D CPP-LAZY_USE_STANDALONE=ON` or `set(CPP-LAZY_USE_STANDALONE TRUE)`. This also prevents the cloning of the library `{fmt}`.
 ### Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake
