@@ -1,98 +1,99 @@
 #pragma once
 
 #ifndef LZ_LZ_TOOLS_HPP
-#define LZ_LZ_TOOLS_HPP
+#    define LZ_LZ_TOOLS_HPP
 
-#include <iterator>
-#include <tuple>
+#    include <iterator>
+#    include <tuple>
 
-#if defined(__has_include)
-#define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
-#else
-#define LZ_HAS_INCLUDE(FILE) 0
-#endif // __has_include
+#    if defined(__has_include)
+#        define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
+#    else
+#        define LZ_HAS_INCLUDE(FILE) 0
+#    endif // __has_include
 
-#if defined(__has_cpp_attribute)
-#define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
-#else
-#define LZ_HAS_ATTRIBUTE(ATTR) 0
-#endif // __has_cpp_attribute
+#    if defined(__has_cpp_attribute)
+#        define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
+#    else
+#        define LZ_HAS_ATTRIBUTE(ATTR) 0
+#    endif // __has_cpp_attribute
 
-#if (defined(__GNUC__)) && !(defined(__clang__))
-#define LZ_GCC_VERSION __GNUC__
-#endif // GNU/clang
+#    if (defined(__GNUC__)) && !(defined(__clang__))
+#        define LZ_GCC_VERSION __GNUC__
+#    endif // GNU/clang
 
-#if defined(_MSVC_LANG)
-#define LZ_MSVC _MSVC_LANG
-#endif // _MSVC_LANG
+#    if defined(_MSVC_LANG)
+#        define LZ_MSVC _MSVC_LANG
+#    endif // _MSVC_LANG
 
-#if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
-#define LZ_HAS_CXX_11
-#endif // end has cxx 11
+#    if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
+#        define LZ_HAS_CXX_11
+#    endif // end has cxx 11
 
-#if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
-#define LZ_CONSTEXPR_CXX_14 constexpr
-#else
-#define LZ_CONSTEXPR_CXX_14 inline
-#endif // has cxx 14
+#    if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
+#        define LZ_CONSTEXPR_CXX_14 constexpr
+#    else
+#        define LZ_CONSTEXPR_CXX_14 inline
+#    endif // has cxx 14
 
-#if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
-#define LZ_HAS_CXX_17
-#define LZ_CONSTEXPR_CXX_17 constexpr
-#else
-#define LZ_CONSTEXPR_CXX_17 inline
-#endif // Has cxx 17
+#    if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
+#        define LZ_HAS_CXX_17
+#        define LZ_CONSTEXPR_CXX_17 constexpr
+#    else
+#        define LZ_CONSTEXPR_CXX_17 inline
+#    endif // Has cxx 17
 
-#if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
-#define LZ_HAS_CXX_20
-#if defined(__cpp_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_dynamic_alloc) &&                                      \
-    defined(__cpp_lib_constexpr_string) && defined(__cpp_lib_constexpr_vector) && defined(__cpp_lib_constexpr_algorithms)
-#define LZ_CONSTEXPR_CXX_20 constexpr
-#else
-#define LZ_CONSTEXPR_CXX_20 inline
-#endif // cpp constexpr new/algo
-#else
-#define LZ_CONSTEXPR_CXX_20 inline
-#endif // Has cxx 20
+#    if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
+#        define LZ_HAS_CXX_20
+#        if defined(__cpp_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_dynamic_alloc) &&                              \
+            defined(__cpp_lib_constexpr_string) && defined(__cpp_lib_constexpr_vector) &&                                        \
+            defined(__cpp_lib_constexpr_algorithms)
+#            define LZ_CONSTEXPR_CXX_20 constexpr
+#        else
+#            define LZ_CONSTEXPR_CXX_20 inline
+#        endif // cpp constexpr new/algo
+#    else
+#        define LZ_CONSTEXPR_CXX_20 inline
+#    endif // Has cxx 20
 
-#if LZ_HAS_ATTRIBUTE(nodiscard) && defined(LZ_HAS_CXX_17)
-#define LZ_NODISCARD [[nodiscard]]
-#else
-#define LZ_NODISCARD
-#endif // LZ_HAS_ATTRIBUTE(nodiscard)
+#    if LZ_HAS_ATTRIBUTE(nodiscard) && defined(LZ_HAS_CXX_17)
+#        define LZ_NODISCARD [[nodiscard]]
+#    else
+#        define LZ_NODISCARD
+#    endif // LZ_HAS_ATTRIBUTE(nodiscard)
 
-#ifdef __cpp_ref_qualifiers
-#define LZ_HAS_REF_QUALIFIER
-#define LZ_CONST_REF_QUALIFIER const&
-#else
-#define LZ_CONST_REF_QUALIFIER
-#endif // __cpp_ref_qualifiers
+#    ifdef __cpp_ref_qualifiers
+#        define LZ_HAS_REF_QUALIFIER
+#        define LZ_CONST_REF_QUALIFIER const&
+#    else
+#        define LZ_CONST_REF_QUALIFIER
+#    endif // __cpp_ref_qualifiers
 
-#if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
-#define LZ_HAS_EXECUTION
-#include <execution>
-#endif // has execution
+#    if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
+#        define LZ_HAS_EXECUTION
+#        include <execution>
+#    endif // has execution
 
-#if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
-#define LZ_HAS_STRING_VIEW
-#endif // has string view
+#    if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
+#        define LZ_HAS_STRING_VIEW
+#    endif // has string view
 
-#if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
-#define LZ_HAS_CONCEPTS
-#include <concepts>
-#endif // has concepts
+#    if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
+#        define LZ_HAS_CONCEPTS
+#        include <concepts>
+#    endif // has concepts
 
-#ifdef __cpp_if_constexpr
-#define LZ_CONSTEXPR_IF constexpr
-#else
-#define LZ_CONSTEXPR_IF
-#endif // __cpp_if_constexpr
+#    ifdef __cpp_if_constexpr
+#        define LZ_CONSTEXPR_IF constexpr
+#    else
+#        define LZ_CONSTEXPR_IF
+#    endif // __cpp_if_constexpr
 
-#if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
-#define LZ_HAS_FORMAT
-#endif // format
+#    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
+#        define LZ_HAS_FORMAT
+#    endif // format
 
-#ifdef LZ_HAS_CONCEPTS
+#    ifdef LZ_HAS_CONCEPTS
 namespace lz {
 template<class I>
 concept BasicIterable = requires(I i) {
@@ -110,42 +111,43 @@ template<class I>
 concept Arithmetic = std::is_arithmetic_v<I>;
 } // End namespace lz
 
-#define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
-#define LZ_CONCEPT_INTEGRAL std::integral
-#define LZ_CONCEPT_INVOCABLE std::invocable
-#define LZ_CONCEPT_ITERABLE lz::BasicIterable
-#define LZ_CONCEPT_ITERATOR std::input_or_output_iterator
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
+#        define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
+#        define LZ_CONCEPT_INTEGRAL std::integral
+#        define LZ_CONCEPT_INVOCABLE std::invocable
+#        define LZ_CONCEPT_ITERABLE lz::BasicIterable
+#        define LZ_CONCEPT_ITERATOR std::input_or_output_iterator
+#        define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
+#        define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
-#else // ^^^ has concepts !has concepts vvv
-#define LZ_CONCEPT_ARITHMETIC class
-#define LZ_CONCEPT_INTEGRAL class
-#define LZ_CONCEPT_ITERATOR class
-#define LZ_CONCEPT_INVOCABLE class
-#define LZ_CONCEPT_ITERABLE class
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
-#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-#endif // lz has concepts
+#    else // ^^^ has concepts !has concepts vvv
+#        define LZ_CONCEPT_ARITHMETIC class
+#        define LZ_CONCEPT_INTEGRAL class
+#        define LZ_CONCEPT_ITERATOR class
+#        define LZ_CONCEPT_INVOCABLE class
+#        define LZ_CONCEPT_ITERABLE class
+#        define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
+#        define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
+#    endif // lz has concepts
 
-#ifndef NDEBUG
-#include <exception>
-#endif // NDEBUG
+#    ifndef NDEBUG
+#        include <exception>
+#    endif // NDEBUG
 
 namespace lz {
 namespace internal {
 
-#ifdef NDEBUG
-#define LZ_ASSERT(CONDITION, MSG) ((void)0)
-#else
+#    ifdef NDEBUG
+#        define LZ_ASSERT(CONDITION, MSG) ((void)0)
+#    else
 
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
     std::terminate();
 }
 
-#define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
-#endif // NDEBUG
+#        define LZ_ASSERT(CONDITION, MSG)                                                                                        \
+            ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#    endif // NDEBUG
 
 /* forward declarations of all iterators that contain a custom distance implementation */
 template<class... Iterators>
@@ -186,7 +188,7 @@ constexpr T* end(T (&array)[N]) noexcept {
     return std::end(array);
 }
 
-#ifdef LZ_HAS_CXX_11
+#    ifdef LZ_HAS_CXX_11
 template<bool B, class U = void>
 using EnableIf = typename std::enable_if<B, U>::type;
 
@@ -212,7 +214,7 @@ using TupleElement = typename std::tuple_element<I, T>::type;
 
 template<bool B, class IfTrue, class IfFalse>
 using Conditional = typename std::conditional<B, IfTrue, IfFalse>::type;
-#else  // ^^^ has cxx 11 vvv cxx > 11
+#    else  // ^^^ has cxx 11 vvv cxx > 11
 template<bool B, class T = void>
 using EnableIf = std::enable_if_t<B, T>;
 
@@ -230,7 +232,7 @@ using TupleElement = std::tuple_element_t<I, T>;
 
 template<bool B, class IfTrue, class IfFalse>
 using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
-#endif // LZ_HAS_CXX_11
+#    endif // LZ_HAS_CXX_11
 
 template<class Iterable>
 using IterTypeFromIterable = decltype(begin(std::forward<Iterable>(std::declval<Iterable>())));
@@ -256,7 +258,7 @@ using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>(
 template<class Iterable>
 using ValueTypeIterable = typename Decay<Iterable>::value_type;
 
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
 template<class T>
 struct IsSequencedPolicy : std::is_same<T, std::execution::sequenced_policy> {};
 
@@ -280,7 +282,7 @@ constexpr bool checkForwardAndPolicies() {
     return isSequenced;
 }
 
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
 
 constexpr char to_string(const char c) {
     return c;
@@ -326,6 +328,14 @@ inline constexpr bool isEven(const Arithmetic value) noexcept {
     return (value & 1) == 0;
 }
 } // namespace internal
+
+#    if defined(LZ_HAS_STRING_VIEW)
+using StringView = std::string_view;
+#    elif defined(LZ_STANDALONE)
+using StringView = std::string;
+#    else
+using StringView = fmt::string_view;
+#    endif
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type

@@ -1,25 +1,26 @@
 #pragma once
 
 #ifndef LZ_FUNCTION_TOOLS_HPP
-#define LZ_FUNCTION_TOOLS_HPP
+#    define LZ_FUNCTION_TOOLS_HPP
 
-#include "Concatenate.hpp"
-#include "Filter.hpp"
-#include "Join.hpp"
-#include "Map.hpp"
-#include "StringSplitter.hpp"
-#include "Take.hpp"
-#include "Zip.hpp"
+#    include "Concatenate.hpp"
+#    include "Filter.hpp"
+#    include "Join.hpp"
+#    include "Map.hpp"
+#    include "StringSplitter.hpp"
+#    include "Take.hpp"
+#    include "Zip.hpp"
 
-#include <algorithm>
-#include <iterator>
-#include <numeric>
+#    include <algorithm>
+#    include <iterator>
+#    include <numeric>
+#    include <cctype>
 
-#ifdef LZ_HAS_CXX_17
-#define LZ_INLINE_VAR inline
-#else // ^^^ has cxx 17 vvv !has cxx 17
-#define LZ_INLINE_VAR
-#endif // lz has cxx17
+#    ifdef LZ_HAS_CXX_17
+#        define LZ_INLINE_VAR inline
+#    else // ^^^ has cxx 17 vvv !has cxx 17
+#        define LZ_INLINE_VAR
+#    endif // lz has cxx17
 
 namespace lz {
 namespace internal {
@@ -64,21 +65,40 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
 
+#    ifdef LZ_HAS_CXX_17
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator>
-lastImpl(Iterator, Iterator end, std::true_type /* convertibleToBidirectional */) {
+RefType<Iterator> lastImpl(Iterator begin, Iterator end) {
+    if constexpr (std::is_convertible_v<IterCat<Iterator>, std::bidirectional_iterator_tag>) {
+        static_cast<void>(begin);
+        return *--end;
+    }
+    else {
+        using lz::distance;
+        using lz::next;
+        using std::distance;
+        using std::next;
+        return *next(begin, distance(begin, end) - 1);
+    }
+}
+#    else
+template<class Iterator>
+LZ_CONSTEXPR_CXX_20
+internal::EnableIf<std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value, RefType<Iterator>>
+lastImpl(Iterator, Iterator end) {
     return *--end;
 }
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator>
-lastImpl(Iterator begin, Iterator end, std::false_type /* convertibleToBidirectional */) {
+LZ_CONSTEXPR_CXX_20
+internal::EnableIf<!std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value, RefType<Iterator>>
+lastImpl(Iterator begin, Iterator end) {
     using lz::distance;
     using lz::next;
     using std::distance;
     using std::next;
     return *next(begin, distance(begin, end) - 1);
 }
+#    endif // LZ_HAS_CXX_17
 } // namespace internal
 
 /**
@@ -141,7 +161,7 @@ LZ_NODISCARD constexpr T sumTo(const T upToAndIncluding) {
  */
 template<class Strings>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
-    return join(strings, "\n");
+    return lz::join(strings, "\n");
 }
 
 /**
@@ -153,16 +173,16 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> u
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
-#ifndef LZ_HAS_CONCEPTS
+#    ifndef LZ_HAS_CONCEPTS
     static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
-#endif // LZ_HAS_CONCEPTS
-#ifdef LZ_HAS_CXX_11
+#    endif // LZ_HAS_CONCEPTS
+#    ifdef LZ_HAS_CXX_11
     return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(std::move(end)),
                                                                             std::reverse_iterator<Iterator>(std::move(begin)));
-#else
+#    else
     return internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(std::move(end)),
                                                                         std::make_reverse_iterator(std::move(begin)));
-#endif // LZ_HAS_CXX_11
+#    endif // LZ_HAS_CXX_11
 }
 
 /**
@@ -329,8 +349,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
     LZ_ASSERT(!isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-    return internal::lastImpl(std::move(begin), std::move(end),
-                              std::is_convertible<internal::IterCat<Iterator>, std::bidirectional_iterator_tag>());
+    return internal::lastImpl(std::move(begin), std::move(end));
 }
 
 /**
@@ -463,7 +482,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable
     return keysRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
 /**
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
@@ -997,7 +1016,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
-#else // ^^^ Lz has execution vvv !Lz has execution
+#    else // ^^^ Lz has execution vvv !Lz has execution
 
 /**
  * Gets the mean of a sequence.
@@ -1005,11 +1024,11 @@ containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execut
  * @param end The ending of the sequence.
  * @return The mean of the sequence.
  */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
 template<class Iterator, class BinaryOp = std::plus<internal::ValueType<Iterator>>>
-#else
+#        else
 template<class Iterator, class BinaryOp = std::plus<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
     using lz::distance;
     using std::distance;
@@ -1024,11 +1043,11 @@ double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
  * @param container The container to calculate the mean of.
  * @return The mean of the container.
  */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
 template<class Iterable, class BinaryOp = std::plus<internal::ValueTypeIterable<Iterable>>>
-#else
+#        else
 template<class Iterable, class BinaryOp = std::plus<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
 double mean(const Iterable& container, BinaryOp binOp = {}) {
     return mean(std::begin(container), std::end(container), std::move(binOp));
 }
@@ -1041,11 +1060,11 @@ double mean(const Iterable& container, BinaryOp binOp = {}) {
  * used.
  * @return The median of the sequence.
  */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
 template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator>>>
-#else
+#        else
 template<class Iterator, class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
 double median(Iterator begin, Iterator end, Comparer comparer = {}) {
     using lz::distance;
     using lz::next;
@@ -1072,11 +1091,11 @@ double median(Iterator begin, Iterator end, Comparer comparer = {}) {
  * used.
  * @return The median of the sequence.
  */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
 template<class Iterable, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
-#else
+#        else
 template<class Iterable, class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
 double median(Iterable& iterable, Comparer comparer = {}) {
     return median(std::begin(iterable), std::end(iterable), std::move(comparer));
 }
@@ -1149,13 +1168,13 @@ findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T
  */
 template<class Iterator, class T, class U>
 internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
     auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
-#else
+#        else
     auto endReverse = std::make_reverse_iterator(std::move(end));
     auto beginReverse = std::make_reverse_iterator(std::move(begin));
-#endif
+#        endif
     const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
     return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
@@ -1429,7 +1448,7 @@ trimString(const std::string& s) {
     return trimString(s.begin(), s.end());
 }
 
-#endif // End LZ_HAS_EXECUTION
+#    endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 
 #endif // End LZ_FUNCTION_TOOLS_HPP

@@ -49,6 +49,9 @@ public:
 private:
     Iterator _iterator{};
     mutable std::string _delimiter{};
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+    std::string _fmt{};
+#endif
     mutable bool _isIteratorTurn{ true };
     difference_type _distance{};
 
@@ -56,12 +59,12 @@ private:
         if (_isIteratorTurn) {
 #ifdef LZ_STANDALONE
 #ifdef LZ_HAS_FORMAT
-            return std::format("{}", *_iterator);
+            return std::format(_fmt.c_str(), *_iterator);
 #else
             return toStringSpecialized(std::is_arithmetic<ContainerType>(), *_iterator);
 #endif // LZ_HAS_FORMAT
 #else
-            return fmt::to_string(*_iterator);
+            return fmt::format(_fmt.c_str(), *_iterator);
 #endif // LZ_STANDALONE
         }
         return _delimiter;
@@ -89,6 +92,16 @@ private:
     }
 
 public:
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+    LZ_CONSTEXPR_CXX_20
+    JoinIterator(Iterator iterator, std::string delimiter, std::string fmt, const bool isIteratorTurn, const difference_type distance) :
+        _iterator(std::move(iterator)),
+        _delimiter(std::move(delimiter)),
+        _fmt(std::move(fmt)),
+        _isIteratorTurn(isIteratorTurn),
+        _distance(distance) {
+    }
+#else
     LZ_CONSTEXPR_CXX_20
     JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
         _iterator(std::move(iterator)),
@@ -96,6 +109,7 @@ public:
         _isIteratorTurn(isIteratorTurn),
         _distance(distance) {
     }
+#endif // has format
 
     JoinIterator() = default;
 
