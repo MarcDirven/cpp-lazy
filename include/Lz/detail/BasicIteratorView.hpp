@@ -27,6 +27,7 @@ namespace lz {
 namespace internal {
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 #        ifdef __cpp_if_constexpr
+template<class T>
 std::string makeStringFormattedFP(const T value) {
     if constexpr (std::is_floating_point_v<T>) {
         auto str = std::to_string(value);
@@ -82,7 +83,6 @@ toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, co
 #    else
 toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView& delimiter) {
 #    endif // LZ_HAS_FORMAT
-    using TValueType = ValueType<Iterator>;
     if (begin == end) {
         return;
     }
@@ -91,15 +91,15 @@ toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, co
     // Dynamic format merge with the `fmt` and the "{}" for the delimiter
     std::string format;
     format.reserve(3 + fmt.size());
-    format += "{}";
     format.append(fmt.data(), fmt.size());
+    format += "{}";
 #    endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
 #    if !defined(LZ_STANDALONE)
-    std::for_each(begin, end, [&delimiter, backInserter, &format](const TValueType& v) {
+    std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
         fmt::format_to(backInserter, format.c_str(), v, delimiter);
     });
 #    elif defined(LZ_HAS_FORMAT)
-    std::for_each(begin, end, [&delimiter, backInserter, &format](const TValueType& v) {
+    std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
         std::format_to(backInserter, format.c_str(), v, delimiter);
     });
     // clang-format off

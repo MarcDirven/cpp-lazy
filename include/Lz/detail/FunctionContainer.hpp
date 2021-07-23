@@ -39,6 +39,7 @@ class FunctionContainer {
     }
 
 #ifdef __cpp_if_constexpr
+    template<class F = Func>
     LZ_CONSTEXPR_CXX_20 void copy(const Func& f) {
         if constexpr (std::is_copy_assignable_v<F>) {
             _func = f;
@@ -49,6 +50,7 @@ class FunctionContainer {
         }
     }
 
+    template<class F = Func>
     LZ_CONSTEXPR_CXX_20 void move(Func&& f) {
         if constexpr (std::is_move_assignable_v<F>) {
             _func = std::move(f);
