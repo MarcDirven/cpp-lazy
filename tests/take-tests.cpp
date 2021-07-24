@@ -40,7 +40,7 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
         auto taken = lz::takeWhile(array, [](int i) { return i != 5; });
         CHECK(std::distance(taken.begin(), taken.end()) == 4);
         CHECK(*taken.begin() == 1);
-        CHECK(*--taken.end() == 4);
+        CHECK(*(taken.end() - 1) == 4);
     }
 
     SECTION("Should drop n elements") {
