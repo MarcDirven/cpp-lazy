@@ -151,6 +151,10 @@ TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functio
     const auto dropped = lz::dropWhile(arr, [](const int i) { return i == 1; });
     auto begin = dropped.begin();
 
+    SECTION("Correct length") {
+        CHECK(std::distance(dropped.begin(), dropped.end()) == 2);
+    }
+
     SECTION("Should skip elements") {
         CHECK(*begin == 2);
     }
