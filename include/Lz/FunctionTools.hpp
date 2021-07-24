@@ -12,9 +12,9 @@
 #    include "Zip.hpp"
 
 #    include <algorithm>
+#    include <cctype>
 #    include <iterator>
 #    include <numeric>
-#    include <cctype>
 
 #    ifdef LZ_HAS_CXX_17
 #        define LZ_INLINE_VAR inline
@@ -161,7 +161,7 @@ LZ_NODISCARD constexpr T sumTo(const T upToAndIncluding) {
  */
 template<class Strings>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> unlines(Strings&& strings) {
-    return lz::join(strings, "\n");
+    return join(strings, "\n");
 }
 
 /**
@@ -171,14 +171,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> u
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
 #    ifndef LZ_HAS_CONCEPTS
     static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #    endif // LZ_HAS_CONCEPTS
 #    ifdef LZ_HAS_CXX_11
-    return lz::internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(std::move(end)),
-                                                                            std::reverse_iterator<Iterator>(std::move(begin)));
+    return internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(std::move(end)),
+                                                                        std::reverse_iterator<Iterator>(std::move(begin)));
 #    else
     return internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(std::move(end)),
                                                                         std::make_reverse_iterator(std::move(begin)));
@@ -191,7 +191,7 @@ reverse(Iterator begin, Iterator end) {
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>
 reverse(Iterable&& iterable) {
     // ADL std::reverse
     return lz::reverse(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
@@ -230,10 +230,10 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, i
  * @param end The ending of all the iterables
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
-template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class Zipper = lz::Zip<Iterators...>>
+template<class Fn, LZ_CONCEPT_ITERATOR... Iterators, class Zipper = Zip<Iterators...>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, std::tuple<Iterators...> begin, std::tuple<Iterators...> end)
-    -> lz::Map<decltype(std::begin(std::declval<Zipper>())),
-               decltype(internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
+    -> Map<decltype(std::begin(std::declval<Zipper>())),
+           decltype(internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>()))> {
     Zipper zipper = zipRange(std::move(begin), std::move(end));
     auto tupleExpanderFunc = internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterators)>());
     return map(std::move(zipper), std::move(tupleExpanderFunc));
@@ -246,10 +246,10 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, std::tuple<Iterators...> be
  * @param iterables The iterables.
  * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
  */
-template<class Fn, class... Iterables, class Zipper = lz::Zip<lz::internal::IterTypeFromIterable<Iterables>...>>
+template<class Fn, class... Iterables, class Zipper = Zip<internal::IterTypeFromIterable<Iterables>...>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables)
-    -> lz::Map<decltype(std::begin(std::declval<Zipper>())),
-               decltype(internal::makeExpandFn(fn, lz::internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
+    -> Map<decltype(std::begin(std::declval<Zipper>())),
+           decltype(internal::makeExpandFn(fn, internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
     return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
                    std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
@@ -304,7 +304,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne(const Iterable& iterable) {
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(Iterator begin, Iterator end) {
-    return !isEmpty(begin, end) && !lz::hasOne(begin, end);
+    return !isEmpty(begin, end) && !hasOne(begin, end);
 }
 
 /**
@@ -314,7 +314,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(Iterator begin, Iterator end) {
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(const Iterable& iterable) {
-    return !isEmpty(iterable) && !lz::hasOne(iterable);
+    return !isEmpty(iterable) && !hasOne(iterable);
 }
 
 /**
@@ -371,7 +371,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> firstOr(Iterator begin, Iterator end, const T& defaultValue) {
-    return isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : lz::first(begin, end);
+    return isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : first(begin, end);
 }
 
 /**
@@ -394,7 +394,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable> firstOr(c
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> lastOr(Iterator begin, Iterator end, const T& value) {
-    return isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : lz::last(begin, end);
+    return isEmpty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : last(begin, end);
 }
 
 /**
@@ -440,7 +440,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterable&& ite
  * interface)`
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<1>> valuesRange(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, internal::GetFn<1>> valuesRange(Iterator begin, Iterator end) {
     return mapRange(std::move(begin), std::move(end), internal::GetFn<1>());
 }
 
@@ -452,8 +452,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<1>> valuesRan
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<1>>
-values(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<1>> values(Iterable&& iterable) {
     return valuesRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -466,7 +465,7 @@ values(Iterable&& iterable) {
  * interface)`
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<0>> keysRange(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, internal::GetFn<0>> keysRange(Iterator begin, Iterator end) {
     return mapRange(std::move(begin), std::move(end), internal::GetFn<0>());
 }
 
@@ -478,7 +477,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<Iterator, internal::GetFn<0>> keysRange
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<0>> keys(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<0>> keys(Iterable&& iterable) {
     return keysRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -572,8 +571,8 @@ filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc,
  */
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR SelectorIterator, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
-        internal::GetFn<0>>
+Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
+    internal::GetFn<0>>
 select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIterator endSelector,
            Execution execution = std::execution::seq) {
     auto zipper = zipRange(std::make_tuple(std::move(begin), std::move(beginSelector)),
@@ -592,8 +591,8 @@ template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, cla
          class Iterator = internal::IterTypeFromIterable<Iterable>,
          class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
-        internal::GetFn<0>>
+Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
+    internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = std::execution::seq) {
     return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                   internal::begin(std::forward<SelectorIterable>(selectors)),
@@ -632,7 +631,7 @@ trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class UnaryPredicateFirst, class UnaryPredicateLast,
          class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) {
     return trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                 std::move(first), std::move(last), execution);
@@ -842,7 +841,7 @@ findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaul
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable, class T, class U, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable>
 findLastOrDefault(const Iterable& iterable, const T& toFind, const U& defaultValue, Execution execution = std::execution::seq) {
-    return lz::findLastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
+    return findLastOrDefault(std::begin(iterable), std::end(iterable), toFind, defaultValue, execution);
 }
 
 /**
@@ -975,7 +974,7 @@ indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = s
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
-    return indexOf(std::move(begin), std::move(end), value, execution) != lz::npos;
+    return indexOf(std::move(begin), std::move(end), value, execution) != npos;
 }
 
 /**
@@ -1001,7 +1000,7 @@ contains(const Iterable& iterable, const T& value, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
-    return indexOfIf(std::move(begin), std::move(end), std::move(predicate), execution) != lz::npos;
+    return indexOfIf(std::move(begin), std::move(end), std::move(predicate), execution) != npos;
 }
 
 /**
@@ -1247,7 +1246,7 @@ std::size_t indexOf(Iterator begin, Iterator end, const T& val) {
  */
 template<class Iterable, class T>
 std::size_t indexOf(const Iterable& iterable, const T& val) {
-    return lz::indexOf(std::begin(iterable), std::end(iterable), val);
+    return indexOf(std::begin(iterable), std::end(iterable), val);
 }
 
 /**
@@ -1383,7 +1382,7 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
  */
 template<class Iterable, class SelectorIterable, class Iterator = internal::IterTypeFromIterable<Iterable>,
          class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
-lz::Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>>, internal::GetFn<0>>
+Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>>, internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors) {
     return select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                   internal::begin(std::forward<SelectorIterable>(selectors)),
@@ -1400,7 +1399,7 @@ select(Iterable&& iterable, SelectorIterable&& selectors) {
  * @return An iterator view object.
  */
 template<class Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
-lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
 trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
     auto takenFirst = dropWhileRange(std::move(begin), std::move(end), std::move(first));
     auto takenLast = dropWhile(lz::reverse(std::move(takenFirst)), std::move(last));
@@ -1416,7 +1415,7 @@ trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast
  * @return An iterator view object.
  */
 template<class Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-lz::internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<lz::internal::IterTypeFromIterable<Iterable>>>>
+internal::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<internal::IterTypeFromIterable<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
     return trim(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                 std::move(first), std::move(last));
