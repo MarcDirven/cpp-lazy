@@ -128,7 +128,7 @@ static void Range(benchmark::State& state) {
 
 static void StringSplitter(benchmark::State& state) {
     std::string toSplit = "hello hello hello hello hello he";
-    auto splitter = lz::split(toSplit, " ");
+    auto splitter = lz::split(toSplit, ' ');
 
     for (auto _ : state) {
 #ifndef LZ_HAS_CXX_17
