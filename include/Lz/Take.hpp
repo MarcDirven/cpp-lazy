@@ -16,7 +16,7 @@ public:
 
     template<class Function>
     LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, Function predicate) :
-        internal::BasicIteratorView<iterator>(begin != end ? (!predicate(*begin) ? end : begin) : end, end) {
+        internal::BasicIteratorView<iterator>(begin, begin != end ? std::find_if_not(begin, end, predicate) : end) {
     }
 
     LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, std::nullptr_t) :

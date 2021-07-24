@@ -122,12 +122,11 @@ doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) 
         return std::string(b, e);
     }
     std::string result;
-    if LZ_CONSTEXPR_IF (IsForward<Iterator>::value) {
-        using lz::distance;
-        using std::distance;
-        const auto len = static_cast<std::size_t>(distance(b, e));
-        result.reserve(len + delimiter.size() * len + 1);
-    }
+
+    using lz::distance;
+    using std::distance;
+    const auto len = static_cast<std::size_t>(distance(b, e));
+    result.reserve(len + delimiter.size() * len + 1);
 
 #    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toStringImpl(result, b, e, delimiter, fmt);
@@ -181,12 +180,12 @@ private:
     using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
 
 #    ifndef __cpp_if_constexpr
-    template<class Container, class It = LzIterator>
-    EnableIf<!HasReserve<Container>::value || !IsForward<It>::value> tryReserve(Container&) const {
+    template<class Container>
+    EnableIf<!HasReserve<Container>::value> tryReserve(Container&) const {
     }
 
-    template<class Container, class It = LzIterator>
-    EnableIf<HasReserve<Container>::value && IsForward<It>::value> tryReserve(Container& container) const {
+    template<class Container>
+    EnableIf<HasReserve<Container>::value> tryReserve(Container& container) const {
         using lz::distance;
         using std::distance;
         container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
@@ -194,7 +193,7 @@ private:
 #    else
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
-        if constexpr (HasReserve<Container>::value && IsForward<LzIterator>::value) {
+        if constexpr (HasReserve<Container>::value) {
             using lz::distance;
             using std::distance;
             container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
@@ -464,7 +463,9 @@ public:
      */
     template<std::size_t N>
     std::array<value_type, N> toArray() const {
-        LZ_ASSERT(std::distance(_begin, _end) <= static_cast<internal::DiffType<LzIterator>>(N),
+        using lz::distance;
+        using std::distance;
+        LZ_ASSERT(distance(_begin, _end) <= static_cast<internal::DiffType<LzIterator>>(N),
                   "the iterator size is too large and/or array size is too small");
         std::array<value_type, N> cont{};
         copyTo(cont.begin());

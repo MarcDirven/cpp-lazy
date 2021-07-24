@@ -38,12 +38,9 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
 
     SECTION("Should take while range") {
         auto taken = lz::takeWhile(array, [](int i) { return i != 5; });
-
-        int expected = 1;
-        for (int actual : taken) {
-            CHECK(expected == actual);
-            ++expected;
-        }
+        CHECK(std::distance(taken.begin(), taken.end()) == 4);
+        CHECK(*taken.begin() == 1);
+        CHECK(*(taken.end() - 1) == 4);
     }
 
     SECTION("Should drop n elements") {
@@ -153,6 +150,10 @@ TEST_CASE("DropWhile changing and creating elements", "[DropWhile][Basic functio
     std::array<int, 4> arr = { 1, 1, 2, 1 };
     const auto dropped = lz::dropWhile(arr, [](const int i) { return i == 1; });
     auto begin = dropped.begin();
+
+    SECTION("Correct length") {
+        CHECK(std::distance(dropped.begin(), dropped.end()) == 2);
+    }
 
     SECTION("Should skip elements") {
         CHECK(*begin == 2);
