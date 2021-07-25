@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_TAKE_HPP
-#define LZ_TAKE_HPP
+#    define LZ_TAKE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#    include "detail/BasicIteratorView.hpp"
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -16,7 +16,7 @@ public:
 
     template<class Function>
     LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, Function predicate) :
-        internal::BasicIteratorView<iterator>(begin, begin != end ? std::find_if_not(begin, end, predicate) : end) {
+        internal::BasicIteratorView<iterator>(begin, end) {
     }
 
     LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, std::nullptr_t) :
@@ -36,38 +36,6 @@ public:
  *  typedefs.
  * @{
  */
-
-/**
- * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
- * returns false, the iterator stops. Its `begin()` function returns an iterator.
- * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
- * @param begin The beginning of the iterator.
- * @param end The beginning of the iterator.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhileRange(...))`.
- */
-template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
-    return { std::move(begin), std::move(end), std::move(predicate) };
-}
-
-/**
- * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
- * Its `begin()` function returns an iterator.
- * @param iterable An object that has methods `begin()` and `end()`.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhile(...))`.
- */
-template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
-takeWhile(Iterable&& iterable, Function predicate) {
-    return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate));
-}
 
 /**
  * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a
@@ -152,7 +120,46 @@ slice(Iterable&& iterable, const internal::DiffType<IterType> from, const intern
     return takeRange(begin, internal::end(std::forward<Iterable>(iterable)), to - from);
 }
 
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
+/**
+ * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
+ * returns false, the iterator stops. Its `begin()` function returns an iterator.
+ * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
+ * @param begin The beginning of the iterator.
+ * @param end The beginning of the iterator.
+ * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
+ * false, the iterator stops.
+ * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto... lz::takeWhileRange(...))`.
+ */
+template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
+takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution exec = std::execution::seq) {
+    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        end = begin != end ? std::find_if_not(begin, end, predicate) : end;
+    }
+    else {
+        end = begin != end ? std::find_if_not(execution, begin, end, predicate) : end;
+    }
+    return { std::move(begin), std::move(end), std::move(predicate) };
+}
+
+/**
+ * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
+ * Its `begin()` function returns an iterator.
+ * @param iterable An object that has methods `begin()` and `end()`.
+ * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
+ * false, the iterator stops.
+ * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto... lz::takeWhile(...))`.
+ */
+template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+takeWhile(Iterable&& iterable, Function predicate, Execution exec = std::execution::seq) {
+    return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                          std::move(predicate));
+}
+
 /**
  * @brief Creates a Take iterator view object.
  * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
@@ -194,7 +201,40 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
 }
-#else // ^^^ lz has execution vvv lz ! has execution
+#    else // ^^^ lz has execution vvv lz ! has execution
+/**
+ * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
+ * returns false, the iterator stops. Its `begin()` function returns an iterator.
+ * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
+ * @param begin The beginning of the iterator.
+ * @param end The beginning of the iterator.
+ * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
+ * false, the iterator stops.
+ * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto... lz::takeWhileRange(...))`.
+ */
+template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
+    end = begin != end ? std::find_if_not(begin, end, predicate) : end;
+    return { std::move(begin), std::move(end), std::move(predicate) };
+}
+
+/**
+ * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
+ * Its `begin()` function returns an iterator.
+ * @param iterable An object that has methods `begin()` and `end()`.
+ * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
+ * false, the iterator stops.
+ * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto... lz::takeWhile(...))`.
+ */
+template<LZ_CONCEPT_ITERABLE Iterable, class Function>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+takeWhile(Iterable&& iterable, Function predicate) {
+    return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                          std::move(predicate));
+}
+
 /**
  * @brief Creates a Take iterator view object.
  * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
@@ -226,7 +266,7 @@ Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Fu
                           std::move(predicate));
 }
 
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
 // End of group
 /**
  * @}
