@@ -14,13 +14,8 @@ public:
 
     using value_type = internal::ValueType<Iterator>;
 
-    template<class Function>
-    LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, Function predicate) :
+    LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end) :
         internal::BasicIteratorView<iterator>(begin, end) {
-    }
-
-    LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end, std::nullptr_t) :
-        internal::BasicIteratorView<iterator>(std::move(begin), std::move(end)) {
     }
 
     constexpr Take() = default;
@@ -55,7 +50,7 @@ takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amoun
     using std::next;
     LZ_ASSERT(amount <= distance(begin, end), "cannot access elements after end");
     static_cast<void>(end);
-    return takeWhileRange(begin, next(begin, amount), nullptr);
+    return Take<Iterator>(begin, next(begin, amount));
 }
 
 /**
@@ -129,19 +124,20 @@ slice(Iterable&& iterable, const internal::DiffType<IterType> from, const intern
  * @param end The beginning of the iterator.
  * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
  * false, the iterator stops.
+ * @param execution The execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
  * @return A Take object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::takeWhileRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
-takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution exec = std::execution::seq) {
+takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         end = begin != end ? std::find_if_not(begin, end, predicate) : end;
     }
     else {
         end = begin != end ? std::find_if_not(execution, begin, end, predicate) : end;
     }
-    return { std::move(begin), std::move(end), std::move(predicate) };
+    return { std::move(begin), std::move(end) };
 }
 
 /**
@@ -150,14 +146,15 @@ takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution exec 
  * @param iterable An object that has methods `begin()` and `end()`.
  * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
  * false, the iterator stops.
+ * @param execution The execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
  * @return A Take object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::takeWhile(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
-takeWhile(Iterable&& iterable, Function predicate, Execution exec = std::execution::seq) {
+takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::execution::seq) {
     return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate));
+                          std::move(predicate), execution);
 }
 
 /**
@@ -216,7 +213,7 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
     end = begin != end ? std::find_if_not(begin, end, predicate) : end;
-    return { std::move(begin), std::move(end), std::move(predicate) };
+    return { std::move(begin), std::move(end) };
 }
 
 /**
