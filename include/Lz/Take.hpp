@@ -132,10 +132,10 @@ template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::ex
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
 takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-        end = begin != end ? std::find_if_not(begin, end, predicate) : end;
+        end = std::find_if_not(begin, end, predicate);
     }
     else {
-        end = begin != end ? std::find_if_not(execution, begin, end, predicate) : end;
+        end = std::find_if_not(execution, begin, end, predicate);
     }
     return { std::move(begin), std::move(end) };
 }
@@ -212,7 +212,7 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
-    end = begin != end ? std::find_if_not(begin, end, predicate) : end;
+    end = std::find_if_not(begin, end, predicate);
     return { std::move(begin), std::move(end) };
 }
 
