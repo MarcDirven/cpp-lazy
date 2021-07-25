@@ -4,7 +4,7 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-template class lz::IterView<lz::Take<std::vector<int>::iterator>::iterator>;
+template class lz::IterView<lz::internal::BasicIteratorView<std::vector<int>::iterator>::iterator>;
 
 TEST_CASE("Iterator chaining") {
     constexpr int size = 16;

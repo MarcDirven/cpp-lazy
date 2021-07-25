@@ -207,11 +207,11 @@ private:
     }
 
 public:
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() LZ_CONST_REF_QUALIFIER noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator begin() LZ_CONST_REF_QUALIFIER noexcept {
         return _begin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator end() LZ_CONST_REF_QUALIFIER noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator end() LZ_CONST_REF_QUALIFIER noexcept {
         return _end;
     }
 
@@ -544,6 +544,16 @@ public:
      */
     friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<LzIterator>& it) {
         return o << it.toString(" ");
+    }
+
+    /**
+     * Returns the length of the view.
+     * @return The length of the view.
+     */
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::DiffType<LzIterator> distance() const {
+        using lz::distance;
+        using std::distance;
+        return distance(_begin, _end);
     }
 }; // namespace internal
 // clang-format on

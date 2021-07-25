@@ -214,13 +214,6 @@ public:
         return *next(Base::begin(), n);
     }
 
-    //! See FunctionTools.hpp `length` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type distance() const {
-        using lz::distance;
-        using std::distance;
-        return distance(Base::begin(), Base::end());
-    }
-
     //! See FunctionTools.hpp `isEmpty` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty() const {
         return lz::isEmpty(*this);

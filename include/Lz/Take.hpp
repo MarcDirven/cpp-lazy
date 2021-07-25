@@ -6,21 +6,6 @@
 #    include "detail/BasicIteratorView.hpp"
 
 namespace lz {
-template<LZ_CONCEPT_ITERATOR Iterator>
-class Take final : public internal::BasicIteratorView<Iterator> {
-public:
-    using iterator = Iterator;
-    using const_iterator = Iterator;
-
-    using value_type = internal::ValueType<Iterator>;
-
-    LZ_CONSTEXPR_CXX_20 Take(Iterator begin, Iterator end) :
-        internal::BasicIteratorView<iterator>(begin, end) {
-    }
-
-    constexpr Take() = default;
-};
-
 // Start of group
 /**
  * @defgroup ItFns Iterator free functions.
@@ -42,7 +27,7 @@ public:
  * `for (auto... lz::takeRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
     using lz::distance;
     using lz::next;
@@ -50,7 +35,7 @@ takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amoun
     using std::next;
     LZ_ASSERT(amount <= distance(begin, end), "cannot access elements after end");
     static_cast<void>(end);
-    return Take<Iterator>(begin, next(begin, amount));
+    return { begin, next(begin, amount) };
 }
 
 /**
@@ -63,7 +48,8 @@ takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amoun
  * `for (auto... lz::take(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<IterType> take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
+take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
     return takeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
 }
 
@@ -75,7 +61,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<IterType> take(Iterable&& iterable, const 
  * @return A Take iterator where the first `amount` items have been dropped.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
     using lz::distance;
     using lz::next;
@@ -91,7 +77,8 @@ dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amoun
  * @return A Take iterator where the first `amount` items have been dropped.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<IterType> drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
+drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
     return dropRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
 }
 
@@ -105,7 +92,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<IterType> drop(Iterable&& iterable, const 
  * `for (auto... lz::slice(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
 slice(Iterable&& iterable, const internal::DiffType<IterType> from, const internal::DiffType<IterType> to) {
     using lz::next;
     using std::next;
@@ -211,7 +198,8 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
  * `for (auto... lz::takeWhileRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, Iterator end, Function predicate) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
+takeWhileRange(Iterator begin, Iterator end, Function predicate) {
     end = std::find_if_not(begin, end, predicate);
     return { std::move(begin), std::move(end) };
 }
@@ -226,7 +214,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator> takeWhileRange(Iterator begin, I
  * `for (auto... lz::takeWhile(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
 takeWhile(Iterable&& iterable, Function predicate) {
     return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate));
@@ -242,7 +230,7 @@ takeWhile(Iterable&& iterable, Function predicate) {
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
+internal::BasicIteratorView<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
     using lz::distance;
     using std::distance;
     begin = std::find_if_not(std::move(begin), end, std::move(predicate));
@@ -258,7 +246,7 @@ Take<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) 
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-Take<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
+internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate));
 }
