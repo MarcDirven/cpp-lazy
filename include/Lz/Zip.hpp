@@ -28,6 +28,7 @@ namespace lz { namespace internal {
         doTrimTuple<DifferenceType>(begin, end, MakeIndexSequence<argLength>());
     }
 }
+
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
 public:
