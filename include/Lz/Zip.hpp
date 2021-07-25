@@ -6,7 +6,28 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/ZipIterator.hpp"
 
-namespace lz {
+namespace lz { namespace internal {
+    template<class DiffTy, class Tuple, size_t... Is>
+    LZ_CONSTEXPR_CXX_17 void doTrimTuple(const Tuple& begin, Tuple& end, IndexSequence<Is...>) {
+        using lz::distance;
+        using std::distance;
+        using std::next;
+        using lz::next;
+        const DiffTy lengths[] = { static_cast<DiffTy>(distance(std::get<Is>(begin), std::get<Is>(end)))... };
+        const auto smallest = static_cast<DiffTy>(*std::min_element(std::begin(lengths), std::end(lengths)));
+        const int expander[] = { (std::get<Is>(end) = next(std::get<Is>(begin), smallest), 0)... };
+        static_cast<void>(expander);
+    }
+
+    template<class... Iterators>
+    LZ_CONSTEXPR_CXX_17 void
+    trimTuple(const std::tuple<Iterators...>& begin, std::tuple<Iterators...>& end) {
+        constexpr size_t argLength = sizeof...(Iterators);
+        static_assert(argLength > 1, "zip requires more than 1 container/iterable");
+        using DifferenceType = typename std::common_type<DiffType<Iterators>...>::type;
+        doTrimTuple<DifferenceType>(begin, end, MakeIndexSequence<argLength>());
+    }
+}
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
 public:
@@ -42,6 +63,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+    internal::trimTuple(begin, end);
     return { std::move(begin), std::move(end) };
 }
 

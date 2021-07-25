@@ -7,6 +7,16 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
     std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
     std::array<short, 4> c = { 1, 2, 3, 4 };
 
+    SECTION("Unequal lengths") {
+        std::vector<int> ints = {1, 2, 3};
+        std::vector<double> floats = {1.2, 3.3};
+        auto zipper = lz::zip(ints, floats);
+        auto end = zipper.end();
+        CHECK(*--end == std::make_tuple(2, 3.3));
+        CHECK(*--end == std::make_tuple(1, 1.2));
+        CHECK(std::distance(zipper.begin(), zipper.end()) == 2);
+    }
+
     SECTION("Should zip") {
         std::size_t i = 0;
         for (const auto& tup : lz::zip(a, b, c)) {

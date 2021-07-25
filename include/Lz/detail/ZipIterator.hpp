@@ -11,8 +11,6 @@ namespace lz {
 namespace internal {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipIterator {
-    static_assert(sizeof...(Iterators) > 1, "zip requires more than 1 containers/iterables");
-
 public:
     using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
     using value_type = std::tuple<ValueType<Iterators>...>;
@@ -48,29 +46,8 @@ private:
     }
 
     template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 void minIs(IndexSequence<I...>, const difference_type differenceType) {
-        plusIs(MakeIndexSequenceForThis(), -differenceType);
-    }
-
-    template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 difference_type iteratorMin(IndexSequence<I...>, const ZipIterator& other) const {
-        const difference_type diff[] = { static_cast<difference_type>(std::get<I>(_iterators) -
-                                                                      std::get<I>(other._iterators))... };
-        return static_cast<difference_type>(*std::min_element(std::begin(diff), std::end(diff)));
-    }
-
-    template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 bool lessThan(IndexSequence<I...>, const ZipIterator& other) const {
-        const bool distances[] = { (std::get<I>(_iterators) < std::get<I>(other._iterators))... };
-        const auto* const end = std::end(distances);
-        return std::find(std::begin(distances), end, true) != end;
-    }
-
-    template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 bool notEqual(IndexSequence<I...>, const ZipIterator& other) const {
-        const bool boolValues[] = { (std::get<I>(_iterators) != std::get<I>(other._iterators))... };
-        const auto* const end = std::end(boolValues);
-        return std::find(std::begin(boolValues), end, false) == end; // Check if false not in boolValues
+    LZ_CONSTEXPR_CXX_20 void minIs(const IndexSequence<I...> is, const difference_type differenceType) {
+        plusIs(is, -differenceType);
     }
 
 public:
@@ -132,7 +109,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ZipIterator& other) const {
-        return iteratorMin(MakeIndexSequenceForThis(), other);
+        return std::get<0>(_iterators) - std::get<0>(other._iterators);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
@@ -144,11 +121,11 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
-        return a.notEqual(MakeIndexSequenceForThis(), b);
+        return std::get<0>(a._iterators) != std::get<0>(b._iterators);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
-        return a.lessThan(MakeIndexSequenceForThis(), b);
+        return std::get<0>(a._iterators) < std::get<0>(b._iterators);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipIterator& a, const ZipIterator& b) {
