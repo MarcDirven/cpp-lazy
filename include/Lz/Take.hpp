@@ -116,7 +116,7 @@ slice(Iterable&& iterable, const internal::DiffType<IterType> from, const intern
  * `for (auto... lz::takeWhileRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         end = std::find_if_not(begin, end, predicate);
@@ -138,7 +138,7 @@ takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execu
  * `for (auto... lz::takeWhile(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
 takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::execution::seq) {
     return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
@@ -155,7 +155,7 @@ takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
     using lz::distance;
     using std::distance;
@@ -180,7 +180,7 @@ dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execu
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Take<internal::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
 dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::execution::seq) {
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
