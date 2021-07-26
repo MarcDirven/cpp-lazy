@@ -121,7 +121,15 @@ auto dist = distance(view.begin(), view.end());
 using std::next; using lz::next;
 auto nth = next(view.begin(), 4);
 ```
+Or you can do:
+```cpp
+auto view = lz::chunks(array, 3);
+// Calculate distance:
+auto dist = view.distance();
 
+// Get nth element:
+auto nth = view.next(2);
+```
 If, for some reason, you do not wish to do this, then be sure to use `lz::next/lz::distance` for the following iterators:
 - `CartesianProductIterator` created by `lz::cartesian::begin`
 - `Range` created by `lz::range::begin`
