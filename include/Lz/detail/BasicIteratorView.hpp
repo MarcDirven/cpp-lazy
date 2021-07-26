@@ -555,6 +555,19 @@ public:
         using std::distance;
         return distance(_begin, _end);
     }
+
+    /**
+     * Gets the nth position of the iterator from this sequence.
+     * @param n The offset.
+     * @return The element referred to by `begin() + n`
+     */
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator next(const internal::DiffType<LzIterator> n) const {
+        using lz::next;
+        using std::next;
+        return next(_begin, n);
+    }
+
+
 }; // namespace internal
 // clang-format on
 } // namespace internal
