@@ -99,7 +99,7 @@ TEST_CASE("Iterator chaining") {
     std::array<std::array<int, 3>, 3> toFlatten{};
     CHECK(lz::equal(lz::toIter(toFlatten).flatten(), lz::repeat(0, 3 * 3)));
 
-    CHECK(lz::toIter(arr).next(1) == 1);
+    CHECK(*lz::toIter(arr).next(1) == 1);
     CHECK(lz::toIter(arr).distance() == size);
     CHECK(!lz::toIter(arr).isEmpty());
     CHECK(!lz::toIter(arr).hasOne());

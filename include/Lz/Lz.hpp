@@ -203,17 +203,6 @@ public:
         return lz::toIter(lz::flatten(*this));
     }
 
-    /**
-     * Gets the nth element from this sequence.
-     * @param n The offset.
-     * @return The element referred to by `begin() + n`
-     */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference next(const difference_type n = 1) const {
-        using lz::next;
-        using std::next;
-        return *next(Base::begin(), n);
-    }
-
     //! See FunctionTools.hpp `isEmpty` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty() const {
         return lz::isEmpty(*this);
