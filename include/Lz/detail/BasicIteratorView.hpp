@@ -186,9 +186,7 @@ private:
 
     template<class Container>
     EnableIf<HasReserve<Container>::value> tryReserve(Container& container) const {
-        using lz::distance;
-        using std::distance;
-        container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
+        container.reserve(static_cast<std::size_t>(this->distance()));
     }
 #    else
     template<class Container>
@@ -465,8 +463,6 @@ public:
     std::array<value_type, N> toArray() const {
         using lz::distance;
         using std::distance;
-        LZ_ASSERT(distance(_begin, _end) <= static_cast<internal::DiffType<LzIterator>>(N),
-                  "the iterator size is too large and/or array size is too small");
         std::array<value_type, N> cont{};
         copyTo(cont.begin());
         return cont;

@@ -39,7 +39,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Exclude<Iterator>
 excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
     using lz::distance;
     using std::distance;
-    LZ_ASSERT(distance(begin, end) - to >= 0, "cannot access elements after end or before begin");
     return { std::move(begin), std::move(end), from, to };
 }
 
