@@ -65,7 +65,7 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
 
-#    ifdef LZ_HAS_CXX_17
+#    ifdef __cpp_if_constexpr
 template<class Iterator>
 RefType<Iterator> lastImpl(Iterator begin, Iterator end) {
     if constexpr (std::is_convertible_v<IterCat<Iterator>, std::bidirectional_iterator_tag>) {
@@ -98,7 +98,7 @@ lastImpl(Iterator begin, Iterator end) {
     using std::next;
     return *next(begin, distance(begin, end) - 1);
 }
-#    endif // LZ_HAS_CXX_17
+#    endif // __cpp_if_constexpr
 } // namespace internal
 
 /**
