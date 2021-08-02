@@ -11,12 +11,6 @@ namespace lz {
 namespace internal {
 template<class Iterator>
 class TakeEveryIterator {
-    Iterator _iterator{};
-    Iterator _end{};
-    std::size_t _offset{};
-    std::size_t _current{};
-    std::size_t _distance{};
-
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -26,12 +20,54 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator(Iterator iterator, Iterator end, const std::size_t offset, const std::size_t distance) :
+    Iterator _iterator{};
+    Iterator _end{};
+    difference_type _offset{};
+
+#ifdef __cpp_if_constexpr
+    void next() {
+        if constexpr (IsRandomAccess<Iterator>::value) {
+            if (_iterator + _offset >= _end) {
+                _iterator = _end;
+            }
+            else {
+                _iterator += _offset;
+            }
+        }
+        else {
+            std::size_t count = 0;
+            while (_offset != count || _iterator != _end) {
+                ++count;
+                ++_iterator;
+            }
+        }
+    }
+#else
+    template<class T = Iterator>
+    EnableIf<IsRandomAccess<T>::value> next() {
+        if (_iterator + _offset >= _end) {
+            _iterator = _end;
+        }
+        else {
+            _iterator += _offset;
+        }
+    }
+
+    template<class T = Iterator>
+    EnableIf<!IsRandomAccess<T>::value> next() {
+        std::size_t count = 0;
+        while (_offset != count || _iterator != _end) {
+            ++count;
+            ++_iterator;
+        }
+    }
+#endif
+
+public:
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
-        _offset(offset),
-        _current(iterator == end ? distance : 0),
-        _distance(distance) {
+        _offset(offset) {
     }
 
     constexpr TakeEveryIterator() = default;
@@ -45,15 +81,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator++() {
-        using lz::next;
-        using std::next;
-        if (_current + _offset >= _distance) {
-            _iterator = _end;
-        }
-        else {
-            _iterator = next(std::move(_iterator), static_cast<difference_type>(_offset));
-            _current += _offset;
-        }
+        this->next();
         return *this;
     }
 
@@ -88,9 +116,9 @@ public:
         const auto dist = distance(_iterator, _end);
         const auto diffOffset = static_cast<difference_type>(_offset) * offset;
         if (diffOffset >= dist) {
-            return { _end, _end, _offset, 0 };
+            return { _end, _end, _offset };
         }
-        return { next(_iterator, diffOffset), _end, _offset, static_cast<std::size_t>(dist) };
+        return { next(_iterator, diffOffset), _end, _offset };
     }
 };
 } // namespace internal

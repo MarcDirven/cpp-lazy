@@ -16,9 +16,8 @@ public:
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const std::size_t offset, typename iterator::difference_type distance) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
-                                              iterator(end, end, offset, distance)) {
+    TakeEvery(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset), iterator(end, end, offset)) {
     }
 
     constexpr TakeEvery() = default;
@@ -50,7 +49,7 @@ takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> 
     using lz::next;
     using std::distance;
     using std::next;
-    return { next(begin, start), end, static_cast<std::size_t>(offset), distance(begin, end) };
+    return { next(begin, start), end, offset };
 }
 
 /**
