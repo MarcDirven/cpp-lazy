@@ -26,12 +26,12 @@ public:
 
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function, execution),
-                                              iterator(end, end, function, execution)) {
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, function, execution),
+                                              iterator(end, begin, end, function, execution)) {
     }
 #else
     Filter(Iterator begin, Iterator end, UnaryPredicate function) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, function), iterator(end, end, function)) {
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, function), iterator(end, begin, end, function)) {
     }
 #endif
 
