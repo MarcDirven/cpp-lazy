@@ -25,21 +25,22 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
 
-    LZ_CONSTEXPR_CXX_20 void find() {
+    template<class I>
+    LZ_CONSTEXPR_CXX_20 I find(I first, I last) {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::checkForwardAndPolicies<Execution,
-                                                        Iterator>()) { // prevent verbose errors when iter cat < forward
-            _iterator = std::find_if(std::move(_iterator), _end, _predicate);
+        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+            return std::find_if(std::move(first), std::move(last), _predicate);
         }
         else {
-            _iterator = std::find_if(_execution, std::move(_iterator), _end, _predicate);
+            return std::find_if(_execution, std::move(first), std::move(last), _predicate);
         }
 #else  // ^^^lz has execution vvv ! lz has execution
-        _iterator = std::find_if(std::move(_iterator), _end, _predicate);
+        return std::find_if(std::move(first), std::move(last), _predicate);
 #endif // LZ_HAS_EXECUTION
     }
 
 private:
+    Iterator _begin{};
     Iterator _iterator{};
     Iterator _end{};
     mutable FunctionContainer<UnaryPredicate> _predicate{};
@@ -49,12 +50,13 @@ private:
 
 public:
 #ifdef LZ_HAS_EXECUTION
-    LZ_CONSTEXPR_CXX_20 FilterIterator(Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
+    LZ_CONSTEXPR_CXX_20 FilterIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate function, Execution execution)
 #else  // ^^^lz has execution vvv ! lz has execution
-    FilterIterator(Iterator begin, Iterator end, UnaryPredicate function)
+    FilterIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate function)
 #endif // LZ_HAS_EXECUTION
         :
-        _iterator(std::move(begin)),
+        _begin(std::move(begin)),
+        _iterator(std::move(iterator)),
         _end(std::move(end)),
         _predicate(std::move(function))
 #ifdef LZ_HAS_EXECUTION
@@ -62,7 +64,9 @@ public:
         _execution(execution)
 #endif // LZ_HAS_EXECUTION
     {
-        find();
+        if (_iterator == _begin) {
+            _iterator = find(std::move(_iterator), _end);
+        }
     }
 
     constexpr FilterIterator() = default;
@@ -77,7 +81,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 FilterIterator& operator++() {
         ++_iterator;
-        find();
+        _iterator = find(std::move(_iterator), _end);
         return *this;
     }
 
@@ -85,6 +89,20 @@ public:
         FilterIterator tmp(*this);
         ++*this;
         return tmp;
+    }
+
+    LZ_CONSTEXPR_CXX_20 FilterIterator& operator--() {
+        std::reverse_iterator<Iterator> iterator(std::move(_iterator));
+        std::reverse_iterator<Iterator> rBegin(_begin);
+        _iterator = find(std::move(iterator), std::move(rBegin)).base();
+        --_iterator;
+        return *this;
+    }
+
+    LZ_CONSTEXPR_CXX_20 FilterIterator operator--(int) {
+        FilterIterator tmp(*this);
+        ++*this;
+        return *this;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {

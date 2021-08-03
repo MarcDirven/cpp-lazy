@@ -27,7 +27,8 @@ public:
 #ifdef __cpp_if_constexpr
     void next() {
         if constexpr (IsRandomAccess<Iterator>::value) {
-            if (_iterator + _offset >= _end) {
+            const difference_type currentDistance = _end - _iterator;
+            if (_offset >= currentDistance) {
                 _iterator = _end;
             }
             else {
@@ -45,7 +46,8 @@ public:
 #else
     template<class T = Iterator>
     EnableIf<IsRandomAccess<T>::value> next() {
-        if (_iterator + _offset >= _end) {
+        const difference_type currentDistance = _end - _iterator;
+        if (_offset >= currentDistance) {
             _iterator = _end;
         }
         else {
