@@ -34,7 +34,7 @@ public:
         _to(to) {
         using lz::next;
         using std::next;
-        if (it == begin && from == 0) {
+        if (_iterator == _begin && _from == 0) {
             _iterator = next(std::move(_iterator), _to);
             _index = _to;
         }
