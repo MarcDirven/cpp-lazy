@@ -23,53 +23,25 @@ public:
     Iterator _iterator{};
     Iterator _end{};
     difference_type _offset{};
+    difference_type _currentDistance{};
 
-#ifdef __cpp_if_constexpr
     void next() {
-        if constexpr (IsRandomAccess<Iterator>::value) {
-            const difference_type currentDistance = _end - _iterator;
-            if (_offset >= currentDistance) {
-                _iterator = _end;
-            }
-            else {
-                _iterator += _offset;
-            }
-        }
-        else {
-            std::size_t count = 0;
-            while (_offset != count || _iterator != _end) {
-                ++count;
-                ++_iterator;
-            }
-        }
-    }
-#else
-    template<class T = Iterator>
-    EnableIf<IsRandomAccess<T>::value> next() {
-        const difference_type currentDistance = _end - _iterator;
-        if (_offset >= currentDistance) {
+        if (_offset >= _currentDistance) {
             _iterator = _end;
+            _currentDistance = 0;
         }
         else {
             _iterator += _offset;
+            _currentDistance -= _offset;
         }
     }
-
-    template<class T = Iterator>
-    EnableIf<!IsRandomAccess<T>::value> next() {
-        std::size_t count = 0;
-        while (_offset != count || _iterator != _end) {
-            ++count;
-            ++_iterator;
-        }
-    }
-#endif
 
 public:
     LZ_CONSTEXPR_CXX_20 TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
-        _offset(offset) {
+        _offset(offset),
+        _currentDistance(std::distance(_iterator, _end)) {
     }
 
     constexpr TakeEveryIterator() = default;
@@ -116,7 +88,7 @@ public:
         using std::distance;
         using std::next;
         const auto dist = distance(_iterator, _end);
-        const auto diffOffset = static_cast<difference_type>(_offset) * offset;
+        const auto diffOffset = _offset * offset;
         if (diffOffset >= dist) {
             return { _end, _end, _offset };
         }
