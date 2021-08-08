@@ -258,6 +258,9 @@ using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>(
 template<class Iterable>
 using ValueTypeIterable = typename Decay<Iterable>::value_type;
 
+template<class Iterable>
+using DiffTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Iterable>>::difference_type;
+
 #    ifdef LZ_HAS_EXECUTION
 template<class T>
 struct IsSequencedPolicy : std::is_same<T, std::execution::sequenced_policy> {};
@@ -310,6 +313,12 @@ public:
         return std::addressof(_t);
     }
 };
+
+template<class T, class = int>
+struct HasSize : std::false_type {};
+
+template<class T>
+struct HasSize<T, decltype((void)std::declval<T&>().size(), 0)> : std::true_type {};
 
 template<class T, class U, class... Vs>
 struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {};
@@ -388,6 +397,16 @@ next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal:
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
+
+
+namespace internal {
+template<class Iterator>
+DiffType<Iterator> getIterLength(Iterator begin, Iterator end) {
+    using std::distance;
+    using lz::distance;
+    return distance(std::move(begin), std::move(end));
+}
+} // namespace internal
 } // namespace lz
 
 #endif // LZ_LZ_TOOLS_HPP

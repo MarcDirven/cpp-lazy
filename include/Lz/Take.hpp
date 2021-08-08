@@ -29,11 +29,8 @@ namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
-    using lz::distance;
     using lz::next;
-    using std::distance;
     using std::next;
-    LZ_ASSERT(amount <= distance(begin, end), "cannot access elements after end");
     static_cast<void>(end);
     return { begin, next(begin, amount) };
 }
@@ -63,11 +60,9 @@ take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
-    using lz::distance;
     using lz::next;
-    using std::distance;
     using std::next;
-    return takeRange(next(begin, amount), end, distance(begin, end) - amount);
+    return takeRange(next(begin, amount), end, internal::getIterLength(begin, end) - amount);
 }
 
 /**
@@ -79,7 +74,11 @@ dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amoun
 template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
 drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
-    return dropRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
+    using lz::next;
+    using std::next;
+    auto begin = std::begin(iterable);
+    auto end = std::end(iterable);
+    return takeRange(next(begin, amount), end, static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) - amount);
 }
 
 /**
@@ -157,8 +156,6 @@ takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    using lz::distance;
-    using std::distance;
     using ValueType = internal::ValueType<Iterator>;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
@@ -167,7 +164,7 @@ dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execu
     else {
         begin = std::find_if_not(execution, std::move(begin), end, std::move(predicate));
     }
-    return takeRange(begin, end, distance(begin, end));
+    return takeRange(begin, end, internal::getIterLength(begin, end));
 }
 
 /**
@@ -231,10 +228,8 @@ takeWhile(Iterable&& iterable, Function predicate) {
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 internal::BasicIteratorView<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
-    using lz::distance;
-    using std::distance;
     begin = std::find_if_not(std::move(begin), end, std::move(predicate));
-    return takeRange(begin, end, distance(begin, end));
+    return takeRange(begin, end, internal::getIterLength(begin, end));
 }
 
 /**

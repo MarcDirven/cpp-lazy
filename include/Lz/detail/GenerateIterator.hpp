@@ -9,19 +9,17 @@ namespace lz {
 namespace internal {
 template<class GeneratorFunc>
 class GenerateIterator {
-public:
-    using iterator_category = std::random_access_iterator_tag;
-    using reference = FunctionReturnType<GeneratorFunc>;
-    using value_type = Decay<reference>;
-    using difference_type = std::ptrdiff_t;
-    using pointer = FakePointerProxy<reference>;
-
-private:
     std::size_t _current{};
     mutable FunctionContainer<GeneratorFunc> _generator{};
     bool _isWhileTrueLoop{};
 
 public:
+    using iterator_category = std::random_access_iterator_tag;
+    using reference = decltype(_generator());
+    using value_type = Decay<reference>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = FakePointerProxy<reference>;
+
     constexpr GenerateIterator() = default;
 
     constexpr GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :

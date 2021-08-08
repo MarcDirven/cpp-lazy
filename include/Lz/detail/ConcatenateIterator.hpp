@@ -60,10 +60,9 @@ struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> 
 template<class Tuple, std::size_t I>
 struct MinusMinus {
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
-        using lz::distance;
-        using std::distance;
-        if (distance(std::get<I>(begin), std::get<I>(iterators)) > 0) {
-            --std::get<I>(iterators);
+        auto& current = std::get<I>(iterators);
+        if (current != std::get<I>(begin)) {
+            --current;
         }
         else {
             MinusMinus<Tuple, I - 1>()(iterators, begin, end);
@@ -83,8 +82,6 @@ struct MinIs {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-        using lz::distance;
-        using std::distance;
         using TupElem = TupleElement<I, Tuple>;
         const TupElem current = std::get<I>(iterators);
         const TupElem currentBegin = std::get<I>(begin);
@@ -93,7 +90,7 @@ struct MinIs {
             MinIs<Tuple, I - 1>()(iterators, begin, end, offset);
         }
         else {
-            const auto dist = static_cast<DifferenceType>(distance(std::get<I>(begin), std::get<I>(end)));
+            const auto dist = std::get<I>(end) - current;
             if (dist <= offset) {
                 std::get<I>(iterators) = std::get<I>(begin);
                 MinIs<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
@@ -120,19 +117,16 @@ template<class Tuple, std::size_t I, class = void>
 struct PlusIs {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
-        using lz::distance;
-        using std::distance;
         using TupElem = TupleElement<I, Tuple>;
         TupElem& currentIterator = std::get<I>(iterators);
         const TupElem currentEnd = std::get<I>(end);
-        const auto dist = static_cast<DifferenceType>(distance(currentIterator, currentEnd));
+        const auto dist = currentEnd - currentIterator;
         if (dist > offset) {
             currentIterator += offset;
         }
         else {
             // Moves to end
-            const auto toEndDistance = distance(currentIterator, currentEnd);
-            currentIterator += toEndDistance;
+            currentIterator += dist;
             PlusIs<Tuple, I + 1>()(iterators, end, offset - dist);
         }
     }
@@ -193,16 +187,15 @@ struct Deref {
 template<class Tuple, std::size_t I>
 struct MinusMinus {
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& begin, const Tuple& end) const {
-        using lz::distance;
-        using std::distance;
         if constexpr (I == 0) {
             static_cast<void>(begin);
             static_cast<void>(end);
             --std::get<0>(iterators);
         }
         else {
-            if (distance(std::get<I>(begin), std::get<I>(iterators)) > 0) {
-                --std::get<I>(iterators);
+            auto& current = std::get<I>(iterators);
+            if (current != std::get<I>(begin)) {
+                --current;
             }
             else {
                 MinusMinus<Tuple, I - 1>()(iterators, begin, end);
@@ -216,8 +209,6 @@ struct MinIs {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-        using lz::distance;
-        using std::distance;
         using TupElem = TupleElement<I, Tuple>;
 
         if constexpr (I == 0) {
@@ -234,7 +225,7 @@ struct MinIs {
                 MinIs<Tuple, I - 1>()(iterators, begin, end, offset);
             }
             else {
-                const auto dist = static_cast<DifferenceType>(distance(std::get<I>(begin), std::get<I>(end)));
+                const auto dist = std::get<I>(end) - current;
                 if (dist <= offset) {
                     std::get<I>(iterators) = std::get<I>(begin);
                     MinIs<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
@@ -263,14 +254,13 @@ struct PlusIs {
             using TupElem = TupleElement<I, Tuple>;
             TupElem& currentIterator = std::get<I>(iterators);
             const TupElem currentEnd = std::get<I>(end);
-            const auto dist = static_cast<DifferenceType>(distance(currentIterator, currentEnd));
+            const auto dist = currentEnd - currentIterator;
             if (dist > offset) {
                 currentIterator += offset;
             }
             else {
                 // Moves to end
-                const auto toEndDistance = distance(currentIterator, currentEnd);
-                currentIterator += toEndDistance;
+                currentIterator += dist;
                 PlusIs<Tuple, I + 1>()(iterators, end, offset - dist);
             }
         }

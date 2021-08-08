@@ -28,8 +28,7 @@ public:
 
 /**
  * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater
- * than greater than or equal to 2. The underlying types of the containers (i.e. `int`) may be different, but need to be able to
- * be converted to one another.
+ * than greater than or equal to 2. The underlying value types must be the same.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param begin A tuple of iterators pointing to the beginning.
  * @param end A tuple of iterators pointing to the ending.
@@ -45,8 +44,7 @@ concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
 
 /**
  * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the parameter pack must be
- * greater than or equal to 2. The underlying types of the containers (i.e. `int`) may be different, but need to be able to be
- * converted to one another.
+ * greater than or equal to 2. The underlying value types must be the same.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param iterables A parameter pack of containers/iterables.
  * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.

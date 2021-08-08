@@ -20,7 +20,7 @@
 #        define LZ_INLINE_VAR inline
 #    else // ^^^ has cxx 17 vvv !has cxx 17
 #        define LZ_INLINE_VAR
-#    endif // lz has cxx17
+#    endif // LZ_HAS_CXX_17
 
 namespace lz {
 namespace internal {
@@ -67,36 +67,32 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
 
 #    ifdef __cpp_if_constexpr
 template<class Iterator>
-RefType<Iterator> lastImpl(Iterator begin, Iterator end) {
-    if constexpr (std::is_convertible_v<IterCat<Iterator>, std::bidirectional_iterator_tag>) {
+RefType<Iterator> lastImpl(Iterator begin, Iterator end, const DiffType<Iterator> length) {
+    if constexpr (IsBidirectional<Iterator>::value) {
         static_cast<void>(begin);
+        static_cast<void>(length);
         return *--end;
     }
     else {
-        using lz::distance;
+        static_cast<void>(end);
         using lz::next;
-        using std::distance;
         using std::next;
-        return *next(begin, distance(begin, end) - 1);
+        return *next(begin, length - 1);
     }
 }
 #    else
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20
-internal::EnableIf<std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value, RefType<Iterator>>
-lastImpl(Iterator, Iterator end) {
+LZ_CONSTEXPR_CXX_20 internal::EnableIf<IsBidirectional<Iterator>::value, RefType<Iterator>>
+lastImpl(Iterator /* begin */, Iterator end, const DiffType<Iterator> /* length */) {
     return *--end;
 }
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20
-internal::EnableIf<!std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag>::value, RefType<Iterator>>
-lastImpl(Iterator begin, Iterator end) {
-    using lz::distance;
+LZ_CONSTEXPR_CXX_20 internal::EnableIf<!IsBidirectional<Iterator>::value, RefType<Iterator>>
+lastImpl(Iterator begin, Iterator, const DiffType<Iterator> length) {
     using lz::next;
-    using std::distance;
     using std::next;
-    return *next(begin, distance(begin, end) - 1);
+    return *next(begin, length - 1);
 }
 #    endif // __cpp_if_constexpr
 } // namespace internal
@@ -349,7 +345,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
     LZ_ASSERT(!isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-    return internal::lastImpl(std::move(begin), std::move(end));
+    return internal::lastImpl(begin, end, internal::getIterLength(begin, end));
 }
 
 /**
@@ -359,7 +355,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
-    return last(std::begin(iterable), std::end(iterable));
+    return internal::lastImpl(std::begin(iterable), std::end(iterable),
+                              static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()));
 }
 
 /**
@@ -493,9 +490,7 @@ template<LZ_CONCEPT_ITERATOR Iterator, class BinaryOp = std::plus<>, class Execu
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
     using ValueType = internal::ValueType<Iterator>;
-    using lz::distance;
-    using std::distance;
-    const internal::DiffType<Iterator> dist = distance(begin, end);
+    const internal::DiffType<Iterator> dist = internal::getIterLength(begin, end);
     ValueType sum;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
@@ -509,14 +504,14 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
 
 /**
  * Gets the mean of a sequence.
- * @param container The container to calculate the mean of.
+ * @param iterable The iterable to calculate the mean of.
  * @param execution The execution policy
- * @return The mean of the container.
+ * @return The mean of the iterable.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
-mean(const Iterable& container, BinaryOp binOp = {}, Execution execution = std::execution::seq) {
-    return mean(std::begin(container), std::end(container), std::move(binOp), execution);
+mean(const Iterable& iterable, BinaryOp binOp = {}, Execution execution = std::execution::seq) {
+    return mean(std::begin(iterable), std::end(iterable), std::move(binOp), execution);
 }
 
 /**
@@ -615,7 +610,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterat
 trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last,
      Execution execution = std::execution::seq) {
     auto takenFirst = dropWhileRange(std::move(begin), std::move(end), std::move(first), execution);
-    auto takenLast = dropWhile(std::move(lz::reverse(takenFirst)), std::move(last), execution);
+    auto takenLast = dropWhile(lz::reverse(std::move(takenFirst)), std::move(last), execution);
     return lz::reverse(std::move(takenLast));
 }
 
@@ -681,11 +676,9 @@ trimString(const std::string& s, Execution execution = std::execution::seq) {
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::less<>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
-    using lz::distance;
     using lz::next;
-    using std::distance;
     using std::next;
-    const internal::DiffType<Iterator> len = distance(begin, end);
+    const internal::DiffType<Iterator> len = internal::getIterLength(begin, end);
     constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
     LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
     const internal::DiffType<Iterator> mid = len / 2;
@@ -818,8 +811,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue,
                   Execution execution = std::execution::seq) {
     using CastType = internal::ValueType<Iterator>;
-    auto endReverse = std::make_reverse_iterator(std::move(end));
-    auto beginReverse = std::make_reverse_iterator(std::move(begin));
+    std::reverse_iterator<Iterator> endReverse(std::move(end));
+    std::reverse_iterator<Iterator> beginReverse(std::move(begin));
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
@@ -860,8 +853,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
                     Execution execution = std::execution::seq) {
     using CastType = internal::ValueType<Iterator>;
-    auto endReverse = std::make_reverse_iterator(std::move(end));
-    auto beginReverse = std::make_reverse_iterator(std::move(begin));
+    std::reverse_iterator<Iterator> endReverse(std::move(end));
+    std::reverse_iterator<Iterator> beginReverse(std::move(begin));
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
@@ -901,16 +894,14 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t
 indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::execution::seq) {
-    using lz::distance;
-    using std::distance;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find(begin, end, val);
-        return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
     }
     else {
         const Iterator pos = std::find(execution, begin, end, val);
-        return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
     }
 }
 
@@ -939,16 +930,14 @@ indexOf(const Iterable& iterable, const T& val, Execution execution = std::execu
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t
 indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution = std::execution::seq) {
-    using lz::distance;
-    using std::distance;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find_if(begin, end, std::move(predicate));
-        return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
     }
     else {
         const Iterator pos = std::find_if(execution, begin, end, std::move(predicate));
-        return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
     }
 }
 
@@ -1029,17 +1018,15 @@ template<class Iterator, class BinaryOp = std::plus<internal::ValueType<Iterator
 template<class Iterator, class BinaryOp = std::plus<>>
 #        endif // LZ_HAS_CXX_11
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
-    using lz::distance;
-    using std::distance;
     using ValueType = internal::ValueType<Iterator>;
-    const internal::DiffType<Iterator> dist = distance(begin, end);
+    const internal::DiffType<Iterator> dist = internal::getIterLength(begin, end);
     const ValueType sum = std::accumulate(begin, end, ValueType{ 0 }, std::move(binOp));
     return static_cast<double>(sum) / dist;
 }
 
 /**
  * Gets the mean of a sequence.
- * @param container The container to calculate the mean of.
+ * @param iterable The iterable to calculate the mean of.
  * @return The mean of the container.
  */
 #        ifdef LZ_HAS_CXX_11
@@ -1047,8 +1034,8 @@ template<class Iterable, class BinaryOp = std::plus<internal::ValueTypeIterable<
 #        else
 template<class Iterable, class BinaryOp = std::plus<>>
 #        endif // LZ_HAS_CXX_11
-double mean(const Iterable& container, BinaryOp binOp = {}) {
-    return mean(std::begin(container), std::end(container), std::move(binOp));
+double mean(const Iterable& iterable, BinaryOp binOp = {}) {
+    return mean(std::begin(iterable), std::end(iterable), std::move(binOp));
 }
 
 /**
@@ -1065,11 +1052,9 @@ template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator
 template<class Iterator, class Comparer = std::less<>>
 #        endif // LZ_HAS_CXX_11
 double median(Iterator begin, Iterator end, Comparer comparer = {}) {
-    using lz::distance;
     using lz::next;
-    using std::distance;
     using std::next;
-    const internal::DiffType<Iterator> len = distance(begin, end);
+    const internal::DiffType<Iterator> len = internal::getIterLength(begin, end);
     if (len == 0) {
         return 0.;
     }
@@ -1167,13 +1152,8 @@ findFirstOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T
  */
 template<class Iterator, class T, class U>
 internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
-#        ifdef LZ_HAS_CXX_11
-    auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
-    auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
-#        else
-    auto endReverse = std::make_reverse_iterator(std::move(end));
-    auto beginReverse = std::make_reverse_iterator(std::move(begin));
-#        endif
+    std::reverse_iterator<Iterator> endReverse(std::move(end));
+    std::reverse_iterator<Iterator> beginReverse(std::move(begin));
     const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
     return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
@@ -1202,8 +1182,8 @@ internal::ValueTypeIterable<Iterable> findLastOrDefault(const Iterable& iterable
  */
 template<class Iterator, class T, class UnaryPredicate>
 internal::ValueType<Iterator> findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
-    auto endReverse = std::reverse_iterator<Iterator>(std::move(end));
-    auto beginReverse = std::reverse_iterator<Iterator>(std::move(begin));
+    std::reverse_iterator<Iterator> endReverse(std::move(end));
+    std::reverse_iterator<Iterator> beginReverse(std::move(begin));
     const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
     return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
 }
@@ -1232,10 +1212,8 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
  */
 template<class Iterator, class T>
 std::size_t indexOf(Iterator begin, Iterator end, const T& val) {
-    using lz::distance;
-    using std::distance;
     const Iterator pos = std::find(begin, end, val);
-    return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+    return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
 }
 
 /**
@@ -1259,10 +1237,8 @@ std::size_t indexOf(const Iterable& iterable, const T& val) {
  */
 template<class Iterator, class UnaryFunc>
 std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate) {
-    using lz::distance;
-    using std::distance;
     const Iterator pos = std::find_if(begin, end, std::move(predicate));
-    return pos == end ? npos : static_cast<std::size_t>(distance(begin, pos));
+    return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
 }
 
 /**

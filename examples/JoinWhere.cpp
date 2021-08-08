@@ -26,9 +26,6 @@ int main() {
 		PaymentBill{252, 1},
 	};
 
-	/* This is not necessary, however, this will improve performance, since the second sequence will always be sorted.
-	 * Use of lz::length(customers) > lz::length(paymentBills) is also possible of course.
-	 * */
 	if (std::distance(customers.begin(), customers.end()) > std::distance(paymentBills.begin(), paymentBills.end())) {
 		std::sort(paymentBills.begin(), paymentBills.end(), [](const PaymentBill& a, const PaymentBill& b) { return a.customerId < b.customerId; });
 		auto joined = lz::joinWhere(customers, paymentBills,

@@ -11,11 +11,6 @@ namespace lz {
 namespace internal {
 template<class Iterator>
 class ChunksIterator {
-    Iterator _subRangeBegin{};
-    Iterator _subRangeEnd{};
-    Iterator _end{};
-    std::size_t _chunkSize{};
-
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -26,30 +21,34 @@ public:
     using difference_type = typename IterTraits::difference_type;
 
 private:
+    Iterator _subRangeBegin{};
+    Iterator _subRangeEnd{};
+    Iterator _end{};
+    difference_type _chunkSize{};
+    difference_type _length{};
+
     LZ_CONSTEXPR_CXX_20 void nextChunk() {
-        using lz::distance;
         using lz::next;
-        using std::distance;
         using std::next;
 
-        const auto dist = distance(_subRangeEnd, _end);
-        const auto chunkSizeSigned = static_cast<difference_type>(_chunkSize);
-
-        if (dist > chunkSizeSigned) {
-            _subRangeEnd = next(std::move(_subRangeEnd), chunkSizeSigned);
+        if (_length > _chunkSize) {
+            _subRangeEnd = next(std::move(_subRangeEnd), _chunkSize);
+            _length -= _chunkSize;
         }
         else {
             _subRangeEnd = _end;
+            _length = 0;
         }
     }
 
 public:
-    LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize) :
+    LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator begin, Iterator end, const std::size_t chunkSize, const difference_type length) :
         _subRangeBegin(begin == end ? end : begin),
         _subRangeEnd(begin == end ? end : std::move(begin)),
         _end(std::move(end)),
-        _chunkSize(chunkSize) {
-        if (begin == _end) { // end iterator
+        _chunkSize(static_cast<difference_type>(chunkSize)),
+        _length(length) {
+        if (_subRangeBegin == _end) {
             return;
         }
         nextChunk();
@@ -87,24 +86,20 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
-        using lz::distance;
-        using std::distance;
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
-        const auto dist = distance(rhs._subRangeBegin, lhs._end) / static_cast<float>(lhs._chunkSize);
+        const auto dist = getIterLength(rhs._subRangeBegin, lhs._end) / static_cast<float>(lhs._chunkSize);
         return static_cast<difference_type>(std::ceil(dist));
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
-        using lz::distance;
         using lz::next;
-        using std::distance;
         using std::next;
         ChunksIterator tmp(*this);
-        auto dist = distance(tmp._subRangeEnd, tmp._end);
+        auto dist = getIterLength(tmp._subRangeEnd, tmp._end);
         const auto totalOffset = static_cast<difference_type>(tmp._chunkSize) * offset;
         if (totalOffset >= dist) {
             tmp._subRangeEnd = tmp._end;
-            dist = distance(tmp._subRangeBegin, tmp._end);
+            dist = getIterLength(tmp._subRangeBegin, tmp._end);
             LZ_ASSERT(dist + dist > totalOffset, "cannot access elements after end");
             tmp._subRangeBegin = totalOffset >= dist ? tmp._end : next(std::move(tmp._subRangeBegin), totalOffset);
         }

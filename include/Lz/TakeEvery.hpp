@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_TAKE_EVERY_HPP
-#define LZ_TAKE_EVERY_HPP
+#    define LZ_TAKE_EVERY_HPP
 
-#include "detail/BasicIteratorView.hpp"
-#include "detail/TakeEveryIterator.hpp"
+#    include "detail/BasicIteratorView.hpp"
+#    include "detail/TakeEveryIterator.hpp"
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -15,9 +15,19 @@ public:
 
     using value_type = typename iterator::value_type;
 
+private:
+    using DiffTy = internal::DiffType<Iterator>;
+
+public:
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset), iterator(end, end, offset)) {
+    TakeEvery(Iterator begin, Iterator end, const DiffTy offset) :
+        TakeEvery(begin, end, offset, internal::getIterLength(begin, end)) {
+    }
+
+    LZ_CONSTEXPR_CXX_20
+    TakeEvery(Iterator begin, Iterator end, const DiffTy offset, const DiffTy distance) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
+                                              iterator(end, end, offset, distance)) {
     }
 
     constexpr TakeEvery() = default;
@@ -38,18 +48,16 @@ public:
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @param offset The index to add every iteration, aka the index to 'select'.
- * @param start The start indexOf, optional. Can be used to skip the first element as well.
+ * @param start The start indexOf, optional. Can be used to skip the first element as well. Optional parameter, default is 0.
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator>
 takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
-               const internal::DiffType<Iterator> start = 0) {
-    using lz::distance;
+               const internal::DiffType<Iterator> start) {
     using lz::next;
-    using std::distance;
     using std::next;
-    return { next(begin, start), end, offset };
+    return { next(std::move(begin), start), std::move(end), offset };
 }
 
 /**
@@ -65,8 +73,10 @@ takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> 
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator>
 takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const internal::DiffType<Iterator> start = 0) {
-    return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          offset, start);
+    using lz::next;
+    using std::next;
+    return { next(std::begin(iterable), start), std::end(iterable), offset,
+             static_cast<internal::DiffType<Iterator>>(iterable.size()) };
 }
 
 // End of group

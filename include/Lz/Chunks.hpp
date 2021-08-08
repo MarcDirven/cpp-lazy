@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_CHUNKS_HPP
-#define LZ_CHUNKS_HPP
+#    define LZ_CHUNKS_HPP
 
-#include "detail/ChunksIterator.hpp"
+#    include "detail/ChunksIterator.hpp"
 
 namespace lz {
 template<class Iterator>
@@ -13,8 +13,10 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    LZ_CONSTEXPR_CXX_20 Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize), iterator(end, end, chunkSize)) {
+    LZ_CONSTEXPR_CXX_20
+    Chunks(Iterator begin, Iterator end, const std::size_t chunkSize, const internal::DiffType<iterator> length) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, chunkSize, length),
+                                              iterator(end, end, chunkSize, length)) {
     }
 
     constexpr Chunks() = default;
@@ -35,7 +37,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<Iterator> chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
-    return { std::move(begin), std::move(end), chunkSize };
+    return { begin, end, chunkSize, internal::getIterLength(begin, end) };
 }
 
 /**
@@ -48,8 +50,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<Iterator> chunksRange(Iterator begin, It
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<internal::IterTypeFromIterable<Iterable>>
 chunks(Iterable&& iterable, const std::size_t chunkSize) {
-    return chunksRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                       chunkSize);
+    return { std::begin(iterable), std::end(iterable), chunkSize,
+             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) };
 }
 
 // End of group

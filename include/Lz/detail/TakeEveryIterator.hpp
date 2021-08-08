@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_TAKE_EVERY_ITERATOR_HPP
-#define LZ_TAKE_EVERY_ITERATOR_HPP
+#    define LZ_TAKE_EVERY_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#    include "LzTools.hpp"
 
-#include <cmath>
+#    include <cmath>
 
 namespace lz {
 namespace internal {
@@ -31,17 +31,18 @@ public:
             _currentDistance = 0;
         }
         else {
-            _iterator += _offset;
+            _iterator = std::next(std::move(_iterator), _offset);
             _currentDistance -= _offset;
         }
     }
 
 public:
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset) :
+    LZ_CONSTEXPR_CXX_20
+    TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset, const difference_type distance) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
         _offset(offset),
-        _currentDistance(std::distance(_iterator, _end)) {
+        _currentDistance(distance) {
     }
 
     constexpr TakeEveryIterator() = default;
@@ -75,24 +76,20 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
-        using lz::distance;
-        using std::distance;
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
-        const auto dist = distance(b._iterator, a._iterator) / static_cast<float>(a._offset);
+        const auto dist = getIterLength(b._iterator, a._iterator) / static_cast<float>(a._offset);
         return static_cast<difference_type>(std::ceil(dist));
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEveryIterator operator+(const difference_type offset) const {
-        using lz::distance;
         using lz::next;
-        using std::distance;
         using std::next;
-        const auto dist = distance(_iterator, _end);
+        const auto dist = getIterLength(_iterator, _end);
         const auto diffOffset = _offset * offset;
         if (diffOffset >= dist) {
-            return { _end, _end, _offset };
+            return { _end, _end, _offset, dist };
         }
-        return { next(_iterator, diffOffset), _end, _offset };
+        return { next(_iterator, diffOffset), _end, _offset, dist };
     }
 };
 } // namespace internal
