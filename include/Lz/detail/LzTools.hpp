@@ -259,7 +259,7 @@ template<class Iterable>
 using ValueTypeIterable = typename Decay<Iterable>::value_type;
 
 template<class Iterable>
-using DiffTypeIterable = typename decltype(begin(std::declval<Iterable>()))::difference_type;
+using DiffTypeIterable = typename std::iterator_traits<decltype(begin(std::declval<Iterable>()))>::difference_type;
 
 #    ifdef LZ_HAS_EXECUTION
 template<class T>
