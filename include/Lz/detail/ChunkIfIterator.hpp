@@ -70,7 +70,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
-        return reference(_subRangeBegin, _subRangeEnd);
+        return { _subRangeBegin, _subRangeEnd };
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
