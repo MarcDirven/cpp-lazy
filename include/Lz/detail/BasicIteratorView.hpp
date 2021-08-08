@@ -169,7 +169,7 @@ protected:
     LzIterator _end{};
 
 public:
-    using value_type = internal::ValueType<LzIterator>;
+    using value_type = ValueType<LzIterator>;
     using iterator = LzIterator;
     using reference = decltype(*_begin);
     using const_reference = std::add_const<reference>();
@@ -177,7 +177,7 @@ public:
 
 private:
     template<class KeySelectorFunc>
-    using KeyType = FunctionReturnType<KeySelectorFunc, internal::RefType<LzIterator>>;
+    using KeyType = FunctionReturnType<KeySelectorFunc, RefType<LzIterator>>;
 
 #    ifndef __cpp_if_constexpr
     template<class Container>
