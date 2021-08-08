@@ -32,7 +32,7 @@ LZ_CONSTEXPR_CXX_20 void doGetLengthFromIterators(const Tuple& begin, const Tupl
 
 template<class DiffTy, class... Iterators>
 LZ_CONSTEXPR_CXX_20 void
-getLengthFromIterators(const std::tuple<Iterators...>& begin, std::tuple<Iterators...>& end, DiffTy* lengths) {
+getLengthFromIterators(const std::tuple<Iterators...>& begin, const std::tuple<Iterators...>& end, DiffTy* lengths) {
     doGetLengthFromIterators(begin, end, lengths, MakeIndexSequence<sizeof...(Iterators)>());
 }
 
