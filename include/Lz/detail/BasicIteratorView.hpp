@@ -118,14 +118,12 @@ doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, c
 #    else
 doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) {
 #    endif // LZ_HAS_FORMAT
-    if (delimiter == "") {
+    if (delimiter.size() == 0) {
         return std::string(b, e);
     }
     std::string result;
 
-    using lz::distance;
-    using std::distance;
-    const auto len = static_cast<std::size_t>(distance(b, e));
+    const auto len = static_cast<std::size_t>(getIterLength(b, e));
     result.reserve(len + delimiter.size() * len + 1);
 
 #    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
@@ -173,6 +171,8 @@ protected:
 public:
     using value_type = internal::ValueType<LzIterator>;
     using iterator = LzIterator;
+    using reference = decltype(*_begin);
+    using const_reference = std::add_const<reference>();
     using const_iterator = iterator;
 
 private:
@@ -186,15 +186,13 @@ private:
 
     template<class Container>
     EnableIf<HasReserve<Container>::value> tryReserve(Container& container) const {
-        container.reserve(static_cast<std::size_t>(this->distance()));
+        container.reserve(size());
     }
 #    else
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
         if constexpr (HasReserve<Container>::value) {
-            using lz::distance;
-            using std::distance;
-            container.reserve(static_cast<std::size_t>(distance(_begin, _end)));
+            container.reserve(size());
         }
     }
 #    endif // __cpp_if_constexpr
@@ -283,9 +281,7 @@ public:
         else {
             static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel "
                                                        " algorithms. Use std::execution::seq instead");
-            using lz::distance;
-            using std::distance;
-            container.resize(distance(_begin, _end));
+            container.resize(size());
             copyTo(container.begin(), execution);
         }
         return container;
@@ -507,9 +503,7 @@ public:
     toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& alloc = {}, const KeyEquality& cmp = {},
                    const Hasher& h = {}) const {
         using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>;
-        using lz::distance;
-        using std::distance;
-        UnorderedMap um(static_cast<std::size_t>(distance(_begin, _end)), h, cmp, alloc);
+        UnorderedMap um(static_cast<std::size_t>(internal::getIterLength(_begin, _end)), h, cmp, alloc);
         createMap(um, keyGen);
         return um;
     }
@@ -547,9 +541,15 @@ public:
      * @return The length of the view.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::DiffType<LzIterator> distance() const {
-        using lz::distance;
-        using std::distance;
-        return distance(_begin, _end);
+        return getIterLength(_begin, _end);
+    }
+
+    /**
+     * Returns the length of the view. Equal to `static_cast<size_t>(view.distance())`
+     * @return The length of the view.
+     */
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t size() const {
+        return static_cast<std::size_t>(distance());
     }
 
     /**
@@ -557,7 +557,7 @@ public:
      * @param n The offset.
      * @return The element referred to by `begin() + n`
      */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator next(const internal::DiffType<LzIterator> n) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator next(const internal::DiffType<LzIterator> n = 1) const {
         using lz::next;
         using std::next;
         return next(_begin, n);

@@ -1,15 +1,12 @@
 #pragma once
 
 #ifndef LZ_ENUMERATE_HPP
-#define LZ_ENUMERATE_HPP
+#    define LZ_ENUMERATE_HPP
 
-#include "detail/BasicIteratorView.hpp"
-#include "detail/EnumerateIterator.hpp"
+#    include "detail/BasicIteratorView.hpp"
+#    include "detail/EnumerateIterator.hpp"
 
 namespace lz {
-using lz::distance;
-using std::distance;
-
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
 class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {
 public:
@@ -19,7 +16,12 @@ public:
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
-        internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance(begin, end)), end)) {
+        Enumerate(begin, end, static_cast<IntType>(internal::getIterLength(begin, end), start)) {
+    }
+
+    LZ_CONSTEXPR_CXX_20
+    Enumerate(Iterator begin, Iterator end, const internal::DiffType<iterator> distance, const IntType start = 0) :
+        internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance), end)) {
     }
 
     constexpr Enumerate() = default;
@@ -46,9 +48,9 @@ public:
 template<LZ_CONCEPT_INTEGRAL Arithmetic = int, LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<Iterator, Arithmetic>
 enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
-#ifndef LZ_HAS_CONCEPTS
+#    ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
-#endif
+#    endif
     return { std::move(begin), std::move(end), start };
 }
 
@@ -68,8 +70,8 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
-    return enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          start);
+    return { internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()), start };
 }
 
 // End of group

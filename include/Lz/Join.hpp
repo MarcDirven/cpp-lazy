@@ -53,9 +53,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
-    using lz::distance;
-    using std::distance;
-    return { std::move(begin), std::move(end), std::move(delimiter), distance(begin, end) * 2 - 1 };
+    return { std::move(begin), std::move(end), std::move(delimiter), internal::getIterLength(begin, end) * 2 - 1 };
 }
 
 /**
@@ -69,8 +67,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterat
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
-    return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                     std::move(delimiter));
+    return { std::begin(iterable), std::end(iterable), std::move(delimiter),
+             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) * 2 - 1 };
 }
 
 /**
@@ -113,9 +111,8 @@ std::string strJoin(Iterable&& iterable, const StringView& delimiter = "") {
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator>
 joinRange(Iterator begin, Iterator end, std::string delimiter, std::string fmt = "{}") {
-    using lz::distance;
-    using std::distance;
-    return { std::move(begin), std::move(end), std::move(delimiter), std::move(fmt), distance(begin, end) * 2 - 1 };
+    return { std::move(begin), std::move(end), std::move(delimiter), std::move(fmt),
+             internal::getIterLength(begin, end) * 2 - 1 };
 }
 
 /**
@@ -131,8 +128,8 @@ joinRange(Iterator begin, Iterator end, std::string delimiter, std::string fmt =
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>>
 join(Iterable&& iterable, std::string delimiter, std::string fmt = "{}") {
-    return joinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                     std::move(delimiter), std::move(fmt));
+    return { std::begin(iterable), std::end(iterable), std::move(delimiter), std::move(fmt),
+             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) * 2 - 1 };
 }
 
 /**

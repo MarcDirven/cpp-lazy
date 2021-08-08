@@ -63,12 +63,10 @@ private:
 
     template<std::size_t I, EnableIf<(I > 0), bool> = true>
     void operatorPlusImpl(CartesianProductIterator& tmp, const difference_type offset) const {
-        using lz::distance;
         using lz::next;
-        using std::distance;
         using std::next;
         auto& iterator = std::get<I>(tmp._iterator);
-        const auto dist = distance(iterator, std::get<I>(tmp._end));
+        const auto dist = getIterLength(iterator, std::get<I>(tmp._end));
         const auto offsets = std::lldiv(offset, static_cast<long long>(dist));
         iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
         operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(offsets.quot));
@@ -103,9 +101,7 @@ private:
             iterator = next(std::move(iterator), offset);
         }
         else {
-            using lz::distance;
-            using std::distance;
-            const auto dist = distance(iterator, std::get<I>(tmp._end));
+            const auto dist = getIterLength(iterator, std::get<I>(tmp._end));
             const auto [quot, rem] = std::lldiv(offset, static_cast<long long>(dist));
             iterator = next(std::move(iterator), static_cast<difference_type>(rem));
             operatorPlusImpl<I - 1>(tmp, static_cast<difference_type>(quot));
@@ -120,15 +116,13 @@ private:
 
     template<std::size_t... Is>
     LZ_CONSTEXPR_CXX_20 difference_type distanceImpl(IndexSequence<Is...>, const CartesianProductIterator& c) const {
-        using lz::distance;
-        using std::distance;
 #ifdef LZ_HAS_CXX_11
         auto mulFn = std::multiplies<difference_type>();
 #else
         const auto mulFn = std::multiplies<>();
 #endif // LZ_HAS_CXX_11
         const difference_type distances[] = { static_cast<difference_type>(
-            distance(std::get<Is>(_iterator), std::get<Is>(c._iterator)))... };
+            getIterLength(std::get<Is>(_iterator), std::get<Is>(c._iterator)))... };
         return std::accumulate(std::begin(distances), std::end(distances), difference_type{ 1 }, mulFn);
     }
 
