@@ -1,24 +1,24 @@
 #pragma once
 
 #ifndef LZ_LZ_HPP
-#define LZ_LZ_HPP
+#    define LZ_LZ_HPP
 
-#include "Lz/CartesianProduct.hpp"
-#include "Lz/ChunkIf.hpp"
-#include "Lz/Chunks.hpp"
-#include "Lz/Enumerate.hpp"
-#include "Lz/Except.hpp"
-#include "Lz/Exclude.hpp"
-#include "Lz/Flatten.hpp"
-#include "Lz/FunctionTools.hpp"
-#include "Lz/Generate.hpp"
-#include "Lz/GroupBy.hpp"
-#include "Lz/JoinWhere.hpp"
-#include "Lz/Random.hpp"
-#include "Lz/Range.hpp"
-#include "Lz/Repeat.hpp"
-#include "Lz/TakeEvery.hpp"
-#include "Lz/Unique.hpp"
+#    include "Lz/CartesianProduct.hpp"
+#    include "Lz/ChunkIf.hpp"
+#    include "Lz/Chunks.hpp"
+#    include "Lz/Enumerate.hpp"
+#    include "Lz/Except.hpp"
+#    include "Lz/Exclude.hpp"
+#    include "Lz/Flatten.hpp"
+#    include "Lz/FunctionTools.hpp"
+#    include "Lz/Generate.hpp"
+#    include "Lz/GroupBy.hpp"
+#    include "Lz/JoinWhere.hpp"
+#    include "Lz/Random.hpp"
+#    include "Lz/Range.hpp"
+#    include "Lz/Repeat.hpp"
+#    include "Lz/TakeEvery.hpp"
+#    include "Lz/Unique.hpp"
 // Function tools includes:
 // Concatenate.hpp
 // Filter.hpp
@@ -29,7 +29,7 @@
 // Zip.hpp
 
 namespace lz {
-#ifndef LZ_HAS_CXX_EXECUTION
+#    ifndef LZ_HAS_CXX_EXECUTION
 namespace internal {
 template<class Iterator, class T, class BinOp>
 T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
@@ -40,7 +40,7 @@ T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
     return init;
 }
 } // namespace internal
-#endif // LZ_HAS_CXX_17
+#    endif // LZ_HAS_CXX_EXECUTION
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 class IterView;
@@ -68,7 +68,7 @@ LZ_CONSTEXPR_CXX_20 IterView<Iterator> toIterRange(Iterator begin, Iterator end)
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> toIter(Iterable&& iterable) {
-    return lz::toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    return toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 // End of group
@@ -99,94 +99,94 @@ public:
     LZ_NODISCARD
         LZ_CONSTEXPR_CXX_20 IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         concat(Iterables&&... iterables) const {
-        return lz::toIter(lz::concat(*this, std::forward<Iterables>(iterables)...));
+        return toIter(lz::concat(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See Enumerate.hpp for documentation.
     template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::EnumerateIterator<Iterator, Arithmetic>>
     enumerate(const Arithmetic begin = 0) const {
-        return lz::toIter(lz::enumerate(*this, begin));
+        return toIter(lz::enumerate(*this, begin));
     }
 
     //! See Exclude.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ExcludeIterator<Iterator>>
     exclude(const difference_type from, const difference_type to) const {
-        return lz::toIter(lz::exclude(*this, from, to));
+        return toIter(lz::exclude(*this, from, to));
     }
 
     //! See Join.hpp for documentation.
     LZ_NODISCARD IterView<internal::JoinIterator<Iterator>> join(std::string delimiter) const {
-        return lz::toIter(lz::join(*this, std::move(delimiter)));
+        return toIter(lz::join(*this, std::move(delimiter)));
     }
 
     //! See Map.hpp for documentation
     template<class UnaryFunction>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, UnaryFunction>>
     map(UnaryFunction unaryFunction) const {
-        return lz::toIter(lz::map(*this, std::move(unaryFunction)));
+        return toIter(lz::map(*this, std::move(unaryFunction)));
     }
 
     //! See Take.hpp for documentation.
     template<class UnaryPredicate>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> takeWhile(UnaryPredicate predicate) const {
-        return lz::toIter(lz::takeWhile(*this, std::move(predicate)));
+        return toIter(lz::takeWhile(*this, std::move(predicate)));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> take(const difference_type amount) const {
-        return lz::toIter(lz::take(*this, amount));
+        return toIter(lz::take(*this, amount));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> drop(const difference_type amount) const {
-        return lz::toIter(lz::drop(*this, amount));
+        return toIter(lz::drop(*this, amount));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> slice(const difference_type from, const difference_type to) const {
-        return lz::toIter(lz::slice(*this, from, to));
+        return toIter(lz::slice(*this, from, to));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator>>
     takeEvery(const difference_type offset, const difference_type start = 0) const {
-        return lz::toIter(lz::takeEvery(*this, offset, start));
+        return toIter(lz::takeEvery(*this, offset, start));
     }
 
     //! See Chunks.hpp for documentation
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
-        return lz::toIter(lz::chunks(*this, chunkSize));
+        return toIter(lz::chunks(*this, chunkSize));
     }
 
     //! See Zip.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
     zip(Iterables&&... iterables) const {
-        return lz::toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
+        return toIter(lz::zip(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See FunctionTools.hpp `zipWith` for documentation
     template<class Fn, class... Iterables>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables) const
         -> IterView<decltype(std::begin(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...)))> {
-        return lz::toIter(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...));
+        return toIter(lz::zipWith(std::move(fn), *this, std::forward<Iterables>(iterables)...));
     }
 
     //! See FunctionTools.hpp `as` for documentation.
     template<class T>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {
-        return lz::toIter(lz::as<T>(*this));
+        return toIter(lz::as<T>(*this));
     }
 
     //! See FunctionTools.hpp `reverse` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<std::reverse_iterator<Iterator>> reverse() const {
-        return lz::toIter(lz::reverse(*this));
+        return toIter(lz::reverse(*this));
     }
 
     //! See FunctionTools.hpp `reverse` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
-        return lz::toIter(lz::pairwise(*this));
+        return toIter(lz::pairwise(*this));
     }
 
     //! See CartesianProduct.hpp for documentation
@@ -194,13 +194,13 @@ public:
     LZ_NODISCARD
         LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
         cartesian(Iterables&&... iterables) const {
-        return lz::toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
+        return toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See Flatten.hpp for documentation
     template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FlattenIterator<Iterator, N>> flatten() const {
-        return lz::toIter(lz::flatten(*this));
+        return toIter(lz::flatten(*this));
     }
 
     //! See FunctionTools.hpp `isEmpty` for documentation.
@@ -240,12 +240,12 @@ public:
         return lz::lastOr(*this, defaultValue);
     }
 
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
     //! See Filter.hpp for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>>
     filter(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::filter(*this, std::move(predicate), execution));
+        return toIter(lz::filter(*this, std::move(predicate), execution));
     }
 
     //! See Except.hpp for documentation.
@@ -253,21 +253,21 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
         IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
         except(IterableToExcept&& toExcept, Compare compare = {}, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::except(*this, toExcept, std::move(compare), execution));
+        return toIter(lz::except(*this, toExcept, std::move(compare), execution));
     }
 
     //! See Unique.hpp for documentation.
     template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::UniqueIterator<Execution, Iterator, Compare>>
     unique(Compare compare = {}, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::unique(*this, std::move(compare), execution));
+        return toIter(lz::unique(*this, std::move(compare), execution));
     }
 
     //! See ChunkIf.hpp for documentation
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>>
     chunkIf(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::chunkIf(*this, std::move(predicate), execution));
+        return toIter(lz::chunkIf(*this, std::move(predicate), execution));
     }
 
     //! See FunctionTools.hpp `filterMap` for documentation.
@@ -275,13 +275,13 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
         IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
         filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc), execution));
+        return toIter(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc), execution));
     }
 
     //! See FunctionTools.hpp `select` for documentation.
     template<class SelectorIterable, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto select(SelectorIterable&& selectors, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors), execution));
+        return toIter(lz::select(*this, std::forward<SelectorIterable>(selectors), execution));
     }
 
     //! See JoinWhere.hpp for documentation
@@ -291,29 +291,29 @@ public:
                                                                           SelectorA, SelectorB, ResultSelector, Execution>>
     joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
               Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
+        return toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
     }
 
     //! See Take.hpp for documentation
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator>
     dropWhile(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::dropWhile(*this, std::move(predicate), execution));
+        return toIter(lz::dropWhile(*this, std::move(predicate), execution));
     }
 
     //! See GroupBy.hpp for documentation
     template<class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::GroupByIterator<Iterator, Comparer, Execution>>
     groupBy(Comparer comparer = {}, Execution execution = std::execution::seq) const {
-        return lz::toIter(lz::groupBy(*this, std::move(comparer), execution));
+        return toIter(lz::groupBy(*this, std::move(comparer), execution));
     }
 
     //! See FunctionTools.hpp `trim` for documentation
     template<class UnaryPredicateFirst, class UnaryPredicateLast, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto
     trim(UnaryPredicateFirst first, UnaryPredicateLast last, Execution execution = std::execution::seq) const
-        -> decltype(lz::toIter(lz::trim(*this, std::move(first), std::move(last), execution))) {
-        return lz::toIter(lz::trim(*this, std::move(first), std::move(last), execution));
+        -> decltype(toIter(lz::trim(*this, std::move(first), std::move(last), execution))) {
+        return toIter(lz::trim(*this, std::move(first), std::move(last), execution));
     }
 
     //! See FunctionTools.hpp `findFirstOrDefault` for documentation.
@@ -370,6 +370,28 @@ public:
     }
 
     /**
+     * Checks if two views/iterables are equal.
+     * @param other The other view/iterable to compare with
+     * @param compare The comparer, default is `operator==`
+     * @param execution The execution policy. Must be one of `std::execution::*` tags.
+     * @return
+     */
+    template<class Iterable, class BinaryCompare = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+    bool equal(const Iterable& other, BinaryCompare compare = {}, Execution execution = std::execution::seq) const {
+        return lz::equal(*this, other, std::move(compare), execution);
+    }
+
+    template<class Iterable, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+    bool startsWith(const Iterable& iterable, BinaryPredicate compare = {}, Execution execution = std::execution::seq) const {
+        return lz::startsWith(*this, iterable, std::move(compare), execution);
+    }
+
+    template<class Iterable, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
+    bool endsWith(const Iterable& iterable, BinaryPredicate compare = {}, Execution execution = std::execution::seq) const {
+        return lz::endsWith(*this, iterable, std::move(compare), execution);
+    }
+
+    /**
      * Iterates over the sequence generated so far.
      * @param func A function to apply over each element. Must have the following signature: `void func(value_type)`
      * @param execution The execution policy.
@@ -411,7 +433,7 @@ public:
      */
     template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 T foldr(T&& init, BinaryFunction function, Execution execution = std::execution::seq) const {
-        auto reverseView = lz::reverse(*this);
+        auto reverseView = reverse();
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::reduce(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
@@ -597,45 +619,45 @@ public:
             return std::is_sorted(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
-#else // ^^^ lz has execution vvv ! lz has execution
+#    else // ^^^ lz has execution vvv ! lz has execution
 
     //! See Filter.hpp for documentation
     template<class UnaryPredicate>
     IterView<internal::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
-        return lz::toIter(lz::filter(*this, std::move(predicate)));
+        return toIter(lz::filter(*this, std::move(predicate)));
     }
 
     //! See Except.hpp for documentation
     template<class IterableToExcept, class Compare = std::less<value_type>>
     IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
     except(IterableToExcept&& toExcept, Compare compare = {}) const {
-        return lz::toIter(lz::except(*this, toExcept, std::move(compare)));
+        return toIter(lz::except(*this, toExcept, std::move(compare)));
     }
 
     //! See Unique.hpp for documentation
     template<class Compare = std::less<value_type>>
     IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
-        return lz::toIter(lz::unique(*this, std::move(compare)));
+        return toIter(lz::unique(*this, std::move(compare)));
     }
 
     //! See ChunkIf.hpp for documentation
     template<class UnaryPredicate>
     IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> chunkIf(UnaryPredicate predicate) const {
-        return lz::toIter(lz::chunkIf(*this, std::move(predicate)));
+        return toIter(lz::chunkIf(*this, std::move(predicate)));
     }
 
     //! See FunctionTools.hpp `filterMap` for documentation
     template<class UnaryMapFunc, class UnaryFilterFunc>
     IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>>
     filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) const {
-        return lz::toIter(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc)));
+        return toIter(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc)));
     }
 
     //! See FunctionTools.hpp `select` for documentation
     template<class SelectorIterable>
     auto select(SelectorIterable&& selectors) const
-        -> decltype(lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)))) {
-        return lz::toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)));
+        -> decltype(toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)))) {
+        return toIter(lz::select(*this, std::forward<SelectorIterable>(selectors)));
     }
 
     //! See JoinWhere.hpp for documentation
@@ -643,26 +665,26 @@ public:
     LZ_CONSTEXPR_CXX_20 IterView<
         internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>>
     joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
-        return lz::toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
+        return toIter(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
     }
 
     //! See Take.hpp for documentation
     template<class UnaryPredicate>
     IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
-        return lz::toIter(lz::dropWhile(*this, std::move(predicate)));
+        return toIter(lz::dropWhile(*this, std::move(predicate)));
     }
 
     //! See GroupBy.hpp for documentation
     template<class Comparer = std::equal_to<value_type>>
     IterView<internal::GroupByIterator<Iterator, Comparer>> groupBy(Comparer comparer = {}) const {
-        return lz::toIter(lz::groupBy(*this, std::move(comparer)));
+        return toIter(lz::groupBy(*this, std::move(comparer)));
     }
 
     //! See FunctionTools.hpp `trim` for documentation
     template<class UnaryPredicateFirst, class UnaryPredicateLast>
     auto trim(UnaryPredicateFirst first, UnaryPredicateLast last) const
-        -> decltype(lz::toIter(lz::trim(*this, std::move(first), std::move(last)))) {
-        return lz::toIter(lz::trim(*this, std::move(first), std::move(last)));
+        -> decltype(toIter(lz::trim(*this, std::move(first), std::move(last)))) {
+        return toIter(lz::trim(*this, std::move(first), std::move(last)));
     }
 
     //! See FunctionTools.hpp `findFirstOrDefault` for documentation
@@ -714,6 +736,39 @@ public:
     }
 
     /**
+     * Checks if two views/iterables are equal.
+     * @param other The other view/iterable to compare with
+     * @param compare The comparer, default is `operator==`
+     * @return
+     */
+#        ifdef LZ_HAS_CXX_11
+    template<class Iterable, class Compare = std::equal_to<value_Type>>
+#        else
+    template<class Iterable, class BinaryPredicate = std::equal_to<>>
+#        endif
+    bool equal(const Iterable& other, BinaryPredicate compare = {}) const {
+        return lz::equal(*this, other, std::move(compare));
+    }
+
+#        ifdef LZ_HAS_CXX_11
+    template<class Iterable, class Compare = std::equal_to<value_Type>>
+#        else
+    template<class Iterable, class BinaryPredicate = std::equal_to<>>
+#        endif
+    bool startsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
+        return lz::startsWith(*this, iterable, std::move(compare));
+    }
+
+#        ifdef LZ_HAS_CXX_11
+    template<class Iterable, class Compare = std::equal_to<value_Type>>
+#        else
+    template<class Iterable, class BinaryPredicate = std::equal_to<>>
+#        endif
+    bool endsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
+        return lz::endsWith(*this, iterable, std::move(compare));
+    }
+
+    /**
      * Iterates over the sequence generated so far.
      * @param func A function to apply over each element. Must have the following signature: `void func(value_type)`
      */
@@ -742,7 +797,7 @@ public:
      */
     template<class T, class BinaryFunction>
     T foldr(T&& init, BinaryFunction function) const {
-        auto reverseView = lz::reverse(*this);
+        auto reverseView = reverse();
         return internal::accumulate(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
                                     std::forward<T>(init), std::move(function));
     }
@@ -751,11 +806,11 @@ public:
      * Sums the sequence generated so far.
      */
     value_type sum() const {
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
         return this->foldl(value_type(), [](value_type init, const value_type& val) { return std::move(init) + val; });
-#else
+#        else
         return this->foldl(value_type(), std::plus<>());
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     }
 
     /**
@@ -763,11 +818,11 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The max element.
      */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class Compare = std::less<value_type>>
-#else
+#        else
     template<class Compare = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     reference max(Compare cmp = {}) const {
         LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
         return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
@@ -778,32 +833,32 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The min element.
      */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class Compare = std::less<value_type>>
-#else
+#        else
     template<class Compare = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     reference min(Compare cmp = {}) const {
         LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
         return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
     }
 
     //! See FunctionTools.hpp for documentation
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class BinaryOp = std::plus<value_type>>
-#else
+#        else
     template<class BinaryOp = std::plus<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     double mean(BinaryOp binOp = {}) const {
         return lz::mean(*this, std::move(binOp));
     }
 
     //! See FunctionTools.hpp for documentation
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class Compare = std::less<value_type>>
-#else
+#        else
     template<class Compare = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     double median(Compare compare = {}) const {
         return lz::median(*this, std::move(compare));
     }
@@ -862,11 +917,11 @@ public:
      * Sorts the sequence with the default (operator<) comparer.
      * @return A reference to this.
      */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class Comparer = std::less<value_type>>
-#else
+#        else
     template<class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     IterView<Iterator>& sort(Comparer comparer = {}) {
         std::sort(Base::begin(), Base::end(), std::move(comparer));
         return *this;
@@ -876,16 +931,16 @@ public:
      * Checks whether the sequence is sorted, using the standard (operator<) compare.
      * @return True if the sequence is sorted given by the `predicate` false otherwise.
      */
-#ifdef LZ_HAS_CXX_11
+#        ifdef LZ_HAS_CXX_11
     template<class Comparer = std::less<value_type>>
-#else
+#        else
     template<class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
+#        endif // LZ_HAS_CXX_11
     bool isSorted(Comparer comparer = {}) const {
         return std::is_sorted(Base::begin(), Base::end(), std::move(comparer));
     }
 
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
 };
 } // namespace lz
 
