@@ -1004,6 +1004,45 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
+
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
+                Execution execution = std::execution::seq) {
+    if constexpr (internal::checkForwardAndPolicies<Execution, IteratorA>()) {
+        return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
+    }
+    else {
+        static_assert(internal::IsForwardOrStrongerV<IteratorB>,
+                      "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+        return std::search(execution, std::move(beginA), std::move(endA), std::move(beginB), std::move(endB),
+                           std::move(compare)) != endA;
+    }
+}
+
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
+    return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
+}
+
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
+              Execution execution = std::execution::seq) {
+    std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
+    std::reverse_iterator<IteratorA> revBegA(std::move(endA));
+    std::reverse_iterator<IteratorB> revEndB(std::move(beginB));
+    std::reverse_iterator<IteratorB> revBegB(std::move(endB));
+    return startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare),
+                      execution);
+}
+
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
+    return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
+}
 #    else // ^^^ Lz has execution vvv !Lz has execution
 
 /**
@@ -1297,6 +1336,48 @@ bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate) {
 template<class Iterable, class BinaryPredicate>
 bool containsIf(const Iterable& iterable, BinaryPredicate predicate) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
+#        else
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
+    return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IterableA, class IterableB,
+         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
+#        else
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
+    return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
+#        else
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
+    std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
+    std::reverse_iterator<IteratorA> revBegA(std::move(endA));
+    std::reverse_iterator<IteratorB> revEndB(std::move(beginB));
+    std::reverse_iterator<IteratorB> revBegB(std::move(endB));
+    return startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IterableA, class IterableB,
+         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
+#        else
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
+    return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
 
 /**
