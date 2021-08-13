@@ -53,7 +53,6 @@ private:
     std::string _fmt{};
 #endif
     mutable bool _isIteratorTurn{ true };
-    difference_type _distance{};
 
     reference deref(std::false_type /* isSameContainerTypeString */) const {
         if (_isIteratorTurn) {
@@ -94,20 +93,18 @@ private:
 public:
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     LZ_CONSTEXPR_CXX_20
-    JoinIterator(Iterator iterator, std::string delimiter, std::string fmt, const bool isIteratorTurn, const difference_type distance) :
+    JoinIterator(Iterator iterator, std::string delimiter, std::string fmt, const bool isIteratorTurn) :
         _iterator(std::move(iterator)),
         _delimiter(std::move(delimiter)),
         _fmt(std::move(fmt)),
-        _isIteratorTurn(isIteratorTurn),
-        _distance(distance) {
+        _isIteratorTurn(isIteratorTurn) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
-    JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn, const difference_type distance) :
+    JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn) :
         _iterator(std::move(iterator)),
         _delimiter(std::move(delimiter)),
-        _isIteratorTurn(isIteratorTurn),
-        _distance(distance) {
+        _isIteratorTurn(isIteratorTurn) {
     }
 #endif // has format
 
@@ -150,7 +147,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 JoinIterator& operator+=(const difference_type offset) {
-        _iterator += offset == 1 ? 1 : offset == _distance ? (offset >> 1) + 1 : offset >> 1;
+        _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, 2) * -1 : roundEven<difference_type>(offset, 2);
         if (!isEven(offset)) {
             _isIteratorTurn = !_isIteratorTurn;
         }
@@ -158,16 +155,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 JoinIterator& operator-=(const difference_type offset) {
-        if (offset == 1) {
-            _iterator -= 1;
-        }
-        else {
-            _iterator -= (offset >> 1);
-        }
-        if (!isEven(offset)) {
-            _isIteratorTurn = !_isIteratorTurn;
-        }
-        return *this;
+        return *this += -offset;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinIterator operator+(const difference_type offset) const {

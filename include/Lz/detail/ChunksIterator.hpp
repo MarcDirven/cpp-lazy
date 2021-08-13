@@ -87,8 +87,8 @@ public:
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
-        const auto dist = getIterLength(rhs._subRangeBegin, lhs._end) / static_cast<float>(lhs._chunkSize);
-        return static_cast<difference_type>(std::ceil(dist));
+        const auto dist = getIterLength(rhs._subRangeBegin, lhs._end);
+        return roundEven(dist, lhs._chunkSize);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
@@ -96,7 +96,7 @@ public:
         using std::next;
         ChunksIterator tmp(*this);
         auto dist = getIterLength(tmp._subRangeEnd, tmp._end);
-        const auto totalOffset = static_cast<difference_type>(tmp._chunkSize) * offset;
+        const auto totalOffset = tmp._chunkSize * offset;
         if (totalOffset >= dist) {
             tmp._subRangeEnd = tmp._end;
             dist = getIterLength(tmp._subRangeBegin, tmp._end);
