@@ -15,15 +15,15 @@ public:
     using value_type = typename iterator::value_type;
 
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, Iterator end, std::string delimiter, const internal::DiffType<Iterator> difference) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true, difference),
-                                              iterator(std::move(end), delimiter, false, difference)) {
+    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, Iterator end, std::string delimiter) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true),
+                                              iterator(std::move(end), delimiter, false)) {
     }
 #    else
     LZ_CONSTEXPR_CXX_20
-    Join(Iterator begin, Iterator end, std::string delimiter, std::string fmt, const internal::DiffType<Iterator> difference) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, fmt, true, difference),
-                                              iterator(std::move(end), delimiter, fmt, false, difference)) {
+    Join(Iterator begin, Iterator end, std::string delimiter, std::string fmt) :
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, fmt, true),
+                                              iterator(std::move(end), delimiter, fmt, false)) {
     }
 #    endif // has format
 
@@ -53,7 +53,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterator end, std::string delimiter) {
-    return { std::move(begin), std::move(end), std::move(delimiter), internal::getIterLength(begin, end) * 2 - 1 };
+    return { std::move(begin), std::move(end), std::move(delimiter) };
 }
 
 /**
@@ -67,8 +67,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator> joinRange(Iterator begin, Iterat
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>> join(Iterable&& iterable, std::string delimiter) {
-    return { std::begin(iterable), std::end(iterable), std::move(delimiter),
-             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) * 2 - 1 };
+    return { std::begin(iterable), std::end(iterable), std::move(delimiter) };
 }
 
 /**
@@ -111,8 +110,7 @@ std::string strJoin(Iterable&& iterable, const StringView& delimiter = "") {
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<Iterator>
 joinRange(Iterator begin, Iterator end, std::string delimiter, std::string fmt = "{}") {
-    return { std::move(begin), std::move(end), std::move(delimiter), std::move(fmt),
-             internal::getIterLength(begin, end) * 2 - 1 };
+    return { std::move(begin), std::move(end), std::move(delimiter), std::move(fmt) };
 }
 
 /**
@@ -128,8 +126,7 @@ joinRange(Iterator begin, Iterator end, std::string delimiter, std::string fmt =
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>>
 join(Iterable&& iterable, std::string delimiter, std::string fmt = "{}") {
-    return { std::begin(iterable), std::end(iterable), std::move(delimiter), std::move(fmt),
-             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) * 2 - 1 };
+    return { std::begin(iterable), std::end(iterable), std::move(delimiter), std::move(fmt) };
 }
 
 /**
