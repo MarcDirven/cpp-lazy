@@ -141,7 +141,7 @@ namespace internal {
 #    else
 
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
-    std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s", file, line, func, message);
+    std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\n", file, line, func, message);
     std::terminate();
 }
 
@@ -332,12 +332,18 @@ struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirection
 template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
-template<class Iterator>
-struct IsRandomAccess : std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag> {};
-
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) noexcept {
-    return (value & 1) == 0;
+    return (value % 2) == 0;
+}
+
+template<LZ_CONCEPT_INTEGRAL Arithmetic>
+inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
+    if (a == 0 || b == 0) return 0;
+    if (isEven(a) && isEven(b)) {
+        return static_cast<Arithmetic>(a / b);
+    }
+    return static_cast<Arithmetic>(a / b) + 1;
 }
 } // namespace internal
 
