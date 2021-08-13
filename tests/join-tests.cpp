@@ -42,92 +42,100 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
     auto joinInt = lz::join(v, ", ");
     auto joinStr = lz::join(s, ", ");
 
-    auto joinIntBegin = joinInt.begin();
-    auto joinStrBegin = joinStr.begin();
+    auto joinIntIter = joinInt.begin();
+    auto joinStrIter = joinStr.begin();
 
-    CHECK(*joinIntBegin == "1");
-    CHECK(*joinStrBegin == "h");
+    CHECK(*joinIntIter == "1");
+    CHECK(*joinStrIter == "h");
 
     SECTION("Operator++") {
-        ++joinIntBegin;
-        CHECK(*joinIntBegin == ", ");
+        ++joinIntIter;
+        CHECK(*joinIntIter == ", ");
 
-        ++joinStrBegin;
-        CHECK(*joinStrBegin == ", ");
+        ++joinStrIter;
+        CHECK(*joinStrIter == ", ");
     }
 
     SECTION("Operator--") {
-        ++joinIntBegin, ++joinStrBegin;
+        ++joinIntIter, ++joinStrIter;
 
-        CHECK(*--joinIntBegin == "1");
+        CHECK(*--joinIntIter == "1");
         auto joinIntEnd = joinInt.end();
         CHECK(*--joinIntEnd == "5");
         CHECK(*--joinIntEnd == ", ");
 
-        --joinStrBegin;
-        CHECK(*joinStrBegin == "h");
+        --joinStrIter;
+        CHECK(*joinStrIter == "h");
     }
 
     SECTION("Operator== & operator!=") {
-        CHECK(joinIntBegin != joinInt.end());
-        CHECK(joinStrBegin != joinStr.end());
+        CHECK(joinIntIter != joinInt.end());
+        CHECK(joinStrIter != joinStr.end());
 
-        joinIntBegin = joinInt.end();
-        joinStrBegin = joinStr.end();
+        joinIntIter = joinInt.end();
+        joinStrIter = joinStr.end();
 
-        CHECK(joinIntBegin == joinInt.end());
-        CHECK(joinStrBegin == joinStr.end());
+        CHECK(joinIntIter == joinInt.end());
+        CHECK(joinStrIter == joinStr.end());
     }
 
     SECTION("Operator+(int) offset, tests += as well") {
-        CHECK(*(joinIntBegin + 2) == "2");
-        CHECK(*(joinStrBegin + 2) == "e");
+        CHECK(*(joinIntIter + 2) == "2");
+        CHECK(*(joinStrIter + 2) == "e");
 
-        CHECK(*(joinIntBegin + 3) == ", ");
-        CHECK(*(joinStrBegin + 3) == ", ");
+        CHECK(*(joinIntIter + 3) == ", ");
+        CHECK(*(joinStrIter + 3) == ", ");
     }
 
     SECTION("Operator-(int) offset, tests -= as well") {
-        joinIntBegin = joinInt.end();
-        joinStrBegin = joinStr.end();
+        joinIntIter = joinInt.end();
+        joinStrIter = joinStr.end();
 
-        CHECK(*(joinIntBegin - 1) == "5");
-        CHECK(*(joinStrBegin - 1) == "o");
+        CHECK(*(joinIntIter - 1) == "5");
+        CHECK(*(joinStrIter - 1) == "o");
 
-        CHECK(*(joinIntBegin - 2) == ", ");
-        CHECK(*(joinStrBegin - 2) == ", ");
+        CHECK(*(joinIntIter - 2) == ", ");
+        CHECK(*(joinStrIter - 2) == ", ");
+
+        joinIntIter = joinInt.begin();
+        CHECK(*(joinIntIter - -3) == ", ");
+        CHECK(*(joinIntIter - -2) == "2");
+
+        joinIntIter = joinInt.end();
+        CHECK(*(joinIntIter + -3) == "4");
+        CHECK(*(joinIntIter + -4) == ", ");
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(joinIntBegin, joinInt.end()) == 9);
-        CHECK(std::distance(joinStrBegin, joinStr.end()) == 9);
+        CHECK(std::distance(joinIntIter, joinInt.end()) == 9);
+        CHECK(std::distance(joinStrIter, joinStr.end()) == 9);
 
-        CHECK(joinInt.end() - joinIntBegin == 9);
-        CHECK(joinStr.end() - joinStrBegin == 9);
+        CHECK(joinInt.end() - joinIntIter == 9);
+        CHECK(joinStr.end() - joinStrIter == 9);
     }
 
     SECTION("Operator[]()") {
-        CHECK(joinIntBegin[2] == "2");
-        CHECK(joinIntBegin[1] == ", ");
+        CHECK(joinIntIter[2] == "2");
+        CHECK(joinIntIter[1] == ", ");
 
-        CHECK(joinStrBegin[2] == "e");
-        CHECK(joinStrBegin[3] == ", ");
+        CHECK(joinStrIter[2] == "e");
+        CHECK(joinStrIter[3] == ", ");
     }
 
     SECTION("Operator<, <, <=, >, >=") {
-        auto joinIntDistance = std::distance(joinIntBegin, joinInt.end());
+        auto joinIntDistance = std::distance(joinIntIter, joinInt.end());
         auto joinIntEnd = joinInt.end();
-        CHECK(joinIntBegin < joinIntEnd);
-        CHECK(joinIntBegin + joinIntDistance - 1 > joinIntEnd - joinIntDistance);
-        CHECK(joinIntBegin + joinIntDistance - 1 <= joinIntEnd);
-        CHECK(joinIntBegin + joinIntDistance - 1 >= joinIntEnd - 1);
+        CHECK(joinIntIter < joinIntEnd);
+        CHECK(joinIntIter + joinIntDistance - 1 > joinIntEnd - joinIntDistance);
+        CHECK(joinIntIter + joinIntDistance - 1 <= joinIntEnd);
+        CHECK(joinIntIter + joinIntDistance - 1 >= joinIntEnd - 1);
 
-        auto joinStrDistance = std::distance(joinStrBegin, joinStr.end());
+        auto joinStrDistance = std::distance(joinStrIter, joinStr.end());
         auto joinStrEnd = joinStr.end();
-        CHECK(joinStrBegin < joinStrEnd);
-        CHECK(joinStrBegin + joinStrDistance - 1 > joinStrEnd - joinStrDistance);
-        CHECK(joinStrBegin + joinStrDistance - 1 <= joinStrEnd);
-        CHECK(joinStrBegin + joinStrDistance - 1 >= joinStrEnd - 1);
+        CHECK(joinStrIter < joinStrEnd);
+        CHECK(joinStrIter + joinStrDistance - 1 > joinStrEnd - joinStrDistance);
+        CHECK(joinStrIter + joinStrDistance - 1 <= joinStrEnd);
+        CHECK(joinStrIter + joinStrDistance - 1 >= joinStrEnd - 1);
     }
 
     SECTION("String join double format") {
