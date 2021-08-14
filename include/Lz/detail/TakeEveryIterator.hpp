@@ -5,8 +5,6 @@
 
 #    include "LzTools.hpp"
 
-#    include <cmath>
-
 namespace lz {
 namespace internal {
 template<class Iterator>
@@ -77,8 +75,11 @@ public:
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
-        const auto dist = getIterLength(b._iterator, a._iterator) / static_cast<float>(a._offset);
-        return static_cast<difference_type>(std::ceil(dist));
+        const auto dist = getIterLength(b._iterator, a._iterator);
+        if (isEven(dist) && isEven(a._offset)) {
+            return static_cast<difference_type>(dist / a._offset);
+        }
+        return static_cast<difference_type>(dist / a._offset) + 1;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEveryIterator operator+(const difference_type offset) const {

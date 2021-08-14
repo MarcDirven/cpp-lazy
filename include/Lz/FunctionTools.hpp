@@ -65,35 +65,58 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
 
+template<class Iterator>
+RefType<Iterator> doGetLast(Iterator begin, const DiffType<Iterator> length) {
+    using lz::next;
+    using std::next;
+    return *next(std::move(begin), length - 1);
+}
+
 #    ifdef __cpp_if_constexpr
 template<class Iterator>
-RefType<Iterator> lastImpl(Iterator begin, Iterator end, const DiffType<Iterator> length) {
+RefType<Iterator> lastImpl(Iterator begin, Iterator end) {
     if constexpr (IsBidirectional<Iterator>::value) {
         static_cast<void>(begin);
-        static_cast<void>(length);
         return *--end;
     }
     else {
-        static_cast<void>(end);
-        using lz::next;
-        using std::next;
-        return *next(begin, length - 1);
+        return doGetLast(begin, getIterLength(begin, end));
     }
 }
+
+template<class Iterable>
+RefType<IterTypeFromIterable<Iterable>> lastImpl(Iterable&& iterable) {
+    using Iter = IterTypeFromIterable<Iterable>;
+    if constexpr (IsBidirectional<Iter>::value) {
+        return *std::prev(iterable.end());
+    }
+    else {
+        return doGetLast(iterable.begin(), static_cast<DiffType<Iter>>(iterable.size()));
+    }
+}
+
 #    else
+
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::EnableIf<IsBidirectional<Iterator>::value, RefType<Iterator>>
-lastImpl(Iterator /* begin */, Iterator end, const DiffType<Iterator> /* length */) {
+LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iterator>::value, RefType<Iterator>> lastImpl(Iterator /* begin */, Iterator end) {
     return *--end;
 }
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::EnableIf<!IsBidirectional<Iterator>::value, RefType<Iterator>>
-lastImpl(Iterator begin, Iterator, const DiffType<Iterator> length) {
-    using lz::next;
-    using std::next;
-    return *next(begin, length - 1);
+LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iterator>::value, RefType<Iterator>> lastImpl(Iterator begin, Iterator end) {
+    return doGetLast(begin, getIterLength(begin, end));
 }
+
+template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
+LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value, RefType<Iter>> lastImpl(Iterable&& iterable) {
+    return *std::prev(std::end(iterable));
+}
+
+template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
+LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iter>::value, RefType<Iter>> lastImpl(Iterable&& iterable) {
+    return doGetLast(std::begin(iterable), static_cast<DiffType<Iter>>(iterable.size()));
+}
+
 #    endif // __cpp_if_constexpr
 } // namespace internal
 
@@ -172,13 +195,9 @@ reverse(Iterator begin, Iterator end) {
 #    ifndef LZ_HAS_CONCEPTS
     static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
 #    endif // LZ_HAS_CONCEPTS
-#    ifdef LZ_HAS_CXX_11
-    return internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::reverse_iterator<Iterator>(std::move(end)),
-                                                                        std::reverse_iterator<Iterator>(std::move(begin)));
-#    else
-    return internal::BasicIteratorView<std::reverse_iterator<Iterator>>(std::make_reverse_iterator(std::move(end)),
-                                                                        std::make_reverse_iterator(std::move(begin)));
-#    endif // LZ_HAS_CXX_11
+    std::reverse_iterator<Iterator> reverseBegin(std::move(end));
+    std::reverse_iterator<Iterator> reverseEnd(std::move(begin));
+    return { std::move(reverseBegin), std::move(reverseEnd) };
 }
 
 /**
@@ -245,7 +264,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, std::tuple<Iterators...> be
 template<class Fn, class... Iterables, class Zipper = Zip<internal::IterTypeFromIterable<Iterables>...>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables)
     -> Map<decltype(std::begin(std::declval<Zipper>())),
-           decltype(internal::makeExpandFn(fn, internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
+           decltype(internal::makeExpandFn(std::move(fn), internal::MakeIndexSequence<sizeof...(Iterables)>()))> {
     return zipWith(std::move(fn), std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
                    std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
 }
@@ -345,7 +364,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin, Iterator end) {
     LZ_ASSERT(!isEmpty(begin, end), "sequence cannot be empty in order to get the last element");
-    return internal::lastImpl(begin, end, internal::getIterLength(begin, end));
+    return internal::lastImpl(begin, end);
 }
 
 /**
@@ -355,8 +374,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> last(Iterator begin
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> last(Iterable&& iterable) {
-    return internal::lastImpl(std::begin(iterable), std::end(iterable),
-                              static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()));
+    return internal::lastImpl(iterable);
 }
 
 /**
@@ -810,18 +828,9 @@ template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class T, class U, class Exe
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue,
                   Execution execution = std::execution::seq) {
-    using CastType = internal::ValueType<Iterator>;
     std::reverse_iterator<Iterator> endReverse(std::move(end));
     std::reverse_iterator<Iterator> beginReverse(std::move(begin));
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-        static_cast<void>(execution);
-        const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    }
-    else {
-        const auto pos = std::find(execution, std::move(endReverse), beginReverse, toFind);
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    }
+    return findFirstOrDefault(std::move(endReverse), std::move(beginReverse), toFind, defaultValue, execution);
 }
 
 /**
@@ -852,18 +861,9 @@ template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator, class T, class UnaryPredica
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
                     Execution execution = std::execution::seq) {
-    using CastType = internal::ValueType<Iterator>;
     std::reverse_iterator<Iterator> endReverse(std::move(end));
     std::reverse_iterator<Iterator> beginReverse(std::move(begin));
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-        static_cast<void>(execution);
-        const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    }
-    else {
-        const auto pos = std::find_if(execution, std::move(endReverse), beginReverse, std::move(predicate));
-        return static_cast<CastType>(pos == beginReverse ? defaultValue : *pos);
-    }
+    return findFirstOrDefaultIf(std::move(endReverse), std::move(beginReverse), std::move(predicate), defaultValue, execution);
 }
 
 /**
@@ -1003,6 +1003,45 @@ template<LZ_CONCEPT_ITERABLE Iterable, class BinaryPredicate, class Execution = 
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execution = std::execution::seq) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
+}
+
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
+                Execution execution = std::execution::seq) {
+    if constexpr (internal::checkForwardAndPolicies<Execution, IteratorA>()) {
+        return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
+    }
+    else {
+        static_assert(internal::IsForwardOrStrongerV<IteratorB>,
+                      "The iterator type must be forward iterator or stronger. Prefer using std::execution::seq");
+        return std::search(execution, std::move(beginA), std::move(endA), std::move(beginB), std::move(endB),
+                           std::move(compare)) != endA;
+    }
+}
+
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
+    return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
+}
+
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
+              Execution execution = std::execution::seq) {
+    std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
+    std::reverse_iterator<IteratorA> revBegA(std::move(endA));
+    std::reverse_iterator<IteratorB> revEndB(std::move(beginB));
+    std::reverse_iterator<IteratorB> revBegB(std::move(endB));
+    return startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare),
+                      execution);
+}
+
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
+         class Execution = std::execution::sequenced_policy>
+bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
+    return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
 }
 #    else // ^^^ Lz has execution vvv !Lz has execution
 
@@ -1154,8 +1193,7 @@ template<class Iterator, class T, class U>
 internal::ValueType<Iterator> findLastOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue) {
     std::reverse_iterator<Iterator> endReverse(std::move(end));
     std::reverse_iterator<Iterator> beginReverse(std::move(begin));
-    const auto pos = std::find(std::move(endReverse), beginReverse, toFind);
-    return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
+    return findFirstOrDefault(std::move(endReverse), std::move(beginReverse), toFind, defaultValue);
 }
 
 /**
@@ -1184,8 +1222,7 @@ template<class Iterator, class T, class UnaryPredicate>
 internal::ValueType<Iterator> findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue) {
     std::reverse_iterator<Iterator> endReverse(std::move(end));
     std::reverse_iterator<Iterator> beginReverse(std::move(begin));
-    const auto pos = std::find_if(std::move(endReverse), beginReverse, std::move(predicate));
-    return static_cast<internal::ValueType<Iterator>>(pos == beginReverse ? defaultValue : *pos);
+    return findFirstOrDefaultIf(std::move(endReverse), std::move(beginReverse), std::move(predicate), defaultValue);
 }
 
 /**
@@ -1299,6 +1336,48 @@ bool containsIf(Iterator begin, Iterator end, BinaryPredicate predicate) {
 template<class Iterable, class BinaryPredicate>
 bool containsIf(const Iterable& iterable, BinaryPredicate predicate) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
+#        else
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
+    return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IterableA, class IterableB,
+         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
+#        else
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
+    return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
+#        else
+template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
+    std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
+    std::reverse_iterator<IteratorA> revBegA(std::move(endA));
+    std::reverse_iterator<IteratorB> revEndB(std::move(beginB));
+    std::reverse_iterator<IteratorB> revBegB(std::move(endB));
+    return startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
+}
+
+#        ifdef LZ_HAS_CXX_11
+template<class IterableA, class IterableB,
+         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
+#        else
+template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
+#        endif
+bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
+    return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
 
 /**
