@@ -172,7 +172,7 @@ public:
     using value_type = ValueType<LzIterator>;
     using iterator = LzIterator;
     using reference = decltype(*_begin);
-    using const_reference = std::add_const<reference>();
+    using const_reference = typename std::add_const<reference>::type;
     using const_iterator = iterator;
 
 private:
