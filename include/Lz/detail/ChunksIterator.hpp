@@ -92,6 +92,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
+        LZ_ASSERT(offset >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
         using lz::next;
         using std::next;
         ChunksIterator tmp(*this);
@@ -133,7 +134,6 @@ distance(const internal::ChunksIterator<Iterator>& begin, const internal::Chunks
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
 next(const internal::ChunksIterator<Iterator>& iter, const internal::DiffType<internal::ChunksIterator<Iterator>> value) {
-    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz

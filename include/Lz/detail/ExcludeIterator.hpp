@@ -87,6 +87,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ExcludeIterator operator+(difference_type offset) const {
+        LZ_ASSERT(offset >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
         using lz::distance;
         using lz::next;
         using std::distance;
@@ -119,7 +120,6 @@ distance(const internal::ExcludeIterator<Iterator>& begin, const internal::Exclu
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>& iter, internal::DiffType<internal::ExcludeIterator<Iterator>> value) {
-    LZ_ASSERT(value >= 0, "offset must be greater than 0 since this is not a bidirectional/random access iterator");
     return iter + value;
 }
 } // namespace lz
