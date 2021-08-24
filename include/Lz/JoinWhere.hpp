@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LZ_LEFT_JOIN_HPP
-#define LZ_LEFT_JOIN_HPP
+#ifndef LZ_JOIN_WHERE_HPP
+#define LZ_JOIN_WHERE_HPP
 
 #include "detail/BasicIteratorView.hpp"
 #include "detail/JoinWhereIterator.hpp"
@@ -167,4 +167,4 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
  */
 } // namespace lz
 
-#endif // LZ_LEFT_JOIN_HPP
+#endif // LZ_JOIN_WHERE_HPP
