@@ -21,13 +21,7 @@ private:
 public:
     LZ_CONSTEXPR_CXX_20
     TakeEvery(Iterator begin, Iterator end, const DiffTy offset) :
-        TakeEvery(begin, end, offset, internal::getIterLength(begin, end)) {
-    }
-
-    LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const DiffTy offset, const DiffTy distance) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset, distance),
-                                              iterator(end, end, offset, distance)) {
+        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, offset), iterator(end, end, offset)) {
     }
 
     constexpr TakeEvery() = default;
@@ -75,8 +69,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator>
 takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const internal::DiffType<Iterator> start = 0) {
     using lz::next;
     using std::next;
-    return { next(std::begin(iterable), start), std::end(iterable), offset,
-             static_cast<internal::DiffType<Iterator>>(iterable.size()) };
+    return { next(internal::begin(std::forward<Iterable>(iterable)), start), internal::end(std::forward<Iterable>(iterable)),
+             offset };
 }
 
 // End of group
