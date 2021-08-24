@@ -123,11 +123,11 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
     }
 
     SECTION("first, last, empty, many") {
-        CHECK(!lz::toIter(arr).isEmpty());
+        CHECK(!lz::toIter(arr).empty());
         CHECK(!lz::toIter(arr).hasOne());
         CHECK(lz::toIter(arr).hasMany());
-        CHECK(lz::toIter(arr).first() == 0);
-        CHECK(lz::toIter(arr).last() == 15);
+        CHECK(lz::toIter(arr).front() == 0);
+        CHECK(lz::toIter(arr).back() == 15);
 
         std::vector<int> v;
         CHECK(lz::toIter(v).firstOr(20) == 20);
@@ -174,7 +174,7 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
                 return { a, b };
             });
         CHECK(*joinWhere.begin() == std::make_tuple(0, 0));
-        CHECK(lz::last(joinWhere) == std::make_tuple(15, 15));
+        CHECK(lz::back(joinWhere) == std::make_tuple(15, 15));
     }
 
     SECTION("Group by") {
