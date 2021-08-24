@@ -11,6 +11,7 @@ template<class T>
 class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
 public:
     using iterator = internal::RepeatIterator<T>;
+    using const_iterator = iterator;
     using value_type = T;
 
     constexpr Repeat(T toRepeat, const std::size_t amount) :
