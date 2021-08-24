@@ -40,11 +40,13 @@ add_executable(LazyTests
 		group-by-tests.cpp
 		join-tests.cpp
 		join-where-tests.cpp
+		loop-tests.cpp
 		lz-chain-tests.cpp
 		map-tests.cpp
 		random-tests.cpp
 		range-tests.cpp
 		repeat-tests.cpp
+		rotate-tests.cpp
 		standalone.cpp
 		string-splitter-tests.cpp
 		take-every-tests.cpp
