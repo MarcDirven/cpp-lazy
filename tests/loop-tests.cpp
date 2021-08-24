@@ -1,0 +1,36 @@
+#include <Lz/Loop.hpp>
+#include <catch2/catch.hpp>
+
+TEST_CASE("Basic functionality loop", "[Loop][Basic functionality]") {
+    std::vector<int> vec = { 1, 2, 3, 4 };
+    auto looper = lz::loop(vec);
+
+    SECTION("Distance") {
+        CHECK(std::distance(looper.begin(), looper.end()) ==
+              (std::numeric_limits<typename decltype(vec.begin())::difference_type>::max)());
+    }
+
+    SECTION("Going a circle") {
+        CHECK(*(looper.begin() + vec.size()) == 1);
+        CHECK(*(looper.begin() + (vec.size() - 1)) == 4);
+
+        CHECK(*(looper.end() - vec.size()) == 1);
+        CHECK(*(looper.end() - (vec.size() + 1)) == 4);
+    }
+
+    SECTION("Always true") {
+        CHECK(looper.begin() != looper.end());
+        CHECK(!(looper.begin() == looper.begin()));
+        CHECK(looper.begin() + vec.size() != looper.end());
+
+        CHECK(looper.begin() < looper.end());
+        CHECK(looper.begin() > looper.end());
+        CHECK(looper.begin() >= looper.end());
+        CHECK(looper.begin() <= looper.end());
+
+        CHECK(looper.end() < looper.begin());
+        CHECK(looper.end() > looper.begin());
+        CHECK(looper.end() >= looper.begin());
+        CHECK(looper.end() <= looper.begin());
+    }
+}
