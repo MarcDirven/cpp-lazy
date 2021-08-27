@@ -14,9 +14,11 @@
 #    include "Lz/Generate.hpp"
 #    include "Lz/GroupBy.hpp"
 #    include "Lz/JoinWhere.hpp"
+#    include "Lz/Loop.hpp"
 #    include "Lz/Random.hpp"
 #    include "Lz/Range.hpp"
 #    include "Lz/Repeat.hpp"
+#    include "Lz/Rotate.hpp"
 #    include "Lz/TakeEvery.hpp"
 #    include "Lz/Unique.hpp"
 // Function tools includes:
@@ -149,7 +151,7 @@ public:
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
     takeEvery(const difference_type offset, const difference_type start = 0) const {
         return toIter(lz::takeEvery(*this, offset, start));
     }
@@ -189,18 +191,33 @@ public:
         return toIter(lz::pairwise(*this));
     }
 
+    // clang-format off
+
     //! See CartesianProduct.hpp for documentation
     template<class... Iterables>
     LZ_NODISCARD
-        LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
-        cartesian(Iterables&&... iterables) const {
+    LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+    cartesian(Iterables&&... iterables) const {
         return toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
     }
+
+    // clang-format on
 
     //! See Flatten.hpp for documentation
     template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FlattenIterator<Iterator, N>> flatten() const {
         return toIter(lz::flatten(*this));
+    }
+
+    template<class Iterable>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
+        return toIter(lz::loop(*this));
+    }
+
+    template<class Iterable>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator, internal::IsRandomAccess<Iterator>::value>>
+    rotate(const internal::DiffType<iterator> start) const {
+        return toIter(lz::rotate(*this, start));
     }
 
     //! See FunctionTools.hpp `hasOne` for documentation.
@@ -210,7 +227,7 @@ public:
 
     //! See FunctionTools.hpp `hasMany` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany() const {
-        return !this->empty();
+        return lz::hasMany(*this);
     }
 
     //! See FunctionTools.hpp `front` for documentation.
@@ -225,13 +242,13 @@ public:
 
     //! See FunctionTools.hpp `frontOr` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type firstOr(const T& defaultValue) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type frontOr(const T& defaultValue) const {
         return lz::frontOr(*this, defaultValue);
     }
 
     //! See FunctionTools.hpp `backOr` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type lastOr(const T& defaultValue) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type backOr(const T& defaultValue) const {
         return lz::backOr(*this, defaultValue);
     }
 
