@@ -130,8 +130,8 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
         CHECK(lz::toIter(arr).back() == 15);
 
         std::vector<int> v;
-        CHECK(lz::toIter(v).firstOr(20) == 20);
-        CHECK(lz::toIter(v).lastOr(20) == 20);
+        CHECK(lz::toIter(v).frontOr(20) == 20);
+        CHECK(lz::toIter(v).backOr(20) == 20);
     }
 
     SECTION("Filter") {

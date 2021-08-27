@@ -340,7 +340,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(const Iterable& iterable) {
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begin, Iterator end) {
-    LZ_ASSERT(!empty(begin, end), "sequence cannot be empty in order to get the first element");
+    LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the first element");
     static_cast<void>(end);
     return *begin;
 }
@@ -352,7 +352,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begi
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> front(Iterable&& iterable) {
-    LZ_ASSERT(!empty(iterable), "sequence cannot be empty in order to get the last element");
+    LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
     return front(std::begin(iterable), std::end(iterable));
 }
 
@@ -364,7 +364,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
-    LZ_ASSERT(!empty(begin, end), "sequence cannot be empty in order to get the last element");
+    LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
     return internal::backImpl(begin, end);
 }
 
@@ -375,7 +375,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
-    LZ_ASSERT(!empty(iterable), "sequence cannot be empty in order to get the last element");
+    LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
     return internal::backImpl(iterable);
 }
 
@@ -388,7 +388,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> frontOr(Iterator begin, Iterator end, const T& defaultValue) {
-    return empty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : front(begin, end);
+    return lz::empty(begin, end) ? static_cast<internal::ValueType<Iterator>>(defaultValue) : front(begin, end);
 }
 
 /**
