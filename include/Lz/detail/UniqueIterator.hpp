@@ -82,11 +82,11 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const UniqueIterator& a, const UniqueIterator& b) noexcept {
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const UniqueIterator& a, const UniqueIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 };
