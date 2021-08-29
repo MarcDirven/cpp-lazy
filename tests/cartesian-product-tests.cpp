@@ -2,6 +2,7 @@
 
 #include <catch2/catch.hpp>
 #include <list>
+#include <forward_list>
 
 TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct][Basic functionality]") {
     std::vector<int> vec = { 1, 2, 3 };
@@ -39,6 +40,33 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
         CHECK(*begin == std::make_tuple(2, 'a'));
     }
 
+    SECTION("Operator--") {
+        std::vector<int> tmpVec = {1, 2, 3};
+        std::forward_list<char> tmpChars = {'a', 'b', 'c'};
+        auto cart = lz::cartesian(tmpVec, tmpChars);
+        auto end = cart.end();
+
+        --end;
+        CHECK(*end == std::make_tuple(3, 'c'));
+
+        --end;
+        CHECK(*end == std::make_tuple(3, 'b'));
+
+        --end;
+        CHECK(*end == std::make_tuple(3, 'a'));
+
+        --end;
+        CHECK(*end == std::make_tuple(2, 'c'));
+
+        --end /*2, 'b'*/, --end /*2, 'a'*/, --end /*1, 'c'*/, --end, /*1, 'b'*/ --end /*1, 'a'*/;
+        CHECK(end == cart.begin());
+
+        auto beg = cart.begin();
+        ++beg;
+        --beg;
+        CHECK(*beg == std::make_tuple(1, 'a'));
+    }
+
     SECTION("Operator== & operator!=") {
         auto it = cartesian.begin();
         CHECK(it != cartesian.end());
@@ -46,22 +74,35 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
         CHECK(it == cartesian.end());
     }
 
-    SECTION("Lz distance") {
-        CHECK(lz::distance(cartesian.begin(), cartesian.end()) == 9);
-        std::vector<int> ints = { 1, 2, 3, 4 };
-        auto cart2 = lz::cartesian(vec, chars, ints);
-        CHECK(lz::distance(cart2.begin(), cart2.end()) == 36);
+    SECTION("Operator+(int), tests += as well") {
+        auto iter = cartesian.begin();
+        CHECK(*(iter + 1) == std::make_tuple(1, 'b'));
+        CHECK(*(iter + 2) == std::make_tuple(1, 'c'));
+        CHECK(*(iter + 3) == std::make_tuple(2, 'a'));
+        CHECK(*(iter + 6) == std::make_tuple(3, 'a'));
+        CHECK(*(iter + 8) == std::make_tuple(3, 'c'));
+        CHECK(iter + 9 == cartesian.end());
     }
 
-    SECTION("Next") {
-        std::array<int, 4> a = { 1, 2, 3, 4 };
-        std::array<char, 4> b = { 'a', 'b', 'c', 'd' };
-        std::array<std::string, 4> c = { "he", "ll", "o", "world" };
-        auto cart = lz::cartesian(a, b, c);
-        std::ptrdiff_t counter = 0;
-        for (auto&& tuple : cart) {
-            CHECK(*lz::next(cart.begin(), counter++) == tuple);
-        }
+    SECTION("Operator-(int), tests -= as well") {
+        auto iter = cartesian.begin();
+        iter += 8;
+        CHECK(*(iter - 3) == std::make_tuple(2, 'c'));
+        CHECK(*(iter - 2) == std::make_tuple(3, 'a'));
+        CHECK(*(iter - 1) == std::make_tuple(3, 'b'));
+        CHECK(*(iter - 8) == std::make_tuple(1, 'a'));
+        CHECK(iter - 8 == cartesian.begin());
+    }
+
+    SECTION("Operator<, <, <=, >, >=") {
+        auto b = cartesian.begin();
+        auto end = cartesian.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + 9 - 1 >= end - 1);
     }
 }
 

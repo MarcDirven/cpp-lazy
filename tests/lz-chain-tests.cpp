@@ -108,9 +108,11 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
         std::array<int, 2> a = { 1, 2 };
         std::array<int, 2> b = { 3, 4 };
         auto cart = lz::toIter(a).cartesian(b);
-        CHECK((*cart.begin() == std::make_tuple(1, 3) && *lz::next(cart.begin()) == std::make_tuple(1, 4) &&
-        *lz::next(cart.begin(), 2) == std::make_tuple(2, 3) && *lz::next(cart.begin(), 3) == std::make_tuple(2, 4) &&
-        lz::next(cart.begin(), 4) == cart.end()));
+        CHECK(*cart.begin() == std::make_tuple(1, 3));
+        CHECK(*std::next(cart.begin()) == std::make_tuple(1, 4));
+        CHECK(*std::next(cart.begin(), 2) == std::make_tuple(2, 3));
+        CHECK(*std::next(cart.begin(), 3) == std::make_tuple(2, 4));
+        CHECK(std::next(cart.begin(), 4) == cart.end());
     }
 
     SECTION("Flatten") {

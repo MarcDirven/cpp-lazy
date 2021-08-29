@@ -150,9 +150,6 @@ namespace internal {
 #    endif // NDEBUG
 
 /* forward declarations of all iterators that contain a custom distance implementation */
-template<class...>
-class CartesianProductIterator;
-
 template<class>
 class ChunksIterator;
 
@@ -358,10 +355,6 @@ using StringView = std::string;
 using StringView = fmt::string_view;
 #    endif
 
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
-distance(const internal::CartesianProductIterator<Iterators...>&, const internal::CartesianProductIterator<Iterators...>&);
-
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
 distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
@@ -382,11 +375,6 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
 distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
 
-
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::CartesianProductIterator<Iterators...>
-next(const internal::CartesianProductIterator<Iterators...>&,
-     internal::DiffType<internal::CartesianProductIterator<Iterators...>> = 1);
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
