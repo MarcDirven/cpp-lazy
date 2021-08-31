@@ -97,13 +97,13 @@ public:
             }
         }
         else {
-            for (difference_type count = 0; _iterator != _end || count != _offset; ++_iterator, ++count) {
+            for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
             }
         }
     }
 
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() noexcept {
-        if constexpr (IsRandomAccess<I>::value) {
+    LZ_CONSTEXPR_CXX_20 void previous() noexcept {
+        if constexpr (IsRandomAccess<Iterator>::value) {
             const auto distance = _iterator - _begin;
             if (_offset >= distance) {
                 _iterator = _begin;
@@ -113,7 +113,7 @@ public:
             }
         }
         else {
-            for (difference_type count = _offset; _iterator != _begin || count != 0; --_iterator, --count) {
+            for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
             }
         }
     }

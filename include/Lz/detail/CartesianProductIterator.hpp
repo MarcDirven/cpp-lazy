@@ -166,7 +166,6 @@ private:
         else {
             using lz::next;
             using std::next;
-            auto& iterator = std::get<I>(_iterator);
             const auto& begin = std::get<I>(_begin);
             const auto& end = std::get<I>(_end);
             difference_type dist;
@@ -183,8 +182,8 @@ private:
                 dist = getIterLength(iterator, end);
             }
             const auto [quot, rem] = std::lldiv(offset, dist);
-            iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
-            operatorPlusImpl<I - 1>(static_cast<difference_type>(offsets.quot));
+            iterator = next(std::move(iterator), static_cast<difference_type>(rem));
+            operatorPlusImpl<I - 1>(static_cast<difference_type>(quot));
         }
     }
 

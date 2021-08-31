@@ -30,7 +30,7 @@ private:
     difference_type _chunkSize{};
 
     LZ_CONSTEXPR_CXX_20 void nextChunk() {
-        for (difference_type count = 0; count < _chunkSize || _subRangeEnd != _end; count++, ++_subRangeEnd) {
+        for (difference_type count = 0; count < _chunkSize && _subRangeEnd != _end; count++, ++_subRangeEnd) {
         }
     }
 public:
@@ -97,7 +97,7 @@ private:
 
 #    ifdef __cpp_if_constexpr
     LZ_CONSTEXPR_CXX_20 void nextChunk() {
-        if constexpr (IsRandomAccess<I>::value) {
+        if constexpr (IsRandomAccess<Iterator>::value) {
             if (_end - _subRangeEnd > _chunkSize) {
                 _subRangeEnd += _chunkSize;
             }
@@ -106,13 +106,13 @@ private:
             }
         }
         else {
-            for (difference_type count = 0; count < _chunkSize || _subRangeEnd != _end; count++, ++_subRangeEnd) {
+            for (difference_type count = 0; count < _chunkSize && _subRangeEnd != _end; count++, ++_subRangeEnd) {
             }
         }
     }
 
     LZ_CONSTEXPR_CXX_20 void prevChunk() {
-        if constexpr (IsRandomAccess<I>::value) {
+        if constexpr (IsRandomAccess<Iterator>::value) {
             if (_subRangeBegin - _begin > _chunkSize) {
                 _subRangeBegin -= _chunkSize;
             }
@@ -214,7 +214,7 @@ public:
         return !(lhs != rhs); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator& operator+=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator+=(const difference_type offset) {
         auto totalOffset = _chunkSize * offset;
         if (offset == 0) {
             return *this;
@@ -252,7 +252,7 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator& operator-=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator-=(const difference_type offset) {
         return *this += -offset;
     }
 
