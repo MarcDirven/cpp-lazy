@@ -151,9 +151,6 @@ namespace internal {
 
 /* forward declarations of all iterators that contain a custom distance implementation */
 template<class>
-class ChunksIterator;
-
-template<class>
 class ExcludeIterator;
 
 template<class, int>
@@ -356,10 +353,6 @@ using StringView = fmt::string_view;
 #    endif
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
-distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
 distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
 
@@ -375,10 +368,6 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
 distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
 
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
-next(const internal::ChunksIterator<Iterator>&, internal::DiffType<internal::ChunksIterator<Iterator>> = 1);
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>

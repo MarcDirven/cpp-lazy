@@ -157,7 +157,8 @@ public:
     }
 
     //! See Chunks.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
+    chunks(const std::size_t chunkSize) const {
         return toIter(lz::chunks(*this, chunkSize));
     }
 
@@ -474,7 +475,7 @@ public:
      */
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference max(Compare cmp = {}, Execution execution = std::execution::seq) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
@@ -492,7 +493,7 @@ public:
      */
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference min(Compare cmp = {}, Execution execution = std::execution::seq) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
