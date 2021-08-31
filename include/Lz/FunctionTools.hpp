@@ -74,24 +74,24 @@ RefType<Iterator> doGetBack(Iterator begin, const DiffType<Iterator> length) {
 
 #    ifdef __cpp_if_constexpr
 template<class Iterator>
-RefType<Iterator> lastImpl(Iterator begin, Iterator end) {
+RefType<Iterator> backImpl(Iterator begin, Iterator end) {
     if constexpr (IsBidirectional<Iterator>::value) {
         static_cast<void>(begin);
         return *--end;
     }
     else {
-        return doGetLast(begin, getIterLength(begin, end));
+        return doGetBack(begin, getIterLength(begin, end));
     }
 }
 
 template<class Iterable>
-RefType<IterTypeFromIterable<Iterable>> lastImpl(Iterable&& iterable) {
+RefType<IterTypeFromIterable<Iterable>> backImpl(Iterable&& iterable) {
     using Iter = IterTypeFromIterable<Iterable>;
     if constexpr (IsBidirectional<Iter>::value) {
         return *std::prev(iterable.end());
     }
     else {
-        return doGetLast(iterable.begin(), static_cast<DiffType<Iter>>(iterable.size()));
+        return doGetBack(iterable.begin(), static_cast<DiffType<Iter>>(iterable.size()));
     }
 }
 
