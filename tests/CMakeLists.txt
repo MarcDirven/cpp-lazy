@@ -62,6 +62,8 @@ target_compile_options(LazyTests
 		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
 		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
 
+target_compile_definitions(LazyTests PRIVATE -DCATCH_CONFIG_ENABLE_TUPLE_STRINGMAKER)
+
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	include(CheckCXXCompilerFlag)
 	check_cxx_compiler_flag(-Wa,-mbig-obj "HAS_MBIG_OBJ")
