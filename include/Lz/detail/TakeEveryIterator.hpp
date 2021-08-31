@@ -26,10 +26,7 @@ public:
     difference_type _offset{};
 
     void advance() noexcept {
-        difference_type count = 0;
-        while (_iterator != _end || count != _offset) {
-            ++_iterator;
-            ++count;
+        for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
         }
     }
 
@@ -88,8 +85,41 @@ public:
     Iterator _end{};
     difference_type _offset{};
 
+#    ifdef __cpp_if_constexpr
+    LZ_CONSTEXPR_CXX_20 void advance() noexcept {
+        if constexpr (IsRandomAccess<Iterator>::value) {
+            const auto distance = _end - _iterator;
+            if (_offset >= distance) {
+                _iterator = _end;
+            }
+            else {
+                _iterator += _offset;
+            }
+        }
+        else {
+            for (difference_type count = 0; _iterator != _end || count != _offset; ++_iterator, ++count) {
+            }
+        }
+    }
+
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() noexcept {
+        if constexpr (IsRandomAccess<I>::value) {
+            const auto distance = _iterator - _begin;
+            if (_offset >= distance) {
+                _iterator = _begin;
+            }
+            else {
+                _iterator -= _offset;
+            }
+        }
+        else {
+            for (difference_type count = _offset; _iterator != _begin || count != 0; --_iterator, --count) {
+            }
+        }
+    }
+#    else
     template<class I = Iterator>
-    EnableIf<IsRandomAccess<I>::value> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> advance() noexcept {
         const auto distance = _end - _iterator;
         if (_offset >= distance) {
             _iterator = _end;
@@ -100,16 +130,13 @@ public:
     }
 
     template<class I = Iterator>
-    EnableIf<!IsRandomAccess<I>::value> advance() noexcept {
-        difference_type count = 0;
-        while (_iterator != _end || count != _offset) {
-            ++_iterator;
-            ++count;
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> advance() noexcept {
+        for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
         }
     }
 
     template<class I = Iterator>
-    EnableIf<IsRandomAccess<I>::value> previous() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() noexcept {
         const auto distance = _iterator - _begin;
         if (_offset >= distance) {
             _iterator = _begin;
@@ -120,13 +147,11 @@ public:
     }
 
     template<class I = Iterator>
-    EnableIf<!IsRandomAccess<I>::value> previous() noexcept {
-        difference_type count = _offset;
-        while (_iterator != _begin || count != 0) {
-            --_iterator;
-            --count;
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> previous() noexcept {
+        for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
         }
     }
+#    endif
 
 public:
     LZ_CONSTEXPR_CXX_20

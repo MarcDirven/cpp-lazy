@@ -46,12 +46,34 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         CHECK(*iterator == 4);
     }
 
+    SECTION("Operator++ (bidirectional)") {
+        std::list<int> lst = { 1, 2, 3, 4 };
+        auto te = lz::takeEvery(lst, 3);
+        auto iter = te.begin();
+        REQUIRE(*iter == 1);
+        ++iter;
+        CHECK(*iter == 4);
+        ++iter;
+        CHECK(iter == te.end());
+    }
+
     SECTION("Operator--") {
         auto end = takeEvery.end();
         CHECK(*--end == 4);
         ++iterator;
         --iterator;
         CHECK(*iterator == 1);
+    }
+
+    SECTION("Operator-- (bidirectional)") {
+        std::list<int> lst = { 1, 2, 3, 4 };
+        auto te = lz::takeEvery(lst, 3);
+        auto iter = te.end();
+        --iter;
+        REQUIRE(*iter == 4);
+        --iter;
+        CHECK(*iter == 1);
+        CHECK(iter == te.begin());
     }
 
     SECTION("Operator== & Operator!=") {
@@ -61,20 +83,20 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        std::array<int, 6> arr = {1, 2, 3, 4, 5, 6};
+        std::array<int, 6> arr = { 1, 2, 3, 4, 5, 6 };
         auto take = lz::takeEvery(arr, 2);
         auto beg = take.begin();
 
         CHECK(*(beg + 2) == 5);
         CHECK(beg + 3 == take.end());
         ++beg;
-        CHECK(*(beg + - 1) == 1);
+        CHECK(*(beg + -1) == 1);
 
         auto end = take.end();
-        CHECK(*(end + - 1) == 6);
-        CHECK(*(end + - 2) == 4);
-        CHECK(*(end + - 3) == 2);
-        CHECK((end + - 4) == take.begin());
+        CHECK(*(end + -1) == 6);
+        CHECK(*(end + -2) == 4);
+        CHECK(*(end + -3) == 2);
+        CHECK((end + -4) == take.begin());
         --end;
         REQUIRE(*end == 6);
         --end;
@@ -99,6 +121,12 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
     }
 
     SECTION("Operator<, <, <=, >, >=") {
+        auto distance = std::distance(takeEvery.begin(), takeEvery.end());
+
+        CHECK(iterator < takeEvery.end());
+        CHECK(iterator + distance - 1 > takeEvery.end() - distance);
+        CHECK(iterator + distance - 1 <= takeEvery.end());
+        CHECK(iterator + size - 1 >= takeEvery.end() - 1);
     }
 }
 
