@@ -343,7 +343,7 @@ public:
         return b.distanceImpl(IndexSequenceForThis(), a);
     }
 
-    LZ_NODISCARD constexpr friend bool operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
         return a.lessThan(IndexSequenceForThis(), b);
     }
 
