@@ -150,23 +150,17 @@ namespace internal {
 #    endif // NDEBUG
 
 /* forward declarations of all iterators that contain a custom distance implementation */
-template<class... Iterators>
-class CartesianProductIterator;
+template<class>
+class ExcludeIterator;
 
-template<class Arithmetic>
-class RangeIterator;
-
-template<class Iterator>
-class TakeEveryIterator;
-
-template<class Iterator>
-class ChunksIterator;
-
-template<class Iterator, int N>
+template<class, int>
 class FlattenIterator;
 
-template<class Iterator>
-class ExcludeIterator;
+template<class>
+class RangeIterator;
+
+template<class, bool>
+class RotateIterator;
 
 template<class Iterable>
 constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin()) {
@@ -332,6 +326,9 @@ struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirection
 template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
+template<class Iterator>
+struct IsRandomAccess : std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag> {};
+
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
@@ -355,55 +352,34 @@ using StringView = std::string;
 using StringView = fmt::string_view;
 #    endif
 
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
-distance(const internal::CartesianProductIterator<Iterators...>&, const internal::CartesianProductIterator<Iterators...>&);
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
+distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
+
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
+distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
 
 template<LZ_CONCEPT_ITERATOR Arithmetic>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
 distance(const internal::RangeIterator<Arithmetic>&, const internal::RangeIterator<Arithmetic>&);
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::TakeEveryIterator<Iterator>::difference_type
-distance(const internal::TakeEveryIterator<Iterator>&, const internal::TakeEveryIterator<Iterator>&);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
+distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
 
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ChunksIterator<Iterator>::difference_type
-distance(const internal::ChunksIterator<Iterator>&, const internal::ChunksIterator<Iterator>&);
-
-template<LZ_CONCEPT_ITERATOR Iterator, int N>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
-distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
-distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
-
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::CartesianProductIterator<Iterators...>
-next(const internal::CartesianProductIterator<Iterators...>&,
-     internal::DiffType<internal::CartesianProductIterator<Iterators...>> = 1);
-
-template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
-next(const internal::RangeIterator<Arithmetic>&, internal::DiffType<internal::RangeIterator<Arithmetic>> = 1);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::TakeEveryIterator<Iterator>
-next(const internal::TakeEveryIterator<Iterator>&, internal::DiffType<internal::TakeEveryIterator<Iterator>> = 1);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ChunksIterator<Iterator>
-next(const internal::ChunksIterator<Iterator>&, internal::DiffType<internal::ChunksIterator<Iterator>> = 1);
-
-template<LZ_CONCEPT_ITERATOR Iterator, int N>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
-next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal::FlattenIterator<Iterator, N>> = 1);
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
 
+template<LZ_CONCEPT_ITERATOR Iterator, int N>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
+next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal::FlattenIterator<Iterator, N>> = 1);
+
+template<LZ_CONCEPT_ARITHMETIC Arithmetic>
+LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
+next(const internal::RangeIterator<Arithmetic>&, internal::DiffType<internal::RangeIterator<Arithmetic>> = 1);
 
 namespace internal {
 template<class Iterator>

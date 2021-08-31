@@ -108,9 +108,11 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
         std::array<int, 2> a = { 1, 2 };
         std::array<int, 2> b = { 3, 4 };
         auto cart = lz::toIter(a).cartesian(b);
-        CHECK((*cart.begin() == std::make_tuple(1, 3) && *lz::next(cart.begin()) == std::make_tuple(1, 4) &&
-        *lz::next(cart.begin(), 2) == std::make_tuple(2, 3) && *lz::next(cart.begin(), 3) == std::make_tuple(2, 4) &&
-        lz::next(cart.begin(), 4) == cart.end()));
+        CHECK(*cart.begin() == std::make_tuple(1, 3));
+        CHECK(*std::next(cart.begin()) == std::make_tuple(1, 4));
+        CHECK(*std::next(cart.begin(), 2) == std::make_tuple(2, 3));
+        CHECK(*std::next(cart.begin(), 3) == std::make_tuple(2, 4));
+        CHECK(std::next(cart.begin(), 4) == cart.end());
     }
 
     SECTION("Flatten") {
@@ -123,15 +125,15 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
     }
 
     SECTION("first, last, empty, many") {
-        CHECK(!lz::toIter(arr).isEmpty());
+        CHECK(!lz::toIter(arr).empty());
         CHECK(!lz::toIter(arr).hasOne());
         CHECK(lz::toIter(arr).hasMany());
-        CHECK(lz::toIter(arr).first() == 0);
-        CHECK(lz::toIter(arr).last() == 15);
+        CHECK(lz::toIter(arr).front() == 0);
+        CHECK(lz::toIter(arr).back() == 15);
 
         std::vector<int> v;
-        CHECK(lz::toIter(v).firstOr(20) == 20);
-        CHECK(lz::toIter(v).lastOr(20) == 20);
+        CHECK(lz::toIter(v).frontOr(20) == 20);
+        CHECK(lz::toIter(v).backOr(20) == 20);
     }
 
     SECTION("Filter") {
@@ -174,7 +176,7 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
                 return { a, b };
             });
         CHECK(*joinWhere.begin() == std::make_tuple(0, 0));
-        CHECK(lz::last(joinWhere) == std::make_tuple(15, 15));
+        CHECK(lz::back(joinWhere) == std::make_tuple(15, 15));
     }
 
     SECTION("Group by") {

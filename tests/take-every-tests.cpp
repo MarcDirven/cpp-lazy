@@ -46,22 +46,87 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
         CHECK(*iterator == 4);
     }
 
+    SECTION("Operator++ (bidirectional)") {
+        std::list<int> lst = { 1, 2, 3, 4 };
+        auto te = lz::takeEvery(lst, 3);
+        auto iter = te.begin();
+        REQUIRE(*iter == 1);
+        ++iter;
+        CHECK(*iter == 4);
+        ++iter;
+        CHECK(iter == te.end());
+    }
+
+    SECTION("Operator--") {
+        auto end = takeEvery.end();
+        CHECK(*--end == 4);
+        ++iterator;
+        --iterator;
+        CHECK(*iterator == 1);
+    }
+
+    SECTION("Operator-- (bidirectional)") {
+        std::list<int> lst = { 1, 2, 3, 4 };
+        auto te = lz::takeEvery(lst, 3);
+        auto iter = te.end();
+        --iter;
+        REQUIRE(*iter == 4);
+        --iter;
+        CHECK(*iter == 1);
+        CHECK(iter == te.begin());
+    }
+
     SECTION("Operator== & Operator!=") {
         CHECK(iterator != takeEvery.end());
         iterator = takeEvery.end();
         CHECK(iterator == takeEvery.end());
     }
 
-    SECTION("Lz distance") {
-        auto takeEvery2 = lz::takeEvery(array, 5);
-        CHECK(lz::distance(takeEvery.begin(), takeEvery.end()) == 2);
-        CHECK(lz::distance(takeEvery2.begin(), takeEvery2.end()) == 1);
+    SECTION("Operator+(int), tests += as well") {
+        std::array<int, 6> arr = { 1, 2, 3, 4, 5, 6 };
+        auto take = lz::takeEvery(arr, 2);
+        auto beg = take.begin();
+
+        CHECK(*(beg + 2) == 5);
+        CHECK(beg + 3 == take.end());
+        ++beg;
+        CHECK(*(beg + -1) == 1);
+
+        auto end = take.end();
+        CHECK(*(end + -1) == 6);
+        CHECK(*(end + -2) == 4);
+        CHECK(*(end + -3) == 2);
+        CHECK((end + -4) == take.begin());
+        --end;
+        REQUIRE(*end == 6);
+        --end;
+        REQUIRE(*end == 4);
+
+        CHECK(end + 2 == take.end());
     }
 
-    SECTION("Lz next") {
-        CHECK(*lz::next(iterator, 1) == 4);
-        CHECK(*lz::next(iterator, 0) == 1);
-        CHECK(lz::next(iterator, 2) == takeEvery.end());
+    SECTION("Operator-(int), tests -= as well") {
+        CHECK(*(takeEvery.end() - 1) == 4);
+        CHECK(*(takeEvery.end() - 2) == 1);
+    }
+
+    SECTION("Operator-(Iterator)") {
+        CHECK(takeEvery.end() - iterator == 2);
+        CHECK(takeEvery.end() - (iterator + 1) == 1);
+    }
+
+    SECTION("Operator[]()") {
+        CHECK(iterator[0] == 1);
+        CHECK(iterator[1] == 4);
+    }
+
+    SECTION("Operator<, <, <=, >, >=") {
+        auto distance = std::distance(takeEvery.begin(), takeEvery.end());
+
+        CHECK(iterator < takeEvery.end());
+        CHECK(iterator + distance - 1 > takeEvery.end() - distance);
+        CHECK(iterator + distance - 1 <= takeEvery.end());
+        CHECK(iterator + size - 1 >= takeEvery.end() - 1);
     }
 }
 

@@ -40,11 +40,13 @@ add_executable(LazyTests
 		group-by-tests.cpp
 		join-tests.cpp
 		join-where-tests.cpp
+		loop-tests.cpp
 		lz-chain-tests.cpp
 		map-tests.cpp
 		random-tests.cpp
 		range-tests.cpp
 		repeat-tests.cpp
+		rotate-tests.cpp
 		standalone.cpp
 		string-splitter-tests.cpp
 		take-every-tests.cpp
@@ -59,6 +61,8 @@ target_compile_options(LazyTests
 		PRIVATE
 		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
 		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
+
+target_compile_definitions(LazyTests PRIVATE -DCATCH_CONFIG_ENABLE_TUPLE_STRINGMAKER)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	include(CheckCXXCompilerFlag)

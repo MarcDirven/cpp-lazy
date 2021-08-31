@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LZ_LEFT_JOIN_ITERATOR_HPP
-#define LZ_LEFT_JOIN_ITERATOR_HPP
+#ifndef LZ_JOIN_WHERE_ITERATOR_HPP
+#define LZ_JOIN_WHERE_ITERATOR_HPP
 
 #include "FunctionContainer.hpp"
 #include "LzTools.hpp"
@@ -133,15 +133,15 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) noexcept {
         return a._iterA == b._iterA;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) noexcept {
         return !(a == b); // NOLINT
     }
 };
 
 } // namespace internal
 } // namespace lz
-#endif // LZ_LEFT_JOIN_ITERATOR_HPP
+#endif // LZ_JOIN_WHERE_ITERATOR_HPP

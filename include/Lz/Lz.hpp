@@ -14,9 +14,11 @@
 #    include "Lz/Generate.hpp"
 #    include "Lz/GroupBy.hpp"
 #    include "Lz/JoinWhere.hpp"
+#    include "Lz/Loop.hpp"
 #    include "Lz/Random.hpp"
 #    include "Lz/Range.hpp"
 #    include "Lz/Repeat.hpp"
+#    include "Lz/Rotate.hpp"
 #    include "Lz/TakeEvery.hpp"
 #    include "Lz/Unique.hpp"
 // Function tools includes:
@@ -149,13 +151,14 @@ public:
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
     takeEvery(const difference_type offset, const difference_type start = 0) const {
         return toIter(lz::takeEvery(*this, offset, start));
     }
 
     //! See Chunks.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator>> chunks(const std::size_t chunkSize) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
+    chunks(const std::size_t chunkSize) const {
         return toIter(lz::chunks(*this, chunkSize));
     }
 
@@ -189,13 +192,17 @@ public:
         return toIter(lz::pairwise(*this));
     }
 
+    // clang-format off
+
     //! See CartesianProduct.hpp for documentation
     template<class... Iterables>
     LZ_NODISCARD
-        LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
-        cartesian(Iterables&&... iterables) const {
+    LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+    cartesian(Iterables&&... iterables) const {
         return toIter(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
     }
+
+    // clang-format on
 
     //! See Flatten.hpp for documentation
     template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
@@ -203,9 +210,15 @@ public:
         return toIter(lz::flatten(*this));
     }
 
-    //! See FunctionTools.hpp `isEmpty` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool isEmpty() const {
-        return lz::isEmpty(*this);
+    template<class Iterable>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
+        return toIter(lz::loop(*this));
+    }
+
+    template<class Iterable>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator, internal::IsRandomAccess<Iterator>::value>>
+    rotate(const internal::DiffType<iterator> start) const {
+        return toIter(lz::rotate(*this, start));
     }
 
     //! See FunctionTools.hpp `hasOne` for documentation.
@@ -218,26 +231,26 @@ public:
         return lz::hasMany(*this);
     }
 
-    //! See FunctionTools.hpp `first` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference first() const {
-        return lz::first(*this);
+    //! See FunctionTools.hpp `front` for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference front() const {
+        return lz::front(*this);
     }
 
     //! See FunctionTools.hpp `last` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference last() const {
-        return lz::last(*this);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference back() const {
+        return lz::back(*this);
     }
 
-    //! See FunctionTools.hpp `firstOr` for documentation.
+    //! See FunctionTools.hpp `frontOr` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type firstOr(const T& defaultValue) const {
-        return lz::firstOr(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type frontOr(const T& defaultValue) const {
+        return lz::frontOr(*this, defaultValue);
     }
 
-    //! See FunctionTools.hpp `lastOr` for documentation.
+    //! See FunctionTools.hpp `backOr` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type lastOr(const T& defaultValue) const {
-        return lz::lastOr(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type backOr(const T& defaultValue) const {
+        return lz::backOr(*this, defaultValue);
     }
 
 #    ifdef LZ_HAS_EXECUTION
@@ -462,7 +475,7 @@ public:
      */
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference max(Compare cmp = {}, Execution execution = std::execution::seq) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
@@ -480,7 +493,7 @@ public:
      */
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference min(Compare cmp = {}, Execution execution = std::execution::seq) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
@@ -824,7 +837,7 @@ public:
     template<class Compare = std::less<>>
 #        endif // LZ_HAS_CXX_11
     reference max(Compare cmp = {}) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get max element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
         return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
     }
 
@@ -839,7 +852,7 @@ public:
     template<class Compare = std::less<>>
 #        endif // LZ_HAS_CXX_11
     reference min(Compare cmp = {}) const {
-        LZ_ASSERT(!lz::isEmpty(*this), "sequence cannot be empty in order to get min element");
+        LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
         return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
     }
 

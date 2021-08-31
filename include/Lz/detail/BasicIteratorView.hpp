@@ -172,7 +172,7 @@ public:
     using value_type = ValueType<LzIterator>;
     using iterator = LzIterator;
     using reference = decltype(*_begin);
-    using const_reference = std::add_const<reference>();
+    using const_reference = typename std::add_const<reference>::type;
     using const_iterator = iterator;
 
 private:
@@ -212,24 +212,22 @@ public:
     }
 
 #    ifdef LZ_HAS_REF_QUALIFIER
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator begin() && noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator begin() && noexcept {
         return std::move(_begin);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 virtual LzIterator end() && noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LzIterator end() && noexcept {
         return std::move(_end);
     }
 #    endif // LZ_HAS_REF_QUALIFIER
 
     constexpr BasicIteratorView() = default;
 
-    constexpr BasicIteratorView(LzIterator&& begin, LzIterator&& end) : _begin(std::move(begin)), _end(std::move(end)) {
+    constexpr BasicIteratorView(LzIterator&& begin, LzIterator&& end) noexcept : _begin(std::move(begin)), _end(std::move(end)) {
     }
 
-    constexpr BasicIteratorView(const LzIterator& begin, const LzIterator& end) : _begin(begin), _end(end) {
+    constexpr BasicIteratorView(const LzIterator& begin, const LzIterator& end) noexcept : _begin(begin), _end(end) {
     }
-
-    virtual ~BasicIteratorView() = default;
 
 #    ifdef LZ_HAS_EXECUTION
     /**
@@ -563,7 +561,13 @@ public:
         return next(_begin, n);
     }
 
-
+    /**
+     * Checks is the sequence is empty.
+     * @return True if it is empty, false otherwise.
+     */
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty() const {
+        return _begin == _end;
+    }
 }; // namespace internal
 // clang-format on
 } // namespace internal
