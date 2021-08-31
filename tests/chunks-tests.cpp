@@ -146,7 +146,7 @@ TEST_CASE("Chunks to containers", "[Chunk][To container]") {
 
     SECTION("To array") {
         std::array<std::array<int, 3>, 3> arrays{};
-        chunked.transformTo(arrays.begin(), [](auto&& chunk) { return chunk.toArray<3>(); });
+        chunked.transformTo(arrays.begin(), [](auto&& chunk) { return chunk.template toArray<3>(); });
 
         std::array<std::array<int, 3>, 3> expected = { std::array<int, 3>{ 1, 2, 3 }, std::array<int, 3>{ 4, 5, 6 },
                                                        std::array<int, 3>{ 7, 8 } };
@@ -166,7 +166,7 @@ TEST_CASE("Chunks to containers", "[Chunk][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<std::list<int>> lists{};
-        chunked.transformTo(std::inserter(lists, lists.begin()), [](auto&& chunk) { return chunk.to<std::list>(); });
+        chunked.transformTo(std::inserter(lists, lists.begin()), [](auto&& chunk) { return chunk.template to<std::list>(); });
 
         std::list<std::list<int>> expected = { std::list<int>{ 1, 2, 3 }, std::list<int>{ 4, 5, 6 }, std::list<int>{ 7, 8 } };
 
