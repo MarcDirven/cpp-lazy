@@ -37,26 +37,47 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 }
 
 TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") {
-    std::string toSplit = "Hello world test 123 ";
+    std::string toSplit = " Hello world test 123 ";
     auto splitter = lz::split(toSplit, ' ');
     auto it = splitter.begin();
 
-    CHECK(*it == "Hello");
-
-    auto test = splitter.begin();
-    CHECK(*test == "Hello");
-    ++test;
-    CHECK(*test == "world");
-    ++test;
-    CHECK(*test == "test");
-    ++test;
-    CHECK(*test == "123");
-    ++test;
-    CHECK(test == splitter.end());
+    CHECK(it->empty());
 
     SECTION("Operator++") {
+        CHECK(it->empty());
+        ++it;
+        CHECK(*it == "Hello");
         ++it;
         CHECK(*it == "world");
+        ++it;
+        CHECK(*it == "test");
+        ++it;
+        CHECK(*it == "123");
+        ++it;
+        CHECK(it->empty());
+        ++it;
+        CHECK(it == splitter.end());
+    }
+
+    SECTION("Operator--") {
+        std::string test = " hello world test 123  ";
+        auto spl = lz::split(test, ' ');
+        auto end = spl.end();
+        --end;
+        CHECK(end->empty());
+        --end;
+        CHECK(end->empty());
+        --end;
+        CHECK(*end == "123");
+        --end;
+        CHECK(*end == "test");
+        --end;
+        CHECK(*end == "world");
+        --end;
+        CHECK(*end == "hello");
+        --end;
+        CHECK(end->empty());
+        CHECK(end == spl.begin());
     }
 
     SECTION("Operator== & Operator!=") {

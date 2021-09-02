@@ -17,7 +17,7 @@ public:
     using value_type = SubString;
 
     LZ_CONSTEXPR_CXX_20 StringSplitter(const String& str, StringType delimiter) :
-        internal::BasicIteratorView<iterator>(iterator(0, str, std::move(delimiter)), iterator(str.size(), str, StringType())) {
+        internal::BasicIteratorView<iterator>(iterator(0, str, delimiter), iterator(str.size(), str, delimiter)) {
     }
 
     StringSplitter() = default;
