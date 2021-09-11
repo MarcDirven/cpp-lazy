@@ -1,4 +1,5 @@
 #include "Lz/ChunkIf.hpp"
+#include <Lz/FunctionTools.hpp>
 
 #include <catch2/catch.hpp>
 #include <list>
@@ -26,16 +27,54 @@ TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionali
 }
 
 TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
-    std::string s = "hello world; this is a message;";
+    std::string s = ";hello world;; this is a message; testing;";
     auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
-    CHECK(chunked.begin()->toString() == "hello world");
+    CHECK(chunked.begin()->toString().empty());
 
     SECTION("Operator++") {
+        for (auto&& c : chunked) {
+            fmt::print("'{}'\n", c.toString());
+        }
         auto it = chunked.begin();
+        CHECK(it->toString().empty());
+        ++it;
+        CHECK(it->toString() == "hello world");
+        ++it;
+        CHECK(it->empty());
         ++it;
         CHECK(it->toString() == " this is a message");
         ++it;
+        CHECK(it->toString() == " testing");
+        ++it;
+        CHECK(it->toString().empty());
+        ++it;
         CHECK(it == chunked.end());
+    }
+
+    SECTION("Operator--") {
+        auto it = chunked.end();
+        --it;
+        CHECK(it->toString().empty());
+
+        ++it; CHECK(it->toString().empty()); --it;
+
+        --it;
+        CHECK(it->toString() == " testing");
+        --it;
+        CHECK(it->toString() == " this is a message");
+
+        ++it; CHECK(it->toString() == " testing"); --it;
+
+        --it;
+        CHECK(it->toString().empty());
+        --it;
+
+        ++it; CHECK(it->toString().empty()); --it;
+
+        --it;
+        CHECK(it->toString() == "hello world");
+        --it;
+        CHECK(it->toString().empty());
     }
 
     SECTION("Operator== & operator!=") {

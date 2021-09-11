@@ -1,72 +1,78 @@
 #pragma once
 
 #ifndef LZ_CHUNK_IF_ITERATOR_HPP
-#define LZ_CHUNK_IF_ITERATOR_HPP
+#    define LZ_CHUNK_IF_ITERATOR_HPP
 
-#include "BasicIteratorView.hpp"
-#include "FunctionContainer.hpp"
+#    include "BasicIteratorView.hpp"
+#    include "FunctionContainer.hpp"
 
 namespace lz {
 namespace internal {
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
 template<class Iterator, class UnaryPredicate, class Execution>
-#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 template<class Iterator, class UnaryPredicate>
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
 class ChunkIfIterator {
+    Iterator _begin{};
     Iterator _subRangeBegin{};
     Iterator _subRangeEnd{};
     Iterator _end{};
     mutable FunctionContainer<UnaryPredicate> _predicate{};
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _execution{};
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
     using value_type = BasicIteratorView<Iterator>;
     using difference_type = typename IterTraits::difference_type;
-    using iterator_category = typename std::common_type<std::forward_iterator_tag, typename IterTraits::iterator_category>::type;
+    using iterator_category =
+        typename std::common_type<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>::type;
     using reference = value_type;
     using pointer = FakePointerProxy<reference>;
 
 private:
-    LZ_CONSTEXPR_CXX_20 void findNext() {
-#ifdef LZ_HAS_EXECUTION
+    template<class I>
+    LZ_CONSTEXPR_CXX_20 I findNext(I first, I last) {
+#    ifdef LZ_HAS_EXECUTION
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-            _subRangeEnd = std::find_if(_execution, _subRangeBegin, _end, _predicate);
+            return std::find_if(_execution, std::move(first), std::move(last), _predicate);
         }
         else {
-            _subRangeEnd = std::find_if(_subRangeBegin, _end, _predicate);
+            return std::find_if(std::move(first), std::move(last), _predicate);
         }
-#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
-        _subRangeEnd = std::find_if(_subRangeBegin, _end, _predicate);
-#endif // LZ_HAS_EXECUTION
+#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+        return std::find_if(std::move(first), std::move(last), _predicate);
+#    endif // LZ_HAS_EXECUTION
     }
 
 public:
     constexpr ChunkIfIterator() = default;
 
-#ifdef LZ_HAS_EXECUTION
-    LZ_CONSTEXPR_CXX_20 ChunkIfIterator(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
-#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
+    LZ_CONSTEXPR_CXX_20
+    ChunkIfIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
+#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
-    ChunkIfIterator(Iterator begin, Iterator end, UnaryPredicate predicate) :
-#endif // LZ_HAS_EXECUTION
-        _subRangeBegin(begin),
-        _subRangeEnd(std::move(begin)),
+    ChunkIfIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate predicate) :
+#    endif // LZ_HAS_EXECUTION
+        _begin(std::move(begin)),
+        _subRangeBegin(iterator),
+        _subRangeEnd(std::move(iterator)),
         _end(std::move(end)),
         _predicate(std::move(predicate))
-#ifdef LZ_HAS_EXECUTION
+#    ifdef LZ_HAS_EXECUTION
         ,
         _execution(execution)
-#endif // LZ_HAS_EXECUTION
+#    endif // LZ_HAS_EXECUTION
     {
-        if (begin == _end) {
+        if (_subRangeBegin == _end) {
             return;
         }
-        findNext();
+        _subRangeEnd = findNext(_subRangeBegin, _end);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
@@ -78,27 +84,53 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 ChunkIfIterator& operator++() {
-        if (_subRangeEnd != _end) {
-            _subRangeBegin = ++_subRangeEnd;
-            findNext();
+        if (_subRangeEnd == _end) {
+            LZ_ASSERT(false, "cannot increment iterator after end");
         }
-        else {
-            _subRangeBegin = _end;
+        auto next = std::next(_subRangeEnd);
+        if (next == _end) {
+            if (_subRangeBegin == _subRangeEnd) {
+                _subRangeBegin = _end, _subRangeEnd = _end;
+                return *this;
+            }
+            _subRangeBegin = _subRangeEnd;
+            return *this;
         }
+        _subRangeBegin = std::move(next);
+        _subRangeEnd = findNext(_subRangeBegin, _end);
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunkIfIterator& operator++(int) {
+    LZ_CONSTEXPR_CXX_20 ChunkIfIterator operator++(int) {
         ChunkIfIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
+    LZ_CONSTEXPR_CXX_20 ChunkIfIterator& operator--() {
+        if (_subRangeBegin != _end && _subRangeBegin != _subRangeEnd) {
+            _subRangeEnd = --_subRangeBegin;
+        }
+        std::reverse_iterator<Iterator> subRangeBegin(std::move(_subRangeBegin));
+        std::reverse_iterator<Iterator> end(_begin);
+        _subRangeBegin = findNext(std::move(subRangeBegin), std::move(end)).base();
+        if (_subRangeBegin == _subRangeEnd && _subRangeBegin != _begin) {
+            --_subRangeBegin, --_subRangeEnd;
+        }
+        return *this;
+    }
+
+    LZ_CONSTEXPR_CXX_20 ChunkIfIterator operator--(int) {
+        ChunkIfIterator tmp(*this);
+        --*this;
+        return tmp;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) noexcept {
         return lhs._subRangeBegin == rhs._subRangeBegin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunkIfIterator& lhs, const ChunkIfIterator& rhs) noexcept {
         return !(lhs == rhs); // NOLINT
     }
 };
