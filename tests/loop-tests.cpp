@@ -7,7 +7,7 @@ TEST_CASE("Basic functionality loop", "[Loop][Basic functionality]") {
 
     SECTION("Distance") {
         CHECK(std::distance(looper.begin(), looper.end()) ==
-              (std::numeric_limits<typename decltype(vec.begin())::difference_type>::max)());
+              (std::numeric_limits<decltype(vec)::iterator::difference_type>::max)());
     }
 
     SECTION("Going a circle") {
