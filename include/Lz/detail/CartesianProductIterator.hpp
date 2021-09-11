@@ -343,55 +343,27 @@ public:
         return b.distanceImpl(IndexSequenceForThis(), a);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
+    operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return a.lessThan(IndexSequenceForThis(), b);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator>(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
+    operator>(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return b < a;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator<=(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
+    operator<=(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return !(b < a); // NOLINT
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator>=(const CartesianProductIterator& a, const CartesianProductIterator& b) noexcept {
+    operator>=(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return !(a < b); // NOLINT
     }
 };
 } // namespace internal
-
-/**
- * Calculates the distance of a cartesian product iterator. If all iterators are random access iterators, time complexity is O(I),
- * where I is the amount of iterators (`sizeof...(Iterators)`).
- * @param begin Beginning of the sequence.
- * @param end Ending of the sequence
- * @return The difference between a and b.
- */
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::CartesianProductIterator<Iterators...>::difference_type
-distance(const internal::CartesianProductIterator<Iterators...>& begin,
-         const internal::CartesianProductIterator<Iterators...>& end) {
-    return end - begin;
-}
-
-/**
- * Gets the nth value from a cartesian product iterator. If all iterators are random access iterators, time complexity is O(I),
- * where I is the amount of iterators (`sizeof...(Iterators)`).
- * @param iter Cartesian product iterator instance.
- * @param offset The amount to add.
- * @return An iterator that contains `iter + offset` value.
- */
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::CartesianProductIterator<Iterators...>
-next(const internal::CartesianProductIterator<Iterators...>& iter,
-     const internal::DiffType<internal::CartesianProductIterator<Iterators...>> offset) {
-    LZ_ASSERT(offset >= 0, "Cartesian product iterator is not random access/bidirectional, offset must be >= 0");
-    return iter + offset;
-}
 } // namespace lz
 
 #endif // LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
