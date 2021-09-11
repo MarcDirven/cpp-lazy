@@ -97,7 +97,6 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 SplitIterator& operator--() {
-        // " hello world test 123 "
         const auto delimLen = getDelimiterLength();
         _lastPos = _currentPos - delimLen;
         _currentPos -= delimLen;

@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_FUNCTION_CONTAINER_HPP
-#define LZ_FUNCTION_CONTAINER_HPP
+#    define LZ_FUNCTION_CONTAINER_HPP
 
-#include "LzTools.hpp"
+#    include "LzTools.hpp"
 
-#include <utility>
+#    include <utility>
 
 namespace lz {
 namespace internal {
@@ -38,7 +38,7 @@ class FunctionContainer {
         }
     }
 
-#ifdef __cpp_if_constexpr
+#    ifdef __cpp_if_constexpr
     template<class F = Func>
     LZ_CONSTEXPR_CXX_20 void copy(const Func& f) {
         if constexpr (std::is_copy_assignable_v<F>) {
@@ -60,7 +60,7 @@ class FunctionContainer {
             construct(std::move(f));
         }
     }
-#else
+#    else
     template<class F = Func>
     LZ_CONSTEXPR_CXX_20 EnableIf<std::is_copy_assignable<F>::value> copy(const Func& f) {
         _func = f;
@@ -82,7 +82,7 @@ class FunctionContainer {
         reset();
         construct(std::move(f));
     }
-#endif
+#    endif
 
 public:
     constexpr explicit FunctionContainer(const Func& func) : _func(func), _isConstructed(true) {
@@ -130,7 +130,8 @@ public:
     }
 
     template<class... Args>
-    constexpr auto operator()(Args&&... args) const -> decltype(_func(std::forward<Args>(args)...)) {
+    constexpr auto operator()(Args&&... args) const noexcept(noexcept(_func(std::forward<Args>(args)...)))
+        -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
     }
 };
