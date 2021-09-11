@@ -22,6 +22,7 @@ class UniqueIterator {
     Iterator _end{};
     mutable FunctionContainer<Compare> _compare{};
 #ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _execution;
 #endif // LZ_HAS_EXECUTION
 
