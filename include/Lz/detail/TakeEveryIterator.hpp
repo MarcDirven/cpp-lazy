@@ -119,7 +119,7 @@ public:
     }
 #    else
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> advance() {
         const auto distance = _end - _iterator;
         if (_offset >= distance) {
             _iterator = _end;
@@ -130,13 +130,13 @@ public:
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> advance() {
         for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
         }
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() {
         const auto distance = _iterator - _begin;
         if (_offset >= distance) {
             _iterator = _begin;
@@ -147,7 +147,7 @@ public:
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> previous() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> previous() {
         for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
         }
     }
