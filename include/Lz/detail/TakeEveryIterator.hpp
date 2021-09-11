@@ -119,7 +119,7 @@ public:
     }
 #    else
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> advance() noexcept {
         const auto distance = _end - _iterator;
         if (_offset >= distance) {
             _iterator = _end;

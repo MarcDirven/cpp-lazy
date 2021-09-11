@@ -127,7 +127,7 @@ private:
     }
 #    else
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> nextChunk() {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> nextChunk() {
         if (_end - _subRangeEnd > _chunkSize) {
             _subRangeEnd += _chunkSize;
         }

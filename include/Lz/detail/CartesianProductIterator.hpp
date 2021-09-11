@@ -28,7 +28,7 @@ private:
 
 #    ifndef __cpp_if_constexpr
     template<std::size_t I>
-    constexpr EnableIf<I == 0> next() const noexcept {
+    constexpr EnableIf<I == 0, void> next() const noexcept {
     }
 
     template<std::size_t I>
@@ -41,7 +41,7 @@ private:
 #        endif // LZ_MSVC
 
     template<std::size_t I>
-    LZ_CONSTEXPR_CXX_20 EnableIf<(I > 0)> next() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<(I > 0), void> next() {
         auto& prev = std::get<I - 1>(_iterator);
         ++prev;
 
@@ -54,7 +54,7 @@ private:
     }
 
     template<std::size_t I, class Iter = Decay<decltype(std::get<I>(_iterator))>>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value> doPrev() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value> doPrev() {
         --std::get<I>(_iterator);
     }
 
