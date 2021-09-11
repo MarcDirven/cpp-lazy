@@ -30,7 +30,7 @@ struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value>> {
 
 template<class Tuple, std::size_t I, class = void>
 struct NotEqual {
-    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const noexcept {
         const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
         return iterHasValue ? iterHasValue : NotEqual<Tuple, I + 1>()(iterators, end);
     }
@@ -38,7 +38,7 @@ struct NotEqual {
 
 template<class Tuple, std::size_t I>
 struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const Tuple& end) const noexcept {
         return std::get<I>(iterators) != std::get<I>(end);
     }
 };
@@ -357,11 +357,11 @@ public:
         return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) noexcept {
         return NotEqual<IterTuple, 0>()(a._iterators, b._iterators);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 

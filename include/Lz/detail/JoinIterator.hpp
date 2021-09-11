@@ -180,12 +180,12 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinIterator& a, const JoinIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinIterator& a, const JoinIterator& b) noexcept {
         LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
         return a._iterator == b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinIterator& a, const JoinIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinIterator& a, const JoinIterator& b) noexcept {
         return !(a == b); // NOLINT
     }
 

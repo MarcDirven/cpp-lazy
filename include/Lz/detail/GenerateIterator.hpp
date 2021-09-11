@@ -36,65 +36,65 @@ public:
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() {
         if (!_isWhileTrueLoop) {
             ++_current;
         }
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) {
         GenerateIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() {
         if (!_isWhileTrueLoop) {
             --_current;
         }
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) {
         GenerateIterator tmp(*this);
         --*this;
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) {
         if (!_isWhileTrueLoop) {
             _current += offset;
         }
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) noexcept {
+    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) {
         if (!_isWhileTrueLoop) {
             _current -= offset;
         }
         return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
         GenerateIterator tmp(*this);
         tmp += offset;
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
         GenerateIterator tmp(*this);
         tmp -= offset;
         return tmp;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type
-    operator-(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+    operator-(const GenerateIterator& a, const GenerateIterator& b) {
         LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
         return a._current - b._current;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
         return *(*this + offset);
     }
 
@@ -107,20 +107,20 @@ public:
         return a._current != b._current;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
         LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
         return a._current < b._current;
     }
 
-    LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
         return b < a;
     }
 
-    LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
         return !(b < a); // NOLINT
     }
 
-    LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
         return !(a < b); // NOLINT
     }
 };

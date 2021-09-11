@@ -67,11 +67,11 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExcludeIterator& a, const ExcludeIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExcludeIterator& a, const ExcludeIterator& b) noexcept {
         LZ_ASSERT(a._to == b._to && a._from == b._from, "incompatible iterator types: from and to must be equal");
         return a._iterator != b._iterator;
     }

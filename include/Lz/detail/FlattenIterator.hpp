@@ -104,19 +104,19 @@ public:
         _end(std::move(end)) {
     }
 
-    LZ_CONSTEXPR_CXX_20 bool hasSome() const {
+    LZ_CONSTEXPR_CXX_20 bool hasSome() const noexcept {
         return _current != _end;
     }
 
-    LZ_CONSTEXPR_CXX_20 bool hasPrev() const {
+    LZ_CONSTEXPR_CXX_20 bool hasPrev() const noexcept {
         return _current != _begin;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) {
+    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) noexcept {
         return a._current != b._current;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) {
+    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) noexcept {
         return !(a != b); // NOLINT
     }
 
@@ -218,11 +218,11 @@ public:
         return _innerIter.hasPrev() || _outerIter.hasPrev();
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
+    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) noexcept {
         return a._outerIter != b._outerIter || a._innerIter != b._innerIter;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
+    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 
@@ -353,11 +353,11 @@ public:
         return &*_range;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) noexcept {
         return a._range != b._range;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 
