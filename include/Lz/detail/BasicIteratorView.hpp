@@ -455,8 +455,6 @@ public:
      */
     template<std::size_t N>
     std::array<value_type, N> toArray() const {
-        using lz::distance;
-        using std::distance;
         std::array<value_type, N> cont{};
         copyTo(cont.begin());
         return cont;
