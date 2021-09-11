@@ -9,7 +9,7 @@ TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionali
     auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
 
     SECTION("Length should be correct") {
-        CHECK(std::distance(chunked.begin(), chunked.end()) == 2);
+        CHECK(std::distance(chunked.begin(), chunked.end()) == 3);
     }
 
     SECTION("Should be by reference") {
@@ -32,9 +32,7 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
     CHECK(chunked.begin()->toString().empty());
 
     SECTION("Operator++") {
-        for (auto&& c : chunked) {
-            fmt::print("'{}'\n", c.toString());
-        }
+        CHECK(std::distance(chunked.begin(), chunked.end()) == 6);
         auto it = chunked.begin();
         CHECK(it->toString().empty());
         ++it;
@@ -52,6 +50,9 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
     }
 
     SECTION("Operator--") {
+        auto beg = std::make_reverse_iterator(chunked.end());
+        auto en = std::make_reverse_iterator(chunked.begin());
+        CHECK(std::distance(beg, en) == 6);
         auto it = chunked.end();
         --it;
         CHECK(it->toString().empty());

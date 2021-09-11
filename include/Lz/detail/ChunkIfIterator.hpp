@@ -85,7 +85,8 @@ public:
 
     LZ_CONSTEXPR_CXX_20 ChunkIfIterator& operator++() {
         if (_subRangeEnd == _end) {
-            LZ_ASSERT(false, "cannot increment iterator after end");
+            _subRangeBegin = _end;
+            return *this;
         }
         auto next = std::next(_subRangeEnd);
         if (next == _end) {
