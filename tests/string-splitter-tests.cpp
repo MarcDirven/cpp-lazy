@@ -11,8 +11,8 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
     auto it = splitter.begin();
 
     SECTION("Should split on delimiter") {
-        std::vector<std::string> expected = { "Hello", "world", "test", "123" };
-
+        std::vector<std::string> expected = { "Hello", "world", "test", "123", "" };
+        CHECK(splitter.size() == expected.size());
         for (std::size_t i = 0; i < expected.size(); i++, ++it) {
             CHECK(*it == expected[i]);
         }
@@ -29,7 +29,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 
     SECTION("Should contain std::string_view correctly") {
         std::vector<std::string_view> actual = splitter.toVector();
-        std::vector<std::string_view> expected = { "Hello", "world", "test", "123" };
+        std::vector<std::string_view> expected = { "Hello", "world", "test", "123", "" };
 
         CHECK(actual == expected);
     }
@@ -41,10 +41,10 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
     auto splitter = lz::split(toSplit, ' ');
     auto it = splitter.begin();
 
-    CHECK(it->empty());
+    CHECK(it->size() == 0);
 
     SECTION("Operator++") {
-        CHECK(it->empty());
+        CHECK(it->size() == 0);
         ++it;
         CHECK(*it == "Hello");
         ++it;
@@ -54,7 +54,7 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
         ++it;
         CHECK(*it == "123");
         ++it;
-        CHECK(it->empty());
+        CHECK(it->size() == 0);
         ++it;
         CHECK(it == splitter.end());
     }
@@ -64,9 +64,9 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
         auto spl = lz::split(test, ' ');
         auto end = spl.end();
         --end;
-        CHECK(end->empty());
+        CHECK(end->size() == 0);
         --end;
-        CHECK(end->empty());
+        CHECK(end->size() == 0);
         --end;
         CHECK(*end == "123");
         --end;
@@ -76,7 +76,7 @@ TEST_CASE("String splitter binary operations", "[String splitter][Binary ops]") 
         --end;
         CHECK(*end == "hello");
         --end;
-        CHECK(end->empty());
+        CHECK(end->size() == 0);
         CHECK(end == spl.begin());
     }
 

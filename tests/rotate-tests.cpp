@@ -93,6 +93,11 @@ TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
         auto beg = rotator.begin();
         auto en = rotator.end();
 
+        REQUIRE(*beg == 4);
+        ++beg, ++beg;
+        CHECK(*(beg - 1) == 5);
+        CHECK(*(beg - 2) == 4);
+
         CHECK(*(en - 3) == 1);
         CHECK(*(en - 5) == 4);
 
