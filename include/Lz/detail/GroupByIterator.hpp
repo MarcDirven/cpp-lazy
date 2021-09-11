@@ -23,6 +23,7 @@ class GroupByIterator {
     Iterator _end{};
     mutable FunctionContainer<Comparer> _comparer{};
 #ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _execution{};
 #endif // end LZ_HAS_EXECUTION
 
@@ -101,11 +102,11 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) noexcept {
         return lhs._subRangeBegin != rhs._subRangeBegin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) noexcept {
         return !(lhs != rhs); // NOLINT
     }
 };

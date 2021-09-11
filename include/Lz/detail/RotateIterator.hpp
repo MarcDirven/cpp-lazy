@@ -11,7 +11,7 @@ template<class Iterator, bool>
 class RotateIterator;
 
 template<class Iterator>
-class RotateIterator<Iterator, true> {
+class RotateIterator<Iterator, true /* isRandomAccess */> {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -44,7 +44,7 @@ public:
         return *_iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator++() noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator++() {
         ++_iterator;
         ++_current;
         if (_iterator == _end) {
@@ -59,7 +59,7 @@ public:
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator--() noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator--() {
         if (_iterator == _begin) {
             _iterator = _end;
         }
@@ -74,9 +74,7 @@ public:
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator+=(difference_type offset) noexcept {
-        // 1, 2, 3, 4, 5
-        // 4, 5, 1, 2, 3
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator+=(difference_type offset) {
         if (offset < 0) {
             offset = _distance + offset;
         }
@@ -85,7 +83,7 @@ public:
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator-=(const difference_type offset) noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator-=(const difference_type offset) {
         return *this += -offset;
     }
 
@@ -101,7 +99,7 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD constexpr friend difference_type operator-(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend difference_type operator-(const RotateIterator& a, const RotateIterator& b) {
         return a._current - b._current;
     }
 
@@ -117,25 +115,25 @@ public:
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD constexpr friend bool operator<(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend bool operator<(const RotateIterator& a, const RotateIterator& b) {
         return a._current < b._current;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const RotateIterator& a, const RotateIterator& b) {
         return b < a;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const RotateIterator& a, const RotateIterator& b) {
         return !(b < a); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const RotateIterator& a, const RotateIterator& b) {
         return !(a < b); // NOLINT
     }
 };
 
 template<class Iterator>
-class RotateIterator<Iterator, false> {
+class RotateIterator<Iterator, false /* isRandomAccess */> {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -152,7 +150,7 @@ private:
     difference_type _current{};
 
 public:
-    LZ_CONSTEXPR_CXX_20 RotateIterator(Iterator begin, Iterator end, Iterator iterator, const difference_type current) noexcept :
+    LZ_CONSTEXPR_CXX_20 RotateIterator(Iterator begin, Iterator end, Iterator iterator, const difference_type current) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
         _begin(std::move(begin)),
@@ -167,7 +165,7 @@ public:
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator++() noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator++() {
         ++_iterator;
         ++_current;
         if (_iterator == _end) {
@@ -176,13 +174,13 @@ public:
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator operator++(int) noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator operator++(int) {
         RotateIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator--() noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator& operator--() {
         if (_iterator == _begin) {
             _iterator = _end;
         }
@@ -191,13 +189,13 @@ public:
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator operator--(int) noexcept {
+    LZ_CONSTEXPR_CXX_20 RotateIterator operator--(int) {
         RotateIterator tmp(*this);
         --*this;
         return tmp;
     }
 
-    LZ_NODISCARD constexpr friend difference_type operator-(const RotateIterator& a, const RotateIterator& b) noexcept {
+    LZ_NODISCARD constexpr friend difference_type operator-(const RotateIterator& a, const RotateIterator& b) {
         return a._current - b._current;
     }
 

@@ -30,8 +30,8 @@ private:
     IteratorToExcept _toExceptBegin{};
     IteratorToExcept _toExceptEnd{};
     mutable FunctionContainer<Compare> _compare{};
-
 #ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _execution{};
 #endif // LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 void find() {
@@ -98,11 +98,11 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) noexcept {
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 };

@@ -67,12 +67,12 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
         return lhs._subRangeBegin != rhs._subRangeBegin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
         return !(lhs != rhs); // NOLINT
     }
 };
@@ -127,7 +127,7 @@ private:
     }
 #    else
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> nextChunk() {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> nextChunk() {
         if (_end - _subRangeEnd > _chunkSize) {
             _subRangeEnd += _chunkSize;
         }

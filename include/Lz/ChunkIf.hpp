@@ -24,12 +24,12 @@ public:
 
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate, execution),
-                                              iterator(end, end, predicate, execution)) {
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, predicate, execution),
+                                              iterator(end, begin, end, predicate, execution)) {
     }
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
     ChunkIf(Iterator begin, Iterator end, UnaryPredicate predicate) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate), iterator(end, end, predicate)) {
+        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, predicate), iterator(end, begin, end, predicate)) {
     }
 #endif // LZ_HAS_EXECUTION
 };
@@ -75,7 +75,7 @@ chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate, Execution execution 
  * @param unaryPredicate The predicate that must return a boolean, to indicate whether or not to make a new chunk.
  * @return A chunk if iterator view object.
  */
-template<class Iterator, class UnaryPredicate>
+template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
 ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, UnaryPredicate unaryPredicate) {
     return { std::move(begin), std::move(end), std::move(unaryPredicate) };
 }
@@ -86,7 +86,7 @@ ChunkIf<Iterator, UnaryPredicate> chunkIfRange(Iterator begin, Iterator end, Una
  * @param unaryPredicate The predicate that must return a boolean, to indicate whether or not to make a new chunk.
  * @return A chunk if iterator view object.
  */
-template<class Iterable, class UnaryPredicate>
+template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
 ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> chunkIf(Iterable&& iterable, UnaryPredicate unaryPredicate) {
     return chunkIfRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         std::move(unaryPredicate));

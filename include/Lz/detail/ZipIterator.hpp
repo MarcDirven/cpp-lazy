@@ -116,11 +116,11 @@ public:
         return *(*this + offset);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) noexcept {
         return std::get<0>(a._iterators) != std::get<0>(b._iterators);
     }
 

@@ -119,7 +119,7 @@ public:
     }
 #    else
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> advance() {
         const auto distance = _end - _iterator;
         if (_offset >= distance) {
             _iterator = _end;
@@ -130,13 +130,13 @@ public:
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> advance() {
         for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
         }
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value> previous() {
         const auto distance = _iterator - _begin;
         if (_offset >= distance) {
             _iterator = _begin;
@@ -147,7 +147,7 @@ public:
     }
 
     template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> previous() noexcept {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!IsRandomAccess<I>::value> previous() {
         for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
         }
     }
@@ -155,7 +155,7 @@ public:
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEveryIterator(Iterator iterator, Iterator begin, Iterator end, const difference_type offset) noexcept :
+    TakeEveryIterator(Iterator iterator, Iterator begin, Iterator end, const difference_type offset) :
         _begin(std::move(begin)),
         _iterator(std::move(iterator)),
         _end(std::move(end)),
@@ -172,7 +172,7 @@ public:
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator++() noexcept {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator++() {
         advance();
         return *this;
     }
@@ -183,7 +183,7 @@ public:
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator--() noexcept {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator--() {
         if (_iterator == _end) {
             --_iterator;
         }
@@ -198,7 +198,7 @@ public:
         --*this;
         return tmp;
     }
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator+=(difference_type offset) noexcept {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator+=(difference_type offset) {
         difference_type extra = 0;
         if (_iterator == _end && offset < 0) {
             --_iterator;
@@ -226,7 +226,7 @@ public:
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator-=(const difference_type offset) noexcept {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator-=(const difference_type offset) {
         return *this += -offset;
     }
 
@@ -237,7 +237,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type
-    operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) noexcept {
+    operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
         return roundEven(a._iterator - b._iterator, a._offset);
     }

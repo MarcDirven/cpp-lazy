@@ -12,6 +12,7 @@ class Loop final : public internal::BasicIteratorView<internal::LoopIterator<Ite
 public:
     using iterator = internal::LoopIterator<Iterator>;
     using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
 
     Loop(Iterator begin, Iterator end) :
         internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
@@ -22,6 +23,7 @@ public:
 
 template<LZ_CONCEPT_ITERATOR Iterator>
 Loop<Iterator> loopRange(Iterator begin, Iterator end) {
+    LZ_ASSERT(begin != end, "View cannot be empty in order to loop over elements");
     return { std::move(begin), std::move(end) };
 }
 

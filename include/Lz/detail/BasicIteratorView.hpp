@@ -181,11 +181,11 @@ private:
 
 #    ifndef __cpp_if_constexpr
     template<class Container>
-    EnableIf<!HasReserve<Container>::value> tryReserve(Container&) const {
+    EnableIf<!HasReserve<Container>::value, void> tryReserve(Container&) const {
     }
 
     template<class Container>
-    EnableIf<HasReserve<Container>::value> tryReserve(Container& container) const {
+    EnableIf<HasReserve<Container>::value, void> tryReserve(Container& container) const {
         container.reserve(size());
     }
 #    else
@@ -455,8 +455,6 @@ public:
      */
     template<std::size_t N>
     std::array<value_type, N> toArray() const {
-        using lz::distance;
-        using std::distance;
         std::array<value_type, N> cont{};
         copyTo(cont.begin());
         return cont;

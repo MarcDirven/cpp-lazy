@@ -29,6 +29,7 @@ private:
     IterB _beginB{};
     IterB _endB{};
 #ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _exec{};
 #endif // LZ_HAS_EXECUTION
     mutable FunctionContainer<SelectorA> _selectorA{};

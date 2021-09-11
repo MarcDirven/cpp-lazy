@@ -45,6 +45,7 @@ private:
     Iterator _end{};
     mutable FunctionContainer<UnaryPredicate> _predicate{};
 #ifdef LZ_HAS_EXECUTION
+    LZ_NO_UNIQUE_ADDRESS
     Execution _execution{};
 #endif // LZ_HAS_EXECUTION
 
@@ -105,11 +106,11 @@ public:
         return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FilterIterator& a, const FilterIterator& b) noexcept {
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const FilterIterator& a, const FilterIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const FilterIterator& a, const FilterIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 };

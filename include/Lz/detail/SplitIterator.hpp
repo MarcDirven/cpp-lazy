@@ -1,30 +1,43 @@
 #pragma once
 
 #ifndef LZ_SPLIT_ITERATOR_HPP
-#define LZ_SPLIT_ITERATOR_HPP
+#    define LZ_SPLIT_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#    include "LzTools.hpp"
 
-#include <string>
+#    include <string>
 
 namespace lz {
 namespace internal {
 template<class SubString, class String, class StringType>
 class SplitIterator {
-    std::size_t _currentPos{}, _last{};
+    std::size_t _currentPos{}, _lastPos{};
     const String* _string{ nullptr };
     StringType _delimiter{};
 
-    constexpr std::size_t getLength(std::true_type /* isChar */) const {
+#    ifdef __cpp_if_constexpr
+    std::size_t getDelimiterLength() const { // NOLINT
+        if constexpr (std::is_same_v<char, StringType>) {
+            return 1;
+        }
+        else {
+            return _delimiter.length();
+        }
+    }
+#    else
+    template<class T = StringType>
+    EnableIf<std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
         return 1;
     }
 
-    LZ_CONSTEXPR_CXX_20 std::size_t getLength(std::false_type /* isChar */) const {
+    template<class T = StringType>
+    EnableIf<!std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
         return _delimiter.length();
     }
-
+#    endif
 public:
-    using iterator_category = std::forward_iterator_tag;
+    using iterator_category =
+        typename std::common_type<std::bidirectional_iterator_tag, IterCat<typename String::const_iterator>>::type;
     using value_type = SubString;
     using reference = SubString;
     using difference_type = std::ptrdiff_t;
@@ -34,17 +47,19 @@ public:
         _currentPos(startingPosition),
         _string(&string),
         _delimiter(std::move(delimiter)) {
-        // Micro optimization, check if object is created from begin(), only then we want to search
         if (startingPosition == 0) {
-            _last = _string->find(_delimiter, _currentPos);
+            _lastPos = _string->find(_delimiter);
+        }
+        else {
+            _currentPos = startingPosition + getDelimiterLength();
         }
     }
 
     SplitIterator() = default;
 
     LZ_CONSTEXPR_CXX_20 value_type operator*() const {
-        if (_last != std::string::npos) {
-            return SubString(&(*_string)[_currentPos], _last - _currentPos);
+        if (_lastPos != std::string::npos) {
+            return SubString(&(*_string)[_currentPos], _lastPos - _currentPos);
         }
         else {
             return SubString(&(*_string)[_currentPos]);
@@ -56,6 +71,7 @@ public:
     }
 
     constexpr friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
+        LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types, found different delimiters");
         return a._currentPos != b._currentPos;
     }
 
@@ -63,27 +79,36 @@ public:
         return !(a != b); // NOLINT
     }
 
-    LZ_CONSTEXPR_CXX_20 SplitIterator& operator++() noexcept {
-        const std::size_t delimLen = getLength(std::is_same<StringType, char>());
-        const std::size_t stringLen = _string->length();
-        if (_last == std::string::npos) {
-            _currentPos = stringLen;
-        }
-        else if (_last == stringLen - delimLen) {
-            // Check if ends with delimiter
-            _last = std::string::npos;
-            _currentPos = _string->length();
+    LZ_CONSTEXPR_CXX_20 SplitIterator& operator++() {
+        if (_lastPos == std::string::npos) {
+            _currentPos = _string->length() + getDelimiterLength();
         }
         else {
-            _currentPos = _last + delimLen;
-            _last = _string->find(_delimiter, _currentPos);
+            _currentPos = _lastPos + getDelimiterLength();
+            _lastPos = _string->find(_delimiter, _currentPos);
         }
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 SplitIterator operator++(int) noexcept {
+    LZ_CONSTEXPR_CXX_20 SplitIterator operator++(int) {
         SplitIterator tmp(*this);
         ++*this;
+        return tmp;
+    }
+
+    LZ_CONSTEXPR_CXX_20 SplitIterator& operator--() {
+        const auto delimLen = getDelimiterLength();
+        _lastPos = _currentPos - delimLen;
+        _currentPos -= delimLen;
+        if (_currentPos != 0) {
+            _currentPos = _string->rfind(_delimiter, _currentPos - 1) + delimLen;
+        }
+        return *this;
+    }
+
+    LZ_CONSTEXPR_CXX_20 SplitIterator& operator--(int) {
+        SplitIterator tmp(*this);
+        --*this;
         return tmp;
     }
 };

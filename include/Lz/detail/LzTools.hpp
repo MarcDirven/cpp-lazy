@@ -81,7 +81,7 @@
 #    if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
 #        define LZ_HAS_CONCEPTS
 #        include <concepts>
-#    endif // has concepts
+#    endif // Have concepts
 
 #    ifdef __cpp_if_constexpr
 #        define LZ_CONSTEXPR_IF constexpr
@@ -92,6 +92,18 @@
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
 #        define LZ_HAS_FORMAT
 #    endif // format
+
+#    ifdef LZ_MSVC
+#        if _MSC_VER >= 1929 && defined(LZ_HAS_CXX_20)
+#            define LZ_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#        else
+#            define LZ_NO_UNIQUE_ADDRESS
+#        endif // _MSVC_VER
+#    elif __has_cpp_attribute(no_unique_address) && defined(LZ_HAS_CXX_20)
+#        define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#    else
+#        define LZ_NO_UNIQUE_ADDRESS
+#    endif // LZ_MSVC
 
 #    ifdef LZ_HAS_CONCEPTS
 namespace lz {
@@ -127,7 +139,7 @@ concept Arithmetic = std::is_arithmetic_v<I>;
 #        define LZ_CONCEPT_ITERABLE class
 #        define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
 #        define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-#    endif // lz has concepts
+#    endif // LZ_HAS_CONCEPTS
 
 #    ifndef NDEBUG
 #        include <exception>
@@ -183,8 +195,6 @@ constexpr T* end(T (&array)[N]) noexcept {
 }
 
 #    ifdef LZ_HAS_CXX_11
-template<bool B, class U = void>
-using EnableIf = typename std::enable_if<B, U>::type;
 
 template<std::size_t...>
 struct IndexSequence {};
@@ -209,9 +219,6 @@ using TupleElement = typename std::tuple_element<I, T>::type;
 template<bool B, class IfTrue, class IfFalse>
 using Conditional = typename std::conditional<B, IfTrue, IfFalse>::type;
 #    else  // ^^^ has cxx 11 vvv cxx > 11
-template<bool B, class T = void>
-using EnableIf = std::enable_if_t<B, T>;
-
 template<std::size_t... N>
 using IndexSequence = std::index_sequence<N...>;
 
@@ -308,6 +315,18 @@ public:
     }
 };
 
+template<bool B>
+struct EnableIfImpl {};
+
+template<>
+struct EnableIfImpl<true> {
+    template <class T>
+    using type = T;
+};
+
+template<bool B, class T = void>
+using EnableIf = typename EnableIfImpl<B>::template type<T>;
+
 template<class T, class = int>
 struct HasSize : std::false_type {};
 
@@ -368,7 +387,6 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
 distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
 
-
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
@@ -384,8 +402,8 @@ next(const internal::RangeIterator<Arithmetic>&, internal::DiffType<internal::Ra
 namespace internal {
 template<class Iterator>
 DiffType<Iterator> getIterLength(Iterator begin, Iterator end) {
-    using std::distance;
     using lz::distance;
+    using std::distance;
     return distance(std::move(begin), std::move(end));
 }
 } // namespace internal
