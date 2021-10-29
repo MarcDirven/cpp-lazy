@@ -25,7 +25,7 @@ template<class T, class Enable = void>
 struct HasDifferenceType : std::false_type {};
 
 template<class T>
-struct HasDifferenceType<T, AliasWrapperT<typename T::reference>> : std::true_type {};
+struct HasDifferenceType<T, AliasWrapperT<typename T::difference_type>> : std::true_type {};
 
 template<class T, class Enable = void>
 struct HasPointer : std::false_type {};
@@ -64,20 +64,26 @@ struct IterTraitsOrUnderlyingType<T, AliasWrapperT<typename T::iterator>> {
 template<class T, class U = void>
 using IterTraitsOrUnderlyingTypeT = typename IterTraitsOrUnderlyingType<T, U>::Type;
 
-template<class T, bool IsCont>
+template<bool B>
 struct CountDimsHelper;
 
-template<class T>
-struct CountDimsHelper<T, true> {
+template<>
+struct CountDimsHelper<true> {
+    template<class T>
     using Inner = IterTraitsOrUnderlyingTypeT<typename T::value_type>;
-    static constexpr int value = 1 + CountDimsHelper<Inner, IsIterator<Inner>::value>::value;
+
+    template<class T>
+    using type = std::integral_constant<int, 1 + CountDimsHelper<IsIterator<Inner<T>>::value>::template type<Inner<T>>::value>;
+};
+
+template<>
+struct CountDimsHelper<false> {
+    template<class>
+    using type = std::integral_constant<int, 0>;
 };
 
 template<class T>
-struct CountDimsHelper<T, false> : std::integral_constant<int, 0> {};
-
-template<class T>
-struct CountDims : CountDimsHelper<T, IsIterator<T>::value> {};
+using CountDims = typename CountDimsHelper<IsIterator<T>::value>::template type<T>;
 
 // Improvement of https://stackoverflow.com/a/21076724/8729023
 template<class Iterator>
@@ -92,8 +98,7 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
     using value_type = typename IterTraits::value_type;
-    using iterator_category =
-        typename std::common_type<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>::type;
+    using iterator_category = typename IterTraits::iterator_category;
     using difference_type = typename IterTraits::difference_type;
 
     constexpr FlattenWrapper() = default;
@@ -175,10 +180,10 @@ class FlattenIterator {
 
 public:
     using reference = typename Inner::reference;
-    using pointer = FakePointerProxy<reference>;
+    using pointer = typename Inner::pointer;
     using value_type = typename Inner::value_type;
-    using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
-    using difference_type = typename std::iterator_traits<Iterator>::difference_type;
+    using iterator_category = typename Inner::iterator_category;
+    using difference_type = typename Inner::difference_type;
 
 private:
     LZ_CONSTEXPR_CXX_20 void advance() {
@@ -327,22 +332,13 @@ public:
     using pointer = typename Traits::pointer;
     using reference = typename Traits::reference;
     using value_type = typename Traits::value_type;
-    using iterator_category =
-        typename std::common_type<std::bidirectional_iterator_tag, typename Traits::iterator_category>::type;
-    using difference_type = typename std::iterator_traits<Iterator>::difference_type;
+    using iterator_category = typename Traits::iterator_category;
+    using difference_type = typename Traits::difference_type;
 
     constexpr FlattenIterator() = default;
 
     constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end) :
         _range(std::move(it), std::move(begin), std::move(end)) {
-    }
-
-    LZ_CONSTEXPR_CXX_20 bool hasSome() const { // NOLINT
-        return _range.hasSome();
-    }
-
-    LZ_CONSTEXPR_CXX_20 bool hasPrev() const { // NOLINT
-        return _range.hasPrev();
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {

@@ -165,9 +165,6 @@ namespace internal {
 template<class>
 class ExcludeIterator;
 
-template<class, int>
-class FlattenIterator;
-
 template<class>
 class RangeIterator;
 
@@ -375,10 +372,6 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
 distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
 
-template<LZ_CONCEPT_ITERATOR Iterator, int N>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::FlattenIterator<Iterator, N>::difference_type
-distance(const internal::FlattenIterator<Iterator, N>&, const internal::FlattenIterator<Iterator, N>&);
-
 template<LZ_CONCEPT_ITERATOR Arithmetic>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
 distance(const internal::RangeIterator<Arithmetic>&, const internal::RangeIterator<Arithmetic>&);
@@ -390,10 +383,6 @@ distance(const internal::RotateIterator<Iterator, false>&, const internal::Rotat
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
-
-template<LZ_CONCEPT_ITERATOR Iterator, int N>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::FlattenIterator<Iterator, N>
-next(const internal::FlattenIterator<Iterator, N>&, internal::DiffType<internal::FlattenIterator<Iterator, N>> = 1);
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
