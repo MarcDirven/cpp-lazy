@@ -81,7 +81,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type
     operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
         LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
-        const auto difference = static_cast<std::ptrdiff_t>(a._iterator) - static_cast<std::ptrdiff_t>(b._iterator);
+        const auto difference = a._iterator - b._iterator;
         return std::abs(plusImpl(static_cast<Arithmetic>(difference), a._step));
     }
 

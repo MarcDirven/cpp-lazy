@@ -71,15 +71,32 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
     }
 
     SECTION("Operator+(int) offset, tests += as well") {
+        CHECK(*(it + 2) == 2);
+        CHECK(*(it + 4) == 4);
+        CHECK(*(fIt + 2) == 1.);
+        CHECK(*(fIt + 3) == 1.5);
+        CHECK(*(fIt + 5) == 2.5);
     }
 
     SECTION("Operator-(int) offset, tests -= as well") {
+        CHECK(*((it + 2) - 1) == 1);
+        CHECK(*((it + 4) - 2) == 2);
+        CHECK(*((fIt + 2) - 1) == .5);
+        CHECK(*((fIt + 3) - 2) == .5);
+        CHECK(*((fIt + 5) - 2) == 1.5);
     }
 
     SECTION("Operator-(Iterator)") {
+        CHECK(range.end() - it == 10);
+        CHECK(fRange.end() - fIt == 21);
+
+        CHECK(range.end() - (it + 1) == 9);
+        CHECK(fRange.end() - (fIt + 1) == 20);
     }
 
     SECTION("Operator[]()") {
+        CHECK(fIt[1] == .5);
+        CHECK(it[1] == 1);
     }
 
     SECTION("Operator<, <, <=, >, >=") {
