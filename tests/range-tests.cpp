@@ -43,13 +43,25 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
 TEST_CASE("Range binary operations", "[Range][Binary ops]") {
     constexpr int size = 10;
     auto range = lz::range(size);
+    auto fRange = lz::range(0., 10.5, 0.5);
     auto it = range.begin();
+    auto fIt = fRange.begin();
 
     CHECK(*it == 0);
+    CHECK(*fIt == 0.);
 
     SECTION("Operator++") {
         ++it;
         CHECK(*it == 1);
+        ++fIt;
+        CHECK(*fIt == 0.5);
+    }
+
+    SECTION("Operator--") {
+        ++it, --it;
+        CHECK(*it == 0);
+        ++fIt, --fIt;
+        CHECK(*fIt == 0);
     }
 
     SECTION("Operator== & Operator!=") {
@@ -58,34 +70,37 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         CHECK(it == range.end());
     }
 
-    SECTION("Lz distance") {
-        CHECK(lz::distance(range.begin(), range.end()) == 10);
-        range = lz::range(5, 10, 2);
-
-        CHECK(lz::distance(range.begin(), range.end()) == 3);
-        range = lz::range(5, 10, 3);
-        CHECK(lz::distance(range.begin(), range.end()) == 2);
+    SECTION("Operator+(int) offset, tests += as well") {
     }
 
-    SECTION("Lz next") {
-        CHECK(*lz::next(it, 5) == 5);
-        CHECK(*lz::next(it, 11) == 11);
-        range = lz::range(5, 10, 2);
-        CHECK(*lz::next(range.begin(), 2) == 9);
+    SECTION("Operator-(int) offset, tests -= as well") {
     }
 
-    SECTION("Floating range") {
-        auto floatRange = lz::range(0., 10., 3.5);
-        auto fltRangeIterator = floatRange.begin();
-
-        CHECK(lz::distance(fltRangeIterator, floatRange.end()) == 3);
-        ++fltRangeIterator;
-        CHECK(*fltRangeIterator == 3.5);
-
-        floatRange = lz::range(0., 9., 2.);
-        CHECK(lz::distance(floatRange.begin(), floatRange.end()) == 5);
-
+    SECTION("Operator-(Iterator)") {
     }
+
+    SECTION("Operator[]()") {
+    }
+
+    SECTION("Operator<, <, <=, >, >=") {
+        auto b = range.begin();
+        auto end = range.end();
+        auto distance = std::distance(b, end);
+
+        CHECK(b < end);
+        CHECK(b + distance - 1 > end - distance);
+        CHECK(b + distance - 1 <= end);
+        CHECK(b + size - 1 >= end - 1);
+
+        auto fB = range.begin();
+        auto fEnd = range.end();
+
+        CHECK(fB < end);
+        CHECK(fB + distance - 1 > fEnd - distance);
+        CHECK(fB + distance - 1 <= fEnd);
+        CHECK(fB + 20 >= fEnd - 1);
+    }
+
 }
 
 TEST_CASE("Range to containers", "[Range][To container]") {
