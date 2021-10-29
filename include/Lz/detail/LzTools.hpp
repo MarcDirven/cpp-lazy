@@ -99,7 +99,7 @@
 #        else
 #            define LZ_NO_UNIQUE_ADDRESS
 #        endif // _MSVC_VER
-#    elif __has_cpp_attribute(no_unique_address) && defined(LZ_HAS_CXX_20)
+#    elif LZ_HAS_ATTRIBUTE(no_unique_address) && defined(LZ_HAS_CXX_20)
 #        define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #    else
 #        define LZ_NO_UNIQUE_ADDRESS
@@ -165,9 +165,6 @@ namespace internal {
 template<class>
 class ExcludeIterator;
 
-template<class>
-class RangeIterator;
-
 template<class, bool>
 class RotateIterator;
 
@@ -212,9 +209,6 @@ using Decay = typename std::decay<T>::type;
 
 template<std::size_t I, class T>
 using TupleElement = typename std::tuple_element<I, T>::type;
-
-template<bool B, class IfTrue, class IfFalse>
-using Conditional = typename std::conditional<B, IfTrue, IfFalse>::type;
 #    else  // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
 using IndexSequence = std::index_sequence<N...>;
@@ -228,8 +222,6 @@ using Decay = std::decay_t<T>;
 template<std::size_t I, class T>
 using TupleElement = std::tuple_element_t<I, T>;
 
-template<bool B, class IfTrue, class IfFalse>
-using Conditional = std::conditional_t<B, IfTrue, IfFalse>;
 #    endif // LZ_HAS_CXX_11
 
 template<class Iterable>
@@ -324,6 +316,24 @@ struct EnableIfImpl<true> {
 template<bool B, class T = void>
 using EnableIf = typename EnableIfImpl<B>::template type<T>;
 
+template<bool B>
+struct ConditionalImpl;
+
+template<>
+struct ConditionalImpl<true> {
+    template<class IfTrue, class /* IfFalse */>
+    using type = IfTrue;
+};
+
+template<>
+struct ConditionalImpl<false> {
+    template<class /* IfTrue */, class IfFalse>
+    using type = IfFalse;
+};
+
+template<bool B, class IfTrue, class IfFalse>
+using Conditional = typename ConditionalImpl<B>::template type<IfTrue, IfFalse>;
+
 template<class T, class = int>
 struct HasSize : std::false_type {};
 
@@ -352,7 +362,13 @@ inline constexpr bool isEven(const Arithmetic value) noexcept {
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
-    if (a == 0 || b == 0) return 0;
+    LZ_ASSERT(a != 0 && b != 0, "division by zero error");
+    if (b == 1) {
+        return a;
+    }
+    else if (b == -1) {
+        return -a;
+    }
     if (isEven(a) && isEven(b)) {
         return static_cast<Arithmetic>(a / b);
     }
@@ -372,10 +388,6 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
 distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
 
-template<LZ_CONCEPT_ITERATOR Arithmetic>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RangeIterator<Arithmetic>::difference_type
-distance(const internal::RangeIterator<Arithmetic>&, const internal::RangeIterator<Arithmetic>&);
-
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
 distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
@@ -383,10 +395,6 @@ distance(const internal::RotateIterator<Iterator, false>&, const internal::Rotat
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
 next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
-
-template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-LZ_NODISCARD constexpr internal::RangeIterator<Arithmetic>
-next(const internal::RangeIterator<Arithmetic>&, internal::DiffType<internal::RangeIterator<Arithmetic>> = 1);
 
 namespace internal {
 template<class Iterator>
