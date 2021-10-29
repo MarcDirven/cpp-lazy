@@ -119,7 +119,7 @@ rotateRange(Iterator begin, Iterator end, internal::DiffType<Iterator> start) {
  * @param start Offset that rotates the sequence.
  * @return A rotate iterator view object.
  */
-template<class Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
+template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
 Rotate<Iterator, internal::IsRandomAccess<Iterator>::value>
 rotate(Iterable&& iterable, const internal::DiffType<Iterator> start) {
     if constexpr (internal::IsRandomAccess<Iterator>::value) {
@@ -135,7 +135,7 @@ rotate(Iterable&& iterable, const internal::DiffType<Iterator> start) {
     }
 }
 
-#    endif
+#    endif // __cpp_if_constexpr
 
 } // namespace lz
 
