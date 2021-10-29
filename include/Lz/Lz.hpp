@@ -210,6 +210,7 @@ public:
         return toIter(lz::flatten(*this));
     }
 
+    //! See Loop.hpp for documentation
     template<class Iterable>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
         return toIter(lz::loop(*this));
@@ -229,16 +230,6 @@ public:
     //! See FunctionTools.hpp `hasMany` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany() const {
         return lz::hasMany(*this);
-    }
-
-    //! See FunctionTools.hpp `front` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference front() const {
-        return lz::front(*this);
-    }
-
-    //! See FunctionTools.hpp `last` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference back() const {
-        return lz::back(*this);
     }
 
     //! See FunctionTools.hpp `frontOr` for documentation.
@@ -394,11 +385,25 @@ public:
         return lz::equal(*this, other, std::move(compare), execution);
     }
 
+    /**
+     * Checks if this starts with an other iterable.
+     * @param iterable The other iterable to compare with
+     * @param compare The comparer (operator== is default)
+     * @param execution The execution policy.
+     * @return True if this starts with `iterable`, false otherwise.
+     */
     template<class Iterable, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
     bool startsWith(const Iterable& iterable, BinaryPredicate compare = {}, Execution execution = std::execution::seq) const {
         return lz::startsWith(*this, iterable, std::move(compare), execution);
     }
 
+    /**
+     * Checks if this ends with an other iterable.
+     * @param iterable The other iterable to compare with
+     * @param compare The comparer (operator== is default)
+     * @param execution The execution policy.
+     * @return True if this ends with `iterable`, false otherwise.
+     */
     template<class Iterable, class BinaryPredicate = std::equal_to<>, class Execution = std::execution::sequenced_policy>
     bool endsWith(const Iterable& iterable, BinaryPredicate compare = {}, Execution execution = std::execution::seq) const {
         return lz::endsWith(*this, iterable, std::move(compare), execution);
@@ -763,6 +768,13 @@ public:
         return lz::equal(*this, other, std::move(compare));
     }
 
+    /**
+     * Checks if this starts with an other iterable.
+     * @param iterable The other iterable to compare with
+     * @param compare The comparer (operator== is default)
+     * @param execution The execution policy.
+     * @return True if this starts with `iterable`, false otherwise.
+     */
 #        ifdef LZ_HAS_CXX_11
     template<class Iterable, class Compare = std::equal_to<value_Type>>
 #        else
@@ -772,6 +784,13 @@ public:
         return lz::startsWith(*this, iterable, std::move(compare));
     }
 
+    /**
+     * Checks if this ends with an other iterable.
+     * @param iterable The other iterable to compare with
+     * @param compare The comparer (operator== is default)
+     * @param execution The execution policy.
+     * @return True if this ends with `iterable`, false otherwise.
+     */
 #        ifdef LZ_HAS_CXX_11
     template<class Iterable, class Compare = std::equal_to<value_Type>>
 #        else
