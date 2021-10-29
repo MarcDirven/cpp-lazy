@@ -32,7 +32,7 @@ public:
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset) noexcept :
+    TakeEveryIterator(Iterator iterator, Iterator end, const difference_type offset) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
         _offset(offset) {
@@ -198,7 +198,7 @@ public:
         --*this;
         return tmp;
     }
-    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator+=(difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 TakeEveryIterator& operator+=(const difference_type offset) {
         difference_type extra = 0;
         if (_iterator == _end && offset < 0) {
             --_iterator;
