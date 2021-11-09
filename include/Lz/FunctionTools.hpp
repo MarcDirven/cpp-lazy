@@ -64,60 +64,6 @@ template<class Fn, std::size_t... I>
 constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
-
-template<class Iterator>
-RefType<Iterator> doGetBack(Iterator begin, const DiffType<Iterator> length) {
-    using lz::next;
-    using std::next;
-    return *next(std::move(begin), length - 1);
-}
-
-#    ifdef __cpp_if_constexpr
-template<class Iterator>
-RefType<Iterator> backImpl(Iterator begin, Iterator end) {
-    if constexpr (IsBidirectional<Iterator>::value) {
-        static_cast<void>(begin);
-        return *--end;
-    }
-    else {
-        return doGetBack(begin, getIterLength(begin, end));
-    }
-}
-
-template<class Iterable>
-RefType<IterTypeFromIterable<Iterable>> backImpl(Iterable&& iterable) {
-    using Iter = IterTypeFromIterable<Iterable>;
-    if constexpr (IsBidirectional<Iter>::value) {
-        return *std::prev(iterable.end());
-    }
-    else {
-        return doGetBack(iterable.begin(), static_cast<DiffType<Iter>>(iterable.size()));
-    }
-}
-
-#    else
-
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iterator>::value, RefType<Iterator>> backImpl(Iterator /* begin */, Iterator end) {
-    return *--end;
-}
-
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iterator>::value, RefType<Iterator>> backImpl(Iterator begin, Iterator end) {
-    return doGetBack(begin, getIterLength(begin, end));
-}
-
-template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
-LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value, RefType<Iter>> backImpl(Iterable&& iterable) {
-    return *std::prev(std::end(iterable));
-}
-
-template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
-LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iter>::value, RefType<Iter>> backImpl(Iterable&& iterable) {
-    return doGetBack(std::begin(iterable), static_cast<DiffType<Iter>>(iterable.size()));
-}
-
-#    endif // __cpp_if_constexpr
 } // namespace internal
 
 /**
@@ -270,27 +216,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto zipWith(Fn fn, Iterables&&... iterables)
 }
 
 /**
- * Checks whether [begin, end) is empty.
- * @param begin The beginning of the sequence.
- * @param end The end of the sequence.
- * @return True if it is empty, false otherwise.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty(const Iterator begin, const Iterator end) {
-    return begin == end;
-}
-
-/**
- * Checks whether `iterable` is empty.
- * @param iterable The sequence to check whether it is empty yes/no.
- * @return True if it is empty, false otherwise.
- */
-template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty(const Iterable& iterable) {
-    return lz::empty(std::begin(iterable), std::end(iterable));
-}
-
-/**
  * Returns whether the sequence holds exactly one element.
  * @param begin The beginning of the sequence.
  * @param end The end of the sequence.
@@ -330,53 +255,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(Iterator begin, Iterator end) {
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany(const Iterable& iterable) {
     return !lz::empty(iterable) && !hasOne(iterable);
-}
-
-/**
- * Returns the first element. Asserts if the sequence is empty.
- * @param begin The beginning of the sequence.
- * @param end The end of the sequence.
- * @return The first element of the sequence (by reference).
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begin, Iterator end) {
-    LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the first element");
-    static_cast<void>(end);
-    return *begin;
-}
-
-/**
- * Returns the first element. Asserts if the sequence is empty.
- * @param iterable The sequence to get the first element of.
- * @return The first element of the sequence (by reference).
- */
-template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> front(Iterable&& iterable) {
-    LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return front(std::begin(iterable), std::end(iterable));
-}
-
-/**
- * Returns the last element. Asserts if the sequence is empty.
- * @param begin The beginning of the sequence.
- * @param end The ending of the sequence.
- * @return The last element of the sequence (by reference).
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
-    LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
-    return internal::backImpl(begin, end);
-}
-
-/**
- * Returns the last element. Asserts if the sequence is empty.
- * @param iterable The sequence to get the last element of.
- * @return The last element of the sequence (by reference).
- */
-template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
-    LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return internal::backImpl(iterable);
 }
 
 /**

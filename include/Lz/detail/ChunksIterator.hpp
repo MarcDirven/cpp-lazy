@@ -48,7 +48,7 @@ public:
     constexpr ChunksIterator() = default;
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
-        return reference(_subRangeBegin, _subRangeEnd);
+        return { _subRangeBegin, _subRangeEnd };
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
@@ -265,7 +265,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
         LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
         const auto dist = lhs._subRangeBegin - rhs._subRangeBegin;
-        return roundEven(dist, lhs._chunkSize);
+        return dist == 0 ? 0 : roundEven(dist, lhs._chunkSize);
     }
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
         return *(*this + offset);

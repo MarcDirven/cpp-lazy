@@ -36,7 +36,7 @@ public:
 template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
     static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
-    return Flatten<Iterator, Dims>(std::move(begin), std::move(end));
+    return { std::move(begin), std::move(end) };
 }
 
 /**

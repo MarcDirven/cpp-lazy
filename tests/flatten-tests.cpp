@@ -72,44 +72,8 @@ TEST_CASE("Flatten binary operations", "[Flatten][Binary ops]") {
         CHECK(begin != flattened.begin());
     }
 
-    SECTION("Lz distance") {
-        std::vector<int> vec = { 1, 2, 3, 4 };
-        auto f1 = lz::flatten(vec);
-        auto dist = lz::distance(f1.begin(), f1.end());
-        CHECK(dist == 4);
-
-        std::vector<std::list<int>> vec2 = { { 1, 2, 3, 4 }, {}, {}, { 1 }, { 4, 5, 6 }, {} };
-        auto f2 = lz::flatten(vec2);
-        dist = lz::distance(f2.begin(), f2.end());
-        CHECK(dist == 8);
-
-        std::vector<std::vector<std::vector<int>>> vec3 = { { { 1, 2, 3, 4 }, {}, {} }, { { 4, 5 }, { 6 } }, { { 7 }, {} } };
-        auto f3 = lz::flatten(vec3);
-        dist = lz::distance(f3.begin(), f3.end());
-        CHECK(dist == 8);
-    }
-
-    SECTION("Lz next") {
-        std::vector<int> vec = { 1, 2, 3, 4 };
-        auto f1 = lz::flatten(vec);
-        auto n = lz::next(f1.begin(), 2);
-        CHECK(*n == 3);
-
-        std::vector<std::vector<int>> vec2 = { { 1, 2, 3, 4 }, {}, {}, { 500 }, { 4, 5, 6 }, {} };
-        auto f2 = lz::flatten(vec2);
-        CHECK(*lz::next(f2.begin(), 2) == 3);
-        CHECK(*lz::next(f2.begin(), 4) == 500);
-        CHECK(*lz::next(f2.begin(), 7) == 6);
-        CHECK(lz::next(f2.begin(), 8) == f2.end());
-
-        std::vector<std::vector<std::vector<int>>> vec3 = { { { 1, 2, 3, 4 }, {}, {} }, { { 90, 5 }, { 6 } }, { { 7 }, {}, {} } };
-        auto f3 = lz::flatten(vec3);
-        CHECK(*lz::next(f3.begin(), 3) == 4);
-        CHECK(*lz::next(f3.begin(), 4) == 90);
-        CHECK(*lz::next(f3.begin(), 5) == 5);
-        CHECK(*lz::next(f3.begin(), 6) == 6);
-        CHECK(*lz::next(f3.begin(), 7) == 7);
-        CHECK(lz::next(f3.begin(), 8) == f3.end());
+    SECTION("Operator-(Iterator)") {
+        //CHECK(flattened.end() - flattened.begin() == 7);
     }
 }
 
