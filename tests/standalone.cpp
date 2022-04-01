@@ -31,5 +31,9 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
     auto doubles = lz::strJoin(vec, ", ");
+#ifdef __cpp_lib_to_chars
     CHECK(doubles == "1.1, 2.2, 3.3, 4.4");
+#else
+    CHECK(doubles == "1.100000, 2.200000, 3.300000, 4.400000");
+#endif
 }
