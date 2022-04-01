@@ -15,6 +15,9 @@
 #        ifdef LZ_HAS_FORMAT
 #            include <format>
 #        else
+#            ifdef __cpp_lib_to_chars
+#                include <charconv>
+#            endif // __cpp_lib_to_chars
 #            include <sstream>
 #        endif // LZ_HAS_FORMAT
 #    else
@@ -152,28 +155,20 @@ namespace internal {
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 #        ifdef __cpp_if_constexpr
 template<class T>
-std::string makeStringFormattedFP(const T value) {
-    if constexpr (std::is_floating_point_v<T>) {
-        auto str = std::to_string(value);
-        str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-        return str;
-    }
-    else {
-        using lz::internal::to_string;
-        using std::to_string;
-        return to_string(value);
-    }
+std::string makeString(const T value) {
+#            ifdef __cpp_lib_to_chars
+    char buff[std::numeric_limits<T>::digits10 + 1]{};
+    std::to_chars(std::begin(buff), std::end(buff), value);
+    return std::string(buff);
+#            else
+    using lz::internal::to_string;
+    using std::to_string;
+    return to_string(value);
+#            endif // __cpp_lib_to_chars
 }
 #        else
 template<class T>
-EnableIf<std::is_floating_point<T>::value, std::string> makeStringFormattedFP(const T value) {
-    auto str = std::to_string(value);
-    str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-    return str;
-}
-
-template<class T>
-EnableIf<!std::is_floating_point<T>::value, std::string> makeStringFormattedFP(const T value) {
+std::string makeString(const T value) {
     using lz::internal::to_string;
     using std::to_string;
     return to_string(value);
@@ -184,9 +179,7 @@ template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
 toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
     std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
-        using std::to_string;
-        using lz::internal::to_string;
-        result += makeStringFormattedFP(vt);
+        result += makeString(vt);
         result += delimiter;
     });
 }
