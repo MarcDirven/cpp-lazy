@@ -228,7 +228,3 @@ C++17
 C++20
 
 <div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B20.png" /></div>
-
-# Special thanks
-Special thanks to the [JetBrains open source programme](https://jb.gg/OpenSource).
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/meta/jetbrains.png" /></div>
