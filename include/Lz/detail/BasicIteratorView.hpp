@@ -132,6 +132,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  * Returns the last element. Asserts if the sequence is empty.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
+ * @warning Please note that this traverses the whole sequence if the iterator is not random access or lower.
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -694,7 +695,10 @@ public:
         return lz::front(*this);
     }
 
-    //! See `lz::back(Iterable)` for details
+    /**
+     * @brief See `lz::back` for details
+     * @warning Please note that this traverses the whole sequence if the iterator is not random access or lower.
+     */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference back() const {
         return lz::back(*this);
     }
