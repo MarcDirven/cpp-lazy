@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(LazyTests LANGUAGES CXX)
 
-set(CPP-LAZY_CATCH_VERSION "2.13.6" CACHE STRING "Version of Catch2 to use for testing")
+set(CPP-LAZY_CATCH_VERSION "3.1.0" CACHE STRING "Version of Catch2 to use for testing")
 Include(FetchContent)
 FetchContent_Declare(
 		Catch2
