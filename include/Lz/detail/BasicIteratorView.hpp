@@ -761,6 +761,7 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
  * @}
  */
 
+# if !defined(LZ_STANDALONE)
 template<class Iterable>
 struct fmt::formatter<Iterable, 
 lz::internal::EnableIf<std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
@@ -772,5 +773,6 @@ lz::internal::EnableIf<std::is_base_of<lz::internal::BasicIteratorView<lz::inter
         return fmt::formatter<std::string>::format(it.toString(), ctx);
     }
 };
+# endif
 
 #endif // LZ_BASIC_ITERATOR_VIEW_HPP
