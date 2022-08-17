@@ -71,7 +71,7 @@ TEST_CASE("Iterator chaining") {
             CHECK(lz::equal(chunk, expectedArr));
         }
 #else
-for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
+        for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
             CHECK(std::equal(chunk.begin(), chunk.end(), expectedArr.begin(), expectedArr.end()));
         }
 #endif
@@ -99,7 +99,7 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
     SECTION("Trim") {
         std::array<int, 4> arrayToTrim = { 1, 1, 3, 4 };
         CHECK(lz::toIter(arrayToTrim).trim([](int i) { return i == 1; }, [](int i) { return i == 4; }).toArray<1>() ==
-        std::array<int, 1>{ 3 });
+              std::array<int, 1>{ 3 });
         std::string toTrim = "\t  a b c \t";
         CHECK(lz::trimString(toTrim).toString() == "a b c");
     }
@@ -153,8 +153,9 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
     }
 
     SECTION("FilterMap") {
-        CHECK(lz::toIter(arr).filterMap([](int i) { return i % 2 == 0; }, [](int i) { return fmt::to_string(i); }).toString(" ") ==
-        "0 2 4 6 8 10 12 14");
+        CHECK(
+            lz::toIter(arr).filterMap([](int i) { return i % 2 == 0; }, [](int i) { return fmt::to_string(i); }).toString(" ") ==
+            "0 2 4 6 8 10 12 14");
     }
 
     SECTION("Select") {
@@ -226,7 +227,7 @@ for (auto [chunk, expectedArr] : lz::zip(chunks, expected)) {
     }
 
     SECTION("Start/endswith") {
-        CHECK(lz::toIter(arr).startsWith(std::array<int, 3>{0, 1, 2}));
-        CHECK(lz::toIter(arr).endsWith(std::array<int, 3>{13, 14, 15}));
+        CHECK(lz::toIter(arr).startsWith(std::array<int, 3>{ 0, 1, 2 }));
+        CHECK(lz::toIter(arr).endsWith(std::array<int, 3>{ 13, 14, 15 }));
     }
 }

@@ -8,8 +8,8 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
     std::array<short, 4> c = { 1, 2, 3, 4 };
 
     SECTION("Unequal lengths") {
-        std::vector<int> ints = {1, 2, 3};
-        std::vector<double> floats = {1.2, 3.3};
+        std::vector<int> ints = { 1, 2, 3 };
+        std::vector<double> floats = { 1.2, 3.3 };
         auto zipper = lz::zip(ints, floats);
         auto end = zipper.end();
         CHECK(*--end == std::make_tuple(2, 3.3));

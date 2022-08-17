@@ -609,7 +609,8 @@ public:
      * @param cmp Optional, a custom key comparer. `std::less<decltype(func(*begin()))>` is default.
      * @param cmp Optional, the key comparer. `std::equal_to<decltype(func(*begin()))>` is default.
      * @param h Hash function. `std::hash<decltype(func(*begin()))>` is default.
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or lower.
+     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or
+     * lower.
      * @return A `std::map` with as key type the return type of `keyGen`, and as value the current values contained by this view.
      */
     template<class KeySelectorFunc, class Hasher = std::hash<KeyType<KeySelectorFunc>>,
@@ -629,7 +630,8 @@ public:
      * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
      * @param delimiter The delimiter between the previous value and the next.
      * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or lower.
+     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or
+     * lower.
      * @return The converted iterator in string format.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
@@ -713,7 +715,7 @@ public:
  */
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>> 
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
 view(Iterable&& iterable) {
     return { internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)) };
 }
@@ -756,16 +758,13 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 #    endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
-// End of group
-/**
- * @}
- */
-
-# if !defined(LZ_STANDALONE)
+#    if !defined(LZ_STANDALONE)
 template<class Iterable>
-struct fmt::formatter<Iterable, 
-lz::internal::EnableIf<std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
-: fmt::formatter<std::string> {
+struct fmt::formatter<
+    Iterable,
+    lz::internal::EnableIf<
+        std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
+    : fmt::formatter<std::string> {
     using InnerIter = lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>;
 
     template<class FormatCtx>
@@ -773,6 +772,11 @@ lz::internal::EnableIf<std::is_base_of<lz::internal::BasicIteratorView<lz::inter
         return fmt::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-# endif
+#    endif
+
+// End of group
+/**
+ * @}
+ */
 
 #endif // LZ_BASIC_ITERATOR_VIEW_HPP

@@ -1,8 +1,8 @@
 #include "Lz/CartesianProduct.hpp"
 
 #include <catch2/catch.hpp>
-#include <list>
 #include <forward_list>
+#include <list>
 
 TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct][Basic functionality]") {
     std::vector<int> vec = { 1, 2, 3 };
@@ -41,8 +41,8 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
     }
 
     SECTION("Operator--") {
-        std::vector<int> tmpVec = {1, 2, 3};
-        std::forward_list<char> tmpChars = {'a', 'b', 'c'};
+        std::vector<int> tmpVec = { 1, 2, 3 };
+        std::forward_list<char> tmpChars = { 'a', 'b', 'c' };
         auto cart = lz::cartesian(tmpVec, tmpChars);
         auto end = cart.end();
 

@@ -1,6 +1,6 @@
 #include "Lz/ChunkIf.hpp"
-#include <Lz/FunctionTools.hpp>
 
+#include <Lz/FunctionTools.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -57,20 +57,26 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
         --it;
         CHECK(it->toString().empty());
 
-        ++it; CHECK(it->toString().empty()); --it;
+        ++it;
+        CHECK(it->toString().empty());
+        --it;
 
         --it;
         CHECK(it->toString() == " testing");
         --it;
         CHECK(it->toString() == " this is a message");
 
-        ++it; CHECK(it->toString() == " testing"); --it;
+        ++it;
+        CHECK(it->toString() == " testing");
+        --it;
 
         --it;
         CHECK(it->toString().empty());
         --it;
 
-        ++it; CHECK(it->toString().empty()); --it;
+        ++it;
+        CHECK(it->toString().empty());
+        --it;
 
         --it;
         CHECK(it->toString() == "hello world");
