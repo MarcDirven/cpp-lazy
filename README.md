@@ -180,6 +180,9 @@ If you want to use the standalone version, then use the CMake option `-D CPP-LAZ
 ### Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake
+# Uncomment this line to use the cpp-lazy standalone version
+# set(CPP-LAZY_USE_STANDALONE TRUE)
+
 include(FetchContent)
 FetchContent_Declare(cpp-lazy
         GIT_REPOSITORY https://github.com/MarcDirven/cpp-lazy
