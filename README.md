@@ -109,32 +109,6 @@ bigger because you will have to write the whole loop yourself. On average
 bugs. While this library does all the looping for you and is thoroughly tested using `catch2`. The `lz::random` `for`-loop 
 equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
-## What about `ranges::v3`?
-This library is not a replacement for `ranges::v3` but rather a (smaller) alternative. However, chances are that the 
-compile time of this library is faster. Some may argue about which library is more readable. However, both libraries will have its advantages and disadvantages. The ranges v3 library is also standardized but does not support C++11.
-
-# Important note
-To guarantee the best performance, some iterators have custom `next`/`distance` implementations. If you use these functions, please be sure to do it as follows:
-```cpp
-auto view = lz::chunks(array, 3);
-// Calculate distance:
-using std::distance; using lz::distance;
-auto dist = distance(view.begin(), view.end());
-
-// Get nth element:
-using std::next; using lz::next;
-auto nth = next(view.begin(), 4);
-```
-
-If, for some reason, you do not wish to do this, then be sure to use `lz::next/lz::distance` for the following iterators:
-- `CartesianProductIterator` created by `lz::cartesian::begin`
-- `Range` created by `lz::range::begin`
-- `TakeEveryIterator` created by `lz::takeEvery::begin`
-- `ChunksIterator` created by `lz::chunks::begin`
-- `FlattenIterator` created by `lz::flatten::begin`
-- `ExcludeIterator` created by `lz::exclude::begin`
-
-
 # Installation
 ## Without CMake
 ### Without `{fmt}`
