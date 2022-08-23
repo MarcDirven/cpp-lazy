@@ -176,8 +176,9 @@ TEST_CASE("Iterator chaining") {
             [](int a, int b) -> std::tuple<int, int> {
                 return { a, b };
             });
-        CHECK(*joinWhere.begin() == std::make_tuple(0, 0));
-        CHECK(lz::back(joinWhere) == std::make_tuple(15, 15));
+        auto begin = joinWhere.begin();
+        CHECK(*begin == std::make_tuple(0, 0));
+        CHECK(*++begin == std::make_tuple(1, 1));
     }
 
     SECTION("Group by") {
