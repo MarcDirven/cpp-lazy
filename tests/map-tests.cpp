@@ -7,6 +7,12 @@ struct TestStruct {
     int testFieldInt;
 };
 
+#ifdef LZ_HAS_EXECUTION
+#    define LZ_PAR std::execution::par
+#else
+#    define LZ_PAR
+#endif
+
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
@@ -104,7 +110,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To vector") {
-        auto stringVector = map.toVector();
+        auto stringVector = map.toVector(LZ_PAR);
 
         for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringVector[i] == array[i].testFieldStr);
