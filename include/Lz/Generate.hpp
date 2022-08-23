@@ -38,7 +38,7 @@ public:
  * @param generatorFunc The function to execute `amount` of times. The return value of the function is the type
  * that is generated.
  * @param amount The amount of times to execute `generatorFunc`.
- * @return A generator random access iterator view object.
+ * @return A generator iterator view object.
  */
 template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
 LZ_NODISCARD constexpr Generate<GeneratorFunc>
