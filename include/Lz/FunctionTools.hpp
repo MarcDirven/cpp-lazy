@@ -381,14 +381,15 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, i
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
+ * @param binOp The (optional) function to add each value
  * @param execution The execution policy.
+ * @note Uses std::distance to get the size of the iterator.
  * @return The mean of the sequence.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
     using ValueType = internal::ValueType<Iterator>;
-    const internal::DiffType<Iterator> dist = internal::getIterLength(begin, end);
     ValueType sum;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
@@ -397,13 +398,15 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     else {
         sum = std::reduce(execution, begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
-    return static_cast<double>(sum) / dist;
+    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
 }
 
 /**
  * Gets the mean of a sequence.
  * @param iterable The iterable to calculate the mean of.
+ * @param binOp The (optional) function to add each value
  * @param execution The execution policy
+ * @note Uses std::distance to get the size of the iterator.
  * @return The mean of the iterable.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class BinaryOp = std::plus<>, class Execution = std::execution::sequenced_policy>
@@ -574,13 +577,12 @@ trimString(const std::string& s, Execution execution = std::execution::seq) {
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class Comparer = std::less<>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
-    using lz::next;
-    using std::next;
-    const internal::DiffType<Iterator> len = internal::getIterLength(begin, end);
+    static_assert(internal::IsRandomAccess<Iterator>::value, "Iterator must be random access");
+    const internal::DiffType<Iterator> len = end - begin;
     constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
     LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
     const internal::DiffType<Iterator> mid = len / 2;
-    const Iterator midIter = next(begin, mid);
+    const Iterator midIter = begin + mid;
     if constexpr (isSequenced) {
         static_cast<void>(execution);
         std::nth_element(begin, midIter, end, comparer);
@@ -765,6 +767,7 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
 
 /**
  * Searches [begin, end) for val, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @param val The value to search.
@@ -777,16 +780,17 @@ indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::e
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find(begin, end, val);
-        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
     else {
         const Iterator pos = std::find(execution, begin, end, val);
-        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
 }
 
 /**
  * Searches `iterable` for val, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param iterable The iterable to search.
  * @param val The value to search.
  * @param execution Uses the execution to perform the find.
@@ -801,6 +805,7 @@ indexOf(const Iterable& iterable, const T& val, Execution execution = std::execu
 /**
  * Searches [begin, end) with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value
  * exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @param predicate The search predicate. Uses `std::find_if`.
@@ -813,16 +818,17 @@ indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find_if(begin, end, std::move(predicate));
-        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
     else {
         const Iterator pos = std::find_if(execution, begin, end, std::move(predicate));
-        return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+        return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
     }
 }
 
 /**
  * Searches iterable with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param iterable The sequence to search.
  * @param predicate The search predicate. Uses `std::find_if`.
  * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
@@ -835,6 +841,7 @@ indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = s
 
 /**
  * Check whether `iterable` contains `value`.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param begin The beginning of the sequence to search.
  * @param end The ending of the sequence to search.
  * @param value The value to find.
@@ -843,7 +850,13 @@ indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = s
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
-    return indexOf(std::move(begin), std::move(end), value, execution) != npos;
+    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        static_cast<void>(execution);
+        return std::find(begin, end, value) != end;
+    }
+    else {
+        return std::find(execution, begin, end, value) != end;
+    }
 }
 
 /**
@@ -869,7 +882,15 @@ contains(const Iterable& iterable, const T& value, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
-    return indexOfIf(std::move(begin), std::move(end), std::move(predicate), execution) != npos;
+    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        static_cast<void>(execution);
+        const Iterator pos = std::find_if(begin, end, std::move(predicate));
+        return pos != end;
+    }
+    else {
+        const Iterator pos = std::find_if(execution, begin, end, std::move(predicate));
+        return pos != end;
+    }
 }
 
 /**
@@ -929,30 +950,25 @@ bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = 
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
+ * @param size The size of the sequence
+ * @note Uses std::distance to get the size of the iterator.
  * @return The mean of the sequence.
  */
-#        ifdef LZ_HAS_CXX_11
-template<class Iterator, class BinaryOp = std::plus<internal::ValueType<Iterator>>>
-#        else
-template<class Iterator, class BinaryOp = std::plus<>>
-#        endif // LZ_HAS_CXX_11
+template<class Iterator, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<Iterator>)>
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
     using ValueType = internal::ValueType<Iterator>;
-    const internal::DiffType<Iterator> dist = internal::getIterLength(begin, end);
     const ValueType sum = std::accumulate(begin, end, ValueType{ 0 }, std::move(binOp));
-    return static_cast<double>(sum) / dist;
+    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
 }
 
 /**
  * Gets the mean of a sequence.
  * @param iterable The iterable to calculate the mean of.
+ * @param size The size of the sequence
+ * @note Uses std::distance to get the size of the iterator.
  * @return The mean of the container.
  */
-#        ifdef LZ_HAS_CXX_11
-template<class Iterable, class BinaryOp = std::plus<internal::ValueTypeIterable<Iterable>>>
-#        else
-template<class Iterable, class BinaryOp = std::plus<>>
-#        endif // LZ_HAS_CXX_11
+template<class Iterable, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueTypeIterable<Iterable>)>
 double mean(const Iterable& iterable, BinaryOp binOp = {}) {
     return mean(std::begin(iterable), std::end(iterable), std::move(binOp));
 }
@@ -971,14 +987,13 @@ template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator
 template<class Iterator, class Comparer = std::less<>>
 #        endif // LZ_HAS_CXX_11
 double median(Iterator begin, Iterator end, Comparer comparer = {}) {
-    using lz::next;
-    using std::next;
-    const internal::DiffType<Iterator> len = internal::getIterLength(begin, end);
+    static_assert(internal::IsRandomAccess<Iterator>::value, "Iterator must be random access");
+    const internal::DiffType<Iterator> len = end - begin;
     if (len == 0) {
         return 0.;
     }
     const internal::DiffType<Iterator> mid = len >> 1;
-    const Iterator midIter = next(begin, mid);
+    const Iterator midIter = begin + mid;
     std::nth_element(begin, midIter, end, comparer);
     if (internal::isEven(len)) {
         const Iterator leftHalf = std::max_element(begin, midIter, comparer);
@@ -1122,6 +1137,7 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
 
 /**
  * Searches [begin, end) for val, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @param val The value to search.
@@ -1130,11 +1146,12 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
 template<class Iterator, class T>
 std::size_t indexOf(Iterator begin, Iterator end, const T& val) {
     const Iterator pos = std::find(begin, end, val);
-    return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+    return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
 }
 
 /**
  * Searches `iterable` for val, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param iterable The iterable to search.
  * @param val The value to search.
  * @return The index of `val` or lz::npos of no such value exists.
@@ -1148,6 +1165,7 @@ std::size_t indexOf(const Iterable& iterable, const T& val) {
  * Searches [begin, end) with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value
  * exists.
  * @param begin The beginning of the sequence.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param end The ending of the sequence.
  * @param predicate The search predicate. Uses `std::find_if`.
  * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
@@ -1155,11 +1173,12 @@ std::size_t indexOf(const Iterable& iterable, const T& val) {
 template<class Iterator, class UnaryFunc>
 std::size_t indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate) {
     const Iterator pos = std::find_if(begin, end, std::move(predicate));
-    return pos == end ? npos : static_cast<std::size_t>(internal::getIterLength(begin, pos));
+    return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
 }
 
 /**
  * Searches iterable with unary predicate `predicate`, and returns its corresponding index, or lz::npos if no such value exists.
+ * @note Traverses the sequence if val was found (begin, pos)
  * @param iterable The sequence to search.
  * @param predicate The search predicate. Uses `std::find_if`.
  * @return The index of the predicate where it returns `true` or lz::npos of no such predicate is present.
@@ -1218,30 +1237,17 @@ bool containsIf(const Iterable& iterable, BinaryPredicate predicate) {
     return containsIf(std::begin(iterable), std::end(iterable), std::move(predicate));
 }
 
-#        ifdef LZ_HAS_CXX_11
-template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
-#        else
-template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
-#        endif
+template<class IteratorA, class IteratorB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueType<IteratorA>)>
 bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
     return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
 }
 
-#        ifdef LZ_HAS_CXX_11
-template<class IterableA, class IterableB,
-         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
-#        else
-template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
-#        endif
+template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<Iterable>)>
 bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
 
-#        ifdef LZ_HAS_CXX_11
-template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<internal::ValueType<IteratorA>>>
-#        else
-template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>>
-#        endif
+template<class IteratorA, class IteratorB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueType<IteratorA>)>
 bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
     std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
     std::reverse_iterator<IteratorA> revBegA(std::move(endA));
@@ -1250,12 +1256,7 @@ bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB
     return startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
 }
 
-#        ifdef LZ_HAS_CXX_11
-template<class IterableA, class IterableB,
-         class BinaryPredicate = std::equal_to<internal::ValueType<internal::IterTypeFromIterable<IterableA>>>>
-#        else
-template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
-#        endif
+template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<Iterable>)>
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }

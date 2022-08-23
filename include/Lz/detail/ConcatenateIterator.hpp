@@ -242,8 +242,6 @@ template<class Tuple, std::size_t I>
 struct PlusIs {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
-        using lz::distance;
-        using std::distance;
         if constexpr (I == std::tuple_size_v<Decay<Tuple>> - 1) {
             static_cast<void>(iterators);
             static_cast<void>(end);

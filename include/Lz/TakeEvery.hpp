@@ -51,8 +51,7 @@ public:
  */
 
 /**
- * @brief This iterator can be used to select elements with `offset` amount. If MSVC and the type is
- * an STL iterator, pass a pointer iterator, not an actual iterator object.
+ * @brief This iterator can be used to select elements with `offset` amount.
  * @details If one would like to select every 2nd argument one can use this iterator. Example (pseudo code):
  * `takeEvery({1, 2, 3}, 2)`. This will select `1` and `3`. If you would like to skip the first element as well
  * one can use: `takeEvery({1, 2, 3}, 2, 2)` the second `2` is the start indexOf, making it select only `3`.
@@ -66,9 +65,7 @@ template<LZ_CONCEPT_ITERATOR Iterator>
 TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
 takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
                const internal::DiffType<Iterator> start = 0) {
-    using lz::next;
-    using std::next;
-    return { next(std::move(begin), start), std::move(end), offset };
+    return { std::next(std::move(begin), start), std::move(end), offset };
 }
 
 /**

@@ -28,57 +28,29 @@
 
 namespace lz {
 namespace internal {
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 RefType<Iterator> doGetBack(Iterator begin, const DiffType<Iterator> length) {
-    using lz::next;
-    using std::next;
-    return *next(std::move(begin), length - 1);
-}
-
 #    ifdef __cpp_if_constexpr
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 RefType<Iterator> backImpl(Iterator begin, Iterator end) {
+LZ_CONSTEXPR_CXX_20 RefType<Iterator> backImpl(Iterator, Iterator end) {
     if constexpr (IsBidirectional<Iterator>::value) {
-        static_cast<void>(begin);
         return *--end;
     }
     else {
-        return doGetBack(begin, getIterLength(begin, end));
+        static_assert(internal::AlwaysFalse<Iterator>::value, "Iterator must at least be bidirectional to get last element");
     }
 }
 
 template<class Iterable>
 LZ_CONSTEXPR_CXX_20 RefType<IterTypeFromIterable<Iterable>> backImpl(Iterable&& iterable) {
     using Iter = IterTypeFromIterable<Iterable>;
-    if constexpr (IsBidirectional<Iter>::value) {
-        return *std::prev(iterable.end());
-    }
-    else {
-        return doGetBack(iterable.begin(), static_cast<DiffType<Iter>>(iterable.size()));
-    }
+    return backImpl(std::begin(iterable), std::end(iterable));
 }
 #    else
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iterator>::value, RefType<Iterator>> backImpl(Iterator /* begin */, Iterator end) {
+LZ_CONSTEXPR_CXX_20 RefType<Iterator> backImpl(Iterator /* begin */, Iterator end) {
+    static_assert(internal::IsBidirectional<Iterator>::value, "Iterator must at least be bidirectional to get last element");
     return *--end;
 }
-
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iterator>::value, RefType<Iterator>> backImpl(Iterator begin, Iterator end) {
-    return doGetBack(begin, getIterLength(begin, end));
-}
-
-template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
-LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value, RefType<Iter>> backImpl(Iterable&& iterable) {
-    return *std::prev(std::end(iterable));
-}
-
-template<class Iterable, class Iter = IterTypeFromIterable<Iterable>>
-LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iter>::value, RefType<Iter>> backImpl(Iterable&& iterable) {
-    return doGetBack(std::begin(iterable), static_cast<DiffType<Iter>>(iterable.size()));
-}
-
 #    endif // __cpp_if_constexpr
 } // namespace internal
 
@@ -132,7 +104,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  * Returns the last element. Asserts if the sequence is empty.
  * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
- * @warning Please note that this traverses the whole sequence if the iterator is not random access or lower.
+ * @warning Static sserts if the iterator is not (at least) bidirectional
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
@@ -143,14 +115,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin
 
 /**
  * Returns the last element. Asserts if the sequence is empty.
- * @warning Please note that this traverses the whole sequence if the iterator is not random access or lower.
+ * @warning Static sserts if the iterator is not (at least) bidirectional
  * @param iterable The sequence to get the last element of.
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return internal::backImpl(iterable);
+    return lz::back(std::begin(iterable), std::end(iterable));
 }
 
 namespace internal {
@@ -242,8 +214,10 @@ doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) 
     }
     std::string result;
 
-    const auto len = static_cast<std::size_t>(getIterLength(b, e));
-    result.reserve(len + delimiter.size() * len + 1);
+    const auto len = static_cast<std::size_t>(sizeHint(b, e));
+    if (len != 0) {
+        result.reserve(len + delimiter.size() * len + 1);
+    }
 
 #    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toStringImpl(result, b, e, delimiter, fmt);
@@ -305,13 +279,13 @@ private:
 
     template<class Container>
     EnableIf<HasReserve<Container>::value, void> tryReserve(Container& container) const {
-        container.reserve(size());
+        container.reserve(sizeHint(_begin, _end));
     }
 #    else
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
         if constexpr (HasReserve<Container>::value) {
-            container.reserve(size());
+            container.reserve(sizeHint(_begin, _end));
         }
     }
 #    endif // __cpp_if_constexpr
@@ -396,9 +370,11 @@ public:
             copyTo(std::inserter(container, container.begin()), execution);
         }
         else {
-            static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel "
+            static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel"
                                                        " algorithms. Use std::execution::seq instead");
-            container.resize(size());
+            static_assert(internal::IsRandomAccess<It>::value,
+                          "The iterator needs to be random access. Please use copyTo if you want to parallize this function");
+            container.resize(_end - _begin);
             copyTo(container.begin(), execution);
         }
         return container;
@@ -609,8 +585,6 @@ public:
      * @param cmp Optional, a custom key comparer. `std::less<decltype(func(*begin()))>` is default.
      * @param cmp Optional, the key comparer. `std::equal_to<decltype(func(*begin()))>` is default.
      * @param h Hash function. `std::hash<decltype(func(*begin()))>` is default.
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or
-     * lower.
      * @return A `std::map` with as key type the return type of `keyGen`, and as value the current values contained by this view.
      */
     template<class KeySelectorFunc, class Hasher = std::hash<KeyType<KeySelectorFunc>>,
@@ -620,7 +594,7 @@ public:
     toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& alloc = {}, const KeyEquality& cmp = {},
                    const Hasher& h = {}) const {
         using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>;
-        UnorderedMap um(static_cast<std::size_t>(internal::getIterLength(_begin, _end)), h, cmp, alloc);
+        UnorderedMap um(static_cast<std::size_t>(internal::sizeHint(_begin, _end)), h, cmp, alloc);
         createMap(um, keyGen);
         return um;
     }
@@ -630,8 +604,6 @@ public:
      * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
      * @param delimiter The delimiter between the previous value and the next.
      * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or
-     * lower.
      * @return The converted iterator in string format.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
@@ -657,20 +629,11 @@ public:
 
     /**
      * Returns the length of the view.
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or lower.
+     * @note Please note that this traverses the whole sequence.
      * @return The length of the view.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::DiffType<It> distance() const {
-        return getIterLength(_begin, _end);
-    }
-
-    /**
-     * Returns the length of the view. Equal to `static_cast<size_t>(view.distance())`
-     * @warning Please note that this traverses the whole sequence to reserve heap memory if the iterator is not random access or lower.
-     * @return The length of the view.
-     */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t size() const {
-        return static_cast<std::size_t>(distance());
+        return std::distance(_begin, _end);
     }
 
     /**
@@ -679,9 +642,7 @@ public:
      * @return The element referred to by `begin() + n`
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It next(const internal::DiffType<It> n = 1) const {
-        using lz::next;
-        using std::next;
-        return next(_begin, n);
+        return std::next(_begin, n);
     }
 
     /**
@@ -699,7 +660,6 @@ public:
 
     /**
      * @brief See `lz::back` for details
-     * @warning Please note that this traverses the whole sequence if the iterator is not random access or lower.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference back() const {
         return lz::back(*this);
@@ -727,11 +687,8 @@ view(Iterable&& iterable) {
  * @param b An iterable, its underlying value type should have an operator== with `a`
  * @return true if both are equal, false otherwise.
  */
-#        ifdef LZ_HAS_CXX_11
-template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<internal::ValueTypeIterable<IterableA>>>
-#        else
-template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>>
-#        endif // LZ_HAS_CXX_11
+template<class IterableA, class IterableB,
+         class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
     return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
 }

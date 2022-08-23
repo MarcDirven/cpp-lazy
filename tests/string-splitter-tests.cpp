@@ -12,7 +12,7 @@ TEST_CASE("String splitter changing and creating elements", "[String splitter][B
 
     SECTION("Should split on delimiter") {
         std::vector<std::string> expected = { "Hello", "world", "test", "123", "" };
-        CHECK(splitter.size() == expected.size());
+        CHECK(static_cast<std::size_t>(splitter.distance()) == expected.size());
         for (std::size_t i = 0; i < expected.size(); i++, ++it) {
             CHECK(*it == expected[i]);
         }

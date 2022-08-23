@@ -33,8 +33,8 @@ public:
  */
 
 /**
- * @brief Creates an Enumerate (random access) object from two iterators. This can be useful when an index and a
- * value type of a container is needed.
+ * @brief Creates an Enumerate object from two iterators. This can be useful when an index and a
+ * value type of a container is needed. If iterator_cat < random_access, then iterator_cat = forward_iterator.
  * @details Creates an Enumerate object. The enumerator consists of a `std::pair<Arithmetic, value_type&>`. The
  * elements of the enumerate iterator are by reference. The `std:::pair<Arithmetic, value_type&>::first` is the
  * counter index. The `std:::pair<Arithmetic, value_type&>::second` is the element of the iterator by reference.
@@ -51,13 +51,18 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 #    ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
 #    endif
-    return { std::move(begin), std::move(end), start };
+    if LZ_CONSTEXPR_IF (internal::IsRandomAccess<Iterator>::value) {
+        const auto dist = std::distance(begin, end);
+        return { std::move(begin), std::move(end), dist, start };
+    }
+    else {
+        return { std::move(begin), std::move(end), start };
+    }
 }
 
 /**
- * @brief Creates an Enumerate (random access) object from an iterable. This can be useful when an index and a value
- * type of a iterable is needed.  If MSVC and the type is an STL  iterator, pass a pointer iterator, not an actual
- * iterator object.
+ * @brief Creates an Enumerate object from an iterable. This can be useful when an index and a value
+ * type of a iterable is needed. If iterator_cat < random_access, then iterator_cat = forward_iterator.
  * @details Creates an Enumerate object. The enumerator consists of a `std::pair<IntType, value_type&>`. The
  * elements of the enumerate iterator are by reference. The `std:::pair<IntType, value_type&>::first` is the
  * counter index. The `std:::pair<IntType, value_type&>::second` is the element of the iterator by reference.
@@ -70,8 +75,7 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
-    return { internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-             static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()), start };
+    return lz::enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), start);
 }
 
 // End of group

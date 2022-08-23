@@ -37,8 +37,6 @@ public:
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Exclude<Iterator>
 excludeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> from, const internal::DiffType<Iterator> to) {
-    using lz::distance;
-    using std::distance;
     return { std::move(begin), std::move(end), from, to };
 }
 

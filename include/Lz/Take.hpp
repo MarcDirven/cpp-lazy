@@ -18,94 +18,23 @@ namespace lz {
  */
 
 /**
- * @brief This function takes a range between two iterators from [begin, end). Its `begin()` function returns a
- * an iterator. If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual
- * iterator object.
+ * @brief Returns a view to another view or container. Can be handy to slice, skip a few first or last elements using:
+ * `auto range = lz::viewRange(vec.begin() + 4, vec.end());`
  * @param begin The beginning of the 'view'.
  * @param end The ending of the 'view'.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
+ * @return A View object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::takeRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-takeRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
-    using lz::next;
-    using std::next;
-    static_cast<void>(end);
-    return { begin, next(begin, amount) };
-}
-
-/**
- * @brief This function takes an iterable and slices `amount` from the beginning of the array. Essentially it is
- * equivalent to [`iterable.begin(), iterable.begin() + amount`). Its `begin()` function returns a random
- * access iterator.
- * @param iterable An iterable with method `begin()`.
- * @param amount The amount of elements to take from the beginning of the `iterable`.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::take(...))`.
- */
-template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
-take(Iterable&& iterable, const internal::DiffType<IterType> amount) {
-    return takeRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), amount);
-}
-
-/**
- * Drops an amount of items, starting from begin.
- * @param begin The beginning of the sequence.
- * @param end The ending of the sequence.
- * @param amount The amount of items to drop, which is equivalent to next(begin, amount)
- * @return A Take iterator where the first `amount` items have been dropped.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-dropRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> amount) {
-    using lz::next;
-    using std::next;
-    return takeRange(next(begin, amount), end, internal::getIterLength(begin, end) - amount);
-}
-
-/**
- * Drops an amount of items, starting from begin.
- * @param iterable The iterable to drop from.
- * @param amount The amount of items to drop, which is equivalent to next(begin, amount)
- * @return A Take iterator where the first `amount` items have been dropped.
- */
-template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
-drop(Iterable&& iterable, const internal::DiffType<IterType> amount) {
-    using lz::next;
-    using std::next;
-    auto begin = std::begin(iterable);
-    auto end = std::end(iterable);
-    return takeRange(next(begin, amount), end, static_cast<internal::DiffTypeIterable<Iterable>>(iterable.size()) - amount);
-}
-
-/**
- * @brief This function slices an iterable. It is equivalent to [`begin() + from, begin() + to`).
- * Its `begin()` function returns an iterator.
- * @param iterable An iterable with method `begin()`.
- * @param from The offset from the beginning of the iterable.
- * @param to The offset from the beginning to take. `from` must be higher than `to`.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::slice(...))`.
- */
-template<LZ_CONCEPT_ITERABLE Iterable, class IterType = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<IterType>
-slice(Iterable&& iterable, const internal::DiffType<IterType> from, const internal::DiffType<IterType> to) {
-    using lz::next;
-    using std::next;
-    LZ_ASSERT(to >= from, "parameter `to` cannot be more than `from`");
-    auto begin = internal::begin(std::forward<Iterable>(iterable));
-    begin = next(std::move(begin), from);
-    return takeRange(begin, internal::end(std::forward<Iterable>(iterable)), to - from);
+viewRange(Iterator begin, Iterator end) {
+    return { begin, end };
 }
 
 #    ifdef LZ_HAS_EXECUTION
 /**
  * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
  * returns false, the iterator stops. Its `begin()` function returns an iterator.
- * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
  * @param begin The beginning of the iterator.
  * @param end The beginning of the iterator.
  * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
@@ -118,10 +47,10 @@ template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::ex
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-        end = std::find_if_not(begin, end, predicate);
+        end = std::find_if_not(begin, end, std::move(predicate));
     }
     else {
-        end = std::find_if_not(execution, begin, end, predicate);
+        end = std::find_if_not(execution, begin, end, std::move(predicate));
     }
     return { std::move(begin), std::move(end) };
 }
@@ -156,7 +85,6 @@ takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    using ValueType = internal::ValueType<Iterator>;
     if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
         static_cast<void>(execution);
         begin = std::find_if_not(std::move(begin), end, std::move(predicate));
@@ -164,7 +92,7 @@ dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execu
     else {
         begin = std::find_if_not(execution, std::move(begin), end, std::move(predicate));
     }
-    return takeRange(begin, end, internal::getIterLength(begin, end));
+    return { std::move(begin), std::move(end) };
 }
 
 /**
@@ -186,7 +114,6 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 /**
  * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
  * returns false, the iterator stops. Its `begin()` function returns an iterator.
- * If MSVC and the type is an STL iterator, pass a pointer iterator, not an actual iterator object.
  * @param begin The beginning of the iterator.
  * @param end The beginning of the iterator.
  * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
@@ -197,7 +124,7 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeWhileRange(Iterator begin, Iterator end, Function predicate) {
-    end = std::find_if_not(begin, end, predicate);
+    end = std::find_if_not(begin, end, std::move(predicate));
     return { std::move(begin), std::move(end) };
 }
 
@@ -229,7 +156,7 @@ takeWhile(Iterable&& iterable, Function predicate) {
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 internal::BasicIteratorView<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
     begin = std::find_if_not(std::move(begin), end, std::move(predicate));
-    return takeRange(begin, end, internal::getIterLength(begin, end));
+    return { std::move(begin), std::move(end) };
 }
 
 /**

@@ -18,7 +18,7 @@ public:
     using value_type = std::tuple<ValueType<Iterators>...>;
     using reference = std::tuple<RefType<Iterators>...>;
     using pointer = FakePointerProxy<reference>;
-    using iterator_category = std::random_access_iterator_tag;
+    using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
     using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
 
 private:
@@ -53,18 +53,9 @@ private:
         }
     }
 
-    template<std::size_t I, class Iter = Decay<decltype(std::get<I>(_iterator))>>
-    LZ_CONSTEXPR_CXX_20 EnableIf<IsBidirectional<Iter>::value> doPrev() {
+    template<std::size_t I>
+    LZ_CONSTEXPR_CXX_20 void doPrev() {
         --std::get<I>(_iterator);
-    }
-
-    template<std::size_t I, class Iter = Decay<decltype(std::get<I>(_iterator))>>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!IsBidirectional<Iter>::value> doPrev() {
-        using lz::next;
-        using std::next;
-        const auto& beg = std::get<I>(_begin);
-        const auto distance = getIterLength(beg, std::get<I>(_iterator));
-        std::get<I>(_iterator) = next(beg, distance - 1);
     }
 
     template<std::size_t I>
@@ -104,16 +95,12 @@ private:
 
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_20 EnableIf<I == 0> operatorPlusImpl(const difference_type offset) {
-        using lz::next;
-        using std::next;
         auto& iterator = std::get<0>(_iterator);
-        iterator = next(std::move(iterator), offset);
+        iterator = std::next(std::move(iterator), offset);
     }
 
     template<std::size_t I>
     EnableIf<(I > 0)> operatorPlusImpl(const difference_type offset) {
-        using lz::next;
-        using std::next;
         auto& iterator = std::get<I>(_iterator);
         const auto& begin = std::get<I>(_begin);
         const auto& end = std::get<I>(_end);
@@ -121,17 +108,17 @@ private:
         if (offset < 0) {
             if (iterator == begin) {
                 iterator = end;
-                dist = getIterLength(begin, iterator);
+                dist = iterator - begin;
             }
             else {
-                dist = getIterLength(begin, iterator) + 1;
+                dist = iterator - begin + 1;
             }
         }
         else {
-            dist = getIterLength(iterator, end);
+            dist = end - iterator;
         }
         const auto offsets = std::lldiv(offset, dist);
-        iterator = next(std::move(iterator), static_cast<difference_type>(offsets.rem));
+        iterator = iterator + offsets.rem;
         operatorPlusImpl<I - 1>(static_cast<difference_type>(offsets.quot));
     }
 
@@ -156,48 +143,35 @@ private:
 
     template<std::size_t I>
     void operatorPlusImpl(const difference_type offset) {
-        using lz::next;
-        using std::next;
-
         auto& iterator = std::get<I>(_iterator);
         if constexpr (I == 0) {
-            iterator = next(std::move(iterator), offset);
+            iterator = iterator + offset;
         }
         else {
-            using lz::next;
-            using std::next;
             const auto& begin = std::get<I>(_begin);
             const auto& end = std::get<I>(_end);
             difference_type dist;
             if (offset < 0) {
                 if (iterator == begin) {
                     iterator = end;
-                    dist = getIterLength(begin, iterator);
+                    dist = iterator - begin;
                 }
                 else {
-                    dist = getIterLength(begin, iterator) + 1;
+                    dist = iterator - begin + 1;
                 }
             }
             else {
-                dist = getIterLength(iterator, end);
+                dist = end - iterator;
             }
             const auto [quot, rem] = std::lldiv(offset, dist);
-            iterator = next(std::move(iterator), static_cast<difference_type>(rem));
+            iterator = iterator + rem;
             operatorPlusImpl<I - 1>(static_cast<difference_type>(quot));
         }
     }
 
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_20 void doPrev() {
-        using Iter = Decay<decltype(std::get<I>(_iterator))>;
-        if constexpr (IsBidirectional<Iter>::value) {
-            --std::get<I>(_iterator);
-        }
-        else {
-            const auto& beg = std::get<I>(_begin);
-            const auto distance = std::distance(beg, std::get<I>(_iterator));
-            std::get<I>(_iterator) = std::next(beg, std::max(difference_type{ 0 }, distance - 1));
-        }
+        --std::get<I>(_iterator);
     }
 
     template<std::size_t I>
@@ -240,14 +214,10 @@ private:
 
     template<std::size_t... Is>
     LZ_CONSTEXPR_CXX_20 difference_type distanceImpl(IndexSequence<Is...>, const CartesianProductIterator& c) const {
-#    ifdef LZ_HAS_CXX_11
-        const auto mulFn = std::multiplies<difference_type>();
-#    else
-        const auto mulFn = std::multiplies<>();
-#    endif // LZ_HAS_CXX_11
-        const difference_type distances[] = { static_cast<difference_type>(
-            getIterLength(std::get<Is>(_iterator), std::get<Is>(c._iterator)))... };
-        return std::accumulate(std::begin(distances), std::end(distances), difference_type{ 1 }, mulFn);
+        const difference_type distances[] = { static_cast<difference_type>(std::get<Is>(c._iterator) -
+                                                                           std::get<Is>(_iterator))... };
+        return std::accumulate(std::begin(distances), std::end(distances), difference_type{ 1 },
+                               std::multiplies<difference_type>{});
     }
 
     template<std::size_t... Is>
@@ -343,13 +313,11 @@ public:
         return b.distanceImpl(IndexSequenceForThis(), a);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return a.lessThan(IndexSequenceForThis(), b);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator>(const CartesianProductIterator& a, const CartesianProductIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const CartesianProductIterator& a, const CartesianProductIterator& b) {
         return b < a;
     }
 
