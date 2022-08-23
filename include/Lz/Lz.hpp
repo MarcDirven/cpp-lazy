@@ -137,17 +137,17 @@ public:
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> take(const difference_type amount) const {
-        return toIter(lz::take(*this, amount));
+        return toIter(lz::viewRange(this->begin(), this->begin() + amount));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> drop(const difference_type amount) const {
-        return toIter(lz::drop(*this, amount));
+        return toIter(lz::viewRange(this->begin() + amount, this->end()));
     }
 
     //! See Take.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> slice(const difference_type from, const difference_type to) const {
-        return toIter(lz::slice(*this, from, to));
+        return toIter(lz::viewRange(this->begin() + from, this->begin() + to));
     }
 
     //! See Take.hpp for documentation.
@@ -226,7 +226,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne() const {
         return lz::hasOne(*this);
     }
-
+    
     //! See FunctionTools.hpp `hasMany` for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany() const {
         return lz::hasMany(*this);
@@ -759,11 +759,7 @@ public:
      * @param compare The comparer, default is `operator==`
      * @return
      */
-#        ifdef LZ_HAS_CXX_11
-    template<class Iterable, class Compare = std::equal_to<value_Type>>
-#        else
-    template<class Iterable, class BinaryPredicate = std::equal_to<>>
-#        endif
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
     bool equal(const Iterable& other, BinaryPredicate compare = {}) const {
         return lz::equal(*this, other, std::move(compare));
     }
@@ -775,11 +771,7 @@ public:
      * @param execution The execution policy.
      * @return True if this starts with `iterable`, false otherwise.
      */
-#        ifdef LZ_HAS_CXX_11
-    template<class Iterable, class Compare = std::equal_to<value_Type>>
-#        else
-    template<class Iterable, class BinaryPredicate = std::equal_to<>>
-#        endif
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
     bool startsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
         return lz::startsWith(*this, iterable, std::move(compare));
     }
@@ -791,11 +783,7 @@ public:
      * @param execution The execution policy.
      * @return True if this ends with `iterable`, false otherwise.
      */
-#        ifdef LZ_HAS_CXX_11
-    template<class Iterable, class Compare = std::equal_to<value_Type>>
-#        else
-    template<class Iterable, class BinaryPredicate = std::equal_to<>>
-#        endif
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
     bool endsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
         return lz::endsWith(*this, iterable, std::move(compare));
     }
@@ -850,11 +838,7 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The max element.
      */
-#        ifdef LZ_HAS_CXX_11
-    template<class Compare = std::less<value_type>>
-#        else
-    template<class Compare = std::less<>>
-#        endif // LZ_HAS_CXX_11
+    template<class Compare = MAKE_BIN_OP(std::less, value_type)>
     reference max(Compare cmp = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
         return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
@@ -865,32 +849,20 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The min element.
      */
-#        ifdef LZ_HAS_CXX_11
-    template<class Compare = std::less<value_type>>
-#        else
-    template<class Compare = std::less<>>
-#        endif // LZ_HAS_CXX_11
+    template<class Compare = MAKE_BIN_OP(std::less, value_type)>
     reference min(Compare cmp = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
         return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
     }
 
     //! See FunctionTools.hpp for documentation
-#        ifdef LZ_HAS_CXX_11
-    template<class BinaryOp = std::plus<value_type>>
-#        else
-    template<class BinaryOp = std::plus<>>
-#        endif // LZ_HAS_CXX_11
+    template<class BinaryOp = MAKE_BIN_OP(std::plus, value_type)>
     double mean(BinaryOp binOp = {}) const {
         return lz::mean(*this, std::move(binOp));
     }
 
     //! See FunctionTools.hpp for documentation
-#        ifdef LZ_HAS_CXX_11
-    template<class Compare = std::less<value_type>>
-#        else
-    template<class Compare = std::less<>>
-#        endif // LZ_HAS_CXX_11
+    template<class Compare = MAKE_BIN_OP(std::less, value_type)>
     double median(Compare compare = {}) const {
         return lz::median(*this, std::move(compare));
     }
