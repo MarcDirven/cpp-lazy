@@ -349,8 +349,11 @@ struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirection
 template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
+template<class IterTag>
+struct IsRandomAccessTag : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
+
 template<class Iterator>
-struct IsRandomAccess : std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag> {};
+struct IsRandomAccess : IsRandomAccessTag<IterCat<Iterator>> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) noexcept {
