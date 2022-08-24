@@ -140,7 +140,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.9
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
