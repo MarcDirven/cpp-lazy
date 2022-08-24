@@ -7,6 +7,18 @@
 #    include "detail/ZipIterator.hpp"
 
 namespace lz {
+namespace internal {
+template<class Tuple, std::size_t... Is>
+Tuple createFakeEnd(const Tuple& begin, Tuple end, IndexSequence<Is...>) {
+    const std::ptrdiff_t lengths[] = { static_cast<std::ptrdiff_t>(std::get<Is>(end) - std::get<Is>(begin))... };
+    const auto smallestLength = *std::min_element(std::begin(lengths), std::end(lengths));
+    // If we use begin + smallestLength, we get compile errors for non random access iterators. However, we know that we are
+    // dealing with a random access iterator, so std::next does a + internally. It is implemented this way to prevent more
+    // enable_if's from appearing
+    return { std::next(std::get<Is>(begin), smallestLength)... };
+}
+} // namespace internal
+
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
 public:
@@ -42,6 +54,10 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+    using CommonIterTag = typename std::common_type<internal::IterCat<Iterators>...>::type;
+    if LZ_CONSTEXPR_IF (internal::IsRandomAccessTag<CommonIterTag>::value) {
+        end = internal::createFakeEnd(begin, std::move(end), internal::MakeIndexSequence<sizeof...(Iterators)>());
+    }
     return { std::move(begin), std::move(end) };
 }
 
