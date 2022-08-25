@@ -15,10 +15,6 @@ public:
 
     using value_type = typename iterator::value_type;
 
-    LZ_CONSTEXPR_CXX_20 Enumerate(Iterator begin, Iterator end, const IntType start = 0) :
-        Enumerate(begin, end, static_cast<IntType>(internal::getIterLength(begin, end), start)) {
-    }
-
     LZ_CONSTEXPR_CXX_20
     Enumerate(Iterator begin, Iterator end, const internal::DiffType<iterator> distance, const IntType start = 0) :
         internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance), end)) {
@@ -45,19 +41,13 @@ public:
  * @param start The start of the counting index. 0 is assumed by default.
  * @return Enumerate iterator object from [begin, end).
  */
-template<LZ_CONCEPT_INTEGRAL Arithmetic = int, LZ_CONCEPT_ITERATOR Iterator>
+template<LZ_CONCEPT_ARITHMETIC Arithmetic = int, LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<Iterator, Arithmetic>
 enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 #    ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
 #    endif
-    if LZ_CONSTEXPR_IF (internal::IsRandomAccess<Iterator>::value) {
-        const auto dist = std::distance(begin, end);
-        return { std::move(begin), std::move(end), dist, start };
-    }
-    else {
-        return { std::move(begin), std::move(end), start };
-    }
+    return { std::move(begin), std::move(end), internal::sizeHint(begin, end), start };
 }
 
 /**
@@ -72,7 +62,7 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
  * @param start The start of the counting index. 0 is assumed by default.
  * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
  */
-template<LZ_CONCEPT_INTEGRAL IntType = int, LZ_CONCEPT_ITERABLE Iterable>
+template<LZ_CONCEPT_ARITHMETIC IntType = int, LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
     return lz::enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), start);
