@@ -11,8 +11,6 @@
 #        else
 #            include <sstream>
 #        endif // LZ_HAS_FORMAT
-#    else
-#        include <fmt/format.h>
 #    endif // LZ_STANDALONE
 
 namespace lz {

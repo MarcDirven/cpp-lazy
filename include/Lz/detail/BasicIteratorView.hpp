@@ -17,13 +17,8 @@
 #        ifdef LZ_HAS_FORMAT
 #            include <format>
 #        else
-#            ifdef __cpp_lib_to_chars
-#                include <charconv>
-#            endif // __cpp_lib_to_chars
 #            include <sstream>
 #        endif // LZ_HAS_FORMAT
-#    else
-#        include <fmt/format.h>
 #    endif // LZ_STANDALONE
 
 

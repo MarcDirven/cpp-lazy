@@ -93,6 +93,10 @@
         #include <charconv>
 #    endif
 
+#    if !defined(LZ_STANDALONE)
+        #include <fmt/format.h>
+#    endif
+
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
 #        define LZ_HAS_FORMAT
 #    endif // format
