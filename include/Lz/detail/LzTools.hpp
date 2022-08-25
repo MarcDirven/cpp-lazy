@@ -89,21 +89,19 @@
 #        define LZ_CONSTEXPR_IF
 #    endif // __cpp_if_constexpr
 
+#    if defined(LZ_STANDALONE) && defined(__cpp_lib_to_chars) && LZ_HAS_INCLUDE(<charconv>)
+        #include <charconv>
+#    endif
+
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
 #        define LZ_HAS_FORMAT
 #    endif // format
 
-#    ifdef LZ_MSVC
-#        if _MSC_VER >= 1929 && defined(LZ_HAS_CXX_20)
-#            define LZ_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#        else
-#            define LZ_NO_UNIQUE_ADDRESS
-#        endif // _MSVC_VER
-#    elif LZ_HAS_ATTRIBUTE(no_unique_address) && defined(LZ_HAS_CXX_20)
+#    if LZ_HAS_ATTRIBUTE(no_unique_address)
 #        define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #    else
 #        define LZ_NO_UNIQUE_ADDRESS
-#    endif // LZ_MSVC
+#    endif // LZ_HAS_ATTRIBUTE(no_unique_address)
 
 #    ifdef LZ_HAS_CONCEPTS
 namespace lz {
@@ -148,6 +146,9 @@ concept Arithmetic = std::is_arithmetic_v<I>;
 namespace lz {
 namespace internal {
 
+template<class>
+struct AlwaysFalse : std::false_type {};
+
 #    ifdef NDEBUG
 #        define LZ_ASSERT(CONDITION, MSG) ((void)0)
 #    else
@@ -183,7 +184,7 @@ constexpr T* end(T (&array)[N]) noexcept {
 
 #    ifdef LZ_HAS_CXX_11
 
-#define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
+#        define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
 
 template<std::size_t...>
 struct IndexSequence {};
@@ -217,7 +218,7 @@ using Decay = std::decay_t<T>;
 template<std::size_t I, class T>
 using TupleElement = std::tuple_element_t<I, T>;
 
-#define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
+#        define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
 
 #    endif // LZ_HAS_CXX_11
 
@@ -273,14 +274,6 @@ constexpr bool checkForwardAndPolicies() {
 }
 
 #    endif // LZ_HAS_EXECUTION
-
-constexpr char to_string(const char c) noexcept {
-    return c;
-}
-
-LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
-    return b ? "true" : "false";
-}
 
 template<class T>
 class FakePointerProxy {
@@ -383,6 +376,35 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
         return 0;
     }
 }
+
+
+#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+constexpr char to_string(const char c) noexcept {
+    return c;
+}
+
+LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
+    return b ? "true" : "false";
+}
+
+template<class T>
+internal::EnableIf<std::is_arithmetic<T>::value, std::string> toStringSpecialized(const T value) {
+#        ifdef __cpp_lib_to_chars
+    char buff[std::numeric_limits<T>::digits10 + 1]{};
+    std::to_chars(std::begin(buff), std::end(buff), value);
+    return std::string(buff);
+#        else
+    // using lz::internal::to_string;
+    using std::to_string;
+    return to_string(value);
+#        endif // __cpp_lib_to_chars
+}
+
+std::string toStringSpecialized(const bool value) {
+    return lz::internal::to_string(value);
+}
+#    endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
 } // namespace internal
 
 #    if defined(LZ_HAS_STRING_VIEW)

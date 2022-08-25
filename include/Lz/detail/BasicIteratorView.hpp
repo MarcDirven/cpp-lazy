@@ -11,6 +11,8 @@
 #    include <unordered_map>
 #    include <vector>
 
+#    include "LzTools.hpp"
+
 #    if defined(LZ_STANDALONE)
 #        ifdef LZ_HAS_FORMAT
 #            include <format>
@@ -24,36 +26,8 @@
 #        include <fmt/format.h>
 #    endif // LZ_STANDALONE
 
-#    include "LzTools.hpp"
 
 namespace lz {
-namespace internal {
-#    ifdef __cpp_if_constexpr
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 RefType<Iterator> backImpl(Iterator, Iterator end) {
-    if constexpr (IsBidirectional<Iterator>::value) {
-        return *--end;
-    }
-    else {
-        static_assert(internal::AlwaysFalse<Iterator>::value, "Iterator must at least be bidirectional to get last element");
-    }
-}
-
-template<class Iterable>
-LZ_CONSTEXPR_CXX_20 RefType<IterTypeFromIterable<Iterable>> backImpl(Iterable&& iterable) {
-    using Iter = IterTypeFromIterable<Iterable>;
-    return backImpl(std::begin(iterable), std::end(iterable));
-}
-#    else
-
-template<class Iterator>
-LZ_CONSTEXPR_CXX_20 RefType<Iterator> backImpl(Iterator /* begin */, Iterator end) {
-    static_assert(internal::IsBidirectional<Iterator>::value, "Iterator must at least be bidirectional to get last element");
-    return *--end;
-}
-#    endif // __cpp_if_constexpr
-} // namespace internal
-
 /**
  * Checks whether [begin, end) is empty.
  * @param begin The beginning of the sequence.
@@ -102,15 +76,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 
 /**
  * Returns the last element. Asserts if the sequence is empty.
- * @param begin The beginning of the sequence.
  * @param end The ending of the sequence.
  * @warning Static sserts if the iterator is not (at least) bidirectional
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator end) {
     LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
-    return internal::backImpl(begin, end);
+    return *--end;
 }
 
 /**
@@ -122,38 +95,16 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return lz::back(std::begin(iterable), std::end(iterable));
+    return lz::back(std::end(iterable));
 }
 
 namespace internal {
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-#        ifdef __cpp_if_constexpr
-template<class T>
-std::string makeString(const T value) {
-#            ifdef __cpp_lib_to_chars
-    char buff[std::numeric_limits<T>::digits10 + 1]{};
-    std::to_chars(std::begin(buff), std::end(buff), value);
-    return std::string(buff);
-#            else
-    using lz::internal::to_string;
-    using std::to_string;
-    return to_string(value);
-#            endif // __cpp_lib_to_chars
-}
-#        else
-template<class T>
-std::string makeString(const T value) {
-    using lz::internal::to_string;
-    using std::to_string;
-    return to_string(value);
-}
-#        endif // __cpp_if_constexpr
-
 template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
 toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
     std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
-        result += makeString(vt);
+        result += toStringSpecialized(vt);
         result += delimiter;
     });
 }
@@ -185,19 +136,25 @@ toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, co
     format.append(fmt.data(), fmt.size());
     format += "{}";
 #    endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
-#    if !defined(LZ_STANDALONE)
+
+#    if defined(LZ_STANDALONE)
+#        if defined(LZ_HAS_FORMAT)
     std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
-        fmt::format_to(backInserter, format.c_str(), v, delimiter);
-    });
-#    elif defined(LZ_HAS_FORMAT)
-    std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
-        std::format_to(backInserter, format.c_str(), v, delimiter);
+        std::vformat_to(backInserter, format.c_str(), std::make_format_args(v, delimiter));
     });
     // clang-format off
-#else
+#        else
     toStringImplSpecialized(result, begin, end, delimiter);
-#endif // LZ_STANDALONE
-    // clang-format on
+#        endif // defined(LZ_HAS_FORMAT)
+#   else
+    std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
+#        if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000
+        fmt::format_to(backInserter, fmt::runtime(format.c_str()), v, delimiter);
+#        else
+        fmt::format_to(backInserter, format.c_str(), v, delimiter);
+#        endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
+    });
+#   endif // defined(LZ_STANDALONE)
     const auto resultEnd = result.end();
     result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.size()), resultEnd);
 }
