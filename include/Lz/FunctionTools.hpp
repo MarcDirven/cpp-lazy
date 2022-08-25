@@ -289,7 +289,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueTypeIterable<Iterable> frontOr(c
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator> backOr(Iterator begin, Iterator end, const T& value) {
-    return empty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : back(begin, end);
+    return empty(begin, end) ? static_cast<internal::ValueType<Iterator>>(value) : lz::back(end);
 }
 
 /**
