@@ -117,7 +117,7 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 - Include files as follows:
 
 ```cpp
-#define LZ_STANDALONE // Important! Define it before including <Lz/*> files.
+// Important, preprocessor macro 'LZ_STANDALONE' has to be defined already
 #include <Lz/Map.hpp>
 
 int main() {
@@ -143,10 +143,13 @@ int main() {
 ```
 
 ## With CMake
-If you want to use the standalone version, then use the CMake option `-D CPP-LAZY_USE_STANDALONE=ON`. This also prevents the cloning of the library `{fmt}`.
+If you want to use the standalone version, then use the CMake option `-D CPP-LAZY_USE_STANDALONE=ON` or `set(CPP-LAZY_USE_STANDALONE TRUE)`. This also prevents the cloning of the library `{fmt}`.
 ### Using `FetchContent`
 Add to your CMakeLists.txt the following:
 ```cmake
+# Uncomment this line to use the cpp-lazy standalone version
+# set(CPP-LAZY_USE_STANDALONE TRUE)
+
 include(FetchContent)
 FetchContent_Declare(cpp-lazy
         GIT_REPOSITORY https://github.com/MarcDirven/cpp-lazy
@@ -195,7 +198,3 @@ C++17
 C++20
 
 <div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/bench/benchmarks-iterators-C%2B%2B20.png" /></div>
-
-# Special thanks
-Special thanks to the [JetBrains open source programme](https://jb.gg/OpenSource).
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/MarcDirven/cpp-lazy/master/meta/jetbrains.png" /></div>
