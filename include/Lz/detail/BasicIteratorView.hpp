@@ -66,7 +66,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begi
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> front(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return front(std::begin(iterable), std::end(iterable));
+    return lz::front(std::begin(iterable), std::end(iterable));
 }
 
 /**
@@ -76,7 +76,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
     return *--end;
 }
@@ -90,7 +90,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator end) 
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
-    return lz::back(std::end(iterable));
+    return lz::back(std::begin(iterable), std::end(iterable));
 }
 
 namespace internal {
