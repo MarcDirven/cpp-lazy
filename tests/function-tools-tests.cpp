@@ -149,7 +149,7 @@ TEST_CASE("Function tools") {
     SECTION("Last, first, length, isEmpty") {
         std::vector<int> vec = { 1, 3, 5, 7, 9 };
         auto map = lz::map(vec, [](const int i) { return i + 1; });
-        auto emptySequence = lz::viewRange(vec.end(), vec.end());
+        auto emptySequence = lz::view(vec.end(), vec.end());
 
         CHECK(std::distance(emptySequence.begin(), emptySequence.end()) == 0);
         CHECK(lz::empty(emptySequence));
@@ -222,5 +222,13 @@ TEST_CASE("Function tools") {
         };
         auto trimming = lz::trim(toTrim, spaceFn, spaceFn);
         CHECK(trimming.toString() == "Hello world");
+    }
+
+    SECTION("tmp") {
+        const char* str = "hello world";
+        auto tak = lz::takeWhile(str, [](char c) {
+            return c != '\0';
+        });
+        fmt::print("{}\n", tak);
     }
 }

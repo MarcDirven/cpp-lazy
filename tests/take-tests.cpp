@@ -6,7 +6,7 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
     std::array<int, 10> array = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
     SECTION("Should take 3 elements, 0 offset") {
-        auto taken = lz::viewRange(array.begin(), array.begin() + 3);
+        auto taken = lz::view(array.begin(), array.begin() + 3);
         auto it = taken.begin();
 
         CHECK(*it == 1);
@@ -19,14 +19,14 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
     }
 
     SECTION("Should be by ref") {
-        auto taken = lz::viewRange(array.begin(), array.begin() + 3);
+        auto taken = lz::view(array.begin(), array.begin() + 3);
         auto actual = taken.begin();
         *actual = 0;
         CHECK(array[0] == 0);
     }
 
     SECTION("Should slice 2 elements, 2 offset") {
-        auto taken = lz::viewRange(array.begin() + 2, array.begin() + 4);
+        auto taken = lz::view(array.begin() + 2, array.begin() + 4);
         auto it = taken.begin();
 
         CHECK(*it == 3);
@@ -44,10 +44,10 @@ TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") 
     }
 
     SECTION("Should drop n elements") {
-        auto dropped = lz::viewRange(array.begin() + 2, array.end());
+        auto dropped = lz::view(array.begin() + 2, array.end());
         CHECK(dropped.toVector() == std::vector<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
 
-        dropped = lz::viewRange(array.begin() + 1, array.end());
+        dropped = lz::view(array.begin() + 1, array.end());
         CHECK(dropped.toVector() == std::vector<int>{ 2, 3, 4, 5, 6, 7, 8, 9, 10 });
     }
 }
@@ -56,7 +56,7 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
     constexpr std::size_t size = 3;
     std::array<int, size> array = { 1, 2, 3 };
     constexpr std::size_t takeAmount = 2;
-    auto taken = lz::viewRange(array.begin(), array.begin() + takeAmount);
+    auto taken = lz::view(array.begin(), array.begin() + takeAmount);
     auto it = taken.begin();
 
     SECTION("Operator++") {
@@ -111,21 +111,21 @@ TEST_CASE("Take to containers", "[Take][To container]") {
 
     SECTION("To array") {
         constexpr std::size_t newSize = 2;
-        auto actual = lz::viewRange(array.begin(), array.begin() + newSize).toArray<newSize>();
+        auto actual = lz::view(array.begin(), array.begin() + newSize).toArray<newSize>();
         std::array<int, 2> expected = { 1, 2 };
 
         CHECK(actual == expected);
     }
 
     SECTION("To vector") {
-        auto actual = lz::viewRange(array.begin(), array.begin() + 2).toVector();
+        auto actual = lz::view(array.begin(), array.begin() + 2).toVector();
         std::vector<int> expected = { 1, 2 };
 
         CHECK(actual == expected);
     }
 
     SECTION("To other container using to<>()") {
-        auto actual = lz::viewRange(array.begin(), array.begin() + 2).to<std::list>();
+        auto actual = lz::view(array.begin(), array.begin() + 2).to<std::list>();
         std::list<int> expected = { 1, 2 };
 
         CHECK(expected == actual);
@@ -133,14 +133,14 @@ TEST_CASE("Take to containers", "[Take][To container]") {
 
     SECTION("To map") {
         constexpr std::size_t newSize = 2;
-        std::map<int, int> actual =lz::viewRange(array.begin(), array.begin() + newSize).toMap([](const int i) { return i; });
+        std::map<int, int> actual = lz::view(array.begin(), array.begin() + newSize).toMap([](const int i) { return i; });
         std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(actual == expected);
     }
 
     SECTION("To map") {
         constexpr std::size_t newSize = 2;
-        std::unordered_map<int, int> actual = lz::viewRange(array.begin(), array.begin() + newSize).toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = lz::view(array.begin(), array.begin() + newSize).toUnorderedMap([](const int i) { return i; });
         std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(actual == expected);
     }
