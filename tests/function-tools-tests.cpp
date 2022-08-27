@@ -223,12 +223,4 @@ TEST_CASE("Function tools") {
         auto trimming = lz::trim(toTrim, spaceFn, spaceFn);
         CHECK(trimming.toString() == "Hello world");
     }
-
-    SECTION("tmp") {
-        const char* str = "hello world";
-        auto tak = lz::takeWhile(str, [](char c) {
-            return c != '\0';
-        });
-        fmt::print("{}\n", tak);
-    }
 }
