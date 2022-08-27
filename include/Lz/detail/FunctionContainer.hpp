@@ -9,9 +9,6 @@
 
 namespace lz {
 namespace internal {
-template<class>
-struct AlwaysFalse : std::false_type {};
-
 template<class Func>
 class FunctionContainer {
     mutable Func _func;

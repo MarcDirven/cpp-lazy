@@ -27,10 +27,6 @@ public:
 
 /**
  * Creates an iterator view object that, when iterated over, gets all possible combinations of all its values of the iterators.
- * @attention Please note that this is not an actual random access iterator. It uses the 'strongest' operator to increase/decrease
- * the iterators with. If the current iterator is bidirectional, it uses ++/--. If it is random access, it uses +/-. So if all
- * the iterators passed are random access, then this iterator is also true random access. If one of the iterators is bidirectional
- * then that iterator is incremented/decremented using the ++ and -- operators.
  * @param begin The tuple containing all the beginnings of the sequences.
  * @param end The ending containing all the endings of the sequences.
  * @return A cartesian product view object.
@@ -43,11 +39,6 @@ cartesianRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
 
 /**
  * Creates an iterator view object that, when iterated over, gets all possible combinations of all its values of the iterables.
- * @attention Please note that this is not an actual random access iterator. It uses the 'strongest' operator to increase/decrease
- * the iterators with. If the current iterator is bidirectional, it uses ++/--. If it is random access, it uses +/-. So if all
- * the iterators passed are random access, then this iterator is also true random access. If one of the iterators is bidirectional
- * then that iterator is incremented/decremented using the ++ and -- operators, and in that case this iterator wouldn't be true
- * random access.
  * @param iterables The iterables to make all of the possible combinations with.
  * @return A cartesian product view object.
  */

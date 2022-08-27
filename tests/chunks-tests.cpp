@@ -123,9 +123,9 @@ TEST_CASE("Chunks binary operations", "[Chunks][Binary ops]") {
 
     SECTION("Operator[]()") {
         auto beg = chunked.begin();
-        CHECK(beg[0].toArray<3>() == std::array<int, 3>{1, 2, 3});
-        CHECK(beg[1].toArray<3>() == std::array<int, 3>{4, 5, 6});
-        CHECK(beg[2].toArray<2>() == std::array<int, 2>{7, 8});
+        CHECK(beg[0].toArray<3>() == std::array<int, 3>{ 1, 2, 3 });
+        CHECK(beg[1].toArray<3>() == std::array<int, 3>{ 4, 5, 6 });
+        CHECK(beg[2].toArray<2>() == std::array<int, 2>{ 7, 8 });
     }
 
     SECTION("Operator<, <, <=, >, >=") {

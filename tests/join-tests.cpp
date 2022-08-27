@@ -139,7 +139,7 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
     }
 
     SECTION("String join double format") {
-        std::array<double, 4> vec = {1.1, 2.2, 3.3, 4.4};
+        std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
         auto doubles = lz::strJoin(vec, ", ", "{:.2f}");
         CHECK(doubles == "1.10, 2.20, 3.30, 4.40");
     }

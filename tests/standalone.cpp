@@ -3,9 +3,7 @@
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <Lz/StringSplitter.hpp>
-
 #include <catch2/catch.hpp>
-
 
 TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 

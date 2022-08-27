@@ -148,24 +148,23 @@ TEST_CASE("Function tools") {
 
     SECTION("Last, first, length, isEmpty") {
         std::vector<int> vec = { 1, 3, 5, 7, 9 };
-        auto filterEven = lz::filter(vec, [](const int i) { return i % 2 == 0; });
-        auto filterUneven = lz::filter(vec, [](const int i) { return i % 2 != 0; });
+        auto map = lz::map(vec, [](const int i) { return i + 1; });
+        auto emptySequence = lz::view(vec.end(), vec.end());
 
-        CHECK(std::distance(filterEven.begin(), filterEven.end()) == 0);
-        CHECK(lz::empty(filterEven));
-        CHECK(static_cast<std::size_t>(std::distance(filterUneven.begin(), filterUneven.end())) == vec.size());
+        CHECK(std::distance(emptySequence.begin(), emptySequence.end()) == 0);
+        CHECK(lz::empty(emptySequence));
+        CHECK(static_cast<std::size_t>(std::distance(map.begin(), map.end())) == vec.size());
 
-        CHECK(lz::front(filterUneven) == 1);
-        CHECK(lz::back(filterUneven) == 9);
+        CHECK(lz::front(map) == 2);
+        CHECK(lz::back(map) == 10);
 
-        CHECK(lz::frontOr(filterEven, 10) == 10);
-        CHECK(lz::backOr(filterEven, 10) == 10);
+        CHECK(lz::frontOr(emptySequence, 10) == 10);
+        CHECK(lz::backOr(emptySequence, 10) == 10);
 
-        CHECK(lz::frontOr(filterUneven, 10) == 1);
-        CHECK(lz::backOr(filterUneven, 10) == 9);
+        CHECK(lz::frontOr(map, 10) == 2);
+        CHECK(lz::backOr(map, 10) == 10);
 
-        CHECK(!lz::hasOne(filterUneven));
-        CHECK(lz::hasMany(filterUneven));
+        CHECK(lz::hasMany(map));
 
         std::string splitter = "hello world";
         auto s = lz::split(splitter, " ").toVector();

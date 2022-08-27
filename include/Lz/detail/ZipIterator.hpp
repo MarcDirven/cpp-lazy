@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_ZIP_ITERATOR_HPP
-#define LZ_ZIP_ITERATOR_HPP
+#    define LZ_ZIP_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#    include "LzTools.hpp"
 
-#include <algorithm>
+#    include <algorithm>
 
 namespace lz {
 namespace internal {
@@ -46,8 +46,28 @@ private:
     }
 
     template<std::size_t... I>
+    LZ_CONSTEXPR_CXX_20 difference_type minus(const ZipIterator& other, IndexSequence<I...>) const {
+        const difference_type expand[] = { ((std::get<I>(_iterators) - std::get<I>(other._iterators)))... };
+        return *std::min_element(std::begin(expand), std::end(expand));
+    }
+
+    template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 void minIs(const IndexSequence<I...> is, const difference_type differenceType) {
         plusIs(is, -differenceType);
+    }
+
+    template<std::size_t... I>
+    LZ_CONSTEXPR_CXX_20 bool eq(const ZipIterator& other, IndexSequence<I...>) const {
+        const bool expander[] = { (std::get<I>(_iterators) == std::get<I>(other._iterators))... };
+        const auto end = std::end(expander);
+        return std::find(std::begin(expander), end, true) != end;
+    }
+
+    template<std::size_t... I>
+    LZ_CONSTEXPR_CXX_20 bool lt(const ZipIterator& other, IndexSequence<I...>) const {
+        const bool expander[] = { (std::get<I>(_iterators) < std::get<I>(other._iterators))... };
+        const auto end = std::end(expander);
+        return std::find(std::begin(expander), end, true) != end;
     }
 
 public:
@@ -109,23 +129,23 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ZipIterator& other) const {
-        return std::get<0>(_iterators) - std::get<0>(other._iterators);
+        return minus(other, MakeIndexSequenceForThis());
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
         return *(*this + offset);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) noexcept {
-        return !(a != b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
+        return a.eq(b, MakeIndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) noexcept {
-        return std::get<0>(a._iterators) != std::get<0>(b._iterators);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
+        return !(a == b);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
-        return std::get<0>(a._iterators) < std::get<0>(b._iterators);
+        return a.lt(b, MakeIndexSequenceForThis());
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipIterator& a, const ZipIterator& b) {

@@ -36,7 +36,7 @@ private:
     mutable FunctionContainer<SelectorB> _selectorB{};
     mutable FunctionContainer<ResultSelector> _resultSelector{};
 
-    LZ_CONSTEXPR_CXX_20 void findNext() {
+    void findNext() {
 #ifdef LZ_HAS_EXECUTION
         if constexpr (checkForwardAndPolicies<Execution, IterA>()) {
             std::mutex mutex;

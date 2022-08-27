@@ -8,12 +8,13 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
     std::array<short, 4> c = { 1, 2, 3, 4 };
 
     SECTION("Unequal lengths") {
-        std::vector<int> ints = {1, 2, 3};
-        std::vector<double> floats = {1.2, 3.3};
+        std::vector<int> ints = { 1, 2, 3, 4, 5 };
+        std::vector<double> floats = { 1.2, 3.3 };
         auto zipper = lz::zip(ints, floats);
         auto end = zipper.end();
         CHECK(*--end == std::make_tuple(2, 3.3));
         CHECK(*--end == std::make_tuple(1, 1.2));
+        CHECK(end == zipper.begin());
         CHECK(std::distance(zipper.begin(), zipper.end()) == 2);
     }
 
@@ -103,9 +104,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
 
     SECTION("Operator<, <, <=, >, >=") {
         CHECK(zipper.begin() < zipper.end());
-#if !(defined(_MSC_VER))
-        CHECK(zipper.begin() + size + 1 > zipper.end());
-#endif
+        CHECK(zipper.begin() + 1 > zipper.begin());
         CHECK(zipper.begin() + size <= zipper.end());
         CHECK(zipper.begin() + size >= zipper.end());
     }

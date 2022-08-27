@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_ENUMERATE_ITERATOR_HPP
-#define LZ_ENUMERATE_ITERATOR_HPP
+#    define LZ_ENUMERATE_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#    include "LzTools.hpp"
 
 namespace lz {
 namespace internal {
@@ -15,7 +15,8 @@ class EnumerateIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = typename IterTraits::iterator_category;
+    using iterator_category = typename std::conditional<IsRandomAccess<Iterator>::value, typename IterTraits::iterator_category,
+                                                        std::forward_iterator_tag>::type;
     using value_type = std::pair<Arithmetic, typename IterTraits::value_type>;
     using difference_type = typename IterTraits::difference_type;
     using reference = std::pair<Arithmetic, typename IterTraits::reference>;

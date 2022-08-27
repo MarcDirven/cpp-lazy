@@ -49,7 +49,7 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     }
 
     SECTION("Operator--") {
-        std::array<int, 5> ar = {2, 2, 3, 4, 2};
+        std::array<int, 5> ar = { 2, 2, 3, 4, 2 };
         auto filter2 = lz::filter(ar, [](int i) { return i != 2; });
         auto itEnd = filter2.end();
         --itEnd;
@@ -59,7 +59,7 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
         CHECK(itEnd == filter2.begin());
         CHECK(std::distance(std::make_reverse_iterator(filter2.end()), std::make_reverse_iterator(filter2.begin())) == 2);
 
-        std::array<int, 1> arr = {1};
+        std::array<int, 1> arr = { 1 };
         auto filter3 = lz::filter(arr, [](int i) { return i != 1; });
         CHECK(std::distance(std::make_reverse_iterator(filter3.end()), std::make_reverse_iterator(filter3.begin())) == 0);
     }
@@ -71,11 +71,6 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     }
 }
 
-#ifdef LZ_HAS_EXECUTION
-#define LZ_PAR std::execution::par
-#else
-#define LZ_PAR
-#endif
 
 TEST_CASE("Filter to container", "[Filter][To container]") {
     constexpr std::size_t size = 3;
@@ -90,7 +85,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     }
 
     SECTION("To vector") {
-        auto filteredVec = lz::filter(array, [](int i) { return i != 3; }).toVector(LZ_PAR);
+        auto filteredVec = lz::filter(array, [](int i) { return i != 3; }).toVector();
 
         CHECK(filteredVec.size() == 2);
         CHECK(filteredVec[0] == array[0]);

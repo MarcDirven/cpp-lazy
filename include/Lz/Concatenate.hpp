@@ -32,7 +32,7 @@ public:
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param begin A tuple of iterators pointing to the beginning.
  * @param end A tuple of iterators pointing to the ending.
- * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+ * @return A concatenate view object, which contains the iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<Iterators...>
@@ -47,7 +47,7 @@ concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
  * greater than or equal to 2. The underlying value types must be the same.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
  * @param iterables A parameter pack of containers/iterables.
- * @return A concatenate view object, which contains the random access iterator, that can be used to iterate over.
+ * @return A concatenate view object, which contains the iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<internal::IterTypeFromIterable<Iterables>...> concat(Iterables&&... iterables) {

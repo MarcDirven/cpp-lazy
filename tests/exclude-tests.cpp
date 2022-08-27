@@ -58,32 +58,32 @@ TEST_CASE("Exclude binary operations", "[Exclude][Binary ops]") {
     }
 
     SECTION("Lz next") {
-        CHECK(*lz::next(exBeg1, 0) == 1);
-        CHECK(*lz::next(exBeg1, 3) == 6);
-        CHECK(*lz::next(exBeg1, 2) == 3);
-        CHECK(*lz::next(exBeg1, 5) == 8);
-        CHECK(*lz::next(exBeg1, 6) == 9);
+        CHECK(*std::next(exBeg1, 0) == 1);
+        CHECK(*std::next(exBeg1, 3) == 6);
+        CHECK(*std::next(exBeg1, 2) == 3);
+        CHECK(*std::next(exBeg1, 5) == 8);
+        CHECK(*std::next(exBeg1, 6) == 9);
 
-        CHECK(*lz::next(exBeg2, 0) == 3);
-        CHECK(*lz::next(exBeg2, 1) == 4);
-        CHECK(*lz::next(exBeg2, 2) == 5);
-        CHECK(*lz::next(exBeg2, 3) == 6);
+        CHECK(*std::next(exBeg2, 0) == 3);
+        CHECK(*std::next(exBeg2, 1) == 4);
+        CHECK(*std::next(exBeg2, 2) == 5);
+        CHECK(*std::next(exBeg2, 3) == 6);
 
-        CHECK(*lz::next(exBeg3, 0) == 1);
-        CHECK(*lz::next(exBeg3, 5) == 6);
-        CHECK(*lz::next(exBeg3, 6) == 7);
-        CHECK(lz::next(exBeg3, 7) == exEnd3);
+        CHECK(*std::next(exBeg3, 0) == 1);
+        CHECK(*std::next(exBeg3, 5) == 6);
+        CHECK(*std::next(exBeg3, 6) == 7);
+        CHECK(std::next(exBeg3, 7) == exEnd3);
     }
 
     SECTION("Lz distance") {
-        CHECK(lz::distance(exBeg1, exEnd1) == 8);
-        CHECK(lz::distance(lz::next(exBeg1, 3), exEnd1) == 5);
+        CHECK(std::distance(exBeg1, exEnd1) == 8);
+        CHECK(std::distance(std::next(exBeg1, 3), exEnd1) == 5);
 
-        CHECK(lz::distance(exBeg2, exEnd2) == 8);
-        CHECK(lz::distance(lz::next(exBeg2, 1), exEnd2) == 7);
+        CHECK(std::distance(exBeg2, exEnd2) == 8);
+        CHECK(std::distance(std::next(exBeg2, 1), exEnd2) == 7);
 
-        CHECK(lz::distance(exBeg3, exEnd3) == 7);
-        CHECK(lz::distance(lz::next(exBeg3, 7), exEnd3) == 0);
+        CHECK(std::distance(exBeg3, exEnd3) == 7);
+        CHECK(std::distance(std::next(exBeg3, 7), exEnd3) == 0);
     }
 }
 

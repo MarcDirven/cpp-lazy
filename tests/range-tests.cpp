@@ -117,7 +117,6 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         CHECK(fB + distance - 1 <= fEnd);
         CHECK(fB + 20 >= fEnd - 1);
     }
-
 }
 
 TEST_CASE("Range to containers", "[Range][To container]") {

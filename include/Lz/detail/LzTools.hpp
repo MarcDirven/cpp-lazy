@@ -89,21 +89,31 @@
 #        define LZ_CONSTEXPR_IF
 #    endif // __cpp_if_constexpr
 
+#    if defined(LZ_STANDALONE) && defined(__cpp_lib_to_chars) && LZ_HAS_INCLUDE(<charconv>)
+        #include <charconv>
+#    endif
+
+#    if !defined(LZ_STANDALONE)
+        #include <fmt/format.h>
+#    endif
+
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
 #        define LZ_HAS_FORMAT
 #    endif // format
 
-#    ifdef LZ_MSVC
-#        if _MSC_VER >= 1929 && defined(LZ_HAS_CXX_20)
-#            define LZ_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
-#        else
-#            define LZ_NO_UNIQUE_ADDRESS
-#        endif // _MSVC_VER
-#    elif LZ_HAS_ATTRIBUTE(no_unique_address) && defined(LZ_HAS_CXX_20)
+#    if LZ_HAS_ATTRIBUTE(no_unique_address)
 #        define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #    else
 #        define LZ_NO_UNIQUE_ADDRESS
-#    endif // LZ_MSVC
+#    endif // LZ_HAS_ATTRIBUTE(no_unique_address)
+
+#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+        #include <string>
+#    endif
+
+#    if defined(LZ_HAS_STRING_VIEW)
+        #include <string_view>
+#    endif
 
 #    ifdef LZ_HAS_CONCEPTS
 namespace lz {
@@ -148,6 +158,9 @@ concept Arithmetic = std::is_arithmetic_v<I>;
 namespace lz {
 namespace internal {
 
+template<class>
+struct AlwaysFalse : std::false_type {};
+
 #    ifdef NDEBUG
 #        define LZ_ASSERT(CONDITION, MSG) ((void)0)
 #    else
@@ -160,13 +173,6 @@ namespace internal {
 #        define LZ_ASSERT(CONDITION, MSG)                                                                                        \
             ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
 #    endif // NDEBUG
-
-/* forward declarations of all iterators that contain a custom distance implementation */
-template<class>
-class ExcludeIterator;
-
-template<class, bool>
-class RotateIterator;
 
 template<class Iterable>
 constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin()) {
@@ -190,6 +196,8 @@ constexpr T* end(T (&array)[N]) noexcept {
 
 #    ifdef LZ_HAS_CXX_11
 
+#        define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
+
 template<std::size_t...>
 struct IndexSequence {};
 
@@ -209,7 +217,7 @@ using Decay = typename std::decay<T>::type;
 
 template<std::size_t I, class T>
 using TupleElement = typename std::tuple_element<I, T>::type;
-#    else  // ^^^ has cxx 11 vvv cxx > 11
+#    else // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
 using IndexSequence = std::index_sequence<N...>;
 
@@ -221,6 +229,8 @@ using Decay = std::decay_t<T>;
 
 template<std::size_t I, class T>
 using TupleElement = std::tuple_element_t<I, T>;
+
+#        define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
 
 #    endif // LZ_HAS_CXX_11
 
@@ -277,14 +287,6 @@ constexpr bool checkForwardAndPolicies() {
 
 #    endif // LZ_HAS_EXECUTION
 
-constexpr char to_string(const char c) {
-    return c;
-}
-
-LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
-    return b ? "true" : "false";
-}
-
 template<class T>
 class FakePointerProxy {
     T _t;
@@ -309,7 +311,7 @@ struct EnableIfImpl {};
 
 template<>
 struct EnableIfImpl<true> {
-    template <class T>
+    template<class T>
     using type = T;
 };
 
@@ -352,8 +354,11 @@ struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirection
 template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
 
+template<class IterTag>
+struct IsRandomAccessTag : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
+
 template<class Iterator>
-struct IsRandomAccess : std::is_convertible<IterCat<Iterator>, std::random_access_iterator_tag> {};
+struct IsRandomAccess : IsRandomAccessTag<IterCat<Iterator>> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr bool isEven(const Arithmetic value) noexcept {
@@ -374,6 +379,44 @@ inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) no
     }
     return static_cast<Arithmetic>(a / b) + 1;
 }
+template<class Iter>
+DiffType<Iter> sizeHint(Iter first, Iter last) {
+    if LZ_CONSTEXPR_IF (IsRandomAccess<Iter>::value) {
+        return std::distance(first, last);
+    }
+    else {
+        return 0;
+    }
+}
+
+
+#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
+constexpr char to_string(const char c) noexcept {
+    return c;
+}
+
+LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
+    return b ? "true" : "false";
+}
+
+template<class T>
+internal::EnableIf<std::is_arithmetic<T>::value, std::string> toStringSpecialized(const T value) {
+#        ifdef __cpp_lib_to_chars
+    char buff[std::numeric_limits<T>::digits10 + 1]{};
+    std::to_chars(std::begin(buff), std::end(buff), value);
+    return std::string(buff);
+#        else
+    using std::to_string;
+    return to_string(value);
+#        endif // __cpp_lib_to_chars
+}
+
+std::string toStringSpecialized(const bool value) {
+    return lz::internal::to_string(value);
+}
+#    endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
 } // namespace internal
 
 #    if defined(LZ_HAS_STRING_VIEW)
@@ -383,27 +426,6 @@ using StringView = std::string;
 #    else
 using StringView = fmt::string_view;
 #    endif
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 typename internal::ExcludeIterator<Iterator>::difference_type
-distance(const internal::ExcludeIterator<Iterator>&, const internal::ExcludeIterator<Iterator>&);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename internal::RotateIterator<Iterator, false>::difference_type
-distance(const internal::RotateIterator<Iterator, false>&, const internal::RotateIterator<Iterator, false>&);
-
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ExcludeIterator<Iterator>
-next(const internal::ExcludeIterator<Iterator>&, internal::DiffType<internal::ExcludeIterator<Iterator>> = 1);
-
-namespace internal {
-template<class Iterator>
-DiffType<Iterator> getIterLength(Iterator begin, Iterator end) {
-    using lz::distance;
-    using std::distance;
-    return distance(std::move(begin), std::move(end));
-}
-} // namespace internal
 } // namespace lz
 
 #endif // LZ_LZ_TOOLS_HPP

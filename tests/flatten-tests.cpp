@@ -73,7 +73,7 @@ TEST_CASE("Flatten binary operations", "[Flatten][Binary ops]") {
     }
 
     SECTION("Operator-(Iterator)") {
-        //CHECK(flattened.end() - flattened.begin() == 7);
+        // CHECK(flattened.end() - flattened.begin() == 7);
     }
 }
 

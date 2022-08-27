@@ -143,7 +143,7 @@ std::string strJoinRange(Iterator begin, Iterator end, const StringView& delimit
 }
 
 /**
- * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * Converts a sequence to a `std::string` without creating an iterator Join object.
  * @param iterable The iterable to convert to string
  * @param delimiter The delimiter to separate each value from the sequence.
  * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)

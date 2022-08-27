@@ -28,8 +28,7 @@ public:
  */
 
 /**
- * @brief Returns a random access map object. If MSVC and the type is an STL iterator, pass a pointer iterator, not
- * an actual iterator object.
+ * @brief Returns a map object.
  * @details E.g. `map({std::pair(1, 2), std::pair(3, 2)}, [](std::pair<int, int> pairs) { return pair.first; });`
  * will return all pairs first values in the sequence, that is, `1` and `3`.
  * @param begin The beginning of the sequence.
