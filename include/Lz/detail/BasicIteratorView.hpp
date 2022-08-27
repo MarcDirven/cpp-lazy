@@ -3,6 +3,8 @@
 #ifndef LZ_BASIC_ITERATOR_VIEW_HPP
 #    define LZ_BASIC_ITERATOR_VIEW_HPP
 
+#    include "LzTools.hpp"
+
 #    include <algorithm>
 #    include <array>
 #    include <map>
@@ -11,16 +13,13 @@
 #    include <unordered_map>
 #    include <vector>
 
-#    include "LzTools.hpp"
-
 #    if defined(LZ_STANDALONE)
 #        ifdef LZ_HAS_FORMAT
 #            include <format>
 #        else
 #            include <sstream>
 #        endif // LZ_HAS_FORMAT
-#    endif // LZ_STANDALONE
-
+#    endif     // LZ_STANDALONE
 
 namespace lz {
 /**
@@ -243,8 +242,7 @@ private:
 #    endif // __cpp_if_constexpr
     template<class MapType, class KeySelectorFunc>
     LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, const KeySelectorFunc keyGen) const {
-        transformTo(std::inserter(map, map.end()),
-                    [keyGen](internal::RefType<It> value) { return std::make_pair(keyGen(value), value); });
+        transformTo(std::inserter(map, map.end()), [keyGen](internal::RefType<It> value) { return std::make_pair(keyGen(value), value); });
     }
 
 public:
@@ -667,21 +665,27 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 #    endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
-#    if !defined(LZ_STANDALONE)
+#    if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
+#        define LZ_FMT std::
+#    elif !defined(LZ_STANDALONE)
+#        define LZ_FMT fmt::
+#    endif // defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
+
+#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 template<class Iterable>
-struct fmt::formatter<
+struct LZ_FMT formatter<
     Iterable,
-    lz::internal::EnableIf<
+    lz::internal::EnableIf< // Enable if Iterable is base of BasicIteratorView
         std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
-    : fmt::formatter<std::string> {
+    : LZ_FMT formatter<std::string> {
     using InnerIter = lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>;
 
     template<class FormatCtx>
-    auto format(const InnerIter& it, FormatCtx& ctx) const {
-        return fmt::formatter<std::string>::format(it.toString(), ctx);
+    auto format(const InnerIter& it, FormatCtx& ctx) const -> decltype(ctx.out()) {
+        return LZ_FMT formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#    endif
+#    endif // defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 
 // End of group
 /**
