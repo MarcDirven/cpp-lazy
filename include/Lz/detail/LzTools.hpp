@@ -107,6 +107,14 @@
 #        define LZ_NO_UNIQUE_ADDRESS
 #    endif // LZ_HAS_ATTRIBUTE(no_unique_address)
 
+#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+        #include <string>
+#    endif
+
+#    if defined(LZ_HAS_STRING_VIEW)
+        #include <string_view>
+#    endif
+
 #    ifdef LZ_HAS_CONCEPTS
 namespace lz {
 template<class I>
@@ -383,6 +391,7 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
 constexpr char to_string(const char c) noexcept {
     return c;
 }
@@ -398,7 +407,6 @@ internal::EnableIf<std::is_arithmetic<T>::value, std::string> toStringSpecialize
     std::to_chars(std::begin(buff), std::end(buff), value);
     return std::string(buff);
 #        else
-    // using lz::internal::to_string;
     using std::to_string;
     return to_string(value);
 #        endif // __cpp_lib_to_chars
