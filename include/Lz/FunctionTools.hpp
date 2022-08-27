@@ -347,7 +347,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, internal::GetFn<1>> values(Iterat
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<1>> values(Iterable&& iterable) {
-    return lz::valuesRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    return lz::values(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 /**
@@ -372,7 +372,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, internal::GetFn<0>> keys(Iterator
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::GetFn<0>> keys(Iterable&& iterable) {
-    return lz::keysRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    return lz::keys(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 #    ifdef LZ_HAS_EXECUTION
