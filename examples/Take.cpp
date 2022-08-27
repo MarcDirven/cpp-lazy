@@ -14,7 +14,7 @@ int main() {
     }
 	
     const size_t amount = 2;
-    const auto take = lz::take(seq, amount);
+    const auto take = lz::view(seq.begin() + amount, seq.end());
     std::cout << take << '\n';
     // Output: 1 2
 
@@ -22,7 +22,7 @@ int main() {
 		// process i...
 	}
 	
-    const auto slice = lz::slice(seq, 1, 4);
+    const auto slice = lz::view(seq.begin() + 1, seq.end() + 4);
     std::cout << slice << '\n';
     // Output: 2 3 4
 

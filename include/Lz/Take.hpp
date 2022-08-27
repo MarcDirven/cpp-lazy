@@ -19,7 +19,7 @@ namespace lz {
 
 /**
  * @brief Returns a view to another view or container. Can be handy to slice, skip a few first or last elements using:
- * `auto range = lz::viewRange(vec.begin() + 4, vec.end());`
+ * `auto range = lz::view(vec.begin() + 4, vec.end());`
  * @param begin The beginning of the 'view'.
  * @param end The ending of the 'view'.
  * @return A View object that can be converted to an arbitrary container or can be iterated over using
@@ -27,7 +27,7 @@ namespace lz {
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-viewRange(Iterator begin, Iterator end) {
+view(Iterator begin, Iterator end) {
     return { begin, end };
 }
 
