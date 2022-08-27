@@ -6,22 +6,28 @@
 
 TEST_CASE("Rotate basic functionality", "[Rotate][Basic functionality]") {
     std::array<int, 5> arr = { 1, 2, 3, 4, 5 };
-    auto rotate = lz::rotate(arr, 2);
+    auto rotate = lz::rotate(arr.begin() + 2, arr.begin(), arr.end());
 
     SECTION("Should be correct length") {
-        CHECK(std::distance(rotate.begin(), rotate.end()) == static_cast<std::ptrdiff_t>(arr.size()));
+        auto beg = rotate.begin();
+        CHECK(std::distance(beg, rotate.end()) == static_cast<std::ptrdiff_t>(arr.size()));
+        ++beg, ++beg;
+        CHECK(std::distance(beg, rotate.end()) == 3);
+        ++beg;
+        CHECK(std::distance(beg, rotate.end()) == 2);
     }
 
     SECTION("With bidirectional iterator") {
         std::list<int> lst = { 1, 2, 3, 4, 5, 6 };
-        auto rotator = lz::rotate(lst, 2);
-        CHECK(lz::distance(rotator.begin(), rotator.end()) == static_cast<std::ptrdiff_t>(lst.size()));
+        auto rotator = lz::rotate(std::next(lst.begin(), 2), lst.begin(), lst.end());
+        CHECK(std::distance(rotator.begin(), rotator.end()) == static_cast<std::ptrdiff_t>(lst.size()));
     }
 }
 
 TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
     std::array<int, 4> arr = { 1, 2, 3, 4 };
-    auto rotate = lz::rotate(arr, 3);
+    auto rotate = lz::rotate(arr.begin() + 3, arr.begin(), arr.end());
+
     auto begin = rotate.begin();
     auto end = rotate.end();
 
@@ -48,91 +54,40 @@ TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
         CHECK(begin == end);
     }
 
-    SECTION("Operator+(int), tests += as well") {
+    SECTION("Various ++ and -- operators with begin and end") {
         std::array<int, 5> container = { 1, 2, 3, 4, 5 };
+        auto rotator = lz::rotate(container.begin() + 3, container.begin(), container.end());
 
-        auto rotator = lz::rotate(container, 3);
         auto unEvenBegin = rotator.begin();
         auto unEvenEnd = rotator.end();
 
-        CHECK(*(unEvenBegin + 3) == 2);
-
         ++unEvenBegin;
         REQUIRE(*unEvenBegin == 5);
-
-        CHECK(*(unEvenBegin + 1) == 1);
-        CHECK(*(unEvenBegin + 2) == 2);
-        CHECK(*(unEvenBegin + 3) == 3);
-        CHECK(unEvenBegin + 4 == rotator.end());
+        --unEvenBegin;
+        REQUIRE(*unEvenBegin == 4);
+        ++unEvenBegin;
 
         ++unEvenBegin;
         REQUIRE(*unEvenBegin == 1);
-        CHECK(*(unEvenBegin + -2) == 4);
 
         --unEvenEnd;
         REQUIRE(*unEvenEnd == 3);
-        CHECK(unEvenEnd + 1 == rotator.end());
 
         --unEvenEnd;
         REQUIRE(*unEvenEnd == 2);
-        CHECK(*(unEvenEnd + 1) == 3);
 
         --unEvenEnd;
         REQUIRE(*unEvenEnd == 1);
-        CHECK(*(unEvenEnd + 1) == 2);
-        CHECK(*(unEvenEnd + 2) == 3);
 
         --unEvenEnd;
         REQUIRE(*unEvenEnd == 5);
-        CHECK(*(unEvenEnd + 3) == 3);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        std::array<int, 5> container = { 1, 2, 3, 4, 5 };
-        auto rotator = lz::rotate(container, 3);
-        auto beg = rotator.begin();
-        auto en = rotator.end();
-
-        REQUIRE(*beg == 4);
-        ++beg, ++beg;
-        CHECK(*(beg - 1) == 5);
-        CHECK(*(beg - 2) == 4);
-
-        CHECK(*(en - 3) == 1);
-        CHECK(*(en - 5) == 4);
-
-        --en, --en;
-        REQUIRE(*en == 2);
-        CHECK(*(en - 2) == 5);
-
-        --en;
-        REQUIRE(*en == 1);
-        CHECK(*(en - 1) == 5);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK(rotate.end() - rotate.begin() == 4);
-        const auto e = --rotate.end();
-        CHECK(e - rotate.begin() == 3);
-    }
-
-    SECTION("Operator[]()") {
-        CHECK(begin[0] == 4);
-        CHECK(begin[1] == 1);
-    }
-
-    SECTION("Operator<, <, <=, >, >=") {
-        CHECK(begin < end);
-        CHECK(begin + 4 <= end);
-        CHECK(end > begin);
-        CHECK(end - 4 >= begin);
     }
 }
 
 TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     constexpr std::size_t size = 6;
     std::vector<int> vec = { 1, 2, 3, 4, 5, 6 };
-    auto rotator = lz::rotate(vec, 2);
+    auto rotator = lz::rotate(vec.begin() + 2, vec.begin(), vec.end());
 
     SECTION("To array") {
         CHECK(rotator.toArray<size>() == std::array<int, size>{ 3, 4, 5, 6, 1, 2 });
