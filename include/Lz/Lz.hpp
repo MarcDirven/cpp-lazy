@@ -217,7 +217,7 @@ public:
     }
 
     template<class Iterable>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator, internal::IsRandomAccess<Iterator>::value>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator>>
     rotate(const internal::DiffType<iterator> start) const {
         return toIter(lz::rotate(*this, start));
     }
