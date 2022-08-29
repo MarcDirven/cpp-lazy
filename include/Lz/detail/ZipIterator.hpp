@@ -11,8 +11,9 @@ namespace lz {
 namespace internal {
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipIterator {
+    using CurrentCat = typename std::common_type<IterCat<Iterators>...>::type;
 public:
-    using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
+    using iterator_category = Conditional<IsBidirectionalTag<CurrentCat>::value, std::forward_iterator_tag, CurrentCat>;
     using value_type = std::tuple<ValueType<Iterators>...>;
     using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
     using reference = std::tuple<RefType<Iterators>...>;
