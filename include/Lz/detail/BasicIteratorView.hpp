@@ -665,27 +665,21 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 #    endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
-#    if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
-#        define LZ_FMT std::
-#    elif !defined(LZ_STANDALONE)
-#        define LZ_FMT fmt::
-#    endif // defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
-
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#    if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>
-struct LZ_FMT formatter<
+struct std::formatter<
     Iterable,
     lz::internal::EnableIf< // Enable if Iterable is base of BasicIteratorView
         std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
-    : LZ_FMT formatter<std::string> {
+    : std::formatter<std::string> {
     using InnerIter = lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>;
 
     template<class FormatCtx>
     auto format(const InnerIter& it, FormatCtx& ctx) const -> decltype(ctx.out()) {
-        return LZ_FMT formatter<std::string>::format(it.toString(), ctx);
+        return std::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#    endif // defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#    endif // defined(LZ_HAS_FORMAT)
 
 // End of group
 /**

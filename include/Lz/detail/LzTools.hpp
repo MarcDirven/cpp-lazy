@@ -95,6 +95,7 @@
 
 #    if !defined(LZ_STANDALONE)
         #include <fmt/format.h>
+        #include <fmt/ranges.h>
 #    endif
 
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
@@ -336,20 +337,17 @@ struct ConditionalImpl<false> {
 template<bool B, class IfTrue, class IfFalse>
 using Conditional = typename ConditionalImpl<B>::template type<IfTrue, IfFalse>;
 
-template<class T, class = int>
-struct HasSize : std::false_type {};
-
-template<class T>
-struct HasSize<T, decltype((void)std::declval<T&>().size(), 0)> : std::true_type {};
-
 template<class T, class U, class... Vs>
 struct IsAllSame : std::integral_constant<bool, std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {};
 
 template<class T, class U>
 struct IsAllSame<T, U> : std::is_same<T, U> {};
 
+template<class IterTag>
+struct IsBidirectionalTag : std::is_convertible<IterTag, std::bidirectional_iterator_tag> {};
+
 template<class Iterator>
-struct IsBidirectional : std::is_convertible<IterCat<Iterator>, std::bidirectional_iterator_tag> {};
+struct IsBidirectional : IsBidirectionalTag<IterCat<Iterator>> {};
 
 template<class Iterator>
 struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};

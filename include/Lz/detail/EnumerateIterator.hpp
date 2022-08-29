@@ -15,8 +15,8 @@ class EnumerateIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = typename std::conditional<IsRandomAccess<Iterator>::value, typename IterTraits::iterator_category,
-                                                        std::forward_iterator_tag>::type;
+    using iterator_category =
+        Conditional<IsRandomAccess<Iterator>::value, typename IterTraits::iterator_category, std::forward_iterator_tag>;
     using value_type = std::pair<Arithmetic, typename IterTraits::value_type>;
     using difference_type = typename IterTraits::difference_type;
     using reference = std::pair<Arithmetic, typename IterTraits::reference>;
