@@ -4,10 +4,10 @@ project(LazyTests LANGUAGES CXX)
 
 set(CPP-LAZY_CATCH_VERSION "2.13.9" CACHE STRING "Version of Catch2 to use for testing")
 Include(FetchContent)
-FetchContent_Declare(
-		Catch2
-		GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-		GIT_TAG v${CPP-LAZY_CATCH_VERSION})
+FetchContent_Declare(Catch2 
+	URL https://github.com/catchorg/Catch2/archive/refs/tags/v${CPP-LAZY_CATCH_VERSION}.tar.gz 
+	URL_MD5 feda9b6fd01621d404537d38df56ff83
+)
 FetchContent_MakeAvailable(Catch2)
 
 
