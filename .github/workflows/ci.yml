@@ -53,7 +53,7 @@ jobs:
       - name: Configure tests
         run: cmake -S tests -B build/tests
           -D CMAKE_BUILD_TYPE:STRING=Release
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.9
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
@@ -101,7 +101,7 @@ jobs:
       - name: Configure tests
         run: cmake -S tests -B build/tests
           -D CMAKE_BUILD_TYPE:STRING=Release
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
+          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.9
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_CXX_COMPILER=clang++
           -D CMAKE_INSTALL_PREFIX=build/prefix
