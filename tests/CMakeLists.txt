@@ -7,6 +7,7 @@ Include(FetchContent)
 FetchContent_Declare(Catch2 
 	URL https://github.com/catchorg/Catch2/archive/refs/tags/v${CPP-LAZY_CATCH_VERSION}.tar.gz 
 	URL_MD5 feda9b6fd01621d404537d38df56ff83
+	DOWNLOAD_NO_EXTRACT TRUE
 )
 FetchContent_MakeAvailable(Catch2)
 
