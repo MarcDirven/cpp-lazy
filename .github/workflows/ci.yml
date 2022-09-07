@@ -14,6 +14,7 @@ on:
 env:
   CMAKE_CONFIG_TYPE: Release
   CTEST_OUTPUT_ON_FAILURE: 1
+  CATCH_VERSION: '2.13.9'
 
 jobs:
   gcc:
@@ -53,7 +54,7 @@ jobs:
       - name: Configure tests
         run: cmake -S tests -B build/tests
           -D CMAKE_BUILD_TYPE:STRING=Release
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
+          -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
@@ -101,7 +102,7 @@ jobs:
       - name: Configure tests
         run: cmake -S tests -B build/tests
           -D CMAKE_BUILD_TYPE:STRING=Release
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.6
+          -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_CXX_COMPILER=clang++
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -140,7 +141,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
-          -D CPP-LAZY_CATCH_VERSION:STRING=2.13.9
+          -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
 

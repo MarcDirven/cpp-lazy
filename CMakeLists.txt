@@ -23,16 +23,18 @@ if (CPP-LAZY_USE_STANDALONE)
 else()
 	message(STATUS "Using cpp-lazy with {fmt} library")
 	if (CPP-LAZY_USE_INSTALLED_FMT)
-	    find_package(fmt 8 REQUIRED CONFIG)
+		find_package(fmt 8 REQUIRED CONFIG)
 	else()
-	    set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
-	    set(FMT_OS YES CACHE INTERNAL "")
-	    include(FetchContent)
-	    FetchContent_Declare(fmt
-	            GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-	            GIT_TAG c4ee726532178e556d923372f29163bd206d7732
-	            UPDATE_DISCONNECTED YES)
-	    FetchContent_MakeAvailable(fmt)
+		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
+		set(FMT_OS YES CACHE INTERNAL "")
+		include(FetchContent)
+		FetchContent_Declare(fmt 
+			URL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz 
+			UPDATE_DISCONNECTED YES 
+			URL_MD5 21fac48cae8f3b4a5783ae06b443973a
+			DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+		)
+		FetchContent_MakeAvailable(fmt)
 	endif()
 endif()
 

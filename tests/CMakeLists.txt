@@ -4,10 +4,11 @@ project(LazyTests LANGUAGES CXX)
 
 set(CPP-LAZY_CATCH_VERSION "2.13.9" CACHE STRING "Version of Catch2 to use for testing")
 Include(FetchContent)
-FetchContent_Declare(
-		Catch2
-		GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-		GIT_TAG v${CPP-LAZY_CATCH_VERSION})
+FetchContent_Declare(Catch2 
+	URL https://github.com/catchorg/Catch2/archive/refs/tags/v${CPP-LAZY_CATCH_VERSION}.tar.gz 
+	URL_MD5 feda9b6fd01621d404537d38df56ff83
+	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
 FetchContent_MakeAvailable(Catch2)
 
 
@@ -19,7 +20,6 @@ else ()
 	# Enable warnings from includes
 	set(cpp-lazy_INCLUDE_WITHOUT_SYSTEM ON CACHE INTERNAL "")
 
-	include(FetchContent)
 	FetchContent_Declare(cpp-lazy SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 	FetchContent_MakeAvailable(cpp-lazy)
 endif ()

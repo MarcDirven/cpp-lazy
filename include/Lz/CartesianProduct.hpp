@@ -12,6 +12,7 @@ class CartesianProduct final : public internal::BasicIteratorView<internal::Cart
 public:
     using iterator = internal::CartesianProductIterator<Iterators...>;
     using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
 
     constexpr CartesianProduct() = default;
 

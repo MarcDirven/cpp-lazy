@@ -158,6 +158,32 @@ private:
         }
     }
 #    endif // __cpp_if_constexpr
+
+    void handleNegativeOffset(const difference_type offset, difference_type totalOffset) {
+        auto dist = _subRangeEnd - _begin;
+        if (std::abs(totalOffset) > dist) {
+            _subRangeBegin = _begin;
+            _subRangeEnd = _begin + static_cast<difference_type>((_end - _begin) / _chunkSize);
+            return;
+        }
+        if (offset != -1 || _subRangeEnd != _end) {
+            totalOffset += _chunkSize;
+            _subRangeEnd += totalOffset;
+        }
+        _subRangeBegin = totalOffset >= _subRangeEnd - _begin ? _begin : _subRangeEnd + totalOffset;
+    }
+
+    void handlePositiveOffset(const difference_type totalOffset) {
+        if (totalOffset >= _end - _subRangeBegin) {
+            _subRangeEnd = _end;
+            _subRangeBegin += _end - _subRangeBegin;
+        }
+        else {
+            _subRangeBegin += totalOffset;
+            _subRangeEnd = totalOffset >= _end - _subRangeBegin ? _end : _subRangeBegin + totalOffset;
+        }
+    }
+    
 public:
     LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator iterator, Iterator begin, Iterator end, const std::size_t chunkSize) :
         _begin(std::move(begin)),
@@ -215,33 +241,15 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 ChunksIterator& operator+=(const difference_type offset) {
-        auto totalOffset = _chunkSize * offset;
+        const auto totalOffset = _chunkSize * offset;
         if (offset == 0) {
             return *this;
         }
         if (totalOffset < 0) {
-            auto dist = _subRangeEnd - _begin;
-            if (std::abs(totalOffset) > dist) {
-                _subRangeBegin = _begin;
-                _subRangeEnd = _begin + static_cast<difference_type>((_end - _begin) / _chunkSize);
-            }
-            else {
-                if (offset != -1 || _subRangeEnd != _end) {
-                    totalOffset += _chunkSize;
-                    _subRangeEnd += totalOffset;
-                }
-                _subRangeBegin = totalOffset >= _subRangeEnd - _begin ? _begin : _subRangeEnd + totalOffset;
-            }
+            handleNegativeOffset(offset, totalOffset);
         }
         else {
-            if (totalOffset >= _end - _subRangeBegin) {
-                _subRangeEnd = _end;
-                _subRangeBegin += _end - _subRangeBegin;
-            }
-            else {
-                _subRangeBegin += totalOffset;
-                _subRangeEnd = totalOffset >= _end - _subRangeBegin ? _end : _subRangeBegin + totalOffset;
-            }
+            handlePositiveOffset(totalOffset);
         }
         return *this;
     }
