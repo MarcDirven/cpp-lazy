@@ -20,7 +20,6 @@ else ()
 	# Enable warnings from includes
 	set(cpp-lazy_INCLUDE_WITHOUT_SYSTEM ON CACHE INTERNAL "")
 
-	include(FetchContent)
 	FetchContent_Declare(cpp-lazy SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 	FetchContent_MakeAvailable(cpp-lazy)
 endif ()
