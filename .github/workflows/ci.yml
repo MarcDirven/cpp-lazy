@@ -14,7 +14,7 @@ on:
 env:
   CMAKE_CONFIG_TYPE: Release
   CTEST_OUTPUT_ON_FAILURE: 1
-  CATCH_VERSION: 2.13.9
+  CATCH_VERSION: '2.13.9'
 
 jobs:
   gcc:
