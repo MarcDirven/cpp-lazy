@@ -39,9 +39,7 @@ private:
     void findNext() {
 #ifdef LZ_HAS_EXECUTION
         if constexpr (checkForwardAndPolicies<Execution, IterA>()) {
-            std::mutex mutex;
-            _iterA = std::find_if(_exec, _iterA, _endA, [this, &mutex](const ValueType<IterA>& a) {
-                std::lock_guard guard(mutex);
+            _iterA = std::find_if(_iterA, _endA, [this, &mutex](const ValueType<IterA>& a) {
                 auto&& toFind = _selectorA(a);
                 _iterB =
                     std::lower_bound(std::move(_iterB), _endB, toFind,
@@ -54,7 +52,9 @@ private:
             });
         }
         else {
-            _iterA = std::find_if(_iterA, _endA, [this](const ValueType<IterA>& a) {
+            std::mutex mutex;
+            std::lock_guard guard(mutex);
+            _iterA = std::find_if(_exec, _iterA, _endA, [this](const ValueType<IterA>& a) {
                 auto&& toFind = _selectorA(a);
                 _iterB =
                     std::lower_bound(std::move(_iterB), _endB, toFind,
