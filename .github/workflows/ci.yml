@@ -120,10 +120,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Configure (install)
-        run: cmake -S . -B build/install -G Ninja
+        run: cmake -S . -B build/install
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
@@ -135,7 +134,7 @@ jobs:
         run: cmake --install build/install --config Release
 
       - name: Configure tests
-        run: cmake -S tests -B build/tests -G Ninja
+        run: cmake -S tests -B build/tests
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
