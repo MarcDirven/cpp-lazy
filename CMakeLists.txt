@@ -90,3 +90,17 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.md")
 
 include(CPack)
+
+# ---- Release configuration zip package, bare essentials ----
+option(CPP-LAZY_BUILD_ESSENTIALS_ZIP OFF)
+if (CPP-LAZY_BUILD_ESSENTIALS_ZIP)
+	set(CPP-LAZY_PACKAGE_FILES_LIST include/ CMakeLists.txt LICENSE.md)
+
+	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip
+		COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip --format=zip -- include/ CMakeLists.txt LICENSE.md
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		DEPENDS ${CPP-LAZY_PACKAGE_FILES_LIST}
+		VERBATIM
+	)
+	add_custom_target(${PROJECT_NAME}_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip)
+endif ()

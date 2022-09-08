@@ -1,0 +1,26 @@
+name: Make release package
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure project
+        run: cmake -DCPP-LAZY_BUILD_ESSENTIALS_ZIP:BOOL=ON -S . -B build
+
+      - name: Package bare essentials release
+        run: cmake --build build --target cpp-lazy_package
+      
+      - name: Add package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/cpp-lazy-src.zip
+          tag: ${{ github.ref }}
