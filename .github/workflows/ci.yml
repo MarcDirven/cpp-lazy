@@ -27,6 +27,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
@@ -39,7 +40,7 @@ jobs:
         env:
           CC: gcc-${{ matrix.version }}
           CXX: g++-${{ matrix.version }}
-        run: cmake -S . -B build/install
+        run: cmake -S . -B build/install -G Ninja
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -52,7 +53,7 @@ jobs:
         run: cmake --install build/install
 
       - name: Configure tests
-        run: cmake -S tests -B build/tests
+        run: cmake -S tests -B build/tests -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -75,6 +76,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
@@ -86,7 +88,7 @@ jobs:
         env:
           CC: clang-${{ matrix.version }}
           CXX: clang-${{ matrix.version }}
-        run: cmake -S . -B build/install
+        run: cmake -S . -B build/install -G Ninja
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -100,7 +102,7 @@ jobs:
         run: cmake --install build/install
 
       - name: Configure tests
-        run: cmake -S tests -B build/tests
+        run: cmake -S tests -B build/tests -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -123,12 +125,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
 
       - name: Configure (install)
-        run: cmake -S . -B build/install
+        run: cmake -S . -B build/install -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
@@ -140,7 +143,7 @@ jobs:
         run: cmake --install build/install --config Release
 
       - name: Configure tests
-        run: cmake -S tests -B build/tests
+        run: cmake -S tests -B build/tests -G Ninja
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -158,12 +161,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
       - uses: friendlyanon/fetch-core-count@v1
         id: cores
 
       - name: Configure
-        run: cmake -S examples -B build/examples
+        run: cmake -S examples -B build/examples -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
