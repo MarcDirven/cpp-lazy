@@ -114,6 +114,7 @@ jobs:
     strategy:
       matrix:
         os: [ windows-2019, windows-2022]
+        standard: [11, 20]
 
     runs-on: ${{ matrix.os }}
 
@@ -125,6 +126,7 @@ jobs:
         run: cmake -S . -B build/install -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build (install)
         run: cmake --build build/install --config Release
