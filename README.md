@@ -163,7 +163,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
 
-However, there is a way which is much faster, cleaner and way more recommended. That is: downloading the source code only (LICENSE.md, CMakeLists.txt and the include directories), which can be done as follows (please note that this is supported from cpp-lazy version >= 5.0.1, further, note that you choose the cpp-lazy.zip, and not the source-code.zip/source-code.tar.gz):
+However, there is a way which is much faster, cleaner and way more recommended. That is: downloading the source code only (LICENSE.md, CMakeLists.txt and the include directories), which can be done as follows (please note that this is supported from cpp-lazy version >= 5.0.1, further, note that you choose the cpp-lazy-src.zip, and not the source-code.zip/source-code.tar.gz):
 ```cmake
 
 # Uncomment this line to use the cpp-lazy standalone version
@@ -173,7 +173,7 @@ include(FetchContent)
 FetchContent_Declare(cpp-lazy
         URL https://github.com/MarcDirven/cpp-lazy/releases/download/<TAG_HERE E.G. 5.0.1>/cpp-lazy-src.zip
         # Below is optional
-        # URL_MD5 <MD5 HASH OF cpp-lazy.zip>
+        # URL_MD5 <MD5 HASH OF cpp-lazy-src.zip>
         # If using CMake >= 3.24, preferably set <bool> to TRUE
         # DOWNLOAD_EXTRACT_TIMESTAMP <bool>
 )
