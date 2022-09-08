@@ -90,12 +90,12 @@
 #    endif // __cpp_if_constexpr
 
 #    if defined(LZ_STANDALONE) && defined(__cpp_lib_to_chars) && LZ_HAS_INCLUDE(<charconv>)
-        #include <charconv>
+#        include <charconv>
 #    endif
 
 #    if !defined(LZ_STANDALONE)
-        #include <fmt/format.h>
-        #include <fmt/ranges.h>
+#        include <fmt/format.h>
+#        include <fmt/ranges.h>
 #    endif
 
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
@@ -109,11 +109,11 @@
 #    endif // LZ_HAS_ATTRIBUTE(no_unique_address)
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-        #include <string>
+#        include <string>
 #    endif
 
 #    if defined(LZ_HAS_STRING_VIEW)
-        #include <string_view>
+#        include <string_view>
 #    endif
 
 #    ifdef LZ_HAS_CONCEPTS
@@ -166,8 +166,17 @@ struct AlwaysFalse : std::false_type {};
 #        define LZ_ASSERT(CONDITION, MSG) ((void)0)
 #    else
 
+#
+
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
+#        if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
+    auto st = std::stacktrace::current();
+    auto str = std::to_string(st);
+    std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\nStacktrace:\n%s\n", file, line, func,
+                 message, str.c_str());
+#        else
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\n", file, line, func, message);
+#        endif
     std::terminate();
 }
 
@@ -386,7 +395,6 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
         return 0;
     }
 }
-
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 

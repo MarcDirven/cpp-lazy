@@ -10,8 +10,9 @@
 #            include <format>
 #        else
 #            include <sstream>
+
 #        endif // LZ_HAS_FORMAT
-#    endif // LZ_STANDALONE
+#    endif     // LZ_STANDALONE
 
 namespace lz {
 namespace internal {
@@ -73,7 +74,8 @@ private:
     }
 
     template<class T = ContainerType>
-    LZ_CONSTEXPR_CXX_20 EnableIf<std::is_same<T, std::string>::value, reference> indexOperator(const difference_type offset) const {
+    LZ_CONSTEXPR_CXX_20 EnableIf<std::is_same<T, std::string>::value, reference>
+    indexOperator(const difference_type offset) const {
         // If we use *(*this + offset) when a delimiter must be returned, then we get a segfault because the operator+ returns a
         // copy of the delimiter
         if (_isIteratorTurn && isEven(offset)) {
@@ -83,7 +85,8 @@ private:
     }
 
     template<class T = ContainerType>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_same<T, std::string>::value, reference> indexOperator(const difference_type offset) const {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_same<T, std::string>::value, reference>
+    indexOperator(const difference_type offset) const {
         return *(*this + offset);
     }
 
