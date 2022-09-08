@@ -29,9 +29,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
 
-      - uses: friendlyanon/fetch-core-count@v1
-        id: cores
-
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
           gcc-${{ matrix.version }} g++-${{ matrix.version }}
@@ -47,7 +44,7 @@ jobs:
           -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
-        run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/install
 
       - name: Install
         run: cmake --install build/install
@@ -60,11 +57,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/tests
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+        run: ctest -VV
 
   clang:
     strategy:
@@ -77,9 +74,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
-
-      - uses: friendlyanon/fetch-core-count@v1
-        id: cores
 
       - name: Install Clang ${{ matrix.version }}
         run: sudo apt-get install -y clang-${{ matrix.version }}
@@ -96,7 +90,7 @@ jobs:
           -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
-        run: cmake --build build/install -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/install
 
       - name: Install
         run: cmake --install build/install
@@ -110,11 +104,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/tests
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j ${{ steps.cores.outputs.plus_one }}
+        run: ctest -VV
 
   msvc:
     strategy:
@@ -127,9 +121,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
 
-      - uses: friendlyanon/fetch-core-count@v1
-        id: cores
-
       - name: Configure (install)
         run: cmake -S . -B build/install -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
@@ -137,7 +128,6 @@ jobs:
 
       - name: Build (install)
         run: cmake --build build/install --config Release
-          -j ${{ steps.cores.outputs.plus_one }}
 
       - name: Install
         run: cmake --install build/install --config Release
@@ -150,11 +140,10 @@ jobs:
 
       - name: Build tests
         run: cmake --build build/tests --config Release
-          -j ${{ steps.cores.outputs.plus_one }}
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV -j ${{ steps.cores.outputs.plus_one }}
+        run: ctest -C Release -VV
 
   examples:
     runs-on: ubuntu-latest
@@ -163,12 +152,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
 
-      - uses: friendlyanon/fetch-core-count@v1
-        id: cores
-
       - name: Configure
         run: cmake -S examples -B build/examples -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
-        run: cmake --build build/examples -j ${{ steps.cores.outputs.plus_one }}
+        run: cmake --build build/examples
