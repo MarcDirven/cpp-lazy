@@ -14,8 +14,6 @@
 #        endif // LZ_HAS_FORMAT
 #    endif     // LZ_STANDALONE
 
-#include <iostream> // TODO remove
-
 namespace lz {
 namespace internal {
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
@@ -183,12 +181,6 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinIterator& a, const JoinIterator& b) noexcept {
-        if (a._delimiter != b._delimiter)
-#    ifdef LZ_STANDALONE
-            std::cout << a._delimiter << ' ' << b._delimiter << '\n';
-#    else
-            fmt::print("{} {}\n", a._delimiter, b._delimiter);
-#    endif
         LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
         return a._iterator == b._iterator;
     }
