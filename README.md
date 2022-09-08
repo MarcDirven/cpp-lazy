@@ -171,7 +171,7 @@ However, there is a way which is much faster, cleaner and way more recommended. 
 
 include(FetchContent)
 FetchContent_Declare(cpp-lazy
-        URL https://github.com/MarcDirven/cpp-lazy/releases/download/<TAG_HERE E.G. 5.0.1>/cpp-lazy.zip
+        URL https://github.com/MarcDirven/cpp-lazy/releases/download/<TAG_HERE E.G. 5.0.1>/cpp-lazy-src.zip
         # Below is optional
         # URL_MD5 <MD5 HASH OF cpp-lazy.zip>
         # If using CMake >= 3.24, preferably set <bool> to TRUE
