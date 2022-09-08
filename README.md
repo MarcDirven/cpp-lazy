@@ -154,12 +154,35 @@ include(FetchContent)
 FetchContent_Declare(cpp-lazy
         GIT_REPOSITORY https://github.com/MarcDirven/cpp-lazy
         GIT_TAG ... # Commit hash
-        UPDATE_DISCONNECTED YES)
+        # If using CMake >= 3.24, preferably set <bool> to TRUE
+        # DOWNLOAD_EXTRACT_TIMESTAMP <bool>
+)
 FetchContent_MakeAvailable(cpp-lazy)
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
+
+However, there is a way which is much faster, cleaner and way more recommended. That is: downloading the source code only (LICENSE.md, CMakeLists.txt and the include directories), which can be done as follows (please note that this is supported from cpp-lazy version >= 5.0.1, further, note that you choose the cpp-lazy.zip, and not the source-code.zip/source-code.tar.gz):
+```cmake
+
+# Uncomment this line to use the cpp-lazy standalone version
+# set(CPP-LAZY_USE_STANDALONE TRUE)
+
+include(FetchContent)
+FetchContent_Declare(cpp-lazy
+        URL https://github.com/MarcDirven/cpp-lazy/releases/download/<TAG_HERE E.G. 5.0.1>/cpp-lazy.zip
+        # Below is optional
+        # URL_MD5 <MD5 HASH OF cpp-lazy.zip>
+        # If using CMake >= 3.24, preferably set <bool> to TRUE
+        # DOWNLOAD_EXTRACT_TIMESTAMP <bool>
+)
+FetchContent_MakeAvailable(cpp-lazy)
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
+```
+This also prevents you from downloading stuff that you don't need, and thus preventing pollution of the cmake build directory.
 
 ### Using `git clone`
 Clone the repository using `git clone https://github.com/MarcDirven/cpp-lazy/` and add to `CMakeLists.txt` the following:
