@@ -18,6 +18,13 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
         CHECK(std::distance(zipper.begin(), zipper.end()) == 2);
     }
 
+    SECTION("Should compile") {
+        std::vector<int> v = {1, 2, 3, 4, 5};
+        std::list<int> v2 = {1, 2, 3};
+        auto zipper = lz::zip(v, v2);
+        CHECK(std::distance(zipper.begin(), zipper.end()) == 3);
+    }
+
     SECTION("Should zip") {
         std::size_t i = 0;
         for (const auto& tup : lz::zip(a, b, c)) {
