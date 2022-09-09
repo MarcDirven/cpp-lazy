@@ -39,10 +39,10 @@ private:
     LZ_CONSTEXPR_CXX_20 I findNext(I first, I last) {
 #    ifdef LZ_HAS_EXECUTION
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
-            return std::find_if(_execution, std::move(first), std::move(last), _predicate);
+            return std::find_if(std::move(first), std::move(last), _predicate);
         }
         else {
-            return std::find_if(std::move(first), std::move(last), _predicate);
+            return std::find_if(_execution, std::move(first), std::move(last), _predicate);
         }
 #    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
         return std::find_if(std::move(first), std::move(last), _predicate);
