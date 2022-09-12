@@ -2,7 +2,7 @@
 
 ![](https://i.ibb.co/ccn2V8N/Screenshot-2021-05-05-Make-A-High-Quality-Logo-In-Just-5-Minutes-For-Under-30-v1-cropped.png)
 
-Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/wiki/Examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
+Examples can be found [here](https://github.com/MarcDirven/cpp-lazy/tree/master/examples). Installation can be found [here](https://github.com/MarcDirven/cpp-lazy#installation).
 
 # cpp-lazy
 Cpp-lazy is a fast and easy lazy evaluation library for C++11/14/17/20. This is a fast library because the library does not allocate any memory. Moreover, the iterators are random-access where possible. Therefore operations, for example `std::distance`, are an O(1) operation by adding a `std::random_access_iterator_tag` if possible. Furthermore, the view object has many `std::execution::*` overloads. This library uses one (optional) dependency: the library `{fmt}`, more of which can be found out in the [installation section](https://github.com/MarcDirven/cpp-lazy#Installation). 
