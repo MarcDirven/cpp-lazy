@@ -26,7 +26,7 @@ int main() {
 		PaymentBill{252, 1},
 	};
 
-	if (std::distance(customers.begin(), customers.end()) > std::distance(paymentBills.begin(), paymentBills.end())) {
+	if (customers.size() > paymentBills.size()) {
 		std::sort(paymentBills.begin(), paymentBills.end(), [](const PaymentBill& a, const PaymentBill& b) { return a.customerId < b.customerId; });
 		auto joined = lz::joinWhere(customers, paymentBills,
 									[](const Customer& p) { return p.id; },
