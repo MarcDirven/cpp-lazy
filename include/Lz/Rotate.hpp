@@ -29,7 +29,7 @@ public:
  * @return Rotate object, which is a range of [start, start)
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-Rotate<Iterator> rotate(Iterator start, Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Rotate<Iterator> rotate(Iterator start, Iterator begin, Iterator end) {
     return { std::move(start), std::move(begin), std::move(end) };
 }
 

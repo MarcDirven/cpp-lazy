@@ -26,8 +26,7 @@ namespace lz {
  * `for (auto... lz::takeRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-view(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator> view(Iterator begin, Iterator end) {
     return { begin, end };
 }
 
@@ -154,7 +153,8 @@ takeWhile(Iterable&& iterable, Function predicate) {
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-internal::BasicIteratorView<Iterator> dropWhileRange(Iterator begin, Iterator end, Function predicate) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
+dropWhileRange(Iterator begin, Iterator end, Function predicate) {
     begin = std::find_if_not(std::move(begin), end, std::move(predicate));
     return { std::move(begin), std::move(end) };
 }
@@ -168,7 +168,8 @@ internal::BasicIteratorView<Iterator> dropWhileRange(Iterator begin, Iterator en
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>> dropWhile(Iterable&& iterable, Function predicate) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
+dropWhile(Iterable&& iterable, Function predicate) {
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate));
 }

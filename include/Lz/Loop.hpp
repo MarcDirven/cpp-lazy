@@ -22,13 +22,13 @@ public:
 };
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-Loop<Iterator> loopRange(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<Iterator> loopRange(Iterator begin, Iterator end) {
     LZ_ASSERT(begin != end, "View cannot be empty in order to loop over elements");
     return { std::move(begin), std::move(end) };
 }
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-Loop<internal::IterTypeFromIterable<Iterable>> loop(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<internal::IterTypeFromIterable<Iterable>> loop(Iterable&& iterable) {
     return loopRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 

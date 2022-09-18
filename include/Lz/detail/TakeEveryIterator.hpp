@@ -25,7 +25,7 @@ public:
     Iterator _end{};
     difference_type _offset{};
 
-    void advance() noexcept {
+    LZ_CONSTEXPR_CXX_20 void advance() noexcept {
         for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
         }
     }

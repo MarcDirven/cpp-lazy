@@ -62,7 +62,7 @@ public:
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
 takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
                const internal::DiffType<Iterator> start = 0) {
     return { std::next(std::move(begin), start), std::move(end), offset };
@@ -79,7 +79,7 @@ takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> 
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
 takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const internal::DiffType<Iterator> start = 0) {
     return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           offset, start);
