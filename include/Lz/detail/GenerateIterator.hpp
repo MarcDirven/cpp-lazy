@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_GENERATE_ITERATOR_HPP
-#define LZ_GENERATE_ITERATOR_HPP
+#    define LZ_GENERATE_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
+#    include "FunctionContainer.hpp"
 
 namespace lz {
 namespace internal {
@@ -88,8 +88,7 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type
-    operator-(const GenerateIterator& a, const GenerateIterator& b) {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
         LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
         return a._current - b._current;
     }
