@@ -389,7 +389,7 @@ inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) no
 template<class Iter>
 DiffType<Iter> sizeHint(Iter first, Iter last) {
     if LZ_CONSTEXPR_IF (IsRandomAccess<Iter>::value) {
-        return std::distance(first, last);
+        return std::distance(std::move(first), std::move(last));
     }
     else {
         return 0;
