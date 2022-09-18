@@ -119,7 +119,7 @@ toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, co
 #    else
 toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView& delimiter) {
 #    endif // LZ_HAS_FORMAT
-    if (begin == end) {
+    if (lz::empty(begin, end)) {
         return;
     }
 #    if !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
@@ -282,6 +282,7 @@ public:
      * `to<std::vector, std::allocator<int>>(std::execution::seq, std::allocator<int>{}); // ok`
      * `to<std::vector>(std::execution::seq, std::allocator<int>{}); // also ok, able to deduce type`
      * `to<std::vector, std::allocator<int>>(std::execution::seq, {}); // also ok`
+     * `to<std::vector>(); // also ok`
      * @details Use this function to convert the iterator to a container. Example:
      * ```cpp
      * auto list = lazyIterator.to<std::list>();
@@ -302,8 +303,8 @@ public:
 
     /**
      * @brief This function can be used to create a new container from the current view. The template parameter `Container`
-     * must be specified along with its value type: `view.to<std::vector<int>>()`. One could also use `view.to<std::vector>()`.
-     * See the other `to` function overload for documentation.
+     * must be specified along with its value type: `view.to<std::vector<int>>()`. One could also use `view.to<std::vector>()`, 
+     * however an other function will then be called; see the other `to` function overload for that documentation.
      * @example `lzView.to<std::vector<int>>(std::execution::seq, 100); // This will create a vec of size 100 with containing the
      * contents of lzView`
      * @tparam Container The container along with its value type.
