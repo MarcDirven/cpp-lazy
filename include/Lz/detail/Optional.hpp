@@ -56,7 +56,7 @@ public:
 
     template<class U = T>
     constexpr Optional&
-    operator=(U&& value) noexcept(noexcept(_value = std::forward<U>(value)) && noexcept(construct(std::forward<U>(value)))) {
+    operator=(U&& value) noexcept {
         if (_hasValue) {
             _value = std::forward<U>(value);
         }

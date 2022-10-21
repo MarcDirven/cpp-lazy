@@ -64,7 +64,7 @@ TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic funct
         auto begin = ra.begin();
         auto&& first = std::get<0>(*begin);
         first = 2'000;
-        CHECK(v[0] != first);
+        CHECK(v[0] != *first);
     }
 }
 
