@@ -54,9 +54,10 @@ add_executable(LazyTests
 		take-tests.cpp
 		test-main.cpp
 		unique-tests.cpp
+		zip-longest-tests.cpp
 		zip-tests.cpp)
 
-target_compile_features(LazyTests PRIVATE cxx_std_20)
+target_compile_features(LazyTests PRIVATE cxx_std_14)
 
 target_compile_options(LazyTests
 		PRIVATE
