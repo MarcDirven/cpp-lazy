@@ -120,15 +120,15 @@
 namespace lz {
 template<class I>
 concept BasicIterable = requires(I i) {
-    { std::begin(i) } -> std::input_or_output_iterator;
-    { std::end(i) } -> std::input_or_output_iterator;
-};
+                            { std::begin(i) } -> std::input_or_output_iterator;
+                            { std::end(i) } -> std::input_or_output_iterator;
+                        };
 
 template<class I>
 concept BidirectionalIterable = requires(I i) {
-    { std::begin(i) } -> std::bidirectional_iterator;
-    { std::end(i) } -> std::bidirectional_iterator;
-};
+                                    { std::begin(i) } -> std::bidirectional_iterator;
+                                    { std::end(i) } -> std::bidirectional_iterator;
+                                };
 
 template<class I>
 concept Arithmetic = std::is_arithmetic_v<I>;
@@ -156,33 +156,29 @@ concept Arithmetic = std::is_arithmetic_v<I>;
 #        include <exception>
 #    endif // NDEBUG
 
+#    if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
+#        include <stacktrace>
+#    endif
+
 namespace lz {
 namespace internal {
 
 template<class>
 struct AlwaysFalse : std::false_type {};
 
-#    ifdef NDEBUG
-#        define LZ_ASSERT(CONDITION, MSG) ((void)0)
-#    else
-
-#
-
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
-#        if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
+#    if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
     auto st = std::stacktrace::current();
     auto str = std::to_string(st);
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\nStacktrace:\n%s\n", file, line, func,
                  message, str.c_str());
-#        else
+#    else
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\n", file, line, func, message);
-#        endif
+#    endif
     std::terminate();
 }
 
-#        define LZ_ASSERT(CONDITION, MSG)                                                                                        \
-            ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
-#    endif // NDEBUG
+#    define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
 
 template<class Iterable>
 constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin()) {
@@ -372,13 +368,17 @@ inline constexpr bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
 }
 
+template<class... Ts>
+inline constexpr void decompose(const Ts&...) noexcept {
+}
+
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
     LZ_ASSERT(a != 0 && b != 0, "division by zero error");
     if (b == 1) {
         return a;
     }
-    else if (b == -1) {
+    if (b == -1) {
         return -a;
     }
     if (isEven(a) && isEven(b)) {
