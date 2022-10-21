@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(cpp-lazy
-        VERSION 5.0.1
+        VERSION 5.1.1
         DESCRIPTION
         "A fast C++11/14/17/20 header only library for lazy evaluation and function tools"
         HOMEPAGE_URL "https://github.com/MarcDirven/cpp-lazy"
