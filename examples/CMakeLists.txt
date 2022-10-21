@@ -11,6 +11,7 @@ set(examples
         ChunkIf
         Chunks
         Concatenate
+        CString
         Enumerate
         Except
         Exclude
@@ -30,7 +31,8 @@ set(examples
         TakeEvery
         ToContainer
         Unique
-        Zip)
+        Zip
+        ZipLongest)
 
 foreach(name IN LISTS examples)
     add_executable(IteratorExample${name} ${name}.cpp)
