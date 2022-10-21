@@ -25,7 +25,7 @@ internal::EnableIf<!std::is_arithmetic<T>::value, std::string> toStringSpecializ
 }
 #    endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
-template<LZ_CONCEPT_ITERATOR Iterator>
+template<class Iterator>
 class JoinIterator {
     using IterTraits = std::iterator_traits<Iterator>;
     using ContainerType = typename IterTraits::value_type;

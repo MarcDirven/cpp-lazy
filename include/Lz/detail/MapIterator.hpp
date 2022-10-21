@@ -8,7 +8,7 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ITERATOR Iterator, class Function>
+template<class Iterator, class Function>
 class MapIterator {
     Iterator _iterator{};
     mutable FunctionContainer<Function> _function{};

@@ -10,9 +10,9 @@
 namespace lz {
 namespace internal {
 #ifdef LZ_HAS_EXECUTION
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare, class Execution>
+template<class Iterator, class IteratorToExcept, class Compare, class Execution>
 #else  // ^^^ has execution vvv ! has execution
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Compare>
+template<class Iterator, class IteratorToExcept, class Compare>
 #endif // LZ_HAS_EXECUTION
 class ExceptIterator {
     using IterTraits = std::iterator_traits<Iterator>;

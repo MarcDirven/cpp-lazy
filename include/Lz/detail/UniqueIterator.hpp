@@ -11,9 +11,9 @@
 namespace lz {
 namespace internal {
 #ifdef LZ_HAS_EXECUTION
-template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
+template<class Execution, class Iterator, class Compare>
 #else  // ^^^ lz has execution vvv ! lz has execution
-template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
+template<class Iterator, class Compare>
 #endif // LZ_HAS_EXECUTION
 class UniqueIterator {
     using IterTraits = std::iterator_traits<Iterator>;

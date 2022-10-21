@@ -266,7 +266,7 @@ struct PlusIs {
 };
 #endif // __cpp_if_constexpr
 
-template<LZ_CONCEPT_ITERATOR... Iterators>
+template<class... Iterators>
 class ConcatenateIterator {
     using IterTuple = std::tuple<Iterators...>;
     IterTuple _iterators{};
