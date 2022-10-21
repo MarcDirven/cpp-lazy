@@ -21,7 +21,7 @@ public:
     constexpr CString() = default;
 
     template<bool RA = IsRandomAccess>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::EnableIf<!RA, std::size_t> size() const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 internal::EnableIf<!RA, std::size_t> size() const noexcept {
         std::size_t size = 0;
         for (auto i = this->begin(); i != this->end(); ++i, ++size) {}
         return size;
@@ -37,15 +37,37 @@ public:
     }
 };
 
+/**
+ * @addtogroup ItFns
+ * @{
+ */
+
+/**
+ * Creates a c-string iterator with knowing its length
+ * 
+ * @param begin Beginning of the c string
+ * @param end Ending of the c string
+ * @return CString object containing a random access iterator
+ */
 template<class C>
 LZ_NODISCARD constexpr CString<C, true> cString(const C* begin, const C* end) noexcept {
     return { begin, end };
 }
 
+/**
+ * Creates a c-string iterator without knowing its length
+ * 
+ * @param s The c string
+ * @return CString object containing a forward iterator
+ */
 template<class C>
 LZ_NODISCARD constexpr CString<C, false> cString(const C* s) noexcept {
     return { s, nullptr };
 }
 
+// End of group
+/**
+ * @}
+ */
 } // namespace lz
 #endif
