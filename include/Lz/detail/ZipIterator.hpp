@@ -9,9 +9,10 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ITERATOR... Iterators>
+template<class... Iterators>
 class ZipIterator {
     using CurrentCat = typename std::common_type<IterCat<Iterators>...>::type;
+
 public:
     using iterator_category = Conditional<IsBidirectionalTag<CurrentCat>::value, std::forward_iterator_tag, CurrentCat>;
     using value_type = std::tuple<ValueType<Iterators>...>;
@@ -30,20 +31,17 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 void increment(IndexSequence<I...>) {
-        const int expand[] = { (++std::get<I>(_iterators), 0)... };
-        static_cast<void>(expand);
+        decompose((++std::get<I>(_iterators), 0)...);
     }
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 void decrement(IndexSequence<I...>) {
-        const int expand[] = { (--std::get<I>(_iterators), 0)... };
-        static_cast<void>(expand);
+        decompose((--std::get<I>(_iterators), 0)...);
     }
 
     template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 void plusIs(IndexSequence<I...>, const difference_type differenceType) {
-        const int expand[] = { ((std::get<I>(_iterators) += differenceType), 0)... };
-        static_cast<void>(expand);
+    LZ_CONSTEXPR_CXX_20 void plusIs(IndexSequence<I...>, const difference_type offset) {
+        decompose(((std::get<I>(_iterators) += offset), 0)...);
     }
 
     template<std::size_t... I>
@@ -53,8 +51,8 @@ private:
     }
 
     template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 void minIs(const IndexSequence<I...> is, const difference_type differenceType) {
-        plusIs(is, -differenceType);
+    LZ_CONSTEXPR_CXX_20 void minIs(const IndexSequence<I...> is, const difference_type offset) {
+        plusIs(is, -offset);
     }
 
     template<std::size_t... I>

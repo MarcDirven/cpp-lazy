@@ -7,7 +7,7 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
+template<class Arithmetic, class Distribution, class Generator>
 class RandomIterator {
 public:
     using iterator_category = std::random_access_iterator_tag;

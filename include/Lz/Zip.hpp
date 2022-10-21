@@ -54,6 +54,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
+    static_assert(sizeof...(Iterators) > 0, "Cannot create zip object with 0 iterators");
     using CommonIterTag = typename std::common_type<internal::IterCat<Iterators>...>::type;
     if LZ_CONSTEXPR_IF (internal::IsRandomAccessTag<CommonIterTag>::value) {
         end = internal::createFakeEnd(begin, std::move(end), internal::MakeIndexSequence<sizeof...(Iterators)>());

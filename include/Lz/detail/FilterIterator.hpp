@@ -11,9 +11,9 @@
 namespace lz {
 namespace internal {
 #ifdef LZ_HAS_EXECUTION
-template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
+template<class Iterator, class UnaryPredicate, class Execution>
 #else  // ^^^lz has execution vvv ! lz has execution
-template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
+template<class Iterator, class UnaryPredicate>
 #endif // LZ_HAS_EXECUTION
 class FilterIterator {
     using IterTraits = std::iterator_traits<Iterator>;

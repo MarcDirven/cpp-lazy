@@ -74,7 +74,11 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
 TEST_CASE("Generate to containers", "[Generate][To container]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
+#if defined(__llvm__) || defined(__clang__)
+    auto generator = lz::generate(static_cast<std::function<std::size_t()>>([&counter] { return counter++; }), amount);
+#else
     auto generator = lz::generate([&counter] { return counter++; }, amount);
+#endif
 
     SECTION("To array") {
         std::array<std::size_t, amount> array = generator.toArray<amount>();

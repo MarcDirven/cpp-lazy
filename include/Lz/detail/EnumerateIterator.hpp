@@ -7,7 +7,7 @@
 
 namespace lz {
 namespace internal {
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL Arithmetic>
+template<class Iterator, class Arithmetic>
 class EnumerateIterator {
     Arithmetic _index;
     Iterator _iterator;

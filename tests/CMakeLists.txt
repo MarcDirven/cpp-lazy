@@ -30,6 +30,7 @@ add_executable(LazyTests
 		chunk-if-tests.cpp
 		chunks-tests.cpp
 		concatenate-tests.cpp
+		cstring-tests.cpp
 		enumerate-tests.cpp
 		except-tests.cpp
 		exclude-tests.cpp
@@ -53,9 +54,10 @@ add_executable(LazyTests
 		take-tests.cpp
 		test-main.cpp
 		unique-tests.cpp
+		zip-longest-tests.cpp
 		zip-tests.cpp)
 
-target_compile_features(LazyTests PRIVATE cxx_std_11)
+target_compile_features(LazyTests PRIVATE cxx_std_14)
 
 target_compile_options(LazyTests
 		PRIVATE
