@@ -10,7 +10,7 @@ namespace lz {
 namespace internal {
 #    ifdef __cpp_if_constexpr
 template<class ValueType>
-std::ptrdiff_t plusImpl(const ValueType difference, const ValueType step) noexcept(!std::is_floating_point_v<ValueType>) {
+std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference, const ValueType step) noexcept(!std::is_floating_point_v<ValueType>) {
     if constexpr (std::is_floating_point_v<ValueType>) {
         return static_cast<std::ptrdiff_t>(std::ceil(difference / step));
     }
@@ -79,10 +79,16 @@ public:
     }
 
     LZ_NODISCARD friend difference_type
-    operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
+    LZ_CONSTEXPR_CXX_20 operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
         LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
         const auto difference = a._iterator - b._iterator;
-        return std::abs(plusImpl(static_cast<Arithmetic>(difference), a._step));
+        const auto result = plusImpl(static_cast<Arithmetic>(difference), a._step);
+        if LZ_CONSTEXPR_IF (std::is_floating_point<Arithmetic>::value) {
+            return std::abs(result);
+        }
+        else {
+            return result < 0 ? -result : result;
+        }
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const noexcept {
