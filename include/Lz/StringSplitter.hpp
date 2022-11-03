@@ -1,10 +1,14 @@
 #pragma once
 
 #ifndef LZ_STRING_SPLITTER_HPP
-#define LZ_STRING_SPLITTER_HPP
+#    define LZ_STRING_SPLITTER_HPP
 
-#include "detail/BasicIteratorView.hpp"
-#include "detail/SplitIterator.hpp"
+#    if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
+#        include <Lz/CString.hpp>
+#    endif
+
+#    include "detail/BasicIteratorView.hpp"
+#    include "detail/SplitIterator.hpp"
 
 namespace lz {
 template<class SubString, class String, class StringType>
@@ -29,13 +33,13 @@ public:
  * @{
  */
 
-#if defined(LZ_HAS_STRING_VIEW)
+#    if defined(LZ_HAS_STRING_VIEW)
 template<class SubString = std::string_view>
-#elif defined(LZ_STANDALONE)
-template<class SubString = std::string>
-#else
+#    elif defined(LZ_STANDALONE)
+template<class SubString = lz::CString<char, false>>
+#    else
 template<class SubString = fmt::string_view>
-#endif
+#    endif
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
  * @tparam SubString The string type of the substring. If C++17, this will default to `std::string_view`. If `LZ_STANDALONE` is
@@ -51,13 +55,13 @@ split(const std::string& str, std::string delimiter) {
     return { str, std::move(delimiter) };
 }
 
-#if defined(LZ_HAS_STRING_VIEW)
+#    if defined(LZ_HAS_STRING_VIEW)
 template<class SubString = std::string_view>
-#elif defined(LZ_STANDALONE)
-template<class SubString = std::string>
-#else
+#    elif defined(LZ_STANDALONE)
+template<class SubString = lz::CString<char, false>>
+#    else
 template<class SubString = fmt::string_view>
-#endif
+#    endif
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
  * @tparam SubString The string type of the substring. If C++17, this will default to `std::string_view`. If `LZ_STANDALONE` is
@@ -72,25 +76,25 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, std::string, char> sp
     return { str, delimiter };
 }
 
-#if defined(LZ_HAS_STRING_VIEW)
+#    if defined(LZ_HAS_STRING_VIEW)
 template<class SubString = std::string_view>
-#elif defined(LZ_STANDALONE)
+#    elif defined(LZ_STANDALONE)
 template<class SubString = std::string>
-#else
+#    else
 template<class SubString = fmt::string_view>
-#endif
+#    endif
 StringSplitter<SubString, std::string, char> split(std::string&& str, char delimiter) = delete;
 
-#if defined(LZ_HAS_STRING_VIEW)
+#    if defined(LZ_HAS_STRING_VIEW)
 template<class SubString = std::string_view>
-#elif defined(LZ_STANDALONE)
-template<class SubString = std::string>
-#else
+#    elif defined(LZ_STANDALONE)
+template<class SubString = lz::CString<char, false>>
+#    else
 template<class SubString = fmt::string_view>
-#endif
+#    endif
 StringSplitter<SubString, std::string, std::string> split(std::string&& str, std::string delimiter) = delete;
 
-#ifdef LZ_HAS_STRING_VIEW
+#    ifdef LZ_HAS_STRING_VIEW
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
  * @tparam SubString The string type of the substring.
@@ -106,8 +110,7 @@ split(const std::string_view& str, std::string delimiter) {
 }
 
 template<class SubString = std::string_view>
-LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, char>
-split(const std::string_view& str, char delimiter) {
+LZ_NODISCARD constexpr StringSplitter<SubString, std::string_view, char> split(const std::string_view& str, char delimiter) {
     return { str, delimiter };
 }
 
@@ -116,7 +119,7 @@ StringSplitter<SubString, std::string_view, std::string> split(std::string_view&
 
 template<class SubString = std::string_view>
 StringSplitter<SubString, std::string_view, std::string> split(std::string_view&& str, std::string delimiter) = delete;
-#endif // LZ_HAS_STRING_VIEW
+#    endif // LZ_HAS_STRING_VIEW
 
 // End of group
 /**
