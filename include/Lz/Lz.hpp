@@ -6,6 +6,7 @@
 #    include "Lz/CartesianProduct.hpp"
 #    include "Lz/ChunkIf.hpp"
 #    include "Lz/Chunks.hpp"
+#    include "Lz/CString.hpp"
 #    include "Lz/Enumerate.hpp"
 #    include "Lz/Except.hpp"
 #    include "Lz/Exclude.hpp"
@@ -21,6 +22,7 @@
 #    include "Lz/Rotate.hpp"
 #    include "Lz/TakeEvery.hpp"
 #    include "Lz/Unique.hpp"
+#    include "Lz/ZipLongest.hpp"
 // Function tools includes:
 // Concatenate.hpp
 // Filter.hpp
