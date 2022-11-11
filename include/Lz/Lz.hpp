@@ -72,7 +72,7 @@ LZ_CONSTEXPR_CXX_20 IterView<Iterator> chainRange(Iterator begin, Iterator end) 
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> chain(Iterable&& iterable) {
-    return toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    return chainRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 // End of group
