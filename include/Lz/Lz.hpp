@@ -61,7 +61,7 @@ class IterView;
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_20 IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
+LZ_CONSTEXPR_CXX_20 IterView<Iterator> chainRange(Iterator begin, Iterator end) {
     return lz::IterView<Iterator>(std::move(begin), std::move(end));
 }
 
