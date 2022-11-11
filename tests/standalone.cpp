@@ -24,7 +24,7 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 #ifdef LZ_HAS_CXX_17
     REQUIRE(std::is_same_v<decltype(*splitter.begin()), std::string_view>);
 #else
-    REQUIRE(std::is_same<decltype(*splitter.begin()), std::string>::value);
+    REQUIRE(std::is_same<decltype(*splitter.begin()), lz::CString<char, false>>::value);
 #endif
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };

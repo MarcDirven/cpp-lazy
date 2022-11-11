@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LZ_ZIP_ITERATOR_HPP
-#    define LZ_ZIP_ITERATOR_HPP
+#ifndef LZ_ZIP_LONGEST_ITERATOR_HPP
+#    define LZ_ZIP_LONGEST_ITERATOR_HPP
 
 #    include "LzTools.hpp"
 #    include "Optional.hpp"
@@ -312,4 +312,4 @@ public:
 };
 } // namespace internal
 } // namespace lz
-#endif
+#endif // LZ_ZIP_LONGEST_ITERATOR_HPP

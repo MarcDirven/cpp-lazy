@@ -6,6 +6,7 @@
 #    include "Lz/CartesianProduct.hpp"
 #    include "Lz/ChunkIf.hpp"
 #    include "Lz/Chunks.hpp"
+#    include "Lz/CString.hpp"
 #    include "Lz/Enumerate.hpp"
 #    include "Lz/Except.hpp"
 #    include "Lz/Exclude.hpp"
@@ -21,6 +22,7 @@
 #    include "Lz/Rotate.hpp"
 #    include "Lz/TakeEvery.hpp"
 #    include "Lz/Unique.hpp"
+#    include "Lz/ZipLongest.hpp"
 // Function tools includes:
 // Concatenate.hpp
 // Filter.hpp
@@ -59,7 +61,7 @@ class IterView;
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_CONSTEXPR_CXX_20 IterView<Iterator> toIterRange(Iterator begin, Iterator end) {
+LZ_CONSTEXPR_CXX_20 IterView<Iterator> chainRange(Iterator begin, Iterator end) {
     return lz::IterView<Iterator>(std::move(begin), std::move(end));
 }
 
@@ -70,7 +72,7 @@ LZ_CONSTEXPR_CXX_20 IterView<Iterator> toIterRange(Iterator begin, Iterator end)
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> chain(Iterable&& iterable) {
-    return toIterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+    return chainRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
 // End of group
