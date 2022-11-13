@@ -95,9 +95,9 @@ include(CPack)
 option(CPP-LAZY_BUILD_ESSENTIALS_ZIP OFF)
 if (CPP-LAZY_BUILD_ESSENTIALS_ZIP)
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip
-		COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip --format=zip -- include/ CMakeLists.txt LICENSE.md
+		COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip --format=zip -- include/ CMakeLists.txt LICENSE.md cmake/
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		DEPENDS include/;CMakeLists.txt;LICENSE.md
+		DEPENDS include/;CMakeLists.txt;LICENSE.md;cmake/
 	)
 	add_custom_target(${PROJECT_NAME}_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip)
 endif ()
