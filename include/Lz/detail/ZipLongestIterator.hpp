@@ -48,7 +48,7 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 value_type dereference(IndexSequence<I...>) const {
-        return { dereferenceOne(std::get<I>(_iterators), std::get<I>(_end))... };
+        return value_type{ dereferenceOne(std::get<I>(_iterators), std::get<I>(_end))... };
     }
 
     template<std::size_t... I>
@@ -137,7 +137,7 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 value_type dereference(IndexSequence<I...>) const {
-        return { dereferenceOne(std::get<I>(_iterators), std::get<I>(_end))... };
+        return value_type{ dereferenceOne(std::get<I>(_iterators), std::get<I>(_end))... };
     }
 
     template<std::size_t... I>

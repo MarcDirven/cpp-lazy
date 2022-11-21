@@ -91,7 +91,7 @@ LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string)
  * @return The result of the sum from [from, upToAndIncluding]
  */
 template<class T>
-LZ_NODISCARD constexpr T sumTo(const T from, const T upToAndIncluding) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 T sumTo(const T from, const T upToAndIncluding) {
     static_assert(std::is_integral<T>::value, "T must be integral type");
     const T fromAbs = from < 0 ? -from : from;
     const T toAbs = upToAndIncluding < 0 ? -upToAndIncluding : upToAndIncluding;
@@ -114,7 +114,7 @@ LZ_NODISCARD constexpr T sumTo(const T from, const T upToAndIncluding) {
  * @return The result of the sum from [0, upToAndIncluding]
  */
 template<class T>
-LZ_NODISCARD constexpr T sumTo(const T upToAndIncluding) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 T sumTo(const T upToAndIncluding) {
     return lz::sumTo(0, upToAndIncluding);
 }
 
@@ -1241,7 +1241,7 @@ bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB en
     return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
 }
 
-template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<Iterable>)>
+template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return lz::startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
@@ -1255,7 +1255,7 @@ bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB
     return lz::startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
 }
 
-template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<Iterable>)>
+template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return lz::endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }

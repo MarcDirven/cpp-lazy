@@ -15,7 +15,7 @@ Tuple createFakeEnd(const Tuple& begin, Tuple end, IndexSequence<Is...>) {
     // If we use begin + smallestLength, we get compile errors for non random access iterators. However, we know that we are
     // dealing with a random access iterator, so std::next does a + internally. It is implemented this way to prevent more
     // enable_if's from appearing
-    return { std::next(std::get<Is>(begin), smallestLength)... };
+    return Tuple{ std::next(std::get<Is>(begin), smallestLength)... };
 }
 } // namespace internal
 

@@ -25,7 +25,7 @@ EnableIf<std::is_floating_point<ValueType>::value, std::ptrdiff_t> plusImpl(cons
 }
 
 template<class ValueType>
-constexpr EnableIf<!std::is_floating_point<ValueType>::value, std::ptrdiff_t>
+LZ_CONSTEXPR_CXX_14 EnableIf<!std::is_floating_point<ValueType>::value, std::ptrdiff_t>
 plusImpl(const ValueType difference, const ValueType step) noexcept {
     return static_cast<std::ptrdiff_t>(roundEven(difference, step));
 }
@@ -95,23 +95,23 @@ public:
         return *(*this + offset);
     }
 
-    constexpr RangeIterator& operator+=(const difference_type value) noexcept {
+    LZ_CONSTEXPR_CXX_14 RangeIterator& operator+=(const difference_type value) noexcept {
         _iterator += static_cast<Arithmetic>(value) * _step;
         return *this;
     }
 
-    LZ_NODISCARD constexpr RangeIterator operator+(const difference_type value) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RangeIterator operator+(const difference_type value) const noexcept {
         RangeIterator tmp(*this);
         tmp += value;
         return tmp;
     }
 
-    constexpr RangeIterator operator-=(const difference_type value) noexcept {
+    LZ_CONSTEXPR_CXX_14 RangeIterator operator-=(const difference_type value) noexcept {
         _iterator -= static_cast<Arithmetic>(value) * _step;
         return *this;
     }
 
-    LZ_NODISCARD constexpr RangeIterator operator-(const difference_type value) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RangeIterator operator-(const difference_type value) const noexcept {
         RangeIterator tmp(*this);
         tmp -= value;
         return tmp;

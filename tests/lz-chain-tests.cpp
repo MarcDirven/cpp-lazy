@@ -17,11 +17,11 @@ TEST_CASE("Iterator chaining") {
     std::function<int(std::tuple<int, int> tup)> tupFn = [](std::tuple<int, int> tup) {
         return std::get<0>(tup);
     };
-
+    unsigned x = 0;
     auto result = lz::chain(arr)
                       .as<int&>()
                       .map(std::move(f))
-                      .forEach([x = 0](int& i) mutable { i = x++; })
+                      .forEach([x](int& i) mutable { i = x++; })
                       .zip(arr2)
                       .map(std::move(tupFn))
                       .concat(arr2)
@@ -37,7 +37,7 @@ TEST_CASE("Iterator chaining") {
                          .dropWhile([](int i) { return i != 1; })
                          .sort()
                          .enumerate()
-                         .all([](auto&& i) { return i.second == 1; });
+                         .all([](std::pair<int, int> i) { return i.second == 1; });
 
     CHECK(isAllSame);
 
@@ -173,7 +173,7 @@ TEST_CASE("Iterator chaining") {
         auto joinWhere = lz::chain(arr).joinWhere(
             arr2, [](int a) { return a; }, [](int b) { return b; },
             [](int a, int b) -> std::tuple<int, int> {
-                return { a, b };
+                return std::tuple<int, int>{ a, b };
             });
         auto begin = joinWhere.begin();
         CHECK(*begin == std::make_tuple(0, 0));

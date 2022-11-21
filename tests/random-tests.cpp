@@ -26,7 +26,7 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
 TEST_CASE("Random with custom distro's and custom engine") {
     static std::random_device rd;
     std::mt19937_64 gen(rd());
-    std::poisson_distribution<> d(500'000);
+    std::poisson_distribution<> d(500000);
     auto r = lz::random(d, gen, 3);
     CHECK(std::distance(r.begin(), r.end()) == 3);
 
