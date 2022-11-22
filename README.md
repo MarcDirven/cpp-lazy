@@ -197,7 +197,7 @@ Or add `cpp-lazy/include` to the additional include directories in e.g. Visual S
 
 # Including
 ```cpp
-#include <Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
+#include <Lz/Lz.hpp> // or e.g. #include <Lz/Filter.hpp>
 
 int main() {
   // use e.g. lz::filter
