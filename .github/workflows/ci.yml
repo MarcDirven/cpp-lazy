@@ -44,7 +44,7 @@ jobs:
           -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
-        run: cmake --build build/install
+        run: cmake --build build/install -j $(nproc)
 
       - name: Install
         run: cmake --install build/install
@@ -90,7 +90,7 @@ jobs:
           -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
-        run: cmake --build build/install
+        run: cmake --build build/install -j $(nproc)
 
       - name: Install
         run: cmake --install build/install
@@ -104,7 +104,7 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests
+        run: cmake --build build/tests -j $(nproc)
 
       - name: Run tests
         working-directory: build/tests
@@ -128,7 +128,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build (install)
-        run: cmake --build build/install --config Release -j $(nproc)
+        run: cmake --build build/install --config Release -j %NUMBER_OF_PROCESSORS%
 
       - name: Install
         run: cmake --install build/install --config Release
@@ -140,11 +140,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --config Release -j $(nproc)
+        run: cmake --build build/tests --config Release -j %NUMBER_OF_PROCESSORS%
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV -j $(nproc)
+        run: ctest -C Release -VV -j %NUMBER_OF_PROCESSORS%
 
   examples:
     runs-on: ubuntu-latest
@@ -160,4 +160,4 @@ jobs:
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
-        run: cmake --build build/examples
+        run: cmake --build build/examples -j $(nproc)
