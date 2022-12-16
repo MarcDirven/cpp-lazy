@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #define LZ_STANDALONE
 
 #include <Lz/Join.hpp>

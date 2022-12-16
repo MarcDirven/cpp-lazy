@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include "Lz/ChunkIf.hpp"
 
 #include <Lz/FunctionTools.hpp>

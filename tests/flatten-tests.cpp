@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include "Lz/FunctionTools.hpp"
 
 #include <Lz/Flatten.hpp>

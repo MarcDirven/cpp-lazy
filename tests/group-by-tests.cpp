@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include <Lz/GroupBy.hpp>
 #include <catch2/catch.hpp>
 #include <list>

@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include <Lz/CString.hpp>
 #include <catch2/catch.hpp>
 #include <list>
