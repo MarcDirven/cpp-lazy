@@ -61,7 +61,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j $(nproc)
+        run: ctest -VV -j $(nproc) -R AllTests
 
   clang:
     strategy:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j $(nproc)
+        run: ctest -VV -j $(nproc) -R AllTests
 
   msvc:
     strategy:
@@ -144,7 +144,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV -j $env:NUMBER_OF_PROCESSORS
+        run: ctest -C Release -VV -j $env:NUMBER_OF_PROCESSORS -R AllTests
 
   examples:
     runs-on: ubuntu-latest
