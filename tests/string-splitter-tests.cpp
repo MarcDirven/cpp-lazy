@@ -1,5 +1,3 @@
-#define CATCH_CONFIG_MAIN
-
 #include <Lz/StringSplitter.hpp>
 #include <catch2/catch.hpp>
 #include <fmt/format.h>

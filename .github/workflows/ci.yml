@@ -57,7 +57,7 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests
+        run: cmake --build build/tests --target AllTests -j $(nproc)
 
       - name: Run tests
         working-directory: build/tests
@@ -104,7 +104,7 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests -j $(nproc)
+        run: cmake --build build/tests --target AllTests -j $(nproc)
 
       - name: Run tests
         working-directory: build/tests
@@ -140,7 +140,7 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --config Release -j $env:NUMBER_OF_PROCESSORS
+        run: cmake --build build/tests --config Release ---target AllTests j $env:NUMBER_OF_PROCESSORS
 
       - name: Run tests
         working-directory: build/tests

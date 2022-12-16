@@ -24,9 +24,7 @@ else ()
 	FetchContent_MakeAvailable(cpp-lazy)
 endif ()
 
-
-function(cpp_lazy_add_test _target)
-	add_executable(${_target} ${_target}.cpp)
+function(configure_target _target)
 	target_compile_features(${_target} PRIVATE cxx_std_14)
 	target_compile_options(${_target}
 		PRIVATE
@@ -34,6 +32,12 @@ function(cpp_lazy_add_test _target)
 		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
 	target_link_libraries(${_target} PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
 	add_test(NAME ${_target} COMMAND $<TARGET_FILE:${_target}>)
+endfunction()
+
+function(cpp_lazy_add_test _target)
+	add_executable(${_target} ${_target}.cpp)
+	target_compile_definitions(${_target} PRIVATE CATCH_CONFIG_MAIN)
+	configure_target(${_target})
 endfunction()
 
 enable_testing()
@@ -69,3 +73,38 @@ cpp_lazy_add_test(unique-tests)
 cpp_lazy_add_test(zip-longest-tests)
 cpp_lazy_add_test(zip-tests)
 
+add_executable(AllTests
+	EXCLUDE_FROM_ALL
+	cartesian-product-tests.cpp
+	chunk-if-tests.cpp
+	chunks-tests.cpp
+	concatenate-tests.cpp
+	cstring-tests.cpp
+	enumerate-tests.cpp
+	except-tests.cpp
+	exclude-tests.cpp
+	filter-tests.cpp
+	flatten-tests.cpp
+	function-tools-tests.cpp
+	generate-tests.cpp
+	group-by-tests.cpp
+	init-tests.cpp
+	join-tests.cpp
+	join-where-tests.cpp
+	loop-tests.cpp
+	lz-chain-tests.cpp
+	map-tests.cpp
+	random-tests.cpp
+	range-tests.cpp
+	repeat-tests.cpp
+	rotate-tests.cpp
+	standalone.cpp
+	string-splitter-tests.cpp
+	take-every-tests.cpp
+	take-tests.cpp
+	unique-tests.cpp
+	zip-longest-tests.cpp
+	zip-tests.cpp
+)
+
+configure_target(AllTests)

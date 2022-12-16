@@ -1,5 +1,3 @@
-#define CATCH_CONFIG_MAIN
-
 #include "Lz/Chunks.hpp"
 #include "catch2/catch.hpp"
 
