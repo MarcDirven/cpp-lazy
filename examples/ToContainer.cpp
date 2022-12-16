@@ -76,11 +76,8 @@ int main() {
 
     // Must match a constructor of template parameter Container (in this case std::vector)
     c = 'a';
-#if defined(LZ_HAS_CXX_17) && LZ_HAS_INCLUDE(<execution>)
     // C++17
-    auto cpy = generator.to<std::vector<long>>(std::execution::seq, 100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
-#else
+    // auto cpy = generator.to<std::vector<long>>(std::execution::seq, 100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
     // pre c++17
     auto cpy = generator.to<std::vector<long>>(100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
-#endif
 }
