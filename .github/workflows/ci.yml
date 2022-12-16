@@ -153,8 +153,6 @@ jobs:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
 
-        id: cores
-
       - name: Configure
         run: cmake -S examples -B build/examples -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
