@@ -61,7 +61,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV
+        run: ctest -VV -j4
 
   clang:
     strategy:
@@ -108,7 +108,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV
+        run: ctest -VV -j4
 
   msvc:
     strategy:
@@ -144,7 +144,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV
+        run: ctest -C Release -VV -j4
 
   examples:
     runs-on: ubuntu-latest
