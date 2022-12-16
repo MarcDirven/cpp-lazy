@@ -128,7 +128,7 @@ jobs:
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build (install)
-        run: cmake --build build/install --config Release -j %NUMBER_OF_PROCESSORS%
+        run: cmake --build build/install --config Release -j $env:NUMBER_OF_PROCESSORS
 
       - name: Install
         run: cmake --install build/install --config Release
@@ -140,11 +140,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --config Release -j %NUMBER_OF_PROCESSORS%
+        run: cmake --build build/tests --config Release -j $env:NUMBER_OF_PROCESSORS
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV -j %NUMBER_OF_PROCESSORS%
+        run: ctest -C Release -VV -j $env:NUMBER_OF_PROCESSORS
 
   examples:
     runs-on: ubuntu-latest
