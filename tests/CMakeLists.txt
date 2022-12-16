@@ -24,58 +24,48 @@ else ()
 	FetchContent_MakeAvailable(cpp-lazy)
 endif ()
 
-# ---- Tests ----
-add_executable(LazyTests
-		cartesian-product-tests.cpp
-		chunk-if-tests.cpp
-		chunks-tests.cpp
-		concatenate-tests.cpp
-		cstring-tests.cpp
-		enumerate-tests.cpp
-		except-tests.cpp
-		exclude-tests.cpp
-		filter-tests.cpp
-		flatten-tests.cpp
-		function-tools-tests.cpp
-		generate-tests.cpp
-		group-by-tests.cpp
-		join-tests.cpp
-		join-where-tests.cpp
-		loop-tests.cpp
-		lz-chain-tests.cpp
-		map-tests.cpp
-		random-tests.cpp
-		range-tests.cpp
-		repeat-tests.cpp
-		rotate-tests.cpp
-		standalone.cpp
-		string-splitter-tests.cpp
-		take-every-tests.cpp
-		take-tests.cpp
-		test-main.cpp
-		unique-tests.cpp
-		zip-longest-tests.cpp
-		zip-tests.cpp)
 
-target_compile_features(LazyTests PRIVATE cxx_std_14)
-
-target_compile_options(LazyTests
+function(cpp_lazy_add_test _target)
+	add_executable(${_target} ${_target}.cpp)
+	target_compile_features(${_target} PRIVATE cxx_std_14)
+	target_compile_options(${_target}
 		PRIVATE
 		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
 		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
-
-target_compile_definitions(LazyTests PRIVATE -DCATCH_CONFIG_ENABLE_TUPLE_STRINGMAKER)
-
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-	include(CheckCXXCompilerFlag)
-	check_cxx_compiler_flag(-Wa,-mbig-obj "HAS_MBIG_OBJ")
-	if (${HAS_MBIG_OBJ})
-		add_definitions("-Wa,-mbig-obj")
-	endif ()
-endif ()
-
-target_link_libraries(LazyTests PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
+	target_link_libraries(${_target} PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
+	add_test(NAME ${_target} COMMAND $<TARGET_FILE:${_target}>)
+endfunction()
 
 enable_testing()
 
-add_test(NAME LazyTests COMMAND LazyTests)
+# ---- Tests ----
+cpp_lazy_add_test(cartesian-product-tests)
+cpp_lazy_add_test(chunk-if-tests)
+cpp_lazy_add_test(chunks-tests)
+cpp_lazy_add_test(concatenate-tests)
+cpp_lazy_add_test(cstring-tests)
+cpp_lazy_add_test(enumerate-tests)
+cpp_lazy_add_test(except-tests)
+cpp_lazy_add_test(exclude-tests)
+cpp_lazy_add_test(filter-tests)
+cpp_lazy_add_test(flatten-tests)
+cpp_lazy_add_test(function-tools-tests)
+cpp_lazy_add_test(generate-tests)
+cpp_lazy_add_test(group-by-tests)
+cpp_lazy_add_test(join-tests)
+cpp_lazy_add_test(join-where-tests)
+cpp_lazy_add_test(loop-tests)
+cpp_lazy_add_test(lz-chain-tests)
+cpp_lazy_add_test(map-tests)
+cpp_lazy_add_test(random-tests)
+cpp_lazy_add_test(range-tests)
+cpp_lazy_add_test(repeat-tests)
+cpp_lazy_add_test(rotate-tests)
+cpp_lazy_add_test(standalone)
+cpp_lazy_add_test(string-splitter-tests)
+cpp_lazy_add_test(take-every-tests)
+cpp_lazy_add_test(take-tests)
+cpp_lazy_add_test(unique-tests)
+cpp_lazy_add_test(zip-longest-tests)
+cpp_lazy_add_test(zip-tests)
+

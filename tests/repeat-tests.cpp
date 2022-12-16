@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include <Lz/Repeat.hpp>
 #include <array>
 #include <catch2/catch.hpp>

@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_MAIN
+
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <catch2/catch.hpp>
