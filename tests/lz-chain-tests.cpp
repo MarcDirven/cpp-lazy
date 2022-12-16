@@ -1,5 +1,3 @@
-#define CATCH_CONFIG_MAIN
-
 #include "Lz/Lz.hpp"
 
 #include <algorithm>

@@ -1,5 +1,3 @@
-#define CATCH_CONFIG_MAIN
-
 #include <Lz/Generate.hpp>
 #include <catch2/catch.hpp>
 #include <list>
