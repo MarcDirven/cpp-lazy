@@ -57,11 +57,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --target AllTests -j $(nproc)
+        run: cmake --build build/tests -j $(nproc)
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j $(nproc) -R AllTests
+        run: ctest -D Experimental
 
   clang:
     strategy:
@@ -104,11 +104,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --target AllTests -j $(nproc)
+        run: cmake --build build/tests -j $(nproc)
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -VV -j $(nproc) -R AllTests
+        run: ctest -D Experimental
 
   msvc:
     strategy:
@@ -140,11 +140,11 @@ jobs:
           -D CMAKE_INSTALL_PREFIX=build/prefix
 
       - name: Build tests
-        run: cmake --build build/tests --config Release --target AllTests -j $env:NUMBER_OF_PROCESSORS
+        run: cmake --build build/tests --config Release -j $env:NUMBER_OF_PROCESSORS
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -VV -j $env:NUMBER_OF_PROCESSORS -R AllTests
+        run: ctest -C Release -D Experimental
 
   examples:
     runs-on: ubuntu-latest
