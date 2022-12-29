@@ -397,7 +397,7 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     else {
         sum = std::reduce(execution, begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
-    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
+    return static_cast<double>(sum) / static_cast<double>(static_cast<std::size_t>(std::distance(begin, end)));
 }
 
 /**

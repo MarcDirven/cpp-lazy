@@ -236,7 +236,7 @@ private:
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
         if constexpr (HasReserve<Container>::value) {
-            container.reserve(sizeHint(_begin, _end));
+            container.reserve(static_cast<std::size_t>(sizeHint(_begin, _end)));
         }
     }
 #    endif // __cpp_if_constexpr
@@ -325,7 +325,7 @@ public:
                                                        " algorithms. Use std::execution::seq instead");
             static_assert(internal::IsRandomAccess<It>::value,
                           "The iterator needs to be random access. Please use copyTo if you want to parallize this function");
-            container.resize(_end - _begin);
+            container.resize(static_cast<std::size_t>(_end - _begin));
             copyTo(container.begin(), execution);
         }
         return container;

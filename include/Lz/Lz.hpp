@@ -352,13 +352,13 @@ public:
 
     //! See FunctionTools.hpp `indexOf` for documentation.
     template<class T, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type indexOf(const T& value, Execution execution = std::execution::seq) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t indexOf(const T& value, Execution execution = std::execution::seq) const {
         return lz::indexOf(*this, value, execution);
     }
 
     //! See FunctionTools.hpp `indexOfIf` for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type indexOfIf(UnaryPredicate predicate,
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t indexOfIf(UnaryPredicate predicate,
                                                                Execution execution = std::execution::seq) const {
         return lz::indexOfIf(*this, std::move(predicate), execution);
     }

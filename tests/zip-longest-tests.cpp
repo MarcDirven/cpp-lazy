@@ -31,7 +31,7 @@ TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic funct
             }
             else {
                 CHECK(b);
-                CHECK(*b == *std::next(v2.begin(), counter));
+                CHECK(*b == *std::next(v2.begin(), static_cast<std::ptrdiff_t>(counter)));
             }
             if (counter > 3) {
                 CHECK(!c);

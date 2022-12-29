@@ -27,11 +27,10 @@ endif ()
 function(cpp_lazy_add_test _target)
 	add_executable(${_target} ${_target}.cpp)
 	target_compile_definitions(${_target} PRIVATE CATCH_CONFIG_MAIN)
-	target_compile_features(${_target} PRIVATE cxx_std_14)
 	target_compile_options(${_target}
 		PRIVATE
-		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
-		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wno-unused-function>)
+		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX>
+		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion>)
 	target_link_libraries(${_target} PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
 	add_test(NAME ${_target} COMMAND $<TARGET_FILE:${_target}>)
 endfunction()
