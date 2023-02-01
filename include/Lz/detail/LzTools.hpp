@@ -223,6 +223,8 @@ using Decay = typename std::decay<T>::type;
 
 template<std::size_t I, class T>
 using TupleElement = typename std::tuple_element<I, T>::type;
+
+#        define MAKE_BIN_OP(OP, VALUE_TYPE) OP<VALUE_TYPE>
 #    else // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
 using IndexSequence = std::index_sequence<N...>;
@@ -364,7 +366,7 @@ template<class Iterator>
 struct IsRandomAccess : IsRandomAccessTag<IterCat<Iterator>> {};
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
-inline constexpr bool isEven(const Arithmetic value) noexcept {
+LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
 }
 
@@ -373,7 +375,7 @@ inline constexpr void decompose(const Ts&...) noexcept {
 }
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
-inline constexpr Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
+LZ_CONSTEXPR_CXX_14 Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
     LZ_ASSERT(a != 0 && b != 0, "division by zero error");
     if (b == 1) {
         return a;

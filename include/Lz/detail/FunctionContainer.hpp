@@ -28,7 +28,7 @@ class FunctionContainer {
         _isConstructed = true;
     }
 
-    constexpr void reset() noexcept {
+    LZ_CONSTEXPR_CXX_14 void reset() noexcept {
         if (_isConstructed) {
             _func.~Func();
             _isConstructed = false;

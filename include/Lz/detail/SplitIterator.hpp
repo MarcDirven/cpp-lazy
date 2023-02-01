@@ -26,12 +26,12 @@ class SplitIterator {
     }
 #    else
     template<class T = StringType>
-    EnableIf<std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
+    constexpr EnableIf<std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
         return 1;
     }
 
     template<class T = StringType>
-    EnableIf<!std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
+    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
         return _delimiter.length();
     }
 #    endif
@@ -70,12 +70,12 @@ public:
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    constexpr friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
+    LZ_CONSTEXPR_CXX_14 friend bool operator!=(const SplitIterator& a, const SplitIterator& b) noexcept {
         LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types, found different delimiters");
         return a._currentPos != b._currentPos;
     }
 
-    constexpr friend bool operator==(const SplitIterator& a, const SplitIterator& b) noexcept {
+    LZ_CONSTEXPR_CXX_14 friend bool operator==(const SplitIterator& a, const SplitIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
 

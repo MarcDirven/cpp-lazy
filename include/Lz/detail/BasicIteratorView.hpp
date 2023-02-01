@@ -641,7 +641,7 @@ view(Iterable&& iterable) {
 template<class IterableA, class IterableB,
          class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
-    return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
+    return std::equal(std::begin(a), std::end(a), std::begin(b), std::move(predicate));
 }
 #    else  // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
 /**

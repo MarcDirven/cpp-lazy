@@ -39,7 +39,7 @@ public:
     constexpr Optional(U&& value) : _value(std::forward<U>(value)), _hasValue(true) {
     }
 
-    constexpr Optional(Optional<T>&& right) noexcept(noexcept(construct(std::move(right.value())))) {
+    LZ_CONSTEXPR_CXX_14 Optional(Optional<T>&& right) noexcept {
         if (right) {
             construct(std::move(right.value()));
         }
@@ -55,7 +55,7 @@ public:
     }
 
     template<class U = T>
-    constexpr Optional&
+    LZ_CONSTEXPR_CXX_14 Optional&
     operator=(U&& value) noexcept {
         if (_hasValue) {
             _value = std::forward<U>(value);
@@ -70,35 +70,35 @@ public:
         return _hasValue;
     }
 
-    constexpr const T& value() const {
+    LZ_CONSTEXPR_CXX_14 const T& value() const {
         if (_hasValue) {
             return _value;
         }
         throw std::runtime_error("Cannot get uninitialized optional");
     }
 
-    constexpr T& value() {
+    LZ_CONSTEXPR_CXX_14 T& value() {
         if (_hasValue) {
             return _value;
         }
         throw std::runtime_error("Cannot get uninitialized optional");
     }
 
-    constexpr T& operator*() noexcept {
+    LZ_CONSTEXPR_CXX_14 T& operator*() noexcept {
         return _value;
     }
 
-    constexpr const T& operator*() const noexcept {
+    LZ_CONSTEXPR_CXX_14 const T& operator*() const noexcept {
         return _value;
     }
 
     template<class U>
-    constexpr T value_or(U&& v) const& {
+    LZ_CONSTEXPR_CXX_14 T value_or(U&& v) const& {
         return bool(*this) ? this->value() : static_cast<T>(std::forward<U>(v));
     }
 
     template<class U>
-    constexpr T value_or(U&& v) && {
+    LZ_CONSTEXPR_CXX_14 T value_or(U&& v) && {
         return bool(*this) ? std::move(this->value()) : static_cast<T>(std::forward<U>(v));
     }
 };

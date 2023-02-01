@@ -26,7 +26,7 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 reference dereference(IndexSequence<I...>) const {
-        return { *std::get<I>(_iterators)... };
+        return reference{ *std::get<I>(_iterators)... };
     }
 
     template<std::size_t... I>

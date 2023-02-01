@@ -50,8 +50,9 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
     }
 
     SECTION("Operator--") {
-        auto beg = std::make_reverse_iterator(chunked.end());
-        auto en = std::make_reverse_iterator(chunked.begin());
+        using It = decltype(chunked.end());
+        auto beg = std::reverse_iterator<It>(chunked.end());
+        auto en = std::reverse_iterator<It>(chunked.begin());
         CHECK(std::distance(beg, en) == 6);
         auto it = chunked.end();
         --it;
