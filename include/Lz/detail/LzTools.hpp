@@ -371,7 +371,7 @@ LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
 }
 
 template<class... Ts>
-inline constexpr void decompose(const Ts&...) noexcept {
+LZ_CONSTEXPR_CXX_14 void decompose(const Ts&...) noexcept {
 }
 
 template<LZ_CONCEPT_INTEGRAL Arithmetic>

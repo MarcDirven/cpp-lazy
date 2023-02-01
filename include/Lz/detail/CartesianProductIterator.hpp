@@ -28,11 +28,11 @@ private:
 
 #    ifndef __cpp_if_constexpr
     template<std::size_t I>
-    constexpr EnableIf<I == 0, void> next() const noexcept {
+    LZ_CONSTEXPR_CXX_14 EnableIf<I == 0, void> next() const noexcept {
     }
 
     template<std::size_t I>
-    constexpr EnableIf<I == 0> previous() const noexcept {
+    LZ_CONSTEXPR_CXX_14	EnableIf<I == 0, void> previous() const noexcept {
     }
 
 #        ifdef LZ_MSVC

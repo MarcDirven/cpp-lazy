@@ -86,13 +86,13 @@ public:
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 RepeatIterator operator-(const difference_type offset) const noexcept {
         RepeatIterator tmp(*this);
-        tmp -= offset;
+        tmp -= static_cast<std::size_t>(offset);
         return tmp;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const RepeatIterator& a, const RepeatIterator& b) noexcept {
         LZ_ASSERT(a._amount == b._amount, "incompatible iterator types: amount of times to repeat not the same");
-        return a._iterator - b._iterator;
+        return static_cast<difference_type>(a._iterator - b._iterator);
     }
 
     LZ_NODISCARD constexpr reference operator[](const difference_type) const noexcept {

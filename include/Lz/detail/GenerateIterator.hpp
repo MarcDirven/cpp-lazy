@@ -17,13 +17,13 @@ public:
     using iterator_category = std::random_access_iterator_tag;
     using reference = decltype(_generator());
     using value_type = Decay<reference>;
-    using difference_type = std::ptrdiff_t;
+    using difference_type = std::size_t;
     using pointer = FakePointerProxy<reference>;
 
     constexpr GenerateIterator() = default;
 
     constexpr GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :
-        _current(static_cast<difference_type>(start)),
+        _current(start),
         _generator(std::move(generatorFunc)),
         _isWhileTrueLoop(isWhileTrueLoop) {
     }

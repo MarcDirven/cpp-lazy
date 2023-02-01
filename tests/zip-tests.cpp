@@ -106,7 +106,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
 
     SECTION("Operator[]()") {
         std::size_t idx = 0;
-        CHECK(zipper.begin()[idx] == std::make_tuple(a[idx], Approx(b[idx]), c[idx]));
+        CHECK(zipper.begin()[static_cast<std::ptrdiff_t>(idx)] == std::make_tuple(a[idx], Approx(b[idx]), c[idx]));
     }
 
     SECTION("Operator<, <, <=, >, >=") {

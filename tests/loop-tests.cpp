@@ -11,17 +11,17 @@ TEST_CASE("Basic functionality loop", "[Loop][Basic functionality]") {
     }
 
     SECTION("Going a circle") {
-        CHECK(*(looper.begin() + vec.size()) == 1);
-        CHECK(*(looper.begin() + (vec.size() - 1)) == 4);
+        CHECK(*(looper.begin() + static_cast<std::ptrdiff_t>(vec.size())) == 1);
+        CHECK(*(looper.begin() + (static_cast<std::ptrdiff_t>(vec.size()) - 1)) == 4);
 
-        CHECK(*(looper.end() - vec.size()) == 1);
-        CHECK(*(looper.end() - (vec.size() + 1)) == 4);
+        CHECK(*(looper.end() - static_cast<std::ptrdiff_t>(vec.size())) == 1);
+        CHECK(*(looper.end() - (static_cast<std::ptrdiff_t>(vec.size()) + 1)) == 4);
     }
 
     SECTION("Always true") {
         CHECK(looper.begin() != looper.end());
         CHECK(!(looper.begin() == looper.begin()));
-        CHECK(looper.begin() + vec.size() != looper.end());
+        CHECK(looper.begin() + static_cast<std::ptrdiff_t>(vec.size()) != looper.end());
 
         CHECK(looper.begin() < looper.end());
         CHECK(looper.begin() > looper.end());

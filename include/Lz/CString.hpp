@@ -29,7 +29,7 @@ public:
 
     template<bool RA = IsRandomAccess>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 internal::EnableIf<RA, std::size_t> size() const noexcept {
-        return this->_end - this->_begin;
+        return static_cast<std::size_t>(this->_end - this->_begin);
     }
 
     LZ_NODISCARD constexpr explicit operator bool() const noexcept {

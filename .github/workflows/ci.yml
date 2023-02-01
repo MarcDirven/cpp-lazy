@@ -55,6 +55,7 @@ jobs:
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build tests
         run: cmake --build build/tests -j $(nproc)
@@ -102,6 +103,7 @@ jobs:
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_CXX_COMPILER=clang++
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build tests
         run: cmake --build build/tests -j $(nproc)
@@ -138,6 +140,7 @@ jobs:
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
+          -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
 
       - name: Build tests
         run: cmake --build build/tests --config Release -j $env:NUMBER_OF_PROCESSORS

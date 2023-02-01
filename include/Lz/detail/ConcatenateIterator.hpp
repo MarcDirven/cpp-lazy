@@ -135,7 +135,7 @@ struct PlusIs {
 template<class Tuple, std::size_t I>
 struct PlusIs<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
     template<class DifferenceType>
-    constexpr void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
+    LZ_CONSTEXPR_CXX_14 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
     }
 };
 #else

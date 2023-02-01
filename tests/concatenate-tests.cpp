@@ -62,11 +62,11 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
     }
 
     SECTION("Operator+(int), tests += as well") {
-        CHECK(*(begin + a.size()) == 'w');
+        CHECK(*(begin + static_cast<std::ptrdiff_t>(a.size())) == 'w');
     }
 
     SECTION("Operator-(int), tests -= as well") {
-        begin += a.size();
+        begin += static_cast<std::ptrdiff_t>(a.size());
         CHECK(*begin == 'w');
     }
 
@@ -76,7 +76,7 @@ TEST_CASE("Concat binary operations", "[Concat][Binary ops]") {
     }
 
     SECTION("Operator[]()") {
-        CHECK(begin[a.size()] == 'w');
+        CHECK(begin[static_cast<std::ptrdiff_t>(a.size())] == 'w');
     }
 
     SECTION("Operator<, '<, <=, >, >='") {

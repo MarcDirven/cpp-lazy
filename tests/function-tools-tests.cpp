@@ -82,11 +82,11 @@ TEST_CASE("Function tools") {
 
         def = ' ';
         toFind = lz::findFirstOrDefaultIf(
-            s, [](const std::string& s) { return s.find('!') != std::string::npos; }, def);
+            s, [](const std::string& a) { return a.find('!') != std::string::npos; }, def);
         CHECK(toFind == "hello world!");
 
         toFind = lz::findFirstOrDefaultIf(
-            s, [](const std::string& s) { return s.find('z') != std::string::npos; }, "default");
+            s, [](const std::string& a) { return a.find('z') != std::string::npos; }, "default");
         CHECK(toFind == "default");
     }
 
@@ -99,11 +99,11 @@ TEST_CASE("Function tools") {
         CHECK(toFind == def);
 
         toFind = lz::findLastOrDefaultIf(
-            s, [](const std::string& s) { return s.find('\'') != std::string::npos; }, def);
+            s, [](const std::string& a) { return a.find('\'') != std::string::npos; }, def);
         CHECK(toFind == "what's up");
 
         toFind = lz::findLastOrDefaultIf(
-            s, [](const std::string& s) { return lz::contains(s, 'q'); }, def);
+            s, [](const std::string& a) { return lz::contains(a, 'q'); }, def);
         CHECK(toFind == def);
     }
 

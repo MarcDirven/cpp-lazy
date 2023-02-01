@@ -54,7 +54,7 @@ struct TupleExpand {
     }
 
     template<class Tuple>
-    constexpr auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
+    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
         return fn(std::get<I>(std::forward<Tuple>(tuple))...);
     }
 };
@@ -397,7 +397,7 @@ mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution =
     else {
         sum = std::reduce(execution, begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
-    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
+    return static_cast<double>(sum) / static_cast<double>(static_cast<std::size_t>(std::distance(begin, end)));
 }
 
 /**
@@ -957,7 +957,7 @@ template<class Iterator, class BinaryOp = MAKE_BIN_OP(std::plus, internal::Value
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
     using ValueType = internal::ValueType<Iterator>;
     const ValueType sum = std::accumulate(begin, end, ValueType{ 0 }, std::move(binOp));
-    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
+    return static_cast<double>(sum) / static_cast<double>(static_cast<std::size_t>(std::distance(begin, end)));
 }
 
 /**
