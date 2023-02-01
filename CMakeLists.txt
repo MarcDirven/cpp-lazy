@@ -23,7 +23,7 @@ if (CPP-LAZY_USE_STANDALONE)
 else()
 	message(STATUS "Using cpp-lazy with {fmt} library")
 	if (CPP-LAZY_USE_INSTALLED_FMT)
-		find_package(fmt 8 REQUIRED CONFIG)
+		find_package(fmt REQUIRED CONFIG)
 	else()
 		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 		set(FMT_OS YES CACHE INTERNAL "")
@@ -42,18 +42,15 @@ endif()
 add_library(cpp-lazy INTERFACE)
 add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
-if (NOT CPP-LAZY_USE_STANDALONE)
-	target_link_libraries(cpp-lazy INTERFACE fmt::fmt)
-else ()
-	target_compile_definitions(cpp-lazy INTERFACE LZ_STANDALONE)
-endif ()
+target_link_libraries(cpp-lazy INTERFACE $<$<NOT:$<BOOL:${CPP-LAZY_USE_STANDALONE}>>:fmt::fmt>)
+target_compile_definitions(cpp-lazy INTERFACE $<$<BOOL:${CPP-LAZY_USE_STANDALONE}>:LZ_STANDALONE>)
 
 target_compile_features(cpp-lazy INTERFACE cxx_std_11)
 
 target_include_directories(cpp-lazy
-        ${cpp-lazy_warning_guard}
+	${cpp-lazy_warning_guard}
         INTERFACE
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+        	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 
 # ---- Install ----
 include(CMakePackageConfigHelpers)
@@ -61,6 +58,7 @@ include(GNUInstallDirs)
 
 set(cpp-lazy_directory "cpp-lazy-${PROJECT_VERSION}")
 set(cpp-lazy_include_directory "${CMAKE_INSTALL_INCLUDEDIR}/${cpp-lazy_directory}")
+set(cpp-lazy_install_cmakedir "${CMAKE_INSTALL_LIBDIR}/cmake/${cpp-lazy_directory}")
 
 install(TARGETS cpp-lazy
         EXPORT cpp-lazyTargets
@@ -73,7 +71,6 @@ write_basic_package_version_file(
         COMPATIBILITY SameMajorVersion
         ARCH_INDEPENDENT)
 
-set(cpp-lazy_install_cmakedir "${CMAKE_INSTALL_LIBDIR}/cmake/${cpp-lazy_directory}")
 
 install(EXPORT cpp-lazyTargets
         NAMESPACE cpp-lazy::
@@ -94,10 +91,10 @@ include(CPack)
 # ---- Release configuration zip package, bare essentials ----
 option(CPP-LAZY_BUILD_ESSENTIALS_ZIP OFF)
 if (CPP-LAZY_BUILD_ESSENTIALS_ZIP)
-	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip
-		COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip --format=zip -- include/ CMakeLists.txt LICENSE.md cmake/
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip"
+		COMMAND ${CMAKE_COMMAND} -E tar c "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip" --format=zip -- include/ CMakeLists.txt LICENSE.md cmake/
+		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		DEPENDS include/;CMakeLists.txt;LICENSE.md;cmake/
 	)
-	add_custom_target(${PROJECT_NAME}_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip)
+	add_custom_target(${PROJECT_NAME}_package DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-src.zip")
 endif ()
