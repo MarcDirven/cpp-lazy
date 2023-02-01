@@ -957,7 +957,7 @@ template<class Iterator, class BinaryOp = MAKE_BIN_OP(std::plus, internal::Value
 double mean(Iterator begin, Iterator end, BinaryOp binOp = {}) {
     using ValueType = internal::ValueType<Iterator>;
     const ValueType sum = std::accumulate(begin, end, ValueType{ 0 }, std::move(binOp));
-    return static_cast<double>(sum) / static_cast<std::size_t>(std::distance(begin, end));
+    return static_cast<double>(sum) / static_cast<double>(static_cast<std::size_t>(std::distance(begin, end)));
 }
 
 /**

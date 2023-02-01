@@ -733,13 +733,13 @@ public:
 
     //! See FunctionTools.hpp `indexOf` for documentation
     template<class T>
-    difference_type indexOf(const T& value) const {
+    std::size_t indexOf(const T& value) const {
         return lz::indexOf(*this, value);
     }
 
     //! See FunctionTools.hpp `indexOfIf` for documentation
     template<class UnaryPredicate>
-    difference_type indexOfIf(UnaryPredicate predicate) const {
+    std::size_t indexOfIf(UnaryPredicate predicate) const {
         return lz::indexOfIf(*this, std::move(predicate));
     }
 

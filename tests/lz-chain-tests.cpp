@@ -21,7 +21,7 @@ TEST_CASE("Iterator chaining") {
     auto result = lz::chain(arr)
                       .as<int&>()
                       .map(std::move(f))
-                      .forEach([x](int& i) mutable { i = x++; })
+                      .forEach([x](int& i) mutable { i = static_cast<int>(x++); })
                       .zip(arr2)
                       .map(std::move(tupFn))
                       .concat(arr2)

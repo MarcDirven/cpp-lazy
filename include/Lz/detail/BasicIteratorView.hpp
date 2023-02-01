@@ -230,7 +230,7 @@ private:
 
     template<class Container>
     EnableIf<HasReserve<Container>::value, void> tryReserve(Container& container) const {
-        container.reserve(sizeHint(_begin, _end));
+        container.reserve(static_cast<std::size_t>(sizeHint(_begin, _end)));
     }
 #    else
     template<class Container>
