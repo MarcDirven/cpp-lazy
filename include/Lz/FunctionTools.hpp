@@ -54,7 +54,7 @@ struct TupleExpand {
     }
 
     template<class Tuple>
-    constexpr auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
+    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
         return fn(std::get<I>(std::forward<Tuple>(tuple))...);
     }
 };

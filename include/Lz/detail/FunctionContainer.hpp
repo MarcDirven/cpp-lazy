@@ -70,7 +70,7 @@ class FunctionContainer {
     }
 
     template<class F = Func>
-    constexpr EnableIf<std::is_move_assignable<F>::value> move(Func&& f) {
+    LZ_CONSTEXPR_CXX_14 EnableIf<std::is_move_assignable<F>::value> move(Func&& f) {
         _func = std::move(f);
     }
 
@@ -127,7 +127,7 @@ public:
     }
 
     template<class... Args>
-    constexpr auto operator()(Args&&... args) const noexcept(noexcept(_func(std::forward<Args>(args)...)))
+    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const noexcept(noexcept(_func(std::forward<Args>(args)...)))
         -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
     }
