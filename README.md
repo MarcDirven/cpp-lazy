@@ -112,6 +112,9 @@ bugs. While this library does all the looping for you and is thoroughly tested u
 equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
 # Installation
+## With xmake
+Work in progress.
+
 ## Without CMake
 ### Without `{fmt}`
 - Clone the repository
@@ -165,7 +168,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
 
-However, there is a way which is much faster, cleaner and way more recommended. That is: downloading the source code only (LICENSE.md, CMakeLists.txt and the include directories), which can be done as follows (please note that this is supported from cpp-lazy version >= 5.0.1, further, note that you choose the cpp-lazy-src.zip, and not the source-code.zip/source-code.tar.gz):
+However, the following way is recommended (cpp-lazy version >= 5.0.1). Note that you choose the cpp-lazy-src.zip, and not the source-code.zip/source-code.tar.gz):
 ```cmake
 
 # Uncomment this line to use the cpp-lazy standalone version
