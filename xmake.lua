@@ -10,8 +10,8 @@ target("cpp-lazy")
     set_kind("headeronly")
     add_includedirs("include", { public = true })
     add_packages("fmt", { public = true })
-    add_headerfiles("include/Lz/*.hpp")
-    add_headerfiles("include/Lz/detail/*.hpp")
+    add_headerfiles("include/Lz/*.hpp", { prefixdir = "include" })
+    add_headerfiles("include/Lz/detail/*.hpp", { prefixdir = "include" })
 target_end()
 
 if has_config("tests") then
