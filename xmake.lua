@@ -1,4 +1,10 @@
-add_requires("catch2 v2.13.10", "fmt >=5")
+option("tests", {default = false, description = "Enable tests"})
+
+if has_config("tests") then
+    add_requires("catch2 v2.13.10")
+end
+
+add_requires("fmt >=5")
 
 target("cpp-lazy")
     set_kind("headeronly")
