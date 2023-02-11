@@ -113,7 +113,12 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 
 # Installation
 ## With xmake
-Work in progress.
+```xmake
+add_requires("cpp-lazy >=7.0.2")
+
+target("test")
+    add_packages("cpp-lazy")
+```
 
 ## Without CMake
 ### Without `{fmt}`
