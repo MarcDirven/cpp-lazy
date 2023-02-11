@@ -24,7 +24,7 @@ int main() {
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `5.0.0` (previous 
 versions have not been checked, so I'd say at least a compiler with C++11 support).
-- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
+- Tested with `-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion` and `/WX` for MSVC
 - One optional dependency ([`{fmt}`](https://github.com/fmtlib/fmt))
 - `std::format` compatible
 - STL compatible
