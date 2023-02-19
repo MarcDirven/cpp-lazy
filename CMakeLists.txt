@@ -44,6 +44,8 @@ else()
 	if (CPP-LAZY_USE_INSTALLED_FMT)
 		find_package(fmt REQUIRED CONFIG)
 	else()
+		set(FMT_OS YES CACHE INTERNAL "")
+		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 		include(FetchContent)
 		FetchContent_Declare(fmt 
 			URL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz 
