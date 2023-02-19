@@ -3,7 +3,7 @@
 #include <list>
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
-    auto compileTest = lz::generate([]() {});
+    auto compileTest = lz::generate([]() { return 0; });
     static_cast<void>(compileTest);
 
     constexpr std::size_t amount = 4;
