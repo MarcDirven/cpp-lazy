@@ -7,6 +7,9 @@
 #    include "detail/EnumerateIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
 class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {
 public:
@@ -72,6 +75,9 @@ enumerate(Iterable&& iterable, const IntType start = 0) {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

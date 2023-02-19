@@ -7,6 +7,9 @@
 #include "detail/ExceptIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer, class Execution>
 class Except final
@@ -134,6 +137,10 @@ except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {})
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // end namespace lz
+
 
 #endif // end LZ_EXCEPT_HPP

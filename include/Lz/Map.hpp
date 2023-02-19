@@ -7,6 +7,9 @@
 #include "detail/MapIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
 class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {
 public:
@@ -52,16 +55,19 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, Function> mapRange(Iterator begin
  * `for (auto... lz::map(...))`.
  */
 template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, Function>
-map(Iterable&& iterable, Function function) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::Decay<Function>>
+map(Iterable&& iterable, Function&& function) {
     return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                    std::move(function));
+                    std::forward<Function>(function));
 }
 
 // End of group
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

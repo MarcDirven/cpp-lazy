@@ -7,6 +7,9 @@
 #    include "detail/LoopIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class Iterator>
 class Loop final : public internal::BasicIteratorView<internal::LoopIterator<Iterator>> {
 public:
@@ -53,6 +56,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<internal::IterTypeFromIterable<Iterable>> 
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 } // namespace lz
 

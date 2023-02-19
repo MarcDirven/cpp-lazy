@@ -65,6 +65,8 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
 }
 } // namespace internal
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 /**
  * This value is returned when indexOf(If) does not find the value specified.
  */
@@ -1384,5 +1386,7 @@ trimString(const std::string& s) {
 
 #    endif // End LZ_HAS_EXECUTION
 } // End namespace lz
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 #endif // End LZ_FUNCTION_TOOLS_HPP

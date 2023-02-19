@@ -7,6 +7,9 @@
 #include "detail/ExcludeIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class Iterator>
 class Exclude final : public internal::BasicIteratorView<internal::ExcludeIterator<Iterator>> {
 public:
@@ -58,6 +61,9 @@ exclude(Iterable&& iterable, const internal::DiffType<Iterator> from, const inte
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_SKIP_HPP

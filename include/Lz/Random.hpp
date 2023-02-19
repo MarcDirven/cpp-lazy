@@ -119,6 +119,8 @@ inline std::mt19937 createMtEngine() {
 }
 } // namespace internal
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
 class Random final : public internal::BasicIteratorView<internal::RandomIterator<Arithmetic, Distribution, Generator>> {
 public:
@@ -268,5 +270,7 @@ random(const Floating min, const Floating max, const std::size_t amount = (std::
  */
 
 } // namespace lz
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 #endif

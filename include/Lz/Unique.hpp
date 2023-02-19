@@ -7,6 +7,9 @@
 #include "detail/UniqueIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
 class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
@@ -121,6 +124,9 @@ Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iter
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // end namespace lz
 
 #endif // end LZ_UNIQUE_HPP

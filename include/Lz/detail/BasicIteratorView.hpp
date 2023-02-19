@@ -22,6 +22,9 @@
 #    endif     // LZ_STANDALONE
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 /**
  * Checks whether [begin, end) is empty.
  * @param begin The beginning of the sequence.
@@ -77,6 +80,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
+    static_assert(internal::IsBidirectional<Iterator>::value, "Iterator is not bidirectional. Cannot get last element");
     return *--end;
 }
 
@@ -91,6 +95,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
     return lz::back(std::begin(iterable), std::end(iterable));
 }
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 namespace internal {
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
@@ -246,6 +252,17 @@ private:
     }
 
 public:
+#ifdef __cpp_explicit_this_parameter
+    template<class Self>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto&& begin(this Self&& self) {
+        return std::forward<Self>(self)._begin;
+    }
+
+    template<class Self>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto&& end(this Self&& self) {
+        return std::forward<Self>(self)._end;
+    }
+#else
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It begin() LZ_CONST_REF_QUALIFIER noexcept {
         return _begin;
     }
@@ -253,8 +270,9 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It end() LZ_CONST_REF_QUALIFIER noexcept {
         return _end;
     }
+#endif
 
-#    ifdef LZ_HAS_REF_QUALIFIER
+#    if defined(LZ_HAS_REF_QUALIFIER) && !defined(__cpp_explicit_this_parameter)
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It begin() && noexcept {
         return std::move(_begin);
     }
@@ -619,6 +637,8 @@ public:
 // clang-format on
 } // namespace internal
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 // Start of group
 /**
  * @addtogroup ItFns
@@ -665,6 +685,8 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 }
 #    endif // LZ_HAS_EXECUTION
 } // Namespace lz
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 #    if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>

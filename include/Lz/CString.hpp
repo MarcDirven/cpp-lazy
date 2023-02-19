@@ -7,6 +7,9 @@
 #    include "detail/CStringIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class C, bool IsRandomAccess>
 class CString final : public internal::BasicIteratorView<internal::CStringIterator<C, IsRandomAccess>> {
 public:
@@ -69,5 +72,9 @@ LZ_NODISCARD constexpr CString<C, false> cString(const C* s) noexcept {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
+
 #endif

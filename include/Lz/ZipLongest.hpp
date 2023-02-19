@@ -7,6 +7,9 @@
 #    include "detail/ZipLongestIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipLongest final
     : public internal::BasicIteratorView<internal::ZipLongestIterator<
@@ -86,6 +89,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongest<internal::IterTypeFromIterable<Itera
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_ZIP_LONGEST_HPP

@@ -7,15 +7,18 @@
 #include "detail/GenerateIterator.hpp"
 
 namespace lz {
-template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc>> {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
+template<class GeneratorFunc, class... Args>
+class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc, Args...>> {
 public:
-    using iterator = internal::GenerateIterator<GeneratorFunc>;
+    using iterator = internal::GenerateIterator<GeneratorFunc, Args...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop) :
-        internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop), iterator(amount, func, isWhileTrueLoop)) {
+    constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop, std::tuple<Args...> tuple) :
+        internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop, tuple), iterator(amount, func, isWhileTrueLoop, tuple)) {
     }
 
     constexpr Generate() = default;
@@ -33,23 +36,30 @@ public:
  * ```cpp
  * int a = 0;
  * size_t amount = 4;
- * auto vector = lz::generate([&a]() { return a++; }, amount).toVector();
+ * auto vector = lz::generate([](int& i) { auto tmp{a++}; return tmp; }, amount, 0).toVector();
  * // vector yields: { 0, 1, 2, 3 }
  * @param generatorFunc The function to execute `amount` of times. The return value of the function is the type
  * that is generated.
+ * ```
  * @param amount The amount of times to execute `generatorFunc`.
+ * @param args Args to pass to the function @p generatorFunc
  * @return A generator iterator view object.
  */
-template<LZ_CONCEPT_INVOCABLE GeneratorFunc>
-LZ_NODISCARD constexpr Generate<GeneratorFunc>
-generate(GeneratorFunc generatorFunc, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return { std::move(generatorFunc), amount, amount == (std::numeric_limits<std::size_t>::max)() };
+template<class GeneratorFunc, class... Args>
+LZ_NODISCARD constexpr Generate<internal::Decay<GeneratorFunc>, internal::Decay<Args>...>
+generate(GeneratorFunc&& generatorFunc, const std::size_t amount = (std::numeric_limits<std::size_t>::max)(), Args&&... args) {
+    return { std::forward<GeneratorFunc>(generatorFunc), amount, amount == (std::numeric_limits<std::size_t>::max)(), std::make_tuple(std::forward<Args>(args)...) };
 }
+
+
 
 // End of group
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

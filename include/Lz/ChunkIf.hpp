@@ -6,6 +6,9 @@
 #include "detail/ChunkIfIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class UnaryPredicate, class Execution>
 class ChunkIf final : public internal::BasicIteratorView<internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>> {
@@ -97,6 +100,10 @@ ChunkIf<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> chunkIf(Iterab
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
+
 
 #endif // LZ_CHUNK_IF_HPP

@@ -6,6 +6,9 @@
 #    include "detail/ChunksIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class, bool>
 class Chunks;
 
@@ -76,6 +79,8 @@ chunks(Iterable&& iterable, const std::size_t chunkSize) {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 } // namespace lz
 
