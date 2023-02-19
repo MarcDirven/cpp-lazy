@@ -3,9 +3,17 @@
 #include <list>
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
+    auto compileTest = lz::generate([]() {});
+    static_cast<void>(compileTest);
+
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    auto generator = lz::generate([&counter] { return counter++; }, amount);
+    auto generator = lz::generate(
+        [](std::size_t& c) {
+            auto tmp{ c++ };
+            return tmp;
+        },
+        amount, counter);
 
     SECTION("Should be 0, 1, 2, 3") {
         std::size_t expected = 0;
@@ -18,10 +26,12 @@ TEST_CASE("Generate changing and creating elements", "[Generate][Basic functiona
 TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-    std::function<std::size_t()> f = [&counter] {
-        return counter++;
-    };
-    auto generator = lz::generate(std::move(f), amount);
+    auto generator = lz::generate(
+        [](std::size_t& c) {
+            auto tmp{ c++ };
+            return tmp;
+        },
+        amount, counter);
     auto begin = generator.begin();
 
     SECTION("Operator++") {
@@ -29,56 +39,23 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
         CHECK(std::distance(begin, generator.end()) == amount - 1);
     }
 
-    SECTION("Operator--") {
-        ++begin;
-        --begin;
-        CHECK(std::distance(begin, generator.end()) == amount);
-    }
-
     SECTION("Operator== & Operator!=") {
         CHECK(begin != generator.end());
         begin = generator.end();
         CHECK(begin == generator.end());
-    }
-
-    SECTION("Operator+(int), tests += as well") {
-        const std::size_t toAdd = 2;
-        begin += toAdd;
-        CHECK(std::distance(begin, generator.end()) == amount - toAdd);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        ++begin;
-        begin -= 1;
-        CHECK(std::distance(begin, generator.end()) == amount);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK((generator.end() - begin) == amount);
-        CHECK(std::distance(begin, generator.end()) == amount);
-    }
-
-    SECTION("Operator[]()") {
-        CHECK(begin[0] == 0);
-        CHECK(begin[1] == 1);
-    }
-
-    SECTION("Operator<, <, <=, >, >=") {
-        CHECK(begin < generator.end());
-        CHECK(begin + amount + 1 > generator.end());
-        CHECK(begin + amount <= generator.end());
-        CHECK(begin + amount >= generator.end());
     }
 }
 
 TEST_CASE("Generate to containers", "[Generate][To container]") {
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;
-#if defined(__llvm__) || defined(__clang__)
-    auto generator = lz::generate(static_cast<std::function<std::size_t()>>([&counter] { return counter++; }), amount);
-#else
-    auto generator = lz::generate([&counter] { return counter++; }, amount);
-#endif
+
+    auto generator = lz::generate(
+        [](std::size_t& c) {
+            auto tmp{ c++ };
+            return tmp;
+        },
+        amount, counter);
 
     SECTION("To array") {
         std::array<std::size_t, amount> array = generator.toArray<amount>();
