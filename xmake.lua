@@ -13,7 +13,7 @@ target("cpp-lazy")
     add_includedirs("include", { public = true })
     add_packages("fmt", { public = true })
     if has_config("cpp-lazy-use-modules") then
-        add_files("src/lz.cppm")
+        add_files("src/lz.cpp")
         set_languages("c++20")
         set_kind("static")
     else 
@@ -26,7 +26,7 @@ target_end()
 if has_config("tests") then
     target("cpp-lazy tests")
         set_kind("binary")
-        add_files("tests/test.cpp")
+        add_files("tests/*.cpp")
         add_deps("cpp-lazy")
         add_packages("catch2")
         add_cxxflags("-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion", { tools = { "gcc", "clang" } })
