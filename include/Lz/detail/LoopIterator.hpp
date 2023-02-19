@@ -3,10 +3,10 @@
 #ifndef LZ_LOOP_ITERATOR_HPP
 #    define LZ_LOOP_ITERATOR_HPP
 
-
 #    include "LzTools.hpp"
 
-namespace lz { namespace internal {
+namespace lz {
+namespace internal {
 template<class Iterator>
 class LoopIterator {
     using IterTraits = std::iterator_traits<Iterator>;
@@ -22,11 +22,11 @@ public:
     using difference_type = typename IterTraits::difference_type;
     using iterator_category = typename IterTraits::iterator_category;
 
-    LZ_CONSTEXPR_CXX_20 LoopIterator(Iterator iterator, Iterator begin, Iterator end):
+    LZ_CONSTEXPR_CXX_20 LoopIterator(Iterator iterator, Iterator begin, Iterator end) :
         _begin(std::move(begin)),
         _iterator(std::move(iterator)),
-        _end(std::move(end))
-    {}
+        _end(std::move(end)) {
+    }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
         return *_iterator;
@@ -120,6 +120,7 @@ public:
         return true;
     }
 };
-}}
+} // namespace internal
+} // namespace lz
 
 #endif // LZ_LOOP_ITERATOR_HPP
