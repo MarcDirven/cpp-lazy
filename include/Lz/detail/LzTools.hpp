@@ -93,9 +93,14 @@
 #        include <charconv>
 #    endif
 
-#    if !defined(LZ_STANDALONE)
+#    if !defined(LZ_STANDALONE) || !defined(LZ_MODULE_EXPORT)
 #        include <fmt/format.h>
 #        include <fmt/ranges.h>
+#    endif
+
+#    ifndef LZ_MODULE_EXPORT
+#        define LZ_MODULE_EXPORT_SCOPE_BEGIN
+#        define LZ_MODULE_EXPORT_SCOPE_END
 #    endif
 
 #    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
@@ -117,7 +122,11 @@
 #    endif
 
 #    ifdef LZ_HAS_CONCEPTS
+
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class I>
 concept BasicIterable = requires(I i) {
                             { std::begin(i) } -> std::input_or_output_iterator;
@@ -132,6 +141,9 @@ concept BidirectionalIterable = requires(I i) {
 
 template<class I>
 concept Arithmetic = std::is_arithmetic_v<I>;
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // End namespace lz
 
 #        define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
@@ -295,25 +307,6 @@ constexpr bool checkForwardAndPolicies() {
 
 #    endif // LZ_HAS_EXECUTION
 
-template<class T>
-class FakePointerProxy {
-    T _t;
-
-    using Pointer = decltype(std::addressof(_t));
-
-public:
-    constexpr explicit FakePointerProxy(const T& t) : _t(t) {
-    }
-
-    LZ_CONSTEXPR_CXX_17 Pointer operator->() const noexcept {
-        return std::addressof(_t);
-    }
-
-    LZ_CONSTEXPR_CXX_17 Pointer operator->() noexcept {
-        return std::addressof(_t);
-    }
-};
-
 template<bool B>
 struct EnableIfImpl {};
 
@@ -365,6 +358,25 @@ struct IsRandomAccessTag : std::is_convertible<IterTag, std::random_access_itera
 template<class Iterator>
 struct IsRandomAccess : IsRandomAccessTag<IterCat<Iterator>> {};
 
+template<class T>
+class FakePointerProxy {
+    T _t;
+
+    using Pointer = decltype(std::addressof(_t));
+
+public:
+    constexpr explicit FakePointerProxy(const T& t) : _t(t) {
+    }
+
+    LZ_CONSTEXPR_CXX_17 Pointer operator->() const noexcept {
+        return std::addressof(_t);
+    }
+
+    LZ_CONSTEXPR_CXX_17 Pointer operator->() noexcept {
+        return std::addressof(_t);
+    }
+};
+
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
@@ -388,6 +400,7 @@ LZ_CONSTEXPR_CXX_14 Arithmetic roundEven(const Arithmetic a, const Arithmetic b)
     }
     return static_cast<Arithmetic>(a / b) + 1;
 }
+
 template<class Iter>
 DiffType<Iter> sizeHint(Iter first, Iter last) {
     if LZ_CONSTEXPR_IF (IsRandomAccess<Iter>::value) {
@@ -396,6 +409,23 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
     else {
         return 0;
     }
+}
+
+template<class G, class... As>
+LZ_CONSTEXPR_CXX_14 auto callWithArgs(G&& g, As&&... as) -> decltype(std::forward<G>(g)(std::forward<As>(as)...)) {
+    return std::forward<G>(g)(std::forward<As>(as)...);
+}
+
+template<class G, class Tuple, std::size_t... Is>
+LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G&& g, Tuple&& t, IndexSequence<Is...>)
+    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value > 0), decltype(callWithArgs(std::forward<G>(g), std::get<Is>(t)...))> {
+    return callWithArgs(std::forward<G>(g), std::get<Is>(t)...);
+}
+
+template<class G, class Tuple, std::size_t... Is>
+LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G&& g, Tuple&&, IndexSequence<Is...>)
+    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value == 0), decltype(std::forward<G>(g)())> {
+    return std::forward<G>(g)();
 }
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
@@ -427,6 +457,8 @@ std::string toStringSpecialized(const bool value) {
 
 } // namespace internal
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #    if defined(LZ_HAS_STRING_VIEW)
 using StringView = std::string_view;
 #    elif defined(LZ_STANDALONE)
@@ -434,6 +466,9 @@ using StringView = std::string;
 #    else
 using StringView = fmt::string_view;
 #    endif
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_LZ_TOOLS_HPP
