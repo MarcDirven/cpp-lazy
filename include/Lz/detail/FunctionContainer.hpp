@@ -127,12 +127,6 @@ public:
     }
 
     template<class... Args>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const noexcept(noexcept(_func(std::forward<Args>(args)...)))
-        -> decltype(_func(std::forward<Args>(args)...)) {
-        return _func(std::forward<Args>(args)...);
-    }
-
-    template<class... Args>
     LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) noexcept(noexcept(_func(std::forward<Args>(args)...)))
         -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
