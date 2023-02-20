@@ -35,6 +35,10 @@ public:
         return tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>());
     }
 
+    LZ_NODISCARD constexpr reference operator*() const {
+        return tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>());
+    }
+
     LZ_NODISCARD constexpr pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
