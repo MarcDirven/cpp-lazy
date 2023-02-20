@@ -37,10 +37,6 @@ public:
         return std::get<1>(_lastReturned);
     }
 
-    LZ_NODISCARD constexpr reference operator*() const {
-        return std::get<1>(_lastReturned);
-    }
-
     LZ_NODISCARD constexpr pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }

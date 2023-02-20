@@ -412,21 +412,33 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 }
 
 template<class G, class... As>
-LZ_CONSTEXPR_CXX_14 auto callWithArgs(G&& g, As&&... as) -> decltype(std::forward<G>(g)(std::forward<As>(as)...)) {
-    return std::forward<G>(g)(std::forward<As>(as)...);
+LZ_CONSTEXPR_CXX_14 auto callWithArgs(G&& g, As&&... as) -> decltype(g(as...)) {
+    return g(as...);
 }
 
+#ifdef __cpp_if_constexpr
+template<class G, class Tuple, std::size_t... Is>
+constexpr decltype(auto) tupleInvoker(G&& g, Tuple&& tuple, IndexSequence<Is...>) {
+    if constexpr (std::tuple_size_v<Decay<Tuple>> == 0) {
+        return g();
+    }
+    else {
+        return callWithArgs(g, std::get<Is>(tuple)...);
+    }
+}
+#else
 template<class G, class Tuple, std::size_t... Is>
 LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G&& g, Tuple&& t, IndexSequence<Is...>)
-    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value > 0), decltype(callWithArgs(std::forward<G>(g), std::get<Is>(t)...))> {
-    return callWithArgs(std::forward<G>(g), std::get<Is>(t)...);
+    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value > 0), decltype(callWithArgs(g, std::get<Is>(t)...))> {
+    return callWithArgs(g, std::get<Is>(t)...);
 }
 
 template<class G, class Tuple, std::size_t... Is>
 LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G&& g, Tuple&&, IndexSequence<Is...>)
-    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value == 0), decltype(std::forward<G>(g)())> {
-    return std::forward<G>(g)();
+    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value == 0), decltype(g())> {
+    return g();
 }
+#endif
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
