@@ -14,9 +14,11 @@ class GenerateIterator {
     std::tuple<Args...> _args{};
     bool _isWhileTrueLoop{ false };
 
+    using FnArgs = std::tuple<typename std::add_lvalue_reference<Args>::type ...>;
+
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = decltype(tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>()));
+    using reference = decltype(tupleInvoker(_generator, std::declval<FnArgs>(), MakeIndexSequence<sizeof...(Args)>()));
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
