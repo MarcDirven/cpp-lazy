@@ -11,7 +11,7 @@ template<class GeneratorFunc, class... Args>
 class GenerateIterator {
     std::size_t _current{};
     mutable FunctionContainer<GeneratorFunc> _generator{};
-    std::tuple<Args...> _args{};
+    mutable std::tuple<Args...> _args{};
     bool _isWhileTrueLoop{ false };
 
 public:
