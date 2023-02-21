@@ -28,7 +28,7 @@ TEST_CASE("Generate while changing and creating elements", "[Generate while][Bas
 
 TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
     auto generator = lz::generateWhile(
-        [](int& i) {
+        [](int& i) -> std::pair<bool, int> {
             auto copy = i++;
             return std::make_pair(copy != 4, copy);
         },
