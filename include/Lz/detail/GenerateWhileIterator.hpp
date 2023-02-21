@@ -10,7 +10,7 @@ namespace internal {
 template<class GeneratorFunc, class... Args>
 class GenerateWhileIterator {
     mutable FunctionContainer<GeneratorFunc> _generator{};
-    std::tuple<Args...> _args{};
+    mutable std::tuple<Args...> _args{};
 
     using FunctionReturnType = decltype(tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>()));
     FunctionReturnType _lastReturned{};
