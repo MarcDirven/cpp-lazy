@@ -377,6 +377,29 @@ public:
     }
 };
 
+template<class>
+class FunctionContainer;
+
+template<class Fn, std::size_t... I>
+struct TupleExpand {
+    FunctionContainer<Fn> _fn{};
+
+    constexpr TupleExpand() = default;
+
+    explicit constexpr TupleExpand(Fn fn) : _fn(std::move(fn)) {
+    }
+
+    template<class Tuple>
+    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(_fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
+        return _fn(std::get<I>(std::forward<Tuple>(tuple))...);
+    }
+};
+
+template<class Fn, std::size_t... I>
+constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
+    return TupleExpand<Fn, I...>(std::move(fn));
+}
+
 template<LZ_CONCEPT_INTEGRAL Arithmetic>
 LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
@@ -410,35 +433,6 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
         return 0;
     }
 }
-
-template<class G, class... As>
-LZ_CONSTEXPR_CXX_14 auto callWithArgs(G& g, As&... as) -> decltype(g(as...)) {
-    return g(as...);
-}
-
-#ifdef __cpp_if_constexpr
-template<class G, class Tuple, std::size_t... Is>
-constexpr decltype(auto) tupleInvoker(G& g, Tuple& tuple, IndexSequence<Is...>) {
-    if constexpr (std::tuple_size_v<Decay<Tuple>> == 0) {
-        return g();
-    }
-    else {
-        return callWithArgs(g, std::get<Is>(tuple)...);
-    }
-}
-#else
-template<class G, class Tuple, std::size_t... Is>
-LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G& g, Tuple& t, IndexSequence<Is...>)
-    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value > 0), decltype(callWithArgs(g, std::get<Is>(t)...))> {
-    return callWithArgs(g, std::get<Is>(t)...);
-}
-
-template<class G, class Tuple, std::size_t... Is>
-LZ_CONSTEXPR_CXX_14 auto tupleInvoker(G& g, Tuple&, IndexSequence<Is...>)
-    -> EnableIf<(std::tuple_size<Decay<Tuple>>::value == 0), decltype(g())> {
-    return g();
-}
-#endif
 
 #    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 

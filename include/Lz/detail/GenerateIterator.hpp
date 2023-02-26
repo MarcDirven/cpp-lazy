@@ -9,14 +9,15 @@ namespace lz {
 namespace internal {
 template<class GeneratorFunc, class... Args>
 class GenerateIterator {
+    using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
     std::size_t _current{};
-    mutable FunctionContainer<GeneratorFunc> _generator{};
+    mutable TupleInvoker _tupleInvoker{};
     mutable std::tuple<Args...> _args{};
     bool _isWhileTrueLoop{ false };
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = decltype(tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>()));
+    using reference = decltype(_tupleInvoker(_args));
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
@@ -26,13 +27,13 @@ public:
     constexpr GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop,
                                std::tuple<Args...> args) :
         _current(start),
-        _generator(std::move(generatorFunc)),
+        _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
         _isWhileTrueLoop(isWhileTrueLoop) {
     }
 
     LZ_NODISCARD constexpr reference operator*() {
-        return tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>());
+        return _tupleInvoker(_args);
     }
 
     LZ_NODISCARD constexpr pointer operator->() const {

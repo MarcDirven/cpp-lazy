@@ -43,26 +43,6 @@ struct GetFn {
         return std::get<I>(std::forward<T>(gettable));
     }
 };
-
-template<class Fn, std::size_t... I>
-struct TupleExpand {
-    FunctionContainer<Fn> fn{};
-
-    constexpr TupleExpand() = default;
-
-    explicit constexpr TupleExpand(Fn fn) : fn(std::move(fn)) {
-    }
-
-    template<class Tuple>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
-        return fn(std::get<I>(std::forward<Tuple>(tuple))...);
-    }
-};
-
-template<class Fn, std::size_t... I>
-constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
-    return TupleExpand<Fn, I...>(std::move(fn));
-}
 } // namespace internal
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN

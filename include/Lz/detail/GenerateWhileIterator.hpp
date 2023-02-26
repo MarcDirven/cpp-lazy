@@ -9,10 +9,11 @@ namespace lz {
 namespace internal {
 template<class GeneratorFunc, class... Args>
 class GenerateWhileIterator {
-    mutable FunctionContainer<GeneratorFunc> _generator{};
+    using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
+    mutable TupleInvoker _tupleInvoker{};
     mutable std::tuple<Args...> _args{};
 
-    using FunctionReturnType = decltype(tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>()));
+    using FunctionReturnType = decltype(_tupleInvoker(_args));
     FunctionReturnType _lastReturned{};
 
 public:
@@ -25,9 +26,9 @@ public:
     constexpr GenerateWhileIterator() = default;
 
     constexpr GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator) :
-        _generator(std::move(generatorFunc)),
+        _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
-        _lastReturned(tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>())) {
+        _lastReturned(_tupleInvoker(_args)) {
         if (isEndIterator) {
             std::get<0>(_lastReturned) = false;
         }
@@ -42,7 +43,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_14 GenerateWhileIterator& operator++() {
-        _lastReturned = tupleInvoker(_generator, _args, MakeIndexSequence<sizeof...(Args)>());
+        _lastReturned = _tupleInvoker(_args);
         return *this;
     }
 
