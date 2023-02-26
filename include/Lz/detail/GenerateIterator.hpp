@@ -24,7 +24,7 @@ public:
 
     constexpr GenerateIterator() = default;
 
-    constexpr GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop,
+    LZ_CONSTEXPR_CXX_14 GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop,
                                std::tuple<Args...> args) :
         _current(start),
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),

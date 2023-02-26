@@ -25,7 +25,7 @@ public:
 
     constexpr GenerateWhileIterator() = default;
 
-    constexpr GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator) :
+    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator) :
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
         _lastReturned(_tupleInvoker(_args)) {
