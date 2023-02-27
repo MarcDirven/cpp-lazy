@@ -7,29 +7,33 @@
 
 namespace lz {
 namespace internal {
-template<class GeneratorFunc>
+template<class GeneratorFunc, class... Args>
 class GenerateIterator {
+    using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
     std::size_t _current{};
-    mutable FunctionContainer<GeneratorFunc> _generator{};
-    bool _isWhileTrueLoop{};
+    mutable TupleInvoker _tupleInvoker{};
+    mutable std::tuple<Args...> _args{};
+    bool _isWhileTrueLoop{ false };
 
 public:
-    using iterator_category = std::random_access_iterator_tag;
-    using reference = decltype(_generator());
+    using iterator_category = std::forward_iterator_tag;
+    using reference = decltype(_tupleInvoker(_args));
     using value_type = Decay<reference>;
-    using difference_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
 
     constexpr GenerateIterator() = default;
 
-    constexpr GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop) :
+    LZ_CONSTEXPR_CXX_14 GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop,
+                               std::tuple<Args...> args) :
         _current(start),
-        _generator(std::move(generatorFunc)),
+        _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
+        _args(std::move(args)),
         _isWhileTrueLoop(isWhileTrueLoop) {
     }
 
-    LZ_NODISCARD constexpr reference operator*() const {
-        return _generator();
+    LZ_NODISCARD constexpr reference operator*() {
+        return _tupleInvoker(_args);
     }
 
     LZ_NODISCARD constexpr pointer operator->() const {
@@ -49,54 +53,6 @@ public:
         return tmp;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator--() {
-        if (!_isWhileTrueLoop) {
-            --_current;
-        }
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_14 GenerateIterator operator--(int) {
-        GenerateIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator+=(const difference_type offset) {
-        if (!_isWhileTrueLoop) {
-            _current += offset;
-        }
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator-=(const difference_type offset) {
-        if (!_isWhileTrueLoop) {
-            _current -= offset;
-        }
-        return *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator+(const difference_type offset) const {
-        GenerateIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateIterator operator-(const difference_type offset) const {
-        GenerateIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const GenerateIterator& a, const GenerateIterator& b) {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current - b._current;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 value_type operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
     LZ_NODISCARD constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) noexcept {
         return !(a != b); // NOLINT
     }
@@ -104,23 +60,6 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
         LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
         return a._current != b._current;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator<(const GenerateIterator& a, const GenerateIterator& b) {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current < b._current;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator>(const GenerateIterator& a, const GenerateIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator<=(const GenerateIterator& a, const GenerateIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD constexpr friend bool operator>=(const GenerateIterator& a, const GenerateIterator& b) {
-        return !(a < b); // NOLINT
     }
 };
 } // namespace internal

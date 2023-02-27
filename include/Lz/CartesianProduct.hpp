@@ -7,6 +7,10 @@
 #include "detail/CartesianProductIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
+
 template<class... Iterators>
 class CartesianProduct final : public internal::BasicIteratorView<internal::CartesianProductIterator<Iterators...>> {
 public:
@@ -54,6 +58,9 @@ cartesian(Iterables&&... iterables) {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_CARTESIAN_PRODUCT_HPP

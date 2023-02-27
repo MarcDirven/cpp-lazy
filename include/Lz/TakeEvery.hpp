@@ -7,6 +7,9 @@
 #    include "detail/TakeEveryIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR, bool /* isBidirectional */>
 class TakeEvery;
 
@@ -89,6 +92,9 @@ takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const 
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

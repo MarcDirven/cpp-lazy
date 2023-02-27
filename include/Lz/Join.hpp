@@ -7,6 +7,9 @@
 #    include "detail/JoinIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR Iterator>
 class Join final : public internal::BasicIteratorView<internal::JoinIterator<Iterator>> {
 public:
@@ -160,6 +163,9 @@ std::string strJoin(Iterable&& iterable, const StringView& delimiter = "", const
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

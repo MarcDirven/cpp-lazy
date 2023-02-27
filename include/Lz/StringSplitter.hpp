@@ -11,6 +11,9 @@
 #    include "detail/SplitIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class SubString, class String, class StringType>
 class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String, StringType>> {
 public:
@@ -125,6 +128,9 @@ StringSplitter<SubString, std::string_view, std::string> split(std::string_view&
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_STRING_SPLITTER_HPP

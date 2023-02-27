@@ -62,7 +62,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -D Experimental
+        run: ctest -D Experimental -j $(nproc) --output-on-failure -VV
 
   clang:
     strategy:
@@ -110,7 +110,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -D Experimental
+        run: ctest -D Experimental -j $(nproc) -VV --output-on-failure
 
   msvc:
     strategy:
@@ -147,7 +147,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -D Experimental
+        run: ctest -C Release -D Experimental -j $env:NUMBER_OF_PROCESSORS --output-on-failure -VV
 
   examples:
     runs-on: ubuntu-latest

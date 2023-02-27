@@ -7,6 +7,9 @@
 #include "detail/JoinWhereIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
 class JoinWhere final : public internal::BasicIteratorView<
@@ -165,6 +168,9 @@ joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_JOIN_WHERE_HPP

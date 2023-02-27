@@ -14,6 +14,25 @@ if(cpp-lazy_INCLUDE_WITHOUT_SYSTEM)
     set(cpp-lazy_warning_guard "")
 endif()
 
+include(GNUInstallDirs)
+set(CPP-LAZY_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING "Installation directory of the include files")
+
+option(CPP-LAZY_USE_MODULES "Enable C++20's modules" NO)
+
+if (CPP-LAZY_USE_MODULES)
+	set(CPP-LAZY_SOURCE_FILES "src/lz.cppm")
+	set(CPP-LAZY_LINK_VISIBILITY "PUBLIC")
+	set(CPP-LAZY_COMPILE_FEATURES_VISIBLITY "PUBLIC")
+	set(CPP-LAZY_COMPILE_DEFINITIONS_VISIBLITY "PRIVATE")
+	set(CPP-LAZY_COMPILE_INCLUDE_VISIBLITY "PUBLIC")
+else()
+	set(CPP-LAZY_LIB_TYPE "INTERFACE")
+	set(CPP-LAZY_LINK_VISIBILITY "INTERFACE")
+	set(CPP-LAZY_COMPILE_FEATURES_VISIBLITY "INTERFACE")
+	set(CPP-LAZY_COMPILE_DEFINITIONS_VISIBLITY "INTERFACE")
+	set(CPP-LAZY_COMPILE_INCLUDE_VISIBLITY "INTERFACE")
+endif()
+
 # ---- Import {fmt} ----
 option(CPP-LAZY_USE_STANDALONE "Standalone library without {fmt}" NO)
 option(CPP-LAZY_USE_INSTALLED_FMT "Import {fmt} using find_package" NO)
@@ -25,8 +44,8 @@ else()
 	if (CPP-LAZY_USE_INSTALLED_FMT)
 		find_package(fmt REQUIRED CONFIG)
 	else()
-		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 		set(FMT_OS YES CACHE INTERNAL "")
+		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 		include(FetchContent)
 		FetchContent_Declare(fmt 
 			URL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz 
@@ -39,22 +58,50 @@ else()
 endif()
 
 # ---- Declare library ----
-add_library(cpp-lazy INTERFACE)
+add_library(cpp-lazy ${CPP-LAZY_LIB_TYPE} "${CPP-LAZY_SOURCE_FILES}")
 add_library(cpp-lazy::cpp-lazy ALIAS cpp-lazy)
 
-target_link_libraries(cpp-lazy INTERFACE $<$<NOT:$<BOOL:${CPP-LAZY_USE_STANDALONE}>>:fmt::fmt>)
-target_compile_definitions(cpp-lazy INTERFACE $<$<BOOL:${CPP-LAZY_USE_STANDALONE}>:LZ_STANDALONE>)
+target_link_libraries(cpp-lazy 
+	${CPP-LAZY_LINK_VISIBILITY}
+		$<$<NOT:$<BOOL:${CPP-LAZY_USE_STANDALONE}>>:fmt::fmt>
+)
+target_compile_definitions(cpp-lazy 
+	${CPP-LAZY_COMPILE_DEFINITIONS_VISIBLITY}
+		$<$<BOOL:${CPP-LAZY_USE_STANDALONE}>:LZ_STANDALONE>
+)
+if (CPP-LAZY_USE_MODULES)
+	set(FMT_MODULE "ON" CACHE STRING "")
+	if (MSVC)
+		set(BMI "${CMAKE_CURRENT_BINARY_DIR}/lz.ifc")
+		target_compile_options(cpp-lazy
+			PRIVATE
+				/interface /ifcOutput "${BMI}"
+			INTERFACE
+				/reference lz="${BMI}"
+		)
+	endif()
+	set_target_properties(cpp-lazy 
+		PROPERTIES 
+			ADDITIONAL_CLEAN_FILES "${BMI}"
+		DEBUG_POSTFIX
+			"d"
+	)
+	set_source_files_properties("${BMI}" PROPERTIES GENERATED ON)
+endif()
 
-target_compile_features(cpp-lazy INTERFACE cxx_std_11)
-
+target_compile_features(cpp-lazy 
+	${CPP-LAZY_COMPILE_FEATURES_VISIBLITY} 
+		cxx_std_11
+)
 target_include_directories(cpp-lazy
 	${cpp-lazy_warning_guard}
-        INTERFACE
-        	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+		${CPP-LAZY_COMPILE_INCLUDE_VISIBLITY}
+        	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+			"$<INSTALL_INTERFACE:${CPP-LAZY_INCLUDE_DIR}>"
+)
 
 # ---- Install ----
 include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
 
 set(cpp-lazy_directory "cpp-lazy-${PROJECT_VERSION}")
 set(cpp-lazy_include_directory "${CMAKE_INSTALL_INCLUDEDIR}/${cpp-lazy_directory}")

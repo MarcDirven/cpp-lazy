@@ -1,5 +1,6 @@
 #include <Lz/Generate.hpp>
 #include <vector>
+#include <functional>
 #include <iostream>
 
 int main() {

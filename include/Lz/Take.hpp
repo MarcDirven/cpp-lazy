@@ -6,6 +6,9 @@
 #    include "detail/BasicIteratorView.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 // Start of group
 /**
  * @defgroup ItFns Iterator free functions.
@@ -179,6 +182,9 @@ dropWhile(Iterable&& iterable, Function predicate) {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

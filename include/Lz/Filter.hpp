@@ -7,6 +7,9 @@
 #include "detail/FilterIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
@@ -108,6 +111,9 @@ Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // end LZ_FILTER_HPP

@@ -7,6 +7,9 @@
 #include "detail/ConcatenateIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class... Iterators>
 class Concatenate final : public internal::BasicIteratorView<internal::ConcatenateIterator<Iterators...>> {
 public:
@@ -59,6 +62,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<internal::IterTypeFromIterable<Iter
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_CONCATENATE_HPP

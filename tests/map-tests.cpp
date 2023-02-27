@@ -19,6 +19,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
 
     SECTION("Should map out element") {
         auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+        static_assert(std::is_same<decltype(*map.begin()), std::string>::value, "Types to not match (decltype(*map.begin()) and std::string)");
 
         auto it = map.begin();
         CHECK(*it == "FieldA");

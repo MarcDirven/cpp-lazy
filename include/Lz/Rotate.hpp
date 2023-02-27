@@ -7,6 +7,9 @@
 #    include "detail/RotateIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class Iterator>
 class Rotate : public internal::BasicIteratorView<internal::RotateIterator<Iterator>> {
 public:
@@ -33,6 +36,10 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Rotate<Iterator> rotate(Iterator start, Iterato
     return { std::move(start), std::move(begin), std::move(end) };
 }
 
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
+
+
 
 #endif // LZ_ROTATE_HPP

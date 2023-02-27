@@ -7,6 +7,9 @@
 #include "detail/RepeatIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class T>
 class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
 public:
@@ -44,6 +47,9 @@ repeat(T&& toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

@@ -19,6 +19,8 @@ Tuple createFakeEnd(const Tuple& begin, Tuple end, IndexSequence<Is...>) {
 }
 } // namespace internal
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class Zip final : public internal::BasicIteratorView<internal::ZipIterator<Iterators...>> {
 public:
@@ -85,5 +87,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<internal::IterTypeFromIterable<Iterables>..
  * @}
  */
 } // namespace lz
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 #endif

@@ -4,9 +4,10 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-template class lz::IterView<lz::internal::BasicIteratorView<std::vector<int>::iterator>::iterator>;
 
-TEST_CASE("Iterator chaining") {
+template class lz::IterView<decltype(std::declval<std::vector<int>&>().begin())>;
+
+TEST_CASE("Iterator chaining") { 
     constexpr int size = 16;
     std::array<int, size> arr = lz::range(size).toArray<size>();
     std::array<int, size> arr2 = lz::range(size).toArray<size>();
@@ -33,6 +34,7 @@ TEST_CASE("Iterator chaining") {
     bool isAllSame = lz::chain(arr)
                          .take(size)
                          .drop(0)
+                         .map([](int& i) -> int& { return i; })
                          .takeWhile([](int i) { return i == 1; })
                          .dropWhile([](int i) { return i != 1; })
                          .sort()

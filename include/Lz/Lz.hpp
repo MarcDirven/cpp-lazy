@@ -3,10 +3,10 @@
 #ifndef LZ_LZ_HPP
 #    define LZ_LZ_HPP
 
+#    include "Lz/CString.hpp"
 #    include "Lz/CartesianProduct.hpp"
 #    include "Lz/ChunkIf.hpp"
 #    include "Lz/Chunks.hpp"
-#    include "Lz/CString.hpp"
 #    include "Lz/Enumerate.hpp"
 #    include "Lz/Except.hpp"
 #    include "Lz/Exclude.hpp"
@@ -23,6 +23,7 @@
 #    include "Lz/TakeEvery.hpp"
 #    include "Lz/Unique.hpp"
 #    include "Lz/ZipLongest.hpp"
+
 // Function tools includes:
 // Concatenate.hpp
 // Filter.hpp
@@ -46,7 +47,9 @@ T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
 } // namespace internal
 #    endif // LZ_HAS_CXX_EXECUTION
 
-template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
+template<class Iterator>
 class IterView;
 
 // Start of group
@@ -80,7 +83,7 @@ LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> chain(Ite
  * @}
  */
 
-template<LZ_CONCEPT_ITERATOR Iterator>
+template<class Iterator>
 class IterView final : public internal::BasicIteratorView<Iterator> {
     using Base = internal::BasicIteratorView<Iterator>;
     using Traits = std::iterator_traits<Iterator>;
@@ -111,12 +114,6 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::EnumerateIterator<Iterator, Arithmetic>>
     enumerate(const Arithmetic begin = 0) const {
         return chain(lz::enumerate(*this, begin));
-    }
-
-    //! See Exclude.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ExcludeIterator<Iterator>>
-    exclude(const difference_type from, const difference_type to) const {
-        return chain(lz::exclude(*this, from, to));
     }
 
     //! See Join.hpp for documentation.
@@ -216,6 +213,12 @@ public:
     template<class Iterable>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
         return chain(lz::loop(*this));
+    }
+
+    //! See Exclude.hpp for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ExcludeIterator<Iterator>>
+    exclude(const difference_type from, const difference_type to) const {
+        return chain(lz::exclude(*this, from, to));
     }
 
     template<class Iterable>
@@ -358,8 +361,8 @@ public:
 
     //! See FunctionTools.hpp `indexOfIf` for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t indexOfIf(UnaryPredicate predicate,
-                                                               Execution execution = std::execution::seq) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t
+    indexOfIf(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
         return lz::indexOfIf(*this, std::move(predicate), execution);
     }
 
@@ -949,5 +952,7 @@ public:
 #    endif // LZ_HAS_EXECUTION
 };
 } // namespace lz
+
+LZ_MODULE_EXPORT_SCOPE_END
 
 #endif // LZ_LZ_HPP

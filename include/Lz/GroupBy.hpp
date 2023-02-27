@@ -7,6 +7,8 @@
 
 namespace lz {
 
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 #ifdef LZ_HAS_EXECUTION
 template<LZ_CONCEPT_ITERATOR Iterator, class Comparer, class Execution>
 class GroupBy : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer, Execution>> {
@@ -105,6 +107,9 @@ GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer> groupBy(Iterable&& i
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_GROUP_BY_HPP

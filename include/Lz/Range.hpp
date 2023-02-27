@@ -7,6 +7,9 @@
 #include "detail/RangeIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
 public:
@@ -68,6 +71,9 @@ LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) noexcept {
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif

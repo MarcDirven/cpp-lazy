@@ -5,6 +5,9 @@
 #include "detail/FlattenIterator.hpp"
 
 namespace lz {
+
+LZ_MODULE_EXPORT_SCOPE_BEGIN
+
 template<class Iterator, int Dims>
 class Flatten final : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
 public:
@@ -71,6 +74,9 @@ inline constexpr int DimensionsV = Dimensions<Iterable>::value;
 /**
  * @}
  */
+
+LZ_MODULE_EXPORT_SCOPE_END
+
 } // namespace lz
 
 #endif // LZ_FLATTEN_HPP
