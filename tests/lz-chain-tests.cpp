@@ -34,6 +34,7 @@ TEST_CASE("Iterator chaining") {
     bool isAllSame = lz::chain(arr)
                          .take(size)
                          .drop(0)
+                         .map([](int& i) -> int& { return i; })
                          .takeWhile([](int i) { return i == 1; })
                          .dropWhile([](int i) { return i != 1; })
                          .sort()

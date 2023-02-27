@@ -1,17 +1,25 @@
 #include <Lz/Lz.hpp>
+#include <functional>
 
 int main() {
     int arr[]{ 3, 2, 4, 5 };
     int arr2[]{ 3, 2, 5, 5 };
 
+    // the example below doesn't do anything special in particular, but should give an example on how to use chaining
+
     // clang-format off
-    const auto sequence = lz::chain(arr)
+    const auto isAllInt = lz::chain(arr)
+        // take all elements
+        .take(std::distance(std::begin(arr), std::end(arr)))
+        // drop the first 0 elements
+        .drop(0)
+        // add 1 to each
         .map([](int i) { return i + 1; })
-        .as<float>()
-        .concat(lz::as<float>(arr2));
+        // cast it to int
+        .as<int>()
+        // every number should be an int
+        .all([](int i) { return std::is_same<decltype(i), int>::value; });
     // clang-format on
 
-    fmt::print("{}\n", sequence);
-    // [ 4, 3, 5, 6, 3, 2, 5, 5 ] type = float
-    fmt::print("Type is float? {}\n", std::is_same<decltype(sequence.begin()[0]), float>::value); // prints true
+    fmt::print("{}\n", isAllInt); // prints true
 }
