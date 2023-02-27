@@ -59,7 +59,7 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
     auto generator = lz::generateWhile(
         [](int& f) {
             auto copy = f++;
-            return std::array<int, 2>{ copy < 4, copy };
+            return std::pair<int, int>{ copy < 4, copy };
         },
         0);
 

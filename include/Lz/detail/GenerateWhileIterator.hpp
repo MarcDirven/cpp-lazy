@@ -14,28 +14,29 @@ class GenerateWhileIterator {
     mutable std::tuple<Args...> _args{};
 
     using FunctionReturnType = decltype(_tupleInvoker(_args));
-    FunctionReturnType _lastReturned{};
+    FunctionReturnType _lastReturned;
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = decltype(std::get<1>(_lastReturned));
+    using reference = typename FunctionReturnType::second_type;
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
 
     constexpr GenerateWhileIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator) :
+    template<class P>
+    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator, P p) :
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
-        _lastReturned(_tupleInvoker(_args)) {
+        _lastReturned(std::move(p)) {
         if (isEndIterator) {
-            std::get<0>(_lastReturned) = false;
+            std::get<0>(_lastReturned) = static_cast<typename FunctionReturnType::first_type>(false);
         }
     }
 
     LZ_NODISCARD constexpr reference operator*() {
-        return std::get<1>(_lastReturned);
+        return _lastReturned.second;
     }
 
     LZ_NODISCARD constexpr pointer operator->() {
