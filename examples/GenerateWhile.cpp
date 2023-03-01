@@ -5,7 +5,7 @@ int main() {
         [](int& i) {
             auto copy = i++;
             // If `copy` == 4, stop generating values.
-            // This function can must return a pair like object (e.g. std::pair) where pair::first must
+            // This function must return a pair like object (e.g. std::pair) where pair::first must
             // be a type that is convertible to bool and where pair::second can be any type
             return std::make_pair(copy == 4, copy);
         },
