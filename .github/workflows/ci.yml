@@ -136,11 +136,9 @@ jobs:
         with:
           version: "v0.3.3"
 
-      - name: Verify Ninja
-        run: ninja.exe --version
-
       - name: Configure (install)
         run: cmake -S . -B build/install -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
@@ -153,6 +151,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -171,9 +170,12 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Configure
         run: cmake -S examples -B build/examples -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
