@@ -66,7 +66,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -j $(nproc) --output-on-failure -VV
+        run: ctest --output-on-failure -VV
 
   clang:
     strategy:
@@ -118,7 +118,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -j $(nproc) -VV --output-on-failure
+        run: ctest -VV --output-on-failure
 
   msvc:
     strategy:
@@ -129,8 +129,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      # Using Ninja causes the test to fail on Github Actions
       - uses: actions/checkout@v1
-      # - uses: seanmiddleditch/gha-setup-ninja@master
       - name: Run sccache-cache
         uses: mozilla/sccache-action@main
         with:
@@ -162,7 +162,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -j $env:NUMBER_OF_PROCESSORS --output-on-failure -VV
+        run: ctest -C Release --output-on-failure -VV
 
   examples:
     runs-on: ubuntu-latest
