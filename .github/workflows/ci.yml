@@ -136,6 +136,9 @@ jobs:
         with:
           version: "v0.3.3"
 
+      - name: Verify Ninja
+        run: ninja --version
+
       - name: Configure (install)
         run: cmake -S . -B build/install -G Ninja
           -D CMAKE_BUILD_TYPE:STRING=Release
