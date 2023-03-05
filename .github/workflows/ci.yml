@@ -137,7 +137,7 @@ jobs:
           version: "v0.3.3"
 
       - name: Verify Ninja
-        run: ninja --version
+        run: ninja.exe --version
 
       - name: Configure (install)
         run: cmake -S . -B build/install -G Ninja
