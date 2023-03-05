@@ -131,7 +131,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Run sccache-cache
-        uses: mozilla/sccache-action@master
+        uses: mozilla/sccache-action@main
         # with:
         #   version: "v0.3.3"
 
