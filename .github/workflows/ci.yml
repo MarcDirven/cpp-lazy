@@ -40,7 +40,6 @@ jobs:
           CC: gcc-${{ matrix.version }}
           CXX: g++-${{ matrix.version }}
         run: cmake -S . -B build/install -G Ninja
-          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -54,6 +53,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
