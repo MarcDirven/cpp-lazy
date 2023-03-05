@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(LazyTests LANGUAGES CXX)
 
-set(CPP-LAZY_CATCH_VERSION "2.13.9" CACHE STRING "Version of Catch2 to use for testing")
+set(CPP-LAZY_CATCH_VERSION "2.13.10" CACHE STRING "Version of Catch2 to use for testing")
 Include(FetchContent)
 FetchContent_Declare(Catch2 
 	URL https://github.com/catchorg/Catch2/archive/refs/tags/v${CPP-LAZY_CATCH_VERSION}.tar.gz 
@@ -24,47 +24,53 @@ else ()
 	FetchContent_MakeAvailable(cpp-lazy)
 endif ()
 
-function(cpp_lazy_add_test _target)
-	add_executable(${_target} ${_target}.cpp)
-	target_compile_definitions(${_target} PRIVATE CATCH_CONFIG_MAIN)
-	target_compile_options(${_target}
-		PRIVATE
-		$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX>
-		$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion>)
-	target_link_libraries(${_target} PRIVATE cpp-lazy::cpp-lazy Catch2::Catch2)
-	add_test(NAME ${_target} COMMAND $<TARGET_FILE:${_target}>)
-endfunction()
-
 include(CTest)
 
 # ---- Tests ----
-cpp_lazy_add_test(cartesian-product-tests)
-cpp_lazy_add_test(chunk-if-tests)
-cpp_lazy_add_test(chunks-tests)
-cpp_lazy_add_test(concatenate-tests)
-cpp_lazy_add_test(cstring-tests)
-cpp_lazy_add_test(enumerate-tests)
-cpp_lazy_add_test(except-tests)
-cpp_lazy_add_test(exclude-tests)
-cpp_lazy_add_test(filter-tests)
-cpp_lazy_add_test(flatten-tests)
-cpp_lazy_add_test(function-tools-tests)
-cpp_lazy_add_test(generate-tests)
-cpp_lazy_add_test(generate-while-tests)
-cpp_lazy_add_test(group-by-tests)
-cpp_lazy_add_test(join-tests)
-cpp_lazy_add_test(join-where-tests)
-cpp_lazy_add_test(loop-tests)
-cpp_lazy_add_test(lz-chain-tests)
-cpp_lazy_add_test(map-tests)
-cpp_lazy_add_test(random-tests)
-cpp_lazy_add_test(range-tests)
-cpp_lazy_add_test(repeat-tests)
-cpp_lazy_add_test(rotate-tests)
-cpp_lazy_add_test(standalone-tests)
-cpp_lazy_add_test(string-splitter-tests)
-cpp_lazy_add_test(take-every-tests)
-cpp_lazy_add_test(take-tests)
-cpp_lazy_add_test(unique-tests)
-cpp_lazy_add_test(zip-longest-tests)
-cpp_lazy_add_test(zip-tests)
+add_executable(cpp-lazy-tests
+	cartesian-product-tests.cpp
+	chunk-if-tests.cpp
+	chunks-tests.cpp
+	concatenate-tests.cpp
+	cstring-tests.cpp
+	enumerate-tests.cpp
+	except-tests.cpp
+	exclude-tests.cpp
+	filter-tests.cpp
+	flatten-tests.cpp
+	function-tools-tests.cpp
+	generate-tests.cpp
+	generate-while-tests.cpp
+	group-by-tests.cpp
+	init-tests.cpp
+	join-tests.cpp
+	join-where-tests.cpp
+	loop-tests.cpp
+	lz-chain-tests.cpp
+	map-tests.cpp
+	random-tests.cpp
+	range-tests.cpp
+	repeat-tests.cpp
+	rotate-tests.cpp
+	standalone-tests.cpp
+	string-splitter-tests.cpp
+	take-every-tests.cpp
+	take-tests.cpp
+	unique-tests.cpp
+	zip-longest-tests.cpp
+	zip-tests.cpp
+)
+target_compile_options(cpp-lazy-tests
+	PRIVATE
+	$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX>
+	$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion>
+)
+target_link_libraries(cpp-lazy-tests
+	PRIVATE
+		cpp-lazy::cpp-lazy
+		Catch2::Catch2
+)
+add_test(
+	NAME cpp-lazy-tests
+	COMMAND $<TARGET_FILE:cpp-lazy-tests>
+)

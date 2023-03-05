@@ -55,7 +55,7 @@ TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
     }
 }
 
-TEST_CASE("Generate to containers", "[Generate][To container]") {
+TEST_CASE("Generate while to containers", "[GenerateWhile][To container]") {
     auto generator = lz::generateWhile(
         [](int& f) {
             auto copy = f++;
