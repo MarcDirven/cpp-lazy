@@ -14,7 +14,7 @@ on:
 env:
   CMAKE_CONFIG_TYPE: Release
   CTEST_OUTPUT_ON_FAILURE: 1
-  CATCH_VERSION: '2.13.9'
+  CATCH_VERSION: '2.13.10'
 
 jobs:
   gcc:
@@ -28,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
@@ -38,6 +40,7 @@ jobs:
           CC: gcc-${{ matrix.version }}
           CXX: g++-${{ matrix.version }}
         run: cmake -S . -B build/install -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -51,6 +54,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -62,7 +66,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -D Experimental -j $(nproc) --output-on-failure -VV
+        run: ctest --output-on-failure -VV
 
   clang:
     strategy:
@@ -75,6 +79,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Install Clang ${{ matrix.version }}
         run: sudo apt-get install -y clang-${{ matrix.version }}
@@ -84,6 +90,7 @@ jobs:
           CC: clang-${{ matrix.version }}
           CXX: clang-${{ matrix.version }}
         run: cmake -S . -B build/install -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -98,6 +105,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -110,7 +118,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -D Experimental -j $(nproc) -VV --output-on-failure
+        run: ctest -VV --output-on-failure
 
   msvc:
     strategy:
@@ -121,10 +129,16 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      # Using Ninja causes the test to fail on Github Actions
       - uses: actions/checkout@v1
+      - name: Run sccache-cache
+        uses: mozilla/sccache-action@main
+        with:
+          version: "v0.3.3"
 
       - name: Configure (install)
         run: cmake -S . -B build/install
+          -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
@@ -137,6 +151,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests
+          -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -147,7 +162,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -C Release -D Experimental -j $env:NUMBER_OF_PROCESSORS --output-on-failure -VV
+        run: ctest -C Release --output-on-failure -VV
 
   examples:
     runs-on: ubuntu-latest
@@ -155,9 +170,12 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Configure
         run: cmake -S examples -B build/examples -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
