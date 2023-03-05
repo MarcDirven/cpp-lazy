@@ -72,5 +72,5 @@ target_link_libraries(cpp-lazy-tests
 )
 add_test(
 	NAME cpp-lazy-tests
-	COMMAND $<TARGET_FILE:cpp-lazy-tests>
+	COMMAND $<TARGET_FILE:cpp-lazy-tests> -s
 )
