@@ -129,8 +129,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: seanmiddleditch/gha-setup-ninja@master
       - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
       - name: Run sccache-cache
         uses: mozilla/sccache-action@main
         with:
