@@ -162,7 +162,7 @@ jobs:
 
       - name: Run tests
         working-directory: build/tests
-        run: ctest -j $env:NUMBER_OF_PROCESSORS --output-on-failure -VV
+        run: ctest -C Release -j $env:NUMBER_OF_PROCESSORS --output-on-failure -VV
 
   examples:
     runs-on: ubuntu-latest
