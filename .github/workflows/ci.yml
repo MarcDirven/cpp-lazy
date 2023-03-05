@@ -28,8 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+      # - name: ccache
+      #   uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Install GCC ${{ matrix.version }}
         run: sudo apt-get install -y
@@ -53,7 +53,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
-          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          # -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -78,8 +78,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+      # - name: ccache
+      #   uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Install Clang ${{ matrix.version }}
         run: sudo apt-get install -y clang-${{ matrix.version }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: Configure tests
         run: cmake -S tests -B build/tests -G Ninja
-          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          # -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CPP-LAZY_CATCH_VERSION:STRING=$CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
@@ -129,10 +129,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: gha-setup-ninja@master
-      - name: Run sccache-cache
-        uses: mozilla/sccache-action@v0.0.1
-        with:
-          version: "v0.3.3"
+      # - name: Run sccache-cache
+      #   uses: mozilla/sccache-action@v0.0.1
+      #   with:
+      #     version: "v0.3.3"
 
       - name: Configure (install)
         run: cmake -S . -B build/install -G Ninja
@@ -149,7 +149,7 @@ jobs:
       - name: Configure tests
         shell: bash
         run: cmake -S tests -B build/tests -G Ninja
-          -D CMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH}
+          # -D CMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH}
           -D CPP-LAZY_CATCH_VERSION:STRING=$env:CATCH_VERSION
           -D TEST_INSTALLED_VERSION:BOOL=YES
           -D CMAKE_INSTALL_PREFIX=build/prefix
@@ -170,11 +170,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: seanmiddleditch/gha-setup-ninja@master
-      - uses: hendrikmuhs/ccache-action@v1.2
+      # - uses: hendrikmuhs/ccache-action@v1.2
 
       - name: Configure
         run: cmake -S examples -B build/examples -G Ninja
-          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          # -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_BUILD_TYPE:STRING=Release
 
       - name: Build
