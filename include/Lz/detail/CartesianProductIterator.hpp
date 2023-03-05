@@ -118,7 +118,7 @@ private:
             dist = end - iterator;
         }
         const auto offsets = std::lldiv(offset, dist);
-        iterator = iterator + offsets.rem;
+        iterator += static_cast<difference_type>(offsets.rem);
         operatorPlusImpl<I - 1>(static_cast<difference_type>(offsets.quot));
     }
 
