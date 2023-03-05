@@ -131,9 +131,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Run sccache-cache
-        uses: mozilla/sccache-action@v0.0.1
-        with:
-          version: "v0.3.3"
+        uses: mozilla/sccache-action@master
+        # with:
+        #   version: "v0.3.3"
 
       - name: Configure (install)
         run: cmake -S . -B build/install
