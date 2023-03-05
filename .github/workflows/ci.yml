@@ -40,6 +40,7 @@ jobs:
           CC: gcc-${{ matrix.version }}
           CXX: g++-${{ matrix.version }}
         run: cmake -S . -B build/install -G Ninja
+          -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
           -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
           -D CMAKE_BUILD_TYPE:STRING=Release
           -D CMAKE_INSTALL_PREFIX=build/prefix
