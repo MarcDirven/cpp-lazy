@@ -25,6 +25,8 @@ private:
     bool _fullRotation{false};
 
 public:
+    constexpr RotateIterator() = default;
+
     LZ_CONSTEXPR_CXX_20 RotateIterator(Iterator start, Iterator begin, Iterator end, const bool fullRotation) :
         _iterator(std::move(start)),
         _end(std::move(end)),
