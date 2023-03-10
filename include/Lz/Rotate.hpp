@@ -11,10 +11,12 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator>
-class Rotate : public internal::BasicIteratorView<internal::RotateIterator<Iterator>> {
+class Rotate final : public internal::BasicIteratorView<internal::RotateIterator<Iterator>> {
 public:
     using iterator = internal::RotateIterator<Iterator>;
     using const_iterator = iterator;
+
+    constexpr Rotate() = default;
 
     Rotate(Iterator start, Iterator begin, Iterator end) :
         internal::BasicIteratorView<iterator>(iterator(start, begin, end, false), iterator(start, begin, end, true)) {
