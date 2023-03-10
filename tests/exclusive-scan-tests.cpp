@@ -49,7 +49,7 @@ TEST_CASE("Exclusive scan to container", "[ExclusiveScan][To container]") {
     auto scanner = lz::eScan(toScan, 0);
 
     SECTION("To array") {
-        std::array<int, std::end(toScan) - std::begin(toScan)> expected = { 0, 2, 7, 13, 17, 104, 112, 157 };
+        std::array<int, 8> expected = { 0, 2, 7, 13, 17, 104, 112, 157 };
         auto actual = scanner.toArray<expected.size()>();
         CHECK(actual == expected);
     }
