@@ -164,7 +164,7 @@ private:
                 dist = end - iterator;
             }
             const auto [quot, rem] = std::lldiv(offset, dist);
-            iterator = iterator + rem;
+            iterator += static_cast<difference_type>(rem);
             operatorPlusImpl<I - 1>(static_cast<difference_type>(quot));
         }
     }
