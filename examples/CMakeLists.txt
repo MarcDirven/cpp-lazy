@@ -7,33 +7,35 @@ FetchContent_Declare(cpp-lazy SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 FetchContent_MakeAvailable(cpp-lazy)
 
 set(examples
-        CartesianProduct
-        Chain
-        ChunkIf
-        Chunks
-        Concatenate
-        CString
-        Enumerate
-        Except
-        Exclude
-        Filter
-        Flatten
-        FunctionTools
-        Generate
-        GroupBy
-        Join
-        JoinWhere
-        Map
-        Random
-        Range
-        Repeat
-        StringSplitter
-        Take
-        TakeEvery
-        ToContainer
-        Unique
-        Zip
-        ZipLongest)
+    CartesianProduct
+    Chain
+    ChunkIf
+    Chunks
+    Concatenate
+    CString
+    Enumerate
+    Except
+    Exclude
+    ExclusiveScan
+    Filter
+    Flatten
+    FunctionTools
+    Generate
+    GroupBy
+    Join
+    JoinWhere
+    Map
+    Random
+    Range
+    Repeat
+    StringSplitter
+    Take
+    TakeEvery
+    ToContainer
+    Unique
+    Zip
+    ZipLongest
+)
 
 foreach(name IN LISTS examples)
     add_executable(IteratorExample${name} ${name}.cpp)

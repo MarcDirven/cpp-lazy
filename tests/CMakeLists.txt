@@ -36,6 +36,7 @@ add_executable(cpp-lazy-tests
 	enumerate-tests.cpp
 	except-tests.cpp
 	exclude-tests.cpp
+	exclusive-scan-tests.cpp
 	filter-tests.cpp
 	flatten-tests.cpp
 	function-tools-tests.cpp
@@ -62,7 +63,7 @@ add_executable(cpp-lazy-tests
 )
 target_compile_options(cpp-lazy-tests
 	PRIVATE
-	$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX>
+	$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX /diagnostics:caret>
 	$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion>
 )
 target_link_libraries(cpp-lazy-tests
