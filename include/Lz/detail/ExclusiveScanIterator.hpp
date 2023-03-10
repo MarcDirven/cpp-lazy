@@ -30,7 +30,7 @@ public:
         _iterator(std::move(iterator)) {
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename std::add_const<reference>::type operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename std::remove_reference<reference>::type const& operator*() const {
         return _reducer;
     }
 
