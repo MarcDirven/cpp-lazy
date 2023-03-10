@@ -34,7 +34,7 @@ public:
         return _reducer;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename reference operator*() {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference operator*() {
         return _reducer;
     }
 
