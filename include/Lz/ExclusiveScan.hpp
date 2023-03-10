@@ -4,7 +4,7 @@
 #    define LZ_SCAN_HPP
 
 #    include "detail/BasicIteratorView.hpp"
-#    include "detail/InclusiveScanIterator.hpp"
+#    include "detail/ExclusiveScanIterator.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
