@@ -22,6 +22,7 @@ set(examples
     FunctionTools
     Generate
     GroupBy
+    InclusiveScan
     Join
     JoinWhere
     Map
