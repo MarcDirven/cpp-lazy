@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LZ_SCAN_ITERATOR
-#    define LZ_SCAN_ITERATOR
+#ifndef LZ_EXCLUSIVE_SCAN_ITERATOR_HPP
+#    define LZ_EXCLUSIVE_SCAN_ITERATOR_HPP
 
 #    include "FunctionContainer.hpp"
 
