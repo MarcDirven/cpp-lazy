@@ -1,7 +1,10 @@
 #include <Lz/InclusiveScan.hpp>
+
 #include <catch2/catch.hpp>
+
 #include <iostream>
 #include <numeric>
+#include <list>
 
 TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basic functionality]") {
     int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6 };
