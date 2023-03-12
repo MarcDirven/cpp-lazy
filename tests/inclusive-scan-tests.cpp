@@ -16,7 +16,7 @@ TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basi
     int expected[] = { 3, 4, 8, 9, 14, 23, 25, 31 };
     CHECK(std::equal(std::begin(expected), std::end(expected), std::begin(scan)));
 
-    scan = lz::iScanFrom(arr, 2, std::plus<>());
+    scan = lz::iScanFrom(arr, 2);
     REQUIRE(std::distance(scan.begin(), scan.end()) == std::distance(std::begin(arr), std::end(arr)));
     int expected2[] = { 5, 6, 10, 11, 16, 25, 27, 33 };
     CHECK(std::equal(std::begin(expected2), std::end(expected2), std::begin(scan)));
