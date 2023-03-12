@@ -224,7 +224,7 @@ public:
     
     // clang-format off
     //! See InclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueTypeIterable<Iterable>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
     LZ_NODISCARD
     LZ_CONSTEXPR_CXX_20 IterView<internal::InclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
     iScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
@@ -232,7 +232,7 @@ public:
     }
 
     //! See ExclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueTypeIterable<Iterable>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
     LZ_NODISCARD
     LZ_CONSTEXPR_CXX_20 IterView<internal::ExclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
     eScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
