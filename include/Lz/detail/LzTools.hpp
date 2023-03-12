@@ -276,7 +276,7 @@ template<class Function, class... Args>
 using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
 
 template<class Iterable>
-using ValueTypeIterable = typename Decay<Iterable>::value_type;
+using ValueTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Iterable>>::value_type;
 
 template<class Iterable>
 using DiffTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Iterable>>::difference_type;

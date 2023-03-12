@@ -8,7 +8,7 @@
 
 TEST_CASE("ExclusiveScan basic functionality", "[ExclusiveScan][Basic functionality]") {
     int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6 };
-    auto scan = lz::eScan(arr, 0);
+    auto scan = lz::eScan(arr);
 
     CHECK(*scan.begin() == 0);
     CHECK(std::distance(std::begin(scan), std::end(scan)) == std::distance(std::begin(arr), std::end(arr)));

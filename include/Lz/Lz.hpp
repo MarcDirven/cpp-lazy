@@ -10,10 +10,12 @@
 #    include "Lz/Enumerate.hpp"
 #    include "Lz/Except.hpp"
 #    include "Lz/Exclude.hpp"
+#    include "Lz/ExclusiveScan.hpp"
 #    include "Lz/Flatten.hpp"
 #    include "Lz/FunctionTools.hpp"
 #    include "Lz/Generate.hpp"
 #    include "Lz/GroupBy.hpp"
+#    include "Lz/InclusiveScan.hpp"
 #    include "Lz/JoinWhere.hpp"
 #    include "Lz/Loop.hpp"
 #    include "Lz/Random.hpp"
@@ -210,7 +212,6 @@ public:
     }
 
     //! See Loop.hpp for documentation
-    template<class Iterable>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
         return chain(lz::loop(*this));
     }
@@ -220,11 +221,28 @@ public:
     exclude(const difference_type from, const difference_type to) const {
         return chain(lz::exclude(*this, from, to));
     }
+    
+    // clang-format off
+    //! See InclusiveScan.hpp for documentation.
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
+    LZ_NODISCARD
+    LZ_CONSTEXPR_CXX_20 IterView<internal::InclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
+    iScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
+        return chain(lz::iScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
+    }
 
-    template<class Iterable>
+    //! See ExclusiveScan.hpp for documentation.
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
+    LZ_NODISCARD
+    LZ_CONSTEXPR_CXX_20 IterView<internal::ExclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
+    eScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
+        return chain(lz::eScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
+    }
+    // clang-format on
+
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator>>
-    rotate(const internal::DiffType<iterator> start) const {
-        return chain(lz::rotate(*this, start));
+    rotate(iterator start) const {
+        return chain(lz::rotate(std::move(start), this->begin(), this->end()));
     }
 
     //! See FunctionTools.hpp `hasOne` for documentation.

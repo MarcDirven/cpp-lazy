@@ -43,6 +43,7 @@ add_executable(cpp-lazy-tests
 	generate-tests.cpp
 	generate-while-tests.cpp
 	group-by-tests.cpp
+	inclusive-scan-tests.cpp
 	init-tests.cpp
 	join-tests.cpp
 	join-where-tests.cpp

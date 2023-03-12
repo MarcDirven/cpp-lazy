@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef LZ_SCAN_HPP
-#    define LZ_SCAN_HPP
+#ifndef LZ_EXCLUSIVE_SCAN_HPP
+#    define LZ_EXCLUSIVE_SCAN_HPP
 
 #    include "detail/BasicIteratorView.hpp"
 #    include "detail/ExclusiveScanIterator.hpp"
@@ -51,9 +51,10 @@ public:
  * @param binOp The fold function. Essentially, it is executed as (`init = binOp(std::move(init), *iterator);`)
  * @return An exclusive scan view object.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class T, class BinaryOp = MAKE_BIN_OP(std::plus, internal::Decay<T>)>
+template<LZ_CONCEPT_ITERATOR Iterator, class T = internal::ValueType<Iterator>,
+         class BinaryOp = MAKE_BIN_OP(std::plus, internal::Decay<T>)>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14 ExclusiveScan<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>
-eScan(Iterator first, Iterator last, T&& init, BinaryOp&& binOp = {}) {
+eScan(Iterator first, Iterator last, T&& init = {}, BinaryOp&& binOp = {}) {
     return { std::move(first), std::move(last), std::move(init), std::forward<BinaryOp>(binOp) };
 }
 
@@ -80,10 +81,10 @@ eScan(Iterator first, Iterator last, T&& init, BinaryOp&& binOp = {}) {
  * @return An exclusive scan view object.
  */
 // clang-format off
-template<LZ_CONCEPT_ITERABLE Iterable, class T, class BinaryOp = MAKE_BIN_OP(std::plus, internal::Decay<T>)>
+template<LZ_CONCEPT_ITERABLE Iterable, class T = internal::ValueTypeIterable<Iterable>, class BinaryOp = MAKE_BIN_OP(std::plus, internal::Decay<T>)>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14
 ExclusiveScan<internal::IterTypeFromIterable<Iterable>, internal::Decay<T>, internal::Decay<BinaryOp>>
-eScan(Iterable&& iterable, T&& init, BinaryOp&& binOp = {}) {
+eScan(Iterable&& iterable, T&& init = {}, BinaryOp&& binOp = {}) {
     return eScan(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                  std::forward<T>(init), std::forward<BinaryOp>(binOp));
 }
