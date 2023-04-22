@@ -302,8 +302,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterator begin
  * @param iterable A container/iterable.
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERATOR Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterator, Iterator> pairwise(Iterable&& iterable) {
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<Iterable>>
+pairwise(Iterable&& iterable) {
     return lz::pairwise(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
@@ -464,12 +465,10 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
  * @param execution The `std::execution` policy.
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy,
-         class Iterator = internal::IterTypeFromIterable<Iterable>,
-         class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
+template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE SelectorIterable, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>, Execution>,
-    internal::GetFn<0>>
+Map<internal::FilterIterator<internal::ZipIterator<internal::IterTypeFromIterable<Iterable>, 
+    internal::IterTypeFromIterable<SelectorIterable>>, internal::GetFn<1>, Execution>, internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors, Execution execution = std::execution::seq) {
     return lz::select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)),
@@ -726,7 +725,8 @@ findLastOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, cons
                     Execution execution = std::execution::seq) {
     std::reverse_iterator<Iterator> endReverse(std::move(end));
     std::reverse_iterator<Iterator> beginReverse(std::move(begin));
-    return lz::findFirstOrDefaultIf(std::move(endReverse), std::move(beginReverse), std::move(predicate), defaultValue, execution);
+    return lz::findFirstOrDefaultIf(std::move(endReverse), std::move(beginReverse), std::move(predicate), defaultValue,
+                                    execution);
 }
 
 /**
@@ -1223,7 +1223,8 @@ bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB en
     return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
 }
 
-template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
+template<class IterableA, class IterableB,
+         class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return lz::startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
@@ -1237,7 +1238,8 @@ bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB
     return lz::startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
 }
 
-template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
+template<class IterableA, class IterableB,
+         class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return lz::endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
@@ -1297,9 +1299,9 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
  * @param selectors The selectors that specifies to select an item in `iterable` yes or no.
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
-template<class Iterable, class SelectorIterable, class Iterator = internal::IterTypeFromIterable<Iterable>,
-         class SelectorIterator = internal::IterTypeFromIterable<SelectorIterable>>
-Map<internal::FilterIterator<internal::ZipIterator<Iterator, SelectorIterator>, internal::GetFn<1>>, internal::GetFn<0>>
+template<class Iterable, class SelectorIterable>
+Map<internal::FilterIterator<internal::ZipIterator<internal::IterTypeFromIterable<Iterable>, 
+    internal::IterTypeFromIterable<SelectorIterable>>, internal::GetFn<1>>, internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors) {
     return lz::select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)),
