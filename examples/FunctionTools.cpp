@@ -95,4 +95,15 @@ int main() {
 
     std::string trimMe = "\t\t\n   trim me   \t\t";
     fmt::print("{}\n", lz::trimString(trimMe).toString()); // 'trim me'
+
+    std::array<int, 10> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    lz::forEachWhile(arr, [](int& i) {
+        const auto performNextIteration = i < 5;
+        if (i < 5) {
+            i = 0;
+        }
+        return performNextIteration;
+    });
+    fmt::print("{}\n", arr[3]); // prints 0
+    fmt::print("{}\n", arr[4]); // prints 5
 }

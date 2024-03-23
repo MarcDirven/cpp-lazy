@@ -53,6 +53,38 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::max)();
 
 /**
+ * @brief Keeps iterating over [ @p begin, @p end ) while @p predicate returns true. Essentially the same as lz::filter, however filter is
+ * not generally used to alter variables in a range
+ *
+ * @param begin Beginning of the range
+ * @param end Ending of the range
+ * @param predicate Predicate that must either return true or false
+ */
+template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate>
+void forEachWhile(Iterator begin, const Iterator end, BinaryPredicate predicate) {
+    static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value, "Predicate must return boolean like value");
+    while (begin != end) {
+        if (!predicate(*begin)) {
+            break;
+        }
+        ++begin;
+    }
+}
+
+/**
+ * @brief Keeps iterating over @p iterable while @p predicate returns true. Essentially the same as lz::filter, however filter is
+ * not generally used to alter variables in a range
+ *
+ * @param iterable A range
+ * @param predicate Predicate that must either return true or false
+ */
+template<LZ_CONCEPT_ITERABLE Iterable, class BinaryPredicate>
+void forEachWhile(Iterable&& iterable, BinaryPredicate predicate) {
+    forEachWhile(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+                 std::move(predicate));
+}
+
+/**
  * Returns a StringSplitter iterator, that splits the string on `'\n'`.
  * @tparam SubString The string type that the `StringSplitter::value_type` must return. Must either be std::string or
  * std::string_view.
@@ -63,41 +95,6 @@ constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::ma
 template<class SubString = std::string, class String = std::string>
 LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string) {
     return lz::split<SubString>(string, '\n');
-}
-
-/**
- * Sums all the values from [from, upToAndIncluding]
- * @tparam T An integral value.
- * @param from The start to sum from
- * @param upToAndIncluding The end of the sum
- * @return The result of the sum from [from, upToAndIncluding]
- */
-template<class T>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 T sumTo(const T from, const T upToAndIncluding) {
-    static_assert(std::is_integral<T>::value, "T must be integral type");
-    const T fromAbs = from < 0 ? -from : from;
-    const T toAbs = upToAndIncluding < 0 ? -upToAndIncluding : upToAndIncluding;
-    const T error = ((fromAbs - 1) * fromAbs) / 2;
-    const T sum = (toAbs * (toAbs + 1)) / 2;
-    if (upToAndIncluding < 0) {
-        return error - sum;
-    }
-    if (from < 0) {
-        return -(error + fromAbs - sum);
-    }
-    LZ_ASSERT(from < upToAndIncluding, "`from` cannot be smaller than `upToAndIncluding` if both are positive");
-    return sum - error;
-}
-
-/**
- * Sums all the values from [0, upToAndIncluding]
- * @tparam T An integral value.
- * @param upToAndIncluding The end of the sum
- * @return The result of the sum from [0, upToAndIncluding]
- */
-template<class T>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 T sumTo(const T upToAndIncluding) {
-    return lz::sumTo(0, upToAndIncluding);
 }
 
 /**
@@ -1300,8 +1297,10 @@ select(Iterator begin, Iterator end, SelectorIterator beginSelector, SelectorIte
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
 template<class Iterable, class SelectorIterable>
-Map<internal::FilterIterator<internal::ZipIterator<internal::IterTypeFromIterable<Iterable>, 
-    internal::IterTypeFromIterable<SelectorIterable>>, internal::GetFn<1>>, internal::GetFn<0>>
+Map<internal::FilterIterator<
+        internal::ZipIterator<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<SelectorIterable>>,
+        internal::GetFn<1>>,
+    internal::GetFn<0>>
 select(Iterable&& iterable, SelectorIterable&& selectors) {
     return lz::select(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                       internal::begin(std::forward<SelectorIterable>(selectors)),

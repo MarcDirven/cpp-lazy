@@ -103,6 +103,11 @@ public:
 
     LZ_CONSTEXPR_CXX_20 IterView() = default;
 
+    template<LZ_CONCEPT_ITERABLE Iterable, class BinaryPredicate>
+    void forEachWhile(Iterable&& iterable, BinaryPredicate&& predicate) {
+        lz::forEachWhile(std::forward<Iterable>(iterable), std::forward<BinaryPredicate>(predicate));
+    }
+
     //! See Concatenate.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
     LZ_NODISCARD
