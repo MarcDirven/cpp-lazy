@@ -89,12 +89,7 @@ jobs:
         env:
           CC: clang-${{ matrix.version }}
           CXX: clang-${{ matrix.version }}
-        run: |
-          if [ "${{ matrix.standard }}" == "20" ]; then
-            CXX_FLAGS="-stdlib=libc++"
-          else
-            CXX_FLAGS=""
-          fi
+        run:
           cmake -S . -B build/install -G Ninja \
             -D CMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }} \
