@@ -90,13 +90,12 @@ jobs:
           CC: clang-${{ matrix.version }}
           CXX: clang-${{ matrix.version }}
         run:
-          cmake -S . -B build/install -G Ninja \
-            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }} \
-            -D "CMAKE_CXX_FLAGS=$CXX_FLAGS" \
-            -D CMAKE_BUILD_TYPE:STRING=Release \
-            -D CMAKE_INSTALL_PREFIX=build/prefix \
-            -D CMAKE_CXX_COMPILER=clang++ \
+          cmake -S . -B build/install -G Ninja
+            -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }}
+            -D CMAKE_BUILD_TYPE:STRING=Release
+            -D CMAKE_INSTALL_PREFIX=build/prefix
+            -D CMAKE_CXX_COMPILER=clang++
             -D "CMAKE_PROJECT_FMT_INCLUDE_BEFORE=$(pwd)/cmake/fmtPICFix.cmake"
 
       - name: Build (install)
