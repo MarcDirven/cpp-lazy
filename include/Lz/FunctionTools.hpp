@@ -62,7 +62,7 @@ constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::ma
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate>
 void forEachWhile(Iterator begin, const Iterator end, BinaryPredicate predicate) {
-    static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value, "Predicate must return boolean like value");
+    static_assert(std::is_convertible<internal::Decay<decltype(predicate(*begin))>, bool>::value, "Predicate must return boolean like value");
     while (begin != end) {
         if (!predicate(*begin)) {
             break;
