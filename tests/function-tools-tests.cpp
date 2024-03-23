@@ -22,16 +22,17 @@ TEST_CASE("Function tools") {
         CHECK(median == Approx(3.3));
     }
 
-    SECTION("Sum to") {
-        CHECK(lz::sumTo(4) == 10);
-        CHECK(lz::sumTo(5, 10) == 45);
-        CHECK(lz::sumTo(4, 10) == 49);
-
-        CHECK(lz::sumTo(-4) == -10);
-        CHECK(lz::sumTo(-4, 3) == -4);
-        CHECK(lz::sumTo(-4, -10) == -49);
-
-        CHECK(lz::sumTo(-10, -20) == -165);
+    SECTION("For each while") {
+        std::array<int, 10> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        lz::forEachWhile(arr, [](int& i) {
+            const auto performNextIteration = i < 5;
+            if (performNextIteration) {
+                i = 0;
+            }
+            return performNextIteration;
+        });
+        CHECK(arr[4] == 5);
+        CHECK(arr[3] == 0);
     }
 
     SECTION("Keys and values") {
