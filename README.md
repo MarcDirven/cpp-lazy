@@ -113,6 +113,7 @@ equivalent is quite trivial to write yourself, but you may want to look at `lz::
 
 # Installation
 ## With xmake
+Everything higher than version 7.0.2 is supported.
 ```xmake
 add_requires("cpp-lazy >=7.0.2")
 
