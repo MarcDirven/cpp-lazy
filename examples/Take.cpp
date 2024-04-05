@@ -22,7 +22,7 @@ int main() {
 		// process i...
 	}
 	
-    const auto slice = lz::view(seq.begin() + 1, seq.end() + 4);
+    const auto slice = lz::view(seq.begin() + 1, seq.begin() + 4);
     std::cout << slice << '\n';
     // Output: 2 3 4
 
