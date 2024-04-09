@@ -1,12 +1,12 @@
 #pragma once
 
 #ifndef LZ_RANDOM_HPP
-#    define LZ_RANDOM_HPP
+#define LZ_RANDOM_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/RandomIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/RandomIterator.hpp"
 
-#    include <random>
+#include <random>
 
 namespace lz {
 namespace internal {
@@ -185,7 +185,7 @@ random(const Distribution& distribution, Generator& generator,
     return { distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)() };
 }
 
-#    ifdef __cpp_if_constexpr
+#ifdef __cpp_if_constexpr
 /**
  * @brief Returns an iterator view object that generates a sequence of random numbers, using an uniform distribution.
  * @details This random access iterator view object can be used to generate a sequence of random numbers between
@@ -203,9 +203,9 @@ random(const Distribution& distribution, Generator& generator,
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
 LZ_NODISCARD auto
 random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-#        ifndef LZ_HAS_CONCEPTS
+#ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic_v<Arithmetic>, "min/max type should be arithmetic");
-#        endif // LZ_HAS_CONCEPTS
+#endif // LZ_HAS_CONCEPTS
     static std::mt19937 gen = internal::createMtEngine();
     if constexpr (std::is_integral_v<Arithmetic>) {
         std::uniform_int_distribution<Arithmetic> dist(min, max);
@@ -216,7 +216,7 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
         return random(dist, gen, amount);
     }
 }
-#    else
+#else
 /**
  * @brief Returns an iterator view object that generates a sequence of random numbers, using an uniform distribution.
  * @details This random access iterator view object can be used to generate a sequence of random numbers between
@@ -262,7 +262,7 @@ random(const Floating min, const Floating max, const std::size_t amount = (std::
     return random(dist, gen, amount);
 }
 
-#    endif // __cpp_if_constexpr
+#endif // __cpp_if_constexpr
 
 // End of group
 /**

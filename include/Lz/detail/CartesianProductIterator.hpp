@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
-#    define LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
+#define LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
-#    include <numeric>
+#include <numeric>
 
 namespace lz {
 namespace internal {
@@ -26,7 +26,7 @@ private:
     std::tuple<Iterators...> _iterator{};
     std::tuple<Iterators...> _end{};
 
-#    ifndef __cpp_if_constexpr
+#ifndef __cpp_if_constexpr
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_14 EnableIf<I == 0, void> next() const noexcept {
     }
@@ -35,10 +35,10 @@ private:
     LZ_CONSTEXPR_CXX_14	EnableIf<I == 0, void> previous() const noexcept {
     }
 
-#        ifdef LZ_MSVC
-#            pragma warning(push)
-#            pragma warning(disable : 4127)
-#        endif // LZ_MSVC
+#ifdef LZ_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4127)
+#endif // LZ_MSVC
 
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_20 EnableIf<(I > 0), void> next() {
@@ -89,9 +89,9 @@ private:
         }
     }
 
-#        ifdef LZ_MSVC
-#            pragma warning(pop)
-#        endif // LZ_MSVC
+#ifdef LZ_MSVC
+#pragma warning(pop)
+#endif // LZ_MSVC
 
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_20 EnableIf<I == 0> operatorPlusImpl(const difference_type offset) {
@@ -122,7 +122,7 @@ private:
         operatorPlusImpl<I - 1>(static_cast<difference_type>(offsets.quot));
     }
 
-#    else
+#else
     template<std::size_t I>
     LZ_CONSTEXPR_CXX_20 void next() {
         if constexpr (I == 0) {
@@ -205,7 +205,7 @@ private:
         }
     }
 
-#    endif // __cpp_if_constexpr
+#endif // __cpp_if_constexpr
 
     template<std::size_t... Is>
     LZ_CONSTEXPR_CXX_20 reference dereference(IndexSequence<Is...>) const {

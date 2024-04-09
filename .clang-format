@@ -35,7 +35,7 @@ BraceWrapping:
     SplitEmptyNamespace: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
-IndentPPDirectives: AfterHash
+IndentPPDirectives: None
 PenaltyReturnTypeOnItsOwnLine: 6
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false

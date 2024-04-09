@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_TAKE_EVERY_ITERATOR_HPP
-#    define LZ_TAKE_EVERY_ITERATOR_HPP
+#define LZ_TAKE_EVERY_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
 namespace lz {
 namespace internal {
@@ -85,7 +85,7 @@ public:
     Iterator _end{};
     difference_type _offset{};
 
-#    ifdef __cpp_if_constexpr
+#ifdef __cpp_if_constexpr
     LZ_CONSTEXPR_CXX_20 void advance() noexcept {
         if constexpr (IsRandomAccess<Iterator>::value) {
             const auto distance = _end - _iterator;
@@ -117,7 +117,7 @@ public:
             }
         }
     }
-#    else
+#else
     template<class I = Iterator>
     LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> advance() {
         const auto distance = _end - _iterator;
@@ -151,7 +151,7 @@ public:
         for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
         }
     }
-#    endif
+#endif
 
 public:
     LZ_CONSTEXPR_CXX_20

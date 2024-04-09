@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_EXCLUSIVE_SCAN_HPP
-#    define LZ_EXCLUSIVE_SCAN_HPP
+#define LZ_EXCLUSIVE_SCAN_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/ExclusiveScanIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ExclusiveScanIterator.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN

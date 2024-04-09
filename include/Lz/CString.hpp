@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_C_STRING_HPP
-#    define LZ_C_STRING_HPP
+#define LZ_C_STRING_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/CStringIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/CStringIterator.hpp"
 
 namespace lz {
 

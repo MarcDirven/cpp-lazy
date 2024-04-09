@@ -1,20 +1,20 @@
 #pragma once
 
 #ifndef LZ_OPTIONAL_HPP
-#    define LZ_OPTIONAL_HPP
+#define LZ_OPTIONAL_HPP
 
-#    include <type_traits>
+#include <type_traits>
 
-#    ifdef __cpp_lib_optional
-#        include <optional>
-#    endif // __cpp_lib_optional
+#ifdef __cpp_lib_optional
+#include <optional>
+#endif // __cpp_lib_optional
 
 namespace lz {
 namespace internal {
-#    ifdef __cpp_lib_optional
+#ifdef __cpp_lib_optional
 template<class T>
 using Optional = std::optional<T>;
-#    else
+#else
 template<class T>
 class Optional {
     static_assert(!std::is_array<T>::value && std::is_object<T>::value, "T may not be an array and must be an object");
@@ -102,7 +102,7 @@ public:
         return bool(*this) ? std::move(this->value()) : static_cast<T>(std::forward<U>(v));
     }
 };
-#    endif // __cpp_lib_optional
+#endif // __cpp_lib_optional
 } // namespace internal
 } // namespace lz
 

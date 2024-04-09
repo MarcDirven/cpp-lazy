@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_JOIN_HPP
-#    define LZ_JOIN_HPP
+#define LZ_JOIN_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/JoinIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/JoinIterator.hpp"
 
 namespace lz {
 
@@ -17,18 +17,18 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-#    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
     LZ_CONSTEXPR_CXX_20 Join(Iterator begin, Iterator end, std::string delimiter) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, true),
                                               iterator(std::move(end), delimiter, false)) {
     }
-#    else
+#else
     LZ_CONSTEXPR_CXX_20
     Join(Iterator begin, Iterator end, std::string delimiter, std::string fmt) :
         internal::BasicIteratorView<iterator>(iterator(std::move(begin), delimiter, fmt, true),
                                               iterator(std::move(end), delimiter, fmt, false)) {
     }
-#    endif // has format
+#endif // has format
 
     Join() = default;
 
@@ -43,7 +43,7 @@ public:
  * @{
  */
 
-#    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 /**
  * @brief Creates a Join object.
  * @note If you're going to call .toString() on this, it is better to use `strJoin` for performance reasons.
@@ -97,7 +97,7 @@ std::string strJoin(Iterable&& iterable, const StringView delimiter = "") {
                         delimiter);
 }
 
-#    else
+#else
 
 /**
  * @brief Creates a Join object.
@@ -157,7 +157,7 @@ std::string strJoin(Iterable&& iterable, const StringView delimiter = "", const 
     return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         delimiter, fmt);
 }
-#    endif // has format
+#endif // has format
 
 // End of group
 /**

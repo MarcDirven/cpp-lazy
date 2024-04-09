@@ -1,25 +1,25 @@
 #pragma once
 
 #ifndef LZ_FUNCTION_TOOLS_HPP
-#    define LZ_FUNCTION_TOOLS_HPP
+#define LZ_FUNCTION_TOOLS_HPP
 
-#    include "Concatenate.hpp"
-#    include "Filter.hpp"
-#    include "Join.hpp"
-#    include "Map.hpp"
-#    include "StringSplitter.hpp"
-#    include "Take.hpp"
-#    include "Zip.hpp"
+#include "Concatenate.hpp"
+#include "Filter.hpp"
+#include "Join.hpp"
+#include "Map.hpp"
+#include "StringSplitter.hpp"
+#include "Take.hpp"
+#include "Zip.hpp"
 
-#    include <algorithm>
-#    include <cctype>
-#    include <numeric>
+#include <algorithm>
+#include <cctype>
+#include <numeric>
 
-#    ifdef LZ_HAS_CXX_17
-#        define LZ_INLINE_VAR inline
-#    else // ^^^ has cxx 17 vvv !has cxx 17
-#        define LZ_INLINE_VAR
-#    endif // LZ_HAS_CXX_17
+#ifdef LZ_HAS_CXX_17
+#define LZ_INLINE_VAR inline
+#else // ^^^ has cxx 17 vvv !has cxx 17
+#define LZ_INLINE_VAR
+#endif // LZ_HAS_CXX_17
 
 namespace lz {
 namespace internal {
@@ -116,9 +116,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Strings>> u
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
-#    ifndef LZ_HAS_CONCEPTS
+#ifndef LZ_HAS_CONCEPTS
     static_assert(internal::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
-#    endif // LZ_HAS_CONCEPTS
+#endif // LZ_HAS_CONCEPTS
     std::reverse_iterator<Iterator> reverseBegin(std::move(end));
     std::reverse_iterator<Iterator> reverseEnd(std::move(begin));
     return { std::move(reverseBegin), std::move(reverseEnd) };
@@ -355,7 +355,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, i
     return lz::keys(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
 }
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 /**
  * Gets the mean of a sequence.
  * @param begin The beginning of the sequence.
@@ -922,7 +922,7 @@ template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
     return endsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
 }
-#    else // ^^^ Lz has execution vvv !Lz has execution
+#else // ^^^ Lz has execution vvv !Lz has execution
 
 /**
  * Gets the mean of a sequence.
@@ -959,11 +959,11 @@ double mean(const Iterable& iterable, BinaryOp binOp = {}) {
  * used.
  * @return The median of the sequence.
  */
-#        ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
 template<class Iterator, class Comparer = std::less<internal::ValueType<Iterator>>>
-#        else
+#else
 template<class Iterator, class Comparer = std::less<>>
-#        endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
 double median(Iterator begin, Iterator end, Comparer comparer = {}) {
     static_assert(internal::IsRandomAccess<Iterator>::value, "Iterator must be random access");
     const internal::DiffType<Iterator> len = end - begin;
@@ -987,11 +987,11 @@ double median(Iterator begin, Iterator end, Comparer comparer = {}) {
  * used.
  * @return The median of the sequence.
  */
-#        ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
 template<class Iterable, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
-#        else
+#else
 template<class Iterable, class Comparer = std::less<>>
-#        endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
 double median(Iterable& iterable, Comparer comparer = {}) {
     return lz::median(std::begin(iterable), std::end(iterable), std::move(comparer));
 }
@@ -1365,7 +1365,7 @@ trimString(const std::string& s) {
     return lz::trimString(s.begin(), s.end());
 }
 
-#    endif // End LZ_HAS_EXECUTION
+#endif // End LZ_HAS_EXECUTION
 } // End namespace lz
 
 LZ_MODULE_EXPORT_SCOPE_END

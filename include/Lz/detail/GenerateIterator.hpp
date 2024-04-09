@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_GENERATE_ITERATOR_HPP
-#    define LZ_GENERATE_ITERATOR_HPP
+#define LZ_GENERATE_ITERATOR_HPP
 
-#    include "FunctionContainer.hpp"
+#include "FunctionContainer.hpp"
 
 namespace lz {
 namespace internal {

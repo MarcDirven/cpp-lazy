@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_ZIP_LONGEST_ITERATOR_HPP
-#    define LZ_ZIP_LONGEST_ITERATOR_HPP
+#define LZ_ZIP_LONGEST_ITERATOR_HPP
 
-#    include "LzTools.hpp"
-#    include "Optional.hpp"
+#include "LzTools.hpp"
+#include "Optional.hpp"
 
 namespace lz {
 namespace internal {

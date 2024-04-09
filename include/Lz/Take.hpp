@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_TAKE_HPP
-#    define LZ_TAKE_HPP
+#define LZ_TAKE_HPP
 
-#    include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIteratorView.hpp"
 
 namespace lz {
 
@@ -33,7 +33,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator> view(Iter
     return { begin, end };
 }
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 /**
  * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
  * returns false, the iterator stops. Its `begin()` function returns an iterator.
@@ -112,7 +112,7 @@ dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
     return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
 }
-#    else // ^^^ lz has execution vvv lz ! has execution
+#else // ^^^ lz has execution vvv lz ! has execution
 /**
  * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
  * returns false, the iterator stops. Its `begin()` function returns an iterator.
@@ -177,7 +177,7 @@ dropWhile(Iterable&& iterable, Function predicate) {
                           std::move(predicate));
 }
 
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 // End of group
 /**
  * @}

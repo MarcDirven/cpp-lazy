@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_GENERATE_WHILE_HPP
-#    define LZ_GENERATE_WHILE_HPP
+#define LZ_GENERATE_WHILE_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/GenerateWhileIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/GenerateWhileIterator.hpp"
 
 namespace lz {
 

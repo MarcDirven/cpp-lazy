@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_ENUMERATE_ITERATOR_HPP
-#    define LZ_ENUMERATE_ITERATOR_HPP
+#define LZ_ENUMERATE_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
 namespace lz {
 namespace internal {

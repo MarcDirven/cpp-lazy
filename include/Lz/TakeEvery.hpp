@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_TAKE_EVERY_HPP
-#    define LZ_TAKE_EVERY_HPP
+#define LZ_TAKE_EVERY_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/TakeEveryIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/TakeEveryIterator.hpp"
 
 namespace lz {
 
