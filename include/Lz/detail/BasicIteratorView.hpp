@@ -102,16 +102,16 @@ namespace internal {
 #    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
-toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView delimiter) {
     std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
         result += toStringSpecialized(vt);
-        result += delimiter;
+        result.append(delimiter.begin(), delimiter.end());
     });
 }
 
 template<class Iterator>
 EnableIf<!std::is_arithmetic<ValueType<Iterator>>::value>
-toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView delimiter) {
     std::ostringstream oss;
     std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) { oss << t << delimiter; });
     result = oss.str();
@@ -123,7 +123,7 @@ LZ_CONSTEXPR_CXX_20 void
 #    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView delimiter, const StringView fmt) {
 #    else
-toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView& delimiter) {
+toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView delimiter) {
 #    endif // LZ_HAS_FORMAT
     if (lz::empty(begin, end)) {
         return;
@@ -164,7 +164,7 @@ LZ_CONSTEXPR_CXX_20 internal::EnableIf<std::is_same<char, ValueType<Iterator>>::
 #    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
 #    else
-doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) {
+doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter) {
 #    endif // LZ_HAS_FORMAT
     if (delimiter.size() == 0) {
         return std::string(b, e);

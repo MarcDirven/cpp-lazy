@@ -92,9 +92,9 @@ void forEachWhile(Iterable&& iterable, BinaryPredicate predicate) {
  * @param string The string to split on.
  * @return Returns a StringSplitter iterator, that splits the string on `'\n'`.
  */
-template<class SubString = std::string, class String = std::string>
+template<class SubString = StringView, class String = std::string>
 LZ_NODISCARD StringSplitter<SubString, String, char> lines(const String& string) {
-    return lz::split<SubString>(string, '\n');
+    return lz::split<SubString, String, char>(string, '\n');
 }
 
 /**

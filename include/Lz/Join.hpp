@@ -81,7 +81,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<internal::IterTypeFromIterable<Iterable>> 
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-std::string strJoinRange(Iterator begin, Iterator end, const StringView& delimiter = "") {
+std::string strJoinRange(Iterator begin, Iterator end, const StringView delimiter = "") {
     return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter);
 }
 
@@ -92,7 +92,7 @@ std::string strJoinRange(Iterator begin, Iterator end, const StringView& delimit
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-std::string strJoin(Iterable&& iterable, const StringView& delimiter = "") {
+std::string strJoin(Iterable&& iterable, const StringView delimiter = "") {
     return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         delimiter);
 }
@@ -141,7 +141,7 @@ join(Iterable&& iterable, std::string delimiter, std::string fmt = "{}") {
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-std::string strJoinRange(Iterator begin, Iterator end, const StringView& delimiter = "", const StringView& fmt = "{}") {
+std::string strJoinRange(Iterator begin, Iterator end, const StringView delimiter = "", const StringView fmt = "{}") {
     return internal::BasicIteratorView<Iterator>(std::move(begin), std::move(end)).toString(delimiter, fmt);
 }
 
@@ -153,7 +153,7 @@ std::string strJoinRange(Iterator begin, Iterator end, const StringView& delimit
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-std::string strJoin(Iterable&& iterable, const StringView& delimiter = "", const StringView& fmt = "{}") {
+std::string strJoin(Iterable&& iterable, const StringView delimiter = "", const StringView fmt = "{}") {
     return strJoinRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
                         delimiter, fmt);
 }

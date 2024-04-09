@@ -466,15 +466,70 @@ std::string toStringSpecialized(const bool value) {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #    if defined(LZ_HAS_STRING_VIEW)
+template<class C>
+using BasicStringView = std::basic_string_view<C>;
+
 using StringView = std::string_view;
 #    elif defined(LZ_STANDALONE)
-using StringView = std::string;
+template<class CharT>
+class BasicStringView {
+public:
+    BasicStringView() = default;
+
+    constexpr BasicStringView(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
+    }
+
+    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
+    }
+
+    constexpr BasicStringView(const CharT* begin, const CharT* end) noexcept :
+        _data(begin),
+        _size(static_cast<std::size_t>(end - begin)) {
+    }
+
+    constexpr const CharT* data() const noexcept {
+        return _data;
+    }
+
+    constexpr std::size_t size() const noexcept {
+        return _size;
+    }
+
+    constexpr const CharT* begin() const noexcept {
+        return _data;
+    }
+
+    constexpr const CharT* end() const noexcept {
+        return _data + _size;
+    }
+
+    constexpr const std::size_t length() const noexcept {
+        return _size;
+    }
+
+private:
+    const CharT* _data{ nullptr };
+    std::size_t _size{};
+};
+
+using StringView = BasicStringView<char>;
 #    else
+
+template<class C>
+using BasicStringView = fmt::basic_string_view<C>;
+
 using StringView = fmt::string_view;
 #    endif
 
 LZ_MODULE_EXPORT_SCOPE_END
 
 } // namespace lz
+
+#    if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
+template<typename CharT>
+std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT>& view) {
+    return os.write(view.data(), view.size());
+}
+#    endif
 
 #endif // LZ_LZ_TOOLS_HPP
