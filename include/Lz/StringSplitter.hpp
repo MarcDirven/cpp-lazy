@@ -1,14 +1,10 @@
 #pragma once
 
 #ifndef LZ_STRING_SPLITTER_HPP
-#    define LZ_STRING_SPLITTER_HPP
+#define LZ_STRING_SPLITTER_HPP
 
-#    if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
-#        include <Lz/CString.hpp>
-#    endif
-
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/SplitIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/SplitIterator.hpp"
 
 namespace lz {
 

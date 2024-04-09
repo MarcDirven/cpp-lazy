@@ -1,40 +1,54 @@
 #pragma once
 
 #ifndef LZ_SPLIT_ITERATOR_HPP
-#    define LZ_SPLIT_ITERATOR_HPP
+#define LZ_SPLIT_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
-#    include <string>
+#include <string>
 
 namespace lz {
 namespace internal {
-template<class SubString, class String, class StringType>
-class SplitIterator {
-    std::size_t _currentPos{}, _lastPos{};
-    const String* _string{ nullptr };
-    StringType _delimiter{};
+template<class CharT>
+std::size_t getDelimiterLength(const CharT* delimiter) {
+    return std::strlen(delimiter);
+}
 
-#    ifdef __cpp_if_constexpr
-    std::size_t getDelimiterLength() const { // NOLINT
-        if constexpr (std::is_same_v<char, StringType>) {
-            return 1;
-        }
-        else {
-            return _delimiter.length();
-        }
-    }
-#    else
-    template<class T = StringType>
-    constexpr EnableIf<std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
+template<class CharT, std::size_t N>
+std::size_t getDelimiterLength(const CharT (&delimiter)[N]) {
+    LZ_ASSERT(N > 0, "delimiter must have a length of at least 1");
+    return N - 1;
+}
+
+#ifdef LZ_CONSTEXPR_IF
+template<class CharT>
+std::size_t getDelimiterLength(const CharT delimiter) {
+    if constexpr (std::is_arithmetic_v<CharT>) {
         return 1;
     }
-
-    template<class T = StringType>
-    LZ_CONSTEXPR_CXX_20 EnableIf<!std::is_same<char, T>::value, std::size_t> getDelimiterLength() const {
-        return _delimiter.length();
+    else {
+        return delimiter.length();
     }
-#    endif
+}
+#else
+
+template<class T>
+EnableIf<std::is_arithmetic<T>::value, int> getDelimiterLength(T /*delimiter*/) {
+    return 1;
+}
+
+template<class T>
+EnableIf<!std::is_arithmetic<T>::value, int> getDelimiterLength(const T& delimiter) {
+    return delimiter.length();
+}
+#endif
+
+template<class SubString, class String, class DelimiterString>
+class SplitIterator {
+    std::size_t _currentPos{}, _lastPos{}, _delimiterLength{};
+    const String* _string{ nullptr };
+    DelimiterString _delimiter{};
+
 public:
     using iterator_category =
         typename std::common_type<std::bidirectional_iterator_tag, IterCat<typename String::const_iterator>>::type;
@@ -43,15 +57,17 @@ public:
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
 
-    LZ_CONSTEXPR_CXX_20 SplitIterator(const std::size_t startingPosition, const String& string, StringType delimiter) :
+    LZ_CONSTEXPR_CXX_20 SplitIterator(const std::size_t startingPosition, const String& string, DelimiterString delimiter,
+                                      std::size_t delimiterLength) :
         _currentPos(startingPosition),
+        _delimiterLength(delimiterLength),
         _string(&string),
         _delimiter(std::move(delimiter)) {
         if (startingPosition == 0) {
             _lastPos = _string->find(_delimiter);
         }
         else {
-            _currentPos = startingPosition + getDelimiterLength();
+            _currentPos = startingPosition + _delimiterLength;
         }
     }
 
@@ -81,10 +97,10 @@ public:
 
     LZ_CONSTEXPR_CXX_20 SplitIterator& operator++() {
         if (_lastPos == std::string::npos) {
-            _currentPos = _string->length() + getDelimiterLength();
+            _currentPos = _string->length() + _delimiterLength;
         }
         else {
-            _currentPos = _lastPos + getDelimiterLength();
+            _currentPos = _lastPos + _delimiterLength;
             _lastPos = _string->find(_delimiter, _currentPos);
         }
         return *this;
@@ -97,11 +113,10 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 SplitIterator& operator--() {
-        const auto delimLen = getDelimiterLength();
-        _lastPos = _currentPos - delimLen;
-        _currentPos -= delimLen;
+        _lastPos = _currentPos - _delimiterLength;
+        _currentPos -= _delimiterLength;
         if (_currentPos != 0) {
-            _currentPos = _string->rfind(_delimiter, _currentPos - 1) + delimLen;
+            _currentPos = _string->rfind(_delimiter, _currentPos - 1) + _delimiterLength;
         }
         return *this;
     }
