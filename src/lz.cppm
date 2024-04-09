@@ -1,9 +1,5 @@
 module;
 
-#ifndef __cpp_modules
-#    error Modules are not supported for this compiler and or C++ version confugration.
-#endif
-
 #include <algorithm>
 #include <array>
 #include <charconv>
