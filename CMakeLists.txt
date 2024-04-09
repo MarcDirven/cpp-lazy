@@ -48,9 +48,9 @@ else()
 		set(FMT_INSTALL YES CACHE INTERNAL "" FORCE)
 		include(FetchContent)
 		FetchContent_Declare(fmt 
-			URL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz 
+			URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz 
 			UPDATE_DISCONNECTED YES 
-			URL_MD5 21fac48cae8f3b4a5783ae06b443973a
+			URL_MD5 dc09168c94f90ea890257995f2c497a5
 			DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 		)
 		FetchContent_MakeAvailable(fmt)
