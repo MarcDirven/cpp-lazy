@@ -335,7 +335,6 @@ public:
         Container container(std::forward<Args>(args)...);
         tryReserve(container);
         if constexpr (internal::IsSequencedPolicyV<Execution>) {
-            tryReserve(container);
             copyTo(std::inserter(container, container.begin()), execution);
         }
         else {
