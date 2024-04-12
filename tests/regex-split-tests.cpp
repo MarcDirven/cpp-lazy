@@ -64,13 +64,13 @@ TEST_CASE("RegexSplit to containers", "[RegexSplit][To container]") {
     auto splitter = lz::regexSplit(s, r1);
 
     SECTION("To vector") {
-        auto vec = splitter;
+        auto vec = splitter.transformAs<std::vector>([](const auto s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(vec.begin(), vec.end(), expected.begin(), expected.end()));
     }
 
     SECTION("To list") {
-        auto list = splitter.to<std::list>();
+        auto list = splitter.transformAs<std::list>([](const auto s) { return std::string(s.data(), s.size()); });
         std::list<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(list.begin(), list.end(), expected.begin(), expected.end()));
     }
