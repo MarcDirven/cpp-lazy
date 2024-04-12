@@ -25,7 +25,7 @@ private:
 public:
     constexpr RegexSplitIterator() = default;
 
-    constexpr RegexSplitIterator(RegexTokenIter first, RegexTokenIter last) : _current(first) {
+    LZ_CONSTEXPR_CXX_14 RegexSplitIterator(RegexTokenIter first, RegexTokenIter last) : _current(first) {
         while (_current != last && _current->length() == 0) {
             ++_current;
         }
