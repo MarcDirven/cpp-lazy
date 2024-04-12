@@ -52,7 +52,7 @@ public:
         const auto& delimiter = begin._getDelimiter();
 // clang-format off
 #if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) 
-        std::format_to(o, "{}", *iter);
+        std::format_to(std::ostreambuf_iterator<char>(o), "{}", *iter);
 #elif defined(LZ_STANDALONE)
         o << *iter;
 #else
@@ -62,7 +62,7 @@ public:
         for (++iter; iter != end; ++iter) {
 // clang-format off
 #if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
-            std::format_to(o, "{}{}", delimiter, *iter);
+            std::format_to(std::ostreambuf_iterator<char>(o), "{}{}", delimiter, *iter);
 #elif defined(LZ_STANDALONE)
             o << delimiter << *iter;
 #else
