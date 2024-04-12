@@ -31,30 +31,30 @@ public:
         }
     }
 
-    constexpr RegexSplitIterator& operator++() {
+    LZ_CONSTEXPR_CXX_14 RegexSplitIterator& operator++() {
         ++_current;
         return *this;
     }
 
-    constexpr RegexSplitIterator operator++(int) {
+    LZ_CONSTEXPR_CXX_14 RegexSplitIterator operator++(int) {
         RegexSplitIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    constexpr value_type operator*() const {
+    LZ_CONSTEXPR_CXX_14 value_type operator*() const {
         return value_type(&*_current->first, _current->length());
     }
 
-    constexpr pointer operator->() const {
+    LZ_CONSTEXPR_CXX_14 pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    constexpr bool operator==(const RegexSplitIterator& other) const {
+    LZ_CONSTEXPR_CXX_14 bool operator==(const RegexSplitIterator& other) const {
         return _current == other._current;
     }
 
-    constexpr bool operator!=(const RegexSplitIterator& other) const {
+    LZ_CONSTEXPR_CXX_14 bool operator!=(const RegexSplitIterator& other) const {
         return !(*this == other);
     }
 };
