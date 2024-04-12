@@ -189,7 +189,7 @@ LZ_CONSTEXPR_CXX_20 internal::EnableIf<!std::is_same<char, ValueType<Iterator>>:
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
 #else
-doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) {
+doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter) {
 #endif // LZ_HAS_FORMAT
     std::string result;
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
