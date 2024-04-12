@@ -82,4 +82,15 @@ int main() {
 #else
     auto cpy = generator.to<std::vector<long>>(100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
 #endif
+
+    auto out = generator.transformAs<std::vector>([](char c) { return c + 1; });
+    for (char val : out) {
+        std::cout << val << '\n';
+    }
+    // yields:
+    // b
+    // c
+    // d
+    // e
+    
 }

@@ -386,6 +386,24 @@ public:
             std::transform(execution, _begin, _end, outputIterator, transformFunc);
         }
     }
+    
+    /**
+     * @brief Transforms the current iterator to a container of type `Container`. The container is filled with the result of the function `f`.
+     * i.e. `view.transformAs<std::vector>([](int i) { return i * 2; });` will return a vector with all elements doubled.
+     * @tparam Container The container to transform into
+     * @param f The transform function
+     * @param exec The execution policy. Must be one of `std::execution`'s tags.
+     * @param args args passed to the container
+     * @return The container
+     */
+    template<template<class, class...> class Container, class TransformFunc, class Execution = std::execution::sequenced_policy, class... Args>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto transformAs(TransformFunc&& f, Execution exec = std::execution::seq, 
+                                                      Args&&... args) const -> Container<decltype(f(*begin())), Decay<Args>...> {
+        using Cont = Container<decltype(f(*begin())), Decay<Args>...>;
+        Cont cont(std::forward<Args>(args)...);
+        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f), exec);
+        return cont;
+    }
 
     /**
      * @brief Creates a new `std::vector<value_type>` of the sequence.
@@ -487,6 +505,23 @@ public:
     template<class OutputIterator, class TransformFunc>
     void transformTo(OutputIterator outputIterator, TransformFunc transformFunc) const {
         std::transform(_begin, _end, outputIterator, transformFunc);
+    }
+
+    
+    /**
+     * @brief Transforms the current iterator to a container of type `Container`. The container is filled with the result of the function `f`.
+     * i.e. `view.transformAs<std::vector>([](int i) { return i * 2; });` will return a vector with all elements doubled.
+     * @tparam Container The container to transform into
+     * @param f The transform function
+     * @param args args passed to the container
+     * @return The container
+     */
+    template<template<class, class...> class Container, class TransformFunc, class... Args>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto transformAs(TransformFunc&& f, Args&&... args) const -> Container<decltype(f(*begin())), Decay<Args>...> {
+        using Cont = Container<decltype(f(*begin())), Decay<Args>...>;
+        Cont cont(std::forward<Args>(args)...);
+        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f), exec);
+        return cont;
     }
 
     /**
