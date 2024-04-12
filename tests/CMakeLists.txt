@@ -52,6 +52,7 @@ add_executable(cpp-lazy-tests
 	map-tests.cpp
 	random-tests.cpp
 	range-tests.cpp
+	regex-split-tests.cpp
 	repeat-tests.cpp
 	rotate-tests.cpp
 	standalone-tests.cpp

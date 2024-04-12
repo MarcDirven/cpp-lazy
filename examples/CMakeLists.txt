@@ -28,6 +28,7 @@ set(examples
     Map
     Random
     Range
+    RegexSplit
     Repeat
     StringSplitter
     Take
