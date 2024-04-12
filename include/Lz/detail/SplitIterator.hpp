@@ -20,7 +20,7 @@ std::size_t getDelimiterLength(const CharT (&delimiter)[N]) {
     return N - 1;
 }
 
-#ifdef LZ_CONSTEXPR_IF
+#ifdef LZ_HAS_CXX_17
 template<class CharT>
 std::size_t getDelimiterLength(const CharT delimiter) {
     if constexpr (std::is_arithmetic_v<CharT>) {
