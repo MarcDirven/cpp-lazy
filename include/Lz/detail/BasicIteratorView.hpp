@@ -569,7 +569,7 @@ public:
 
     /**
      * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
-     * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+     * lz::range(4).toString(" ") yields 0 1 2 3 and lz::range(4).toString(", ") yields 0, 1, 2, 3.
      * @param delimiter The delimiter between the previous value and the next.
      * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)
      * @return The converted iterator in string format.
