@@ -35,9 +35,7 @@ public:
 
 /**
  * @brief This is a lazy evaluated string splitter function. It splits a string using `delimiter`.
- * @tparam SubString The string type of the substring. If C++17, this will default to `std::string_view`. If `LZ_STANDALONE` is
- * not defined and C++17 is not defined, this will default to `lz::StringView`. Otherwise it will default to `fmt::string_view`.
- * Furthermore, `SubString` should have a constructor which looks like `SubString([const]char*, std::size_t length)`:
+ * @tparam SubString The string type of the substring. (default lz::StringView)
  * @param str The string to split.
  * @param delimiter The delimiter to split on.
  * @return A stringSplitter object that can be converted to an arbitrary container or can be iterated over using

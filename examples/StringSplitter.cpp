@@ -16,9 +16,7 @@ int main() {
     const auto splitter = lz::split(toSplit, std::move(delim));
     std::cout << splitter << '\n';
     // Output: Hello world
-    // If C++ 17 or higher, use for (std::string_view s : lz::split) else use for (fmt::string_view substring : lz::split)
-    // If LZ_STANDALONE is defined and C++ version is less than 17, then lz::StringView is returned
-    for (fmt::string_view substring : splitter) {
+    for (lz::StringView substring : splitter) {
         std::cout << substring << '\n';
     }
     
