@@ -45,6 +45,16 @@ private:
 #endif
     mutable bool _isIteratorTurn{ true };
 
+public:
+    const std::string& _getDelimiter() const {
+        return _delimiter;
+    }
+
+    Iterator _getIterator() const {
+        return _iterator;
+    }
+
+private:
     template<class T = ContainerType>
     EnableIf<!std::is_same<T, std::string>::value, reference> deref() const {
         if (_isIteratorTurn) {

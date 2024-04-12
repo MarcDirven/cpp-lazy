@@ -6,6 +6,16 @@
 #include "detail/BasicIteratorView.hpp"
 #include "detail/JoinIterator.hpp"
 
+// clang-format off
+#if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
+#include <format>
+#elif defined(LZ_STANDALONE)
+#include <ostream>
+#else
+#include <fmt/ostream.h>
+#endif
+// clang-format on
+
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
@@ -32,9 +42,35 @@ public:
 
     Join() = default;
 
-    friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& it) {
-        // Join already has a delimiter, default to blank string
-        return o << it.toString();
+    friend std::ostream& operator<<(std::ostream& o, const Join<Iterator>& joinIter) {
+        if (joinIter.empty()) {
+            return o;
+        }
+        auto begin = joinIter.begin();
+        auto iter = begin._getIterator();
+        auto end = joinIter.end()._getIterator();
+        const auto& delimiter = begin._getDelimiter();
+// clang-format off
+#if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) 
+        std::format_to(o, "{}", *iter);
+#elif defined(LZ_STANDALONE)
+        o << *iter;
+#else
+        fmt::print(o, "{}", *iter);     
+#endif
+        // clang-format on
+        for (++iter; iter != end; ++iter) {
+// clang-format off
+#if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
+            std::format_to(o, "{}{}", delimiter, *iter);
+#elif defined(LZ_STANDALONE)
+            o << delimiter << *iter;
+#else
+            fmt::print(o, "{}{}", delimiter, *iter);
+#endif
+            // clang-format on
+        }
+        return o;
     }
 };
 

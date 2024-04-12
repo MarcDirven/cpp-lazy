@@ -247,8 +247,8 @@ private:
     }
 #endif // __cpp_if_constexpr
     template<class MapType, class KeySelectorFunc>
-    LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, const KeySelectorFunc keyGen) const {
-        transformTo(std::inserter(map, map.end()), [keyGen](internal::RefType<It> value) { return std::make_pair(keyGen(value), value); });
+    LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, KeySelectorFunc keyGen) const {
+        transformTo(std::inserter(map, map.end()), [k = std::move(keyGen)](internal::RefType<It> value) { return std::make_pair(k(value), value); });
     }
 
 public:
