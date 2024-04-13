@@ -1,25 +1,25 @@
 #pragma once
 
 #ifndef LZ_BASIC_ITERATOR_VIEW_HPP
-#    define LZ_BASIC_ITERATOR_VIEW_HPP
+#define LZ_BASIC_ITERATOR_VIEW_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
-#    include <algorithm>
-#    include <array>
-#    include <map>
-#    include <numeric>
-#    include <string>
-#    include <unordered_map>
-#    include <vector>
+#include <algorithm>
+#include <array>
+#include <map>
+#include <numeric>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#    if defined(LZ_STANDALONE)
-#        ifdef LZ_HAS_FORMAT
-#            include <format>
-#        else
-#            include <sstream>
-#        endif // LZ_HAS_FORMAT
-#    endif     // LZ_STANDALONE
+#if defined(LZ_STANDALONE)
+#ifdef LZ_HAS_FORMAT
+#include <format>
+#else
+#include <sstream>
+#endif // LZ_HAS_FORMAT
+#endif // LZ_STANDALONE
 
 namespace lz {
 
@@ -99,73 +99,75 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
 LZ_MODULE_EXPORT_SCOPE_END
 
 namespace internal {
-#    if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+#if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
-toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView delimiter) {
     std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
-        result += toStringSpecialized(vt);
-        result += delimiter;
+        char buff[std::numeric_limits<ValueType<Iterator>>::digits10 + 3]{};
+        toStringFromBuff(vt, buff);
+        result.append(buff);
+        result.append(delimiter.begin(), delimiter.end());
     });
 }
 
 template<class Iterator>
 EnableIf<!std::is_arithmetic<ValueType<Iterator>>::value>
-toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView& delimiter) {
+toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView delimiter) {
     std::ostringstream oss;
     std::for_each(begin, end, [&oss, &delimiter](const ValueType<Iterator>& t) { oss << t << delimiter; });
     result = oss.str();
 }
-#    endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+#endif // defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 void
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView delimiter, const StringView fmt) {
-#    else
-toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView& delimiter) {
-#    endif // LZ_HAS_FORMAT
+#else
+toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, const StringView delimiter) {
+#endif // LZ_HAS_FORMAT
     if (lz::empty(begin, end)) {
         return;
     }
-#    if !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
+#if !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
     auto backInserter = std::back_inserter(result);
     // Dynamic format merge with the `fmt` and the "{}" for the delimiter
     std::string format;
     format.reserve(3 + fmt.size());
     format.append(fmt.data(), fmt.size());
     format += "{}";
-#    endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
+#endif // !defined(LZ_STANDALONE) || defined(LZ_HAS_FORMAT)
 
-#    if defined(LZ_STANDALONE)
-#        if defined(LZ_HAS_FORMAT)
+#if defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT)
     std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
         std::vformat_to(backInserter, format.c_str(), std::make_format_args(v, delimiter));
     });
     // clang-format off
-#        else
+#else
     toStringImplSpecialized(result, begin, end, delimiter);
-#        endif // defined(LZ_HAS_FORMAT)
-#   else
+#endif // defined(LZ_HAS_FORMAT)
+#else
     std::for_each(begin, end, [&delimiter, backInserter, &format](const ValueType<Iterator>& v) {
-#        if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000
+#if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000
         fmt::format_to(backInserter, fmt::runtime(format.c_str()), v, delimiter);
-#        else
+#else
         fmt::format_to(backInserter, format.c_str(), v, delimiter);
-#        endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
+#endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
     });
-#   endif // defined(LZ_STANDALONE)
+#endif // defined(LZ_STANDALONE)
     const auto resultEnd = result.end();
     result.erase(resultEnd - static_cast<std::ptrdiff_t>(delimiter.size()), resultEnd);
 }
 
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 internal::EnableIf<std::is_same<char, ValueType<Iterator>>::value, std::string>
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
-#    else
-doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) {
-#    endif // LZ_HAS_FORMAT
+#else
+doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter) {
+#endif // LZ_HAS_FORMAT
     if (delimiter.size() == 0) {
         return std::string(b, e);
     }
@@ -176,27 +178,27 @@ doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) 
         result.reserve(len + delimiter.size() * len + 1);
     }
 
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toStringImpl(result, b, e, delimiter, fmt);
-#    else
+#else
     toStringImpl(result, b, e, delimiter);
-#    endif
+#endif
     return result;
 }
 
 template<class Iterator>
 LZ_CONSTEXPR_CXX_20 internal::EnableIf<!std::is_same<char, ValueType<Iterator>>::value, std::string>
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
-#    else
-doMakeString(const Iterator& b, const Iterator& e, const StringView& delimiter) {
-#    endif // LZ_HAS_FORMAT
+#else
+doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter) {
+#endif // LZ_HAS_FORMAT
     std::string result;
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toStringImpl(result, b, e, delimiter, fmt);
-#    else
+#else
     toStringImpl(result, b, e, delimiter);
-#    endif
+#endif
     return result;
 }
 
@@ -229,7 +231,7 @@ private:
     template<class KeySelectorFunc>
     using KeyType = FunctionReturnType<KeySelectorFunc, RefType<It>>;
 
-#    ifndef __cpp_if_constexpr
+#ifndef __cpp_if_constexpr
     template<class Container>
     EnableIf<!HasReserve<Container>::value, void> tryReserve(Container&) const {
     }
@@ -238,17 +240,17 @@ private:
     EnableIf<HasReserve<Container>::value, void> tryReserve(Container& container) const {
         container.reserve(static_cast<std::size_t>(sizeHint(_begin, _end)));
     }
-#    else
+#else
     template<class Container>
     LZ_CONSTEXPR_CXX_20 void tryReserve(Container& container) const {
         if constexpr (HasReserve<Container>::value) {
             container.reserve(static_cast<std::size_t>(sizeHint(_begin, _end)));
         }
     }
-#    endif // __cpp_if_constexpr
+#endif // __cpp_if_constexpr
     template<class MapType, class KeySelectorFunc>
-    LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, const KeySelectorFunc keyGen) const {
-        transformTo(std::inserter(map, map.end()), [keyGen](internal::RefType<It> value) { return std::make_pair(keyGen(value), value); });
+    LZ_CONSTEXPR_CXX_20 void createMap(MapType& map, KeySelectorFunc keyGen) const {
+        transformTo(std::inserter(map, map.end()), [k = std::move(keyGen)](internal::RefType<It> value) { return std::make_pair(k(value), value); });
     }
 
 public:
@@ -272,7 +274,7 @@ public:
     }
 #endif
 
-#    if defined(LZ_HAS_REF_QUALIFIER) && !defined(__cpp_explicit_this_parameter)
+#if defined(LZ_HAS_REF_QUALIFIER) && !defined(__cpp_explicit_this_parameter)
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It begin() && noexcept {
         return std::move(_begin);
     }
@@ -280,7 +282,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It end() && noexcept {
         return std::move(_end);
     }
-#    endif // LZ_HAS_REF_QUALIFIER
+#endif // LZ_HAS_REF_QUALIFIER
 
     constexpr BasicIteratorView() = default;
 
@@ -290,7 +292,7 @@ public:
     constexpr BasicIteratorView(const It& begin, const It& end) noexcept : _begin(begin), _end(end) {
     }
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
     /**
      * @brief Returns an arbitrary container type, of which its constructor signature looks like:
      * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the vector is equal to
@@ -335,7 +337,6 @@ public:
         Container container(std::forward<Args>(args)...);
         tryReserve(container);
         if constexpr (internal::IsSequencedPolicyV<Execution>) {
-            tryReserve(container);
             copyTo(std::inserter(container, container.begin()), execution);
         }
         else {
@@ -376,16 +377,34 @@ public:
      */
     template<class OutputIterator, class TransformFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 void
-    transformTo(OutputIterator outputIterator, TransformFunc transformFunc, Execution execution = std::execution::seq) const {
+    transformTo(OutputIterator outputIterator, TransformFunc&& transformFunc, Execution execution = std::execution::seq) const {
         if constexpr (internal::IsSequencedPolicyV<Execution>) {
-            std::transform(_begin, _end, outputIterator, transformFunc);
+            std::transform(_begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
         }
         else {
             static_assert(IsForward<It>::value, "Iterator type must be at least forward to use parallel execution");
             static_assert(IsForward<OutputIterator>::value,
                           "Output iterator type must be at least forward to use parallel execution");
-            std::transform(execution, _begin, _end, outputIterator, transformFunc);
+            std::transform(execution, _begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
         }
+    }
+    
+    /**
+     * @brief Transforms the current iterator to a container of type `Container`. The container is filled with the result of the function `f`.
+     * i.e. `view.transformAs<std::vector>([](int i) { return i * 2; });` will return a vector with all elements doubled.
+     * @tparam Container The container to transform into
+     * @param f The transform function
+     * @param exec The execution policy. Must be one of `std::execution`'s tags.
+     * @param args args passed to the container
+     * @return The container
+     */
+    template<template<class, class...> class Container, class TransformFunc, class Execution = std::execution::sequenced_policy, class... Args>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto transformAs(TransformFunc&& f, Execution exec = std::execution::seq, 
+                                                      Args&&... args) const -> Container<decltype(f(*begin())), Decay<Args>...> {
+        using Cont = Container<decltype(f(*begin())), Decay<Args>...>;
+        Cont cont(std::forward<Args>(args)...);
+        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f), exec);
+        return cont;
     }
 
     /**
@@ -426,7 +445,7 @@ public:
         copyTo(container.begin(), execution);
         return container;
     }
-#    else
+#else
     /**
      * @brief Returns an arbitrary container type, of which its constructor signature looks like:
      * `Container(Iterator, Iterator[, args...])`. The args may be left empty. The type of the sequence is equal to
@@ -486,8 +505,25 @@ public:
      * Essentially the same as: `std::transform(lzView.begin(), lzView.end(), myContainer.begin(), [](T value) { ... });`
      */
     template<class OutputIterator, class TransformFunc>
-    void transformTo(OutputIterator outputIterator, TransformFunc transformFunc) const {
-        std::transform(_begin, _end, outputIterator, transformFunc);
+    void transformTo(OutputIterator outputIterator, TransformFunc&& transformFunc) const {
+        std::transform(_begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
+    }
+
+    
+    /**
+     * @brief Transforms the current iterator to a container of type `Container`. The container is filled with the result of the function `f`.
+     * i.e. `view.transformAs<std::vector>([](int i) { return i * 2; });` will return a vector with all elements doubled.
+     * @tparam Container The container to transform into
+     * @param f The transform function
+     * @param args args passed to the container
+     * @return The container
+     */
+    template<template<class, class...> class Container, class TransformFunc, class... Args>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto transformAs(TransformFunc&& f, Args&&... args) const -> Container<decltype(f(*begin())), Decay<Args>...> {
+        using Cont = Container<decltype(f(*begin())), Decay<Args>...>;
+        Cont cont(std::forward<Args>(args)...);
+        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f));
+        return cont;
     }
 
     /**
@@ -523,7 +559,7 @@ public:
         copyTo(cont.begin());
         return cont;
     }
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 
     /**
      * Creates a `std::map<<keyGen return type, value_type[, Compare[, Allocator]]>`. The keyGen function generates the keys
@@ -570,19 +606,19 @@ public:
 
     /**
      * Converts an iterator to a string, with a given delimiter. Example: lz::range(4).toString() yields 0123, while
-     * lz::range(4).toString(" ") yields 0 1 2 3 4 and lz::range(4).toString(", ") yields 0, 1, 2, 3, 4.
+     * lz::range(4).toString(" ") yields 0 1 2 3 and lz::range(4).toString(", ") yields 0, 1, 2, 3.
      * @param delimiter The delimiter between the previous value and the next.
      * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)
      * @return The converted iterator in string format.
      */
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toString(const StringView delimiter = "", const StringView fmt = "{}") const {
         return internal::doMakeString(_begin, _end, delimiter, fmt);
-#    else
+#else
     toString(const StringView delimiter = "") const {
         return internal::doMakeString(_begin, _end, delimiter);
-#    endif
+#endif
         // clang-format off
     }
 
@@ -651,7 +687,7 @@ view(Iterable&& iterable) {
     return { internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)) };
 }
 
-#    ifndef LZ_HAS_EXECUTION
+#ifndef LZ_HAS_EXECUTION
 /**
  * Use this function to check if two lz iterators are the same.
  * @param a An iterable, its underlying value type should have an operator== with `b`
@@ -663,7 +699,7 @@ template<class IterableA, class IterableB,
 bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
     return std::equal(std::begin(a), std::end(a), std::begin(b), std::move(predicate));
 }
-#    else  // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
+#else // ^^^ !LZ_HAS_EXECUTION vvv LZ_HAS_EXECUTION
 /**
  * Use this function to check if two lz iterators are the same.
  * @param a An iterable, its underlying value type should have an operator== with `b`
@@ -683,12 +719,12 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
         return std::equal(execution, std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
     }
 }
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
 LZ_MODULE_EXPORT_SCOPE_END
 
-#    if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>
 struct std::formatter<
     Iterable,
@@ -702,7 +738,7 @@ struct std::formatter<
         return std::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#    endif // defined(LZ_HAS_FORMAT)
+#endif // defined(LZ_HAS_FORMAT)
 
 // End of group
 /**

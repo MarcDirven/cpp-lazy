@@ -21,11 +21,8 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     std::string toSplit = "hello, world";
     auto splitter = lz::split(toSplit, ", ");
     REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
-#ifdef LZ_HAS_CXX_17
-    REQUIRE(std::is_same_v<decltype(*splitter.begin()), std::string_view>);
-#else
-    REQUIRE(std::is_same<decltype(*splitter.begin()), lz::CString<char, false>>::value);
-#endif
+    REQUIRE(std::is_same<decltype(*splitter.begin()), lz::StringView>::value);
+
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
     auto doubles = lz::strJoin(vec, ", ");

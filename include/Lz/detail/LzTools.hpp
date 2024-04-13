@@ -1,129 +1,133 @@
 #pragma once
 
 #ifndef LZ_LZ_TOOLS_HPP
-#    define LZ_LZ_TOOLS_HPP
+#define LZ_LZ_TOOLS_HPP
 
-#    include <iterator>
-#    include <tuple>
+#include <iterator>
+#include <tuple>
 
-#    if defined(__has_include)
-#        define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
-#    else
-#        define LZ_HAS_INCLUDE(FILE) 0
-#    endif // __has_include
+#if defined(__has_include)
+#define LZ_HAS_INCLUDE(FILE) __has_include(FILE)
+#else
+#define LZ_HAS_INCLUDE(FILE) 0
+#endif // __has_include
 
-#    if defined(__has_cpp_attribute)
-#        define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
-#    else
-#        define LZ_HAS_ATTRIBUTE(ATTR) 0
-#    endif // __has_cpp_attribute
+#if defined(__has_cpp_attribute)
+#define LZ_HAS_ATTRIBUTE(ATTR) __has_cpp_attribute(ATTR)
+#else
+#define LZ_HAS_ATTRIBUTE(ATTR) 0
+#endif // __has_cpp_attribute
 
-#    if (defined(__GNUC__)) && !(defined(__clang__))
-#        define LZ_GCC_VERSION __GNUC__
-#    endif // GNU/clang
+#if (defined(__GNUC__)) && !(defined(__clang__))
+#define LZ_GCC_VERSION __GNUC__
+#endif // GNU/clang
 
-#    if defined(_MSVC_LANG)
-#        define LZ_MSVC _MSVC_LANG
-#    endif // _MSVC_LANG
+#if defined(_MSVC_LANG)
+#define LZ_MSVC _MSVC_LANG
+#endif // _MSVC_LANG
 
-#    if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
-#        define LZ_HAS_CXX_11
-#    endif // end has cxx 11
+#if (defined(LZ_MSVC) && (LZ_MSVC >= 201103L) && (LZ_MSVC < 201402L)) || ((__cplusplus >= 201103L) && (__cplusplus < 201402L))
+#define LZ_HAS_CXX_11
+#endif // end has cxx 11
 
-#    if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
-#        define LZ_CONSTEXPR_CXX_14 constexpr
-#    else
-#        define LZ_CONSTEXPR_CXX_14 inline
-#    endif // has cxx 14
+#if (__cplusplus >= 201300) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201300))
+#define LZ_CONSTEXPR_CXX_14 constexpr
+#else
+#define LZ_CONSTEXPR_CXX_14 inline
+#endif // has cxx 14
 
-#    if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
-#        define LZ_HAS_CXX_17
-#        define LZ_CONSTEXPR_CXX_17 constexpr
-#    else
-#        define LZ_CONSTEXPR_CXX_17 inline
-#    endif // Has cxx 17
+#if (__cplusplus >= 201703L) || ((defined(LZ_MSVC)) && (LZ_MSVC >= 201703L))
+#define LZ_HAS_CXX_17
+#define LZ_CONSTEXPR_CXX_17 constexpr
+#else
+#define LZ_CONSTEXPR_CXX_17 inline
+#endif // Has cxx 17
 
-#    if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
-#        define LZ_HAS_CXX_20
-#        if defined(__cpp_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_dynamic_alloc) &&                              \
+#if (__cplusplus > 201703L) || ((defined(LZ_MSVC) && (LZ_MSVC > 201703L)))
+#define LZ_HAS_CXX_20
+#if defined(__cpp_constexpr_dynamic_alloc) && defined(__cpp_lib_constexpr_dynamic_alloc) &&                              \
             defined(__cpp_lib_constexpr_string) && defined(__cpp_lib_constexpr_vector) &&                                        \
             defined(__cpp_lib_constexpr_algorithms)
-#            define LZ_CONSTEXPR_CXX_20 constexpr
-#        else
-#            define LZ_CONSTEXPR_CXX_20 inline
-#        endif // cpp constexpr new/algo
-#    else
-#        define LZ_CONSTEXPR_CXX_20 inline
-#    endif // Has cxx 20
+#define LZ_CONSTEXPR_CXX_20 constexpr
+#else
+#define LZ_CONSTEXPR_CXX_20 inline
+#endif // cpp constexpr new/algo
+#else
+#define LZ_CONSTEXPR_CXX_20 inline
+#endif // Has cxx 20
 
-#    if LZ_HAS_ATTRIBUTE(nodiscard) && defined(LZ_HAS_CXX_17)
-#        define LZ_NODISCARD [[nodiscard]]
-#    else
-#        define LZ_NODISCARD
-#    endif // LZ_HAS_ATTRIBUTE(nodiscard)
+#if LZ_HAS_ATTRIBUTE(nodiscard) && defined(LZ_HAS_CXX_17)
+#define LZ_NODISCARD [[nodiscard]]
+#else
+#define LZ_NODISCARD
+#endif // LZ_HAS_ATTRIBUTE(nodiscard)
 
-#    ifdef __cpp_ref_qualifiers
-#        define LZ_HAS_REF_QUALIFIER
-#        define LZ_CONST_REF_QUALIFIER const&
-#    else
-#        define LZ_CONST_REF_QUALIFIER
-#    endif // __cpp_ref_qualifiers
+#ifdef __cpp_ref_qualifiers
+#define LZ_HAS_REF_QUALIFIER
+#define LZ_CONST_REF_QUALIFIER const&
+#else
+#define LZ_CONST_REF_QUALIFIER
+#endif // __cpp_ref_qualifiers
 
-#    if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
-#        define LZ_HAS_EXECUTION
-#        include <execution>
-#    endif // has execution
+#if LZ_HAS_INCLUDE(<execution>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_execution)))
+#define LZ_HAS_EXECUTION
+#include <execution>
+#endif // has execution
 
-#    if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
-#        define LZ_HAS_STRING_VIEW
-#    endif // has string view
+#if LZ_HAS_INCLUDE(<string_view>) && (defined(LZ_HAS_CXX_17) && (defined(__cpp_lib_string_view)))
+#define LZ_HAS_STRING_VIEW
+#endif // has string view
 
-#    if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
-#        define LZ_HAS_CONCEPTS
-#        include <concepts>
-#    endif // Have concepts
+#if LZ_HAS_INCLUDE(<concepts>) && (defined(LZ_HAS_CXX_20)) && (defined(__cpp_lib_concepts))
+#define LZ_HAS_CONCEPTS
+#include <concepts>
+#endif // Have concepts
 
-#    ifdef __cpp_if_constexpr
-#        define LZ_CONSTEXPR_IF constexpr
-#    else
-#        define LZ_CONSTEXPR_IF
-#    endif // __cpp_if_constexpr
+#ifdef __cpp_if_constexpr
+#define LZ_CONSTEXPR_IF constexpr
+#else
+#define LZ_CONSTEXPR_IF
+#endif // __cpp_if_constexpr
 
-#    if defined(LZ_STANDALONE) && defined(__cpp_lib_to_chars) && LZ_HAS_INCLUDE(<charconv>)
-#        include <charconv>
-#    endif
+#if defined(LZ_STANDALONE) && defined(__cpp_lib_to_chars) && LZ_HAS_INCLUDE(<charconv>)
+#include <charconv>
+#endif
 
-#    if !defined(LZ_STANDALONE) || !defined(LZ_MODULE_EXPORT)
-#        include <fmt/format.h>
-#        include <fmt/ranges.h>
-#    endif
+#if !defined(LZ_STANDALONE) || !defined(LZ_MODULE_EXPORT)
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+#endif
 
-#    ifndef LZ_MODULE_EXPORT
-#        define LZ_MODULE_EXPORT_SCOPE_BEGIN
-#        define LZ_MODULE_EXPORT_SCOPE_END
-#    endif
+#ifndef LZ_MODULE_EXPORT
+#define LZ_MODULE_EXPORT_SCOPE_BEGIN
+#define LZ_MODULE_EXPORT_SCOPE_END
+#endif
 
-#    if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
-#        define LZ_HAS_FORMAT
-#    endif // format
+#if defined(__cpp_lib_format) && (LZ_HAS_INCLUDE(<format>)) && defined(LZ_HAS_CXX_20)
+#define LZ_HAS_FORMAT
+#endif // format
 
-#    if LZ_HAS_ATTRIBUTE(no_unique_address)
-#        define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
-#    else
-#        define LZ_NO_UNIQUE_ADDRESS
-#    endif // LZ_HAS_ATTRIBUTE(no_unique_address)
+#if LZ_HAS_ATTRIBUTE(no_unique_address)
+#define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#else
+#define LZ_NO_UNIQUE_ADDRESS
+#endif // LZ_HAS_ATTRIBUTE(no_unique_address)
 
-#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-#        include <string>
-#    endif
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+#include <string>
+#endif
 
-#    if defined(LZ_HAS_STRING_VIEW)
-#        include <string_view>
-#    endif
+#if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
+#include <ostream> // for operator << for lz::BasicStringView
+#endif
 
-#    ifdef LZ_HAS_CONCEPTS
+#if defined(LZ_HAS_STRING_VIEW)
+#include <string_view>
+#endif
 
-namespace lz {
+#ifdef LZ_HAS_CONCEPTS
+
+    namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
@@ -146,31 +150,31 @@ LZ_MODULE_EXPORT_SCOPE_END
 
 } // End namespace lz
 
-#        define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
-#        define LZ_CONCEPT_INTEGRAL std::integral
-#        define LZ_CONCEPT_INVOCABLE std::invocable
-#        define LZ_CONCEPT_ITERABLE lz::BasicIterable
-#        define LZ_CONCEPT_ITERATOR std::input_or_output_iterator
-#        define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
-#        define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
+#define LZ_CONCEPT_ARITHMETIC lz::Arithmetic
+#define LZ_CONCEPT_INTEGRAL std::integral
+#define LZ_CONCEPT_INVOCABLE std::invocable
+#define LZ_CONCEPT_ITERABLE lz::BasicIterable
+#define LZ_CONCEPT_ITERATOR std::input_or_output_iterator
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR std::bidirectional_iterator
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE lz::BidirectionalIterable
 
-#    else // ^^^ has concepts !has concepts vvv
-#        define LZ_CONCEPT_ARITHMETIC class
-#        define LZ_CONCEPT_INTEGRAL class
-#        define LZ_CONCEPT_ITERATOR class
-#        define LZ_CONCEPT_INVOCABLE class
-#        define LZ_CONCEPT_ITERABLE class
-#        define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
-#        define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
-#    endif // LZ_HAS_CONCEPTS
+#else // ^^^ has concepts !has concepts vvv
+#define LZ_CONCEPT_ARITHMETIC class
+#define LZ_CONCEPT_INTEGRAL class
+#define LZ_CONCEPT_ITERATOR class
+#define LZ_CONCEPT_INVOCABLE class
+#define LZ_CONCEPT_ITERABLE class
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERATOR class
+#define LZ_CONCEPT_BIDIRECTIONAL_ITERABLE class
+#endif // LZ_HAS_CONCEPTS
 
-#    ifndef NDEBUG
-#        include <exception>
-#    endif // NDEBUG
+#ifndef NDEBUG
+#include <exception>
+#endif // NDEBUG
 
-#    if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
-#        include <stacktrace>
-#    endif
+#if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
+#include <stacktrace>
+#endif
 
 namespace lz {
 namespace internal {
@@ -179,18 +183,18 @@ template<class>
 struct AlwaysFalse : std::false_type {};
 
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
-#    if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
+#if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
     auto st = std::stacktrace::current();
     auto str = std::to_string(st);
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\nStacktrace:\n%s\n", file, line, func,
                  message, str.c_str());
-#    else
+#else
     std::fprintf(stderr, "%s:%d assertion failed in function '%s' with message:\n\t%s\n", file, line, func, message);
-#    endif
+#endif
     std::terminate();
 }
 
-#    define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
+#define LZ_ASSERT(CONDITION, MSG) ((CONDITION) ? ((void)0) : (lz::internal::assertionFail(__FILE__, __LINE__, __func__, MSG)))
 
 template<class Iterable>
 constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin()) {
@@ -212,9 +216,9 @@ constexpr T* end(T (&array)[N]) noexcept {
     return std::end(array);
 }
 
-#    ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
 
-#        define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
+#define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
 
 template<std::size_t...>
 struct IndexSequence {};
@@ -236,8 +240,8 @@ using Decay = typename std::decay<T>::type;
 template<std::size_t I, class T>
 using TupleElement = typename std::tuple_element<I, T>::type;
 
-#        define MAKE_BIN_OP(OP, VALUE_TYPE) OP<VALUE_TYPE>
-#    else // ^^^ has cxx 11 vvv cxx > 11
+#define MAKE_BIN_OP(OP, VALUE_TYPE) OP<VALUE_TYPE>
+#else // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
 using IndexSequence = std::index_sequence<N...>;
 
@@ -250,9 +254,9 @@ using Decay = std::decay_t<T>;
 template<std::size_t I, class T>
 using TupleElement = std::tuple_element_t<I, T>;
 
-#        define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
+#define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
 
-#    endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
 
 template<class Iterable>
 using IterTypeFromIterable = decltype(begin(std::forward<Iterable>(std::declval<Iterable>())));
@@ -281,7 +285,7 @@ using ValueTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Ite
 template<class Iterable>
 using DiffTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Iterable>>::difference_type;
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 template<class T>
 struct IsSequencedPolicy : std::is_same<T, std::execution::sequenced_policy> {};
 
@@ -305,7 +309,7 @@ constexpr bool checkForwardAndPolicies() {
     return isSequenced;
 }
 
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 
 template<bool B>
 struct EnableIfImpl {};
@@ -434,47 +438,108 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
     }
 }
 
-#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-
-constexpr char to_string(const char c) noexcept {
-    return c;
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+void toStringFromBuff(const char value, char buff[std::numeric_limits<char>::digits10 + 3]) {
+    buff[0] = value;
+    std::fill(buff + 1, buff + std::numeric_limits<char>::digits10 + 3, '\0');
 }
 
-LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
-    return b ? "true" : "false";
+void toStringFromBuff(const bool value, char buff[6]) {
+    std::snprintf(buff, 6, "%s", value ? "true" : "false");
 }
 
 template<class T>
-internal::EnableIf<std::is_arithmetic<T>::value, std::string> toStringSpecialized(const T value) {
-#        ifdef __cpp_lib_to_chars
-    char buff[std::numeric_limits<T>::digits10 + 1]{};
+void toStringFromBuff(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
+    constexpr static auto size = std::numeric_limits<T>::digits10 + 3;
+#ifdef __cpp_lib_to_chars
     std::to_chars(std::begin(buff), std::end(buff), value);
-    return std::string(buff);
-#        else
-    using std::to_string;
-    return to_string(value);
-#        endif // __cpp_lib_to_chars
+#else
+    if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
+        if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
+            std::snprintf(buff, size, "%lld", static_cast<long long>(value));
+        }
+        else {
+            std::snprintf(buff, size, "%llu", static_cast<unsigned long long>(value));
+        }
+        return;
+    }
+    if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
+        std::snprintf(buff, size, "%Lf", static_cast<long double>(value));
+        return;
+    }
+#endif // __cpp_lib_to_chars
 }
-
-std::string toStringSpecialized(const bool value) {
-    return lz::internal::to_string(value);
-}
-#    endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+#endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
 } // namespace internal
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-#    if defined(LZ_HAS_STRING_VIEW)
+#if defined(LZ_HAS_STRING_VIEW)
+template<class C>
+using BasicStringView = std::basic_string_view<C>;
+
 using StringView = std::string_view;
-#    elif defined(LZ_STANDALONE)
-using StringView = std::string;
-#    else
+#elif defined(LZ_STANDALONE)
+template<class CharT>
+class BasicStringView {
+public:
+    BasicStringView() = default;
+
+    constexpr BasicStringView(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
+    }
+
+    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
+    }
+
+    constexpr BasicStringView(const CharT* begin, const CharT* end) noexcept :
+        _data(begin),
+        _size(static_cast<std::size_t>(end - begin)) {
+    }
+
+    constexpr const CharT* data() const noexcept {
+        return _data;
+    }
+
+    constexpr std::size_t size() const noexcept {
+        return _size;
+    }
+
+    constexpr const CharT* begin() const noexcept {
+        return _data;
+    }
+
+    constexpr const CharT* end() const noexcept {
+        return _data + _size;
+    }
+
+    constexpr std::size_t length() const noexcept {
+        return _size;
+    }
+
+private:
+    const CharT* _data{ nullptr };
+    std::size_t _size{};
+};
+
+using StringView = BasicStringView<char>;
+#else
+
+template<class C>
+using BasicStringView = fmt::basic_string_view<C>;
+
 using StringView = fmt::string_view;
-#    endif
+#endif
 
 LZ_MODULE_EXPORT_SCOPE_END
 
 } // namespace lz
+
+#if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
+template<typename CharT>
+std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT>& view) {
+    return os.write(view.data(), view.size());
+}
+#endif
 
 #endif // LZ_LZ_TOOLS_HPP

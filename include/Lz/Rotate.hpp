@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_ROTATE_HPP
-#    define LZ_ROTATE_HPP
+#define LZ_ROTATE_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/RotateIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/RotateIterator.hpp"
 
 namespace lz {
 

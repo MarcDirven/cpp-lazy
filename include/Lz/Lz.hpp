@@ -1,42 +1,42 @@
 #pragma once
 
 #ifndef LZ_LZ_HPP
-#    define LZ_LZ_HPP
+#define LZ_LZ_HPP
 
-#    include "Lz/CString.hpp"
-#    include "Lz/CartesianProduct.hpp"
-#    include "Lz/ChunkIf.hpp"
-#    include "Lz/Chunks.hpp"
-#    include "Lz/Enumerate.hpp"
-#    include "Lz/Except.hpp"
-#    include "Lz/Exclude.hpp"
-#    include "Lz/ExclusiveScan.hpp"
-#    include "Lz/Flatten.hpp"
-#    include "Lz/FunctionTools.hpp"
-#    include "Lz/Generate.hpp"
-#    include "Lz/GroupBy.hpp"
-#    include "Lz/InclusiveScan.hpp"
-#    include "Lz/JoinWhere.hpp"
-#    include "Lz/Loop.hpp"
-#    include "Lz/Random.hpp"
-#    include "Lz/Range.hpp"
-#    include "Lz/Repeat.hpp"
-#    include "Lz/Rotate.hpp"
-#    include "Lz/TakeEvery.hpp"
-#    include "Lz/Unique.hpp"
-#    include "Lz/ZipLongest.hpp"
-
-// Function tools includes:
-// Concatenate.hpp
-// Filter.hpp
-// Join.hpp
-// Map.hpp
-// StringSplitter.hpp
-// Take.hpp
-// Zip.hpp
+#include "Lz/CString.hpp"
+#include "Lz/CartesianProduct.hpp"
+#include "Lz/ChunkIf.hpp"
+#include "Lz/Chunks.hpp"
+#include "Lz/Concatenate.hpp"
+#include "Lz/Enumerate.hpp"
+#include "Lz/Except.hpp"
+#include "Lz/Exclude.hpp"
+#include "Lz/ExclusiveScan.hpp"
+#include "Lz/Filter.hpp"
+#include "Lz/Flatten.hpp"
+#include "Lz/FunctionTools.hpp"
+#include "Lz/Generate.hpp"
+#include "Lz/GenerateWhile.hpp"
+#include "Lz/GroupBy.hpp"
+#include "Lz/InclusiveScan.hpp"
+#include "Lz/Join.hpp"
+#include "Lz/JoinWhere.hpp"
+#include "Lz/Loop.hpp"
+#include "Lz/Map.hpp"
+#include "Lz/Random.hpp"
+#include "Lz/Range.hpp"
+#include "Lz/RegexSplit.hpp"
+#include "Lz/Repeat.hpp"
+#include "Lz/Rotate.hpp"
+#include "Lz/StringSplitter.hpp"
+#include "Lz/Take.hpp"
+#include "Lz/TakeEvery.hpp"
+#include "Lz/Unique.hpp"
+#include "Lz/Zip.hpp"
+#include "Lz/ZipLongest.hpp"
 
 namespace lz {
-#    ifndef LZ_HAS_CXX_EXECUTION
+#ifndef LZ_HAS_CXX_EXECUTION
 namespace internal {
 template<class Iterator, class T, class BinOp>
 T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
@@ -47,7 +47,7 @@ T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
     return init;
 }
 } // namespace internal
-#    endif // LZ_HAS_CXX_EXECUTION
+#endif // LZ_HAS_CXX_EXECUTION
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
@@ -272,7 +272,7 @@ public:
         return lz::backOr(*this, defaultValue);
     }
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
     //! See Filter.hpp for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>>
@@ -665,7 +665,7 @@ public:
             return std::is_sorted(execution, Base::begin(), Base::end(), std::move(predicate));
         }
     }
-#    else // ^^^ lz has execution vvv ! lz has execution
+#else // ^^^ lz has execution vvv ! lz has execution
 
     //! See Filter.hpp for documentation
     template<class UnaryPredicate>
@@ -854,11 +854,11 @@ public:
      * Sums the sequence generated so far.
      */
     value_type sum() const {
-#        ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
         return this->foldl(value_type(), [](value_type init, const value_type& val) { return std::move(init) + val; });
-#        else
+#else
         return this->foldl(value_type(), std::plus<>());
-#        endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
     }
 
     /**
@@ -949,11 +949,11 @@ public:
      * Sorts the sequence with the default (operator<) comparer.
      * @return A reference to this.
      */
-#        ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
     template<class Comparer = std::less<value_type>>
-#        else
+#else
     template<class Comparer = std::less<>>
-#        endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
     IterView<Iterator>& sort(Comparer comparer = {}) {
         std::sort(Base::begin(), Base::end(), std::move(comparer));
         return *this;
@@ -963,16 +963,16 @@ public:
      * Checks whether the sequence is sorted, using the standard (operator<) compare.
      * @return True if the sequence is sorted given by the `predicate` false otherwise.
      */
-#        ifdef LZ_HAS_CXX_11
+#ifdef LZ_HAS_CXX_11
     template<class Comparer = std::less<value_type>>
-#        else
+#else
     template<class Comparer = std::less<>>
-#        endif // LZ_HAS_CXX_11
+#endif // LZ_HAS_CXX_11
     bool isSorted(Comparer comparer = {}) const {
         return std::is_sorted(Base::begin(), Base::end(), std::move(comparer));
     }
 
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 };
 } // namespace lz
 

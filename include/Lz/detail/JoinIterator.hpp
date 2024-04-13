@@ -1,29 +1,42 @@
 #pragma once
 
 #ifndef LZ_JOIN_ITERATOR_HPP
-#    define LZ_JOIN_ITERATOR_HPP
+#define LZ_JOIN_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
-#    if defined(LZ_STANDALONE)
-#        ifdef LZ_HAS_FORMAT
-#            include <format>
-#        else
-#            include <sstream>
+#if defined(LZ_STANDALONE)
+#ifdef LZ_HAS_FORMAT
+#include <format>
+#else
+#include <sstream>
 
-#        endif // LZ_HAS_FORMAT
-#    endif     // LZ_STANDALONE
+#endif // LZ_HAS_FORMAT
+#endif     // LZ_STANDALONE
 
 namespace lz {
 namespace internal {
-#    if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
-internal::EnableIf<!std::is_arithmetic<T>::value, std::string> toStringSpecialized(const T& value) {
+EnableIf<!std::is_arithmetic<T>::value, std::string> toString(const T& value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
 }
-#    endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+
+template<class T>
+EnableIf<std::is_arithmetic<T>::value, std::string> toString(const T value) {
+    char buff[std::numeric_limits<T>::digits10 + 3]{};
+    toStringFromBuff(value, buff);
+    return buff;
+}
+
+std::string toString(const bool value) {
+    char buff[6]{};
+    toStringFromBuff(value, buff);
+    return buff;
+}
+#endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
 template<class Iterator>
 class JoinIterator {
@@ -40,27 +53,37 @@ public:
 private:
     Iterator _iterator{};
     mutable std::string _delimiter{};
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     std::string _fmt{};
-#    endif
+#endif
     mutable bool _isIteratorTurn{ true };
 
+public:
+    const std::string& _getDelimiter() const {
+        return _delimiter;
+    }
+
+    Iterator _getIterator() const {
+        return _iterator;
+    }
+
+private:
     template<class T = ContainerType>
     EnableIf<!std::is_same<T, std::string>::value, reference> deref() const {
         if (_isIteratorTurn) {
-#    ifdef LZ_STANDALONE
-#        ifdef LZ_HAS_FORMAT
+#ifdef LZ_STANDALONE
+#ifdef LZ_HAS_FORMAT
             return std::vformat(_fmt.c_str(), std::make_format_args(*_iterator));
-#        else
-            return toStringSpecialized(*_iterator);
-#        endif // LZ_HAS_FORMAT
-#    else
-#        if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000
+#else
+            return toString(*_iterator);
+#endif // LZ_HAS_FORMAT
+#else
+#if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000
             return fmt::format(fmt::runtime(_fmt.c_str()), *_iterator);
-#        else
+#else
             return fmt::format(_fmt.c_str(), *_iterator);
-#        endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
-#    endif     // LZ_STANDALONE
+#endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
+#endif     // LZ_STANDALONE
         }
         return _delimiter;
     }
@@ -91,7 +114,7 @@ private:
     }
 
 public:
-#    if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
+#if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     LZ_CONSTEXPR_CXX_20
     JoinIterator(Iterator iterator, std::string delimiter, std::string fmt, const bool isIteratorTurn) :
         _iterator(std::move(iterator)),
@@ -99,14 +122,14 @@ public:
         _fmt(std::move(fmt)),
         _isIteratorTurn(isIteratorTurn) {
     }
-#    else
+#else
     LZ_CONSTEXPR_CXX_20
     JoinIterator(Iterator iterator, std::string delimiter, const bool isIteratorTurn) :
         _iterator(std::move(iterator)),
         _delimiter(std::move(delimiter)),
         _isIteratorTurn(isIteratorTurn) {
     }
-#    endif // has format
+#endif // has format
 
     JoinIterator() = default;
 

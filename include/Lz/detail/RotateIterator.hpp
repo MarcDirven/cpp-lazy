@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_ROTATE_ITERATOR_HPP
-#    define LZ_ROTATE_ITERATOR_HPP
+#define LZ_ROTATE_ITERATOR_HPP
 
-#    include <iterator>
+#include <iterator>
 
 namespace lz {
 namespace internal {

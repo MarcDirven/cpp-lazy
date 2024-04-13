@@ -1,14 +1,14 @@
 #pragma once
 
 #ifndef LZ_RANGE_ITERATOR_HPP
-#    define LZ_RANGE_ITERATOR_HPP
+#define LZ_RANGE_ITERATOR_HPP
 
-#    include <cmath>
-#    include <iterator>
+#include <cmath>
+#include <iterator>
 
 namespace lz {
 namespace internal {
-#    ifdef __cpp_if_constexpr
+#ifdef __cpp_if_constexpr
 template<class ValueType>
 std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference, const ValueType step) noexcept(!std::is_floating_point_v<ValueType>) {
     if constexpr (std::is_floating_point_v<ValueType>) {
@@ -18,7 +18,7 @@ std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference, const Va
         return static_cast<std::ptrdiff_t>(roundEven(difference, step));
     }
 }
-#    else
+#else
 template<class ValueType>
 EnableIf<std::is_floating_point<ValueType>::value, std::ptrdiff_t> plusImpl(const ValueType difference, const ValueType step) {
     return static_cast<std::ptrdiff_t>(std::ceil(difference / step));
@@ -29,7 +29,7 @@ LZ_CONSTEXPR_CXX_14 EnableIf<!std::is_floating_point<ValueType>::value, std::ptr
 plusImpl(const ValueType difference, const ValueType step) noexcept {
     return static_cast<std::ptrdiff_t>(roundEven(difference, step));
 }
-#    endif // __cpp_if_constexpr
+#endif // __cpp_if_constexpr
 
 template<class Arithmetic>
 class RangeIterator {

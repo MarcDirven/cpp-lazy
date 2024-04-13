@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_ZIP_LONGEST_HPP
-#    define LZ_ZIP_LONGEST_HPP
+#define LZ_ZIP_LONGEST_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/ZipLongestIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/ZipLongestIterator.hpp"
 
 namespace lz {
 

@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_LOOP_HPP
-#    define LZ_LOOP_HPP
+#define LZ_LOOP_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/LoopIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/LoopIterator.hpp"
 
 namespace lz {
 

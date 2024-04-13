@@ -1,29 +1,29 @@
 #pragma once
 
 #ifndef LZ_CHUNK_IF_ITERATOR_HPP
-#    define LZ_CHUNK_IF_ITERATOR_HPP
+#define LZ_CHUNK_IF_ITERATOR_HPP
 
-#    include "BasicIteratorView.hpp"
-#    include "FunctionContainer.hpp"
+#include "BasicIteratorView.hpp"
+#include "FunctionContainer.hpp"
 
 namespace lz {
 namespace internal {
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
 template<class Iterator, class UnaryPredicate, class Execution>
-#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 template<class Iterator, class UnaryPredicate>
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
 class ChunkIfIterator {
     Iterator _begin{};
     Iterator _subRangeBegin{};
     Iterator _subRangeEnd{};
     Iterator _end{};
     mutable FunctionContainer<UnaryPredicate> _predicate{};
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
     LZ_NO_UNIQUE_ADDRESS
     Execution _execution{};
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -37,37 +37,37 @@ public:
 private:
     template<class I>
     LZ_CONSTEXPR_CXX_20 I findNext(I first, I last) {
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
         if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
             return std::find_if(std::move(first), std::move(last), _predicate);
         }
         else {
             return std::find_if(_execution, std::move(first), std::move(last), _predicate);
         }
-#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
         return std::find_if(std::move(first), std::move(last), _predicate);
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
     }
 
 public:
     constexpr ChunkIfIterator() = default;
 
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20
     ChunkIfIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution) :
-#    else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
+#else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
     ChunkIfIterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate predicate) :
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
         _begin(std::move(begin)),
         _subRangeBegin(iterator),
         _subRangeEnd(std::move(iterator)),
         _end(std::move(end)),
         _predicate(std::move(predicate))
-#    ifdef LZ_HAS_EXECUTION
+#ifdef LZ_HAS_EXECUTION
         ,
         _execution(execution)
-#    endif // LZ_HAS_EXECUTION
+#endif // LZ_HAS_EXECUTION
     {
         if (_subRangeBegin == _end) {
             return;

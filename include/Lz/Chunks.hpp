@@ -1,9 +1,9 @@
 #pragma once
 
 #ifndef LZ_CHUNKS_HPP
-#    define LZ_CHUNKS_HPP
+#define LZ_CHUNKS_HPP
 
-#    include "detail/ChunksIterator.hpp"
+#include "detail/ChunksIterator.hpp"
 
 namespace lz {
 

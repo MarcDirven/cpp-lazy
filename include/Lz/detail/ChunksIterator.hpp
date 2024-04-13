@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_CHUNKS_ITERATOR_HPP
-#    define LZ_CHUNKS_ITERATOR_HPP
+#define LZ_CHUNKS_ITERATOR_HPP
 
-#    include "BasicIteratorView.hpp"
+#include "BasicIteratorView.hpp"
 
-#    include <cmath>
+#include <cmath>
 
 namespace lz {
 namespace internal {
@@ -95,7 +95,7 @@ private:
     Iterator _end{};
     difference_type _chunkSize{};
 
-#    ifdef __cpp_if_constexpr
+#ifdef __cpp_if_constexpr
     LZ_CONSTEXPR_CXX_20 void nextChunk() {
         if constexpr (IsRandomAccess<Iterator>::value) {
             if (_end - _subRangeEnd > _chunkSize) {
@@ -125,7 +125,7 @@ private:
             }
         }
     }
-#    else
+#else
     template<class I = Iterator>
     LZ_CONSTEXPR_CXX_20 EnableIf<IsRandomAccess<I>::value, void> nextChunk() {
         if (_end - _subRangeEnd > _chunkSize) {
@@ -157,7 +157,7 @@ private:
         for (difference_type count = _chunkSize; 0 < count && _subRangeBegin != _begin; count--, --_subRangeBegin) {
         }
     }
-#    endif // __cpp_if_constexpr
+#endif // __cpp_if_constexpr
 
     void handleNegativeOffset(const difference_type offset, difference_type totalOffset) {
         auto dist = _subRangeEnd - _begin;

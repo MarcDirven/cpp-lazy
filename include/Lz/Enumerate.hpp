@@ -1,10 +1,10 @@
 #pragma once
 
 #ifndef LZ_ENUMERATE_HPP
-#    define LZ_ENUMERATE_HPP
+#define LZ_ENUMERATE_HPP
 
-#    include "detail/BasicIteratorView.hpp"
-#    include "detail/EnumerateIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/EnumerateIterator.hpp"
 
 namespace lz {
 
@@ -47,9 +47,9 @@ public:
 template<LZ_CONCEPT_ARITHMETIC Arithmetic = int, LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<Iterator, Arithmetic>
 enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
-#    ifndef LZ_HAS_CONCEPTS
+#ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
-#    endif
+#endif
     return { std::move(begin), std::move(end), internal::sizeHint(begin, end), start };
 }
 

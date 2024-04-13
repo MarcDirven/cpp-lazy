@@ -1,11 +1,11 @@
 #pragma once
 
 #ifndef LZ_ZIP_ITERATOR_HPP
-#    define LZ_ZIP_ITERATOR_HPP
+#define LZ_ZIP_ITERATOR_HPP
 
-#    include "LzTools.hpp"
+#include "LzTools.hpp"
 
-#    include <algorithm>
+#include <algorithm>
 
 namespace lz {
 namespace internal {
