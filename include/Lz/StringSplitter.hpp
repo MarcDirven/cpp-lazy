@@ -44,7 +44,8 @@ public:
 template<class SubString = StringView, class String, class DelimiterString>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, String, DelimiterString>
 split(const String& str, DelimiterString delimiter) {
-    return { str, std::move(delimiter), internal::getDelimiterLength(delimiter) };
+    const auto delimiterLength = internal::getDelimiterLength(delimiter);
+    return { str, std::move(delimiter), delimiterLength };
 }
 
 // End of group
