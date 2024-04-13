@@ -18,10 +18,23 @@ namespace lz {
 namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
-std::string toStringFromStream(const T& value) {
+EnableIf<!std::is_arithmetic<T>::value, std::string> toString(const T& value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
+}
+
+template<class T>
+EnableIf<std::is_arithmetic<T>::value, std::string> toString(const T value) {
+    char buff[std::numeric_limits<T>::digits10 + 3]{};
+    toStringFromBuff(value, buff);
+    return buff;
+}
+
+std::string toString(const bool value) {
+    char buff[6]{};
+    toStringFromBuff(value, buff);
+    return buff;
 }
 #endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
@@ -62,7 +75,7 @@ private:
 #ifdef LZ_HAS_FORMAT
             return std::vformat(_fmt.c_str(), std::make_format_args(*_iterator));
 #else
-            return toStringFromStream(*_iterator);
+            return toString(*_iterator);
 #endif // LZ_HAS_FORMAT
 #else
 #if defined(LZ_HAS_CXX_20) && FMT_VERSION >= 90000

@@ -439,27 +439,33 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 }
 
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
+void toStringFromBuff(const char value, char buff[std::numeric_limits<char>::digits10 + 3]) {
+    buff[0] = value;
+    std::fill(buff + 1, buff + std::numeric_limits<char>::digits10 + 3, '\0');
+}
+
+void toStringFromBuff(const bool value, char buff[6]) {
+    sprintf_s(buff, 6, "%s", value ? "true" : "false");
+}
+
 template<class T>
 void toStringFromBuff(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
+    constexpr static auto size = std::numeric_limits<T>::digits10 + 3;
 #ifdef __cpp_lib_to_chars
     std::to_chars(std::begin(buff), std::end(buff), value);
 #else
-    if LZ_CONSTEXPR_IF (std::is_same<T, bool>::value) {
-        std::sprintf(buff, "%s", value ? "true" : "false");
-    }
-    else if LZ_CONSTEXPR_IF (std::is_same<T, char>::value) {
-        std::sprintf(buff, "%c", value);
-    }
-    else if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
+    if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
         if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
-            std::sprintf(buff, "%lld", static_cast<long long>(value));
+            sprintf_s(buff, size, "%lld", static_cast<long long>(value));
         }
         else {
-            std::sprintf(buff, "%llu", static_cast<unsigned long long>(value));
+            sprintf_s(buff, size, "%llu", static_cast<unsigned long long>(value));
         }
+        return;
     }
-    else if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
-        std::sprintf(buff, "%Lf", static_cast<long double>(value));
+    if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
+        sprintf_s(buff, size, "%Lf", static_cast<long double>(value));
+        return;
     }
 #endif // __cpp_lib_to_chars
 }
