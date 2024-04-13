@@ -377,15 +377,15 @@ public:
      */
     template<class OutputIterator, class TransformFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 void
-    transformTo(OutputIterator outputIterator, TransformFunc transformFunc, Execution execution = std::execution::seq) const {
+    transformTo(OutputIterator outputIterator, TransformFunc&& transformFunc, Execution execution = std::execution::seq) const {
         if constexpr (internal::IsSequencedPolicyV<Execution>) {
-            std::transform(_begin, _end, outputIterator, transformFunc);
+            std::transform(_begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
         }
         else {
             static_assert(IsForward<It>::value, "Iterator type must be at least forward to use parallel execution");
             static_assert(IsForward<OutputIterator>::value,
                           "Output iterator type must be at least forward to use parallel execution");
-            std::transform(execution, _begin, _end, outputIterator, transformFunc);
+            std::transform(execution, _begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
         }
     }
     
@@ -505,8 +505,8 @@ public:
      * Essentially the same as: `std::transform(lzView.begin(), lzView.end(), myContainer.begin(), [](T value) { ... });`
      */
     template<class OutputIterator, class TransformFunc>
-    void transformTo(OutputIterator outputIterator, TransformFunc transformFunc) const {
-        std::transform(_begin, _end, outputIterator, transformFunc);
+    void transformTo(OutputIterator outputIterator, TransformFunc&& transformFunc) const {
+        std::transform(_begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
     }
 
     
