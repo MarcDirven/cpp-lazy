@@ -436,7 +436,7 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
-internal::EnableIf<std::is_arithmetic<T>::value> itemToString(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
+void toStringFromBuff(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
 #ifdef __cpp_lib_to_chars
     std::to_chars(std::begin(buff), std::end(buff), value);
 #else
