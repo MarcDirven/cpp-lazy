@@ -43,7 +43,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_14 value_type operator*() const {
-        return value_type(&*_current->first, _current->length());
+        return value_type(&*_current->first, static_cast<std::size_t>(_current->length()));
     }
 
     LZ_CONSTEXPR_CXX_14 pointer operator->() const {
