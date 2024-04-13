@@ -513,7 +513,7 @@ public:
         return _data + _size;
     }
 
-    constexpr const std::size_t length() const noexcept {
+    constexpr std::size_t length() const noexcept {
         return _size;
     }
 
