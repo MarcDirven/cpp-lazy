@@ -10,7 +10,7 @@ TEST_CASE("RegexSplit changing and creating elements", "[RegexSplit][Basic funct
     SECTION("Empty string") {
         std::string s = "";
         auto splitter = lz::regexSplit(s, r1);
-        auto actual = splitter.transformAs<std::vector>([](const auto& s) { return std::string(s.data(), s.size()); });
+        auto actual = splitter.transformAs<std::vector>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = {};
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
@@ -18,7 +18,7 @@ TEST_CASE("RegexSplit changing and creating elements", "[RegexSplit][Basic funct
     SECTION("Starting with delimiter") {
         std::string s = "    Hello, world! How are you?";
         auto splitter = lz::regexSplit(s, r1);
-        auto actual = splitter.transformAs<std::vector>([](const auto& s) { return std::string(s.data(), s.size()); });
+        auto actual = splitter.transformAs<std::vector>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
@@ -26,7 +26,7 @@ TEST_CASE("RegexSplit changing and creating elements", "[RegexSplit][Basic funct
     SECTION("Ending with delimiter") {
         std::string s = "Hello, world! How are you?    ";
         auto splitter = lz::regexSplit(s, r1);
-        auto actual = splitter.transformAs<std::vector>([](const auto& s) { return std::string(s.data(), s.size()); });
+        auto actual = splitter.transformAs<std::vector>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
@@ -34,7 +34,7 @@ TEST_CASE("RegexSplit changing and creating elements", "[RegexSplit][Basic funct
     SECTION("Starting and ending with delimiter") {
         std::string s = "    Hello, world! How are you?    ";
         auto splitter = lz::regexSplit(s, r1);
-        auto actual = splitter.transformAs<std::vector>([](const auto& s) { return std::string(s.data(), s.size()); });
+        auto actual = splitter.transformAs<std::vector>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
@@ -64,13 +64,13 @@ TEST_CASE("RegexSplit to containers", "[RegexSplit][To container]") {
     auto splitter = lz::regexSplit(s, r1);
 
     SECTION("To vector") {
-        auto vec = splitter.transformAs<std::vector>([](const auto s) { return std::string(s.data(), s.size()); });
+        auto vec = splitter.transformAs<std::vector>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::vector<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(vec.begin(), vec.end(), expected.begin(), expected.end()));
     }
 
     SECTION("To list") {
-        auto list = splitter.transformAs<std::list>([](const auto s) { return std::string(s.data(), s.size()); });
+        auto list = splitter.transformAs<std::list>([](const lz::StringView s) { return std::string(s.data(), s.size()); });
         std::list<std::string> expected = { "Hello,", "world!", "How", "are", "you?" };
         REQUIRE(std::equal(list.begin(), list.end(), expected.begin(), expected.end()));
     }
