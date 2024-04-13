@@ -444,7 +444,7 @@ internal::EnableIf<std::is_arithmetic<T>::value> itemToString(const T value, cha
         std::sprintf(buff, "%s", value ? "true" : "false");
     }
     else if LZ_CONSTEXPR_IF (std::is_same<T, char>::value) {
-        sd::sprintf(buff, "%c", value);
+        std::sprintf(buff, "%c", value);
     }
     else if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
         if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
