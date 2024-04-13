@@ -33,12 +33,12 @@ std::size_t getDelimiterLength(const CharT delimiter) {
 #else
 
 template<class T>
-EnableIf<std::is_arithmetic<T>::value, int> getDelimiterLength(T /*delimiter*/) {
+EnableIf<std::is_arithmetic<T>::value, std::size_t> getDelimiterLength(T /*delimiter*/) {
     return 1;
 }
 
 template<class T>
-EnableIf<!std::is_arithmetic<T>::value, int> getDelimiterLength(const T& delimiter) {
+EnableIf<!std::is_arithmetic<T>::value, std::size_t> getDelimiterLength(const T& delimiter) {
     return delimiter.length();
 }
 #endif
