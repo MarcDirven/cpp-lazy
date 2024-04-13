@@ -117,6 +117,10 @@
 #include <string>
 #endif
 
+#if !defined(LZ_HAS_STRING_VIEW) && defined(LZ_STANDALONE)
+#include <ostream> // for operator << for lz::BasicStringView
+#endif
+
 #if defined(LZ_HAS_STRING_VIEW)
 #include <string_view>
 #endif
