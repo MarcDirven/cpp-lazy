@@ -18,7 +18,7 @@ namespace lz {
 namespace internal {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
-std::string itemToString()(const T& value) {
+internal::EnableIf<!std::is_arithmetic<T>::value, std::string> itemToString()(const T& value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
