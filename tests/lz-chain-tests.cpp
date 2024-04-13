@@ -231,5 +231,7 @@ TEST_CASE("Iterator chaining") {
     SECTION("Start/endswith") {
         CHECK(lz::chain(arr).startsWith(std::array<int, 3>{ 0, 1, 2 }));
         CHECK(lz::chain(arr).endsWith(std::array<int, 3>{ 13, 14, 15 }));
+        CHECK(!lz::chain(arr).startsWith(std::array<int, 3>{ 0, 1, 3 }));
+        CHECK(!lz::chain(arr).endsWith(std::array<int, 3>{ 13, 14, 16 }));
     }
 }
