@@ -520,7 +520,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto transformAs(TransformFunc&& f, Args&&... args) const -> Container<decltype(f(*begin())), Decay<Args>...> {
         using Cont = Container<decltype(f(*begin())), Decay<Args>...>;
         Cont cont(std::forward<Args>(args)...);
-        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f), exec);
+        transformTo(std::inserter(cont, cont.begin()), std::forward<TransformFunc>(f));
         return cont;
     }
 
