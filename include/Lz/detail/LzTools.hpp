@@ -435,29 +435,29 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 }
 
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-
-constexpr char to_string(const char c) noexcept {
-    return c;
-}
-
-LZ_CONSTEXPR_CXX_20 std::string to_string(const bool b) {
-    return b ? "true" : "false";
-}
-
 template<class T>
-internal::EnableIf<std::is_arithmetic<T>::value, std::string> toStringSpecialized(const T value) {
+internal::EnableIf<std::is_arithmetic<T>::value> itemToString(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
 #ifdef __cpp_lib_to_chars
-    char buff[std::numeric_limits<T>::digits10 + 1]{};
     std::to_chars(std::begin(buff), std::end(buff), value);
-    return std::string(buff);
 #else
-    using std::to_string;
-    return to_string(value);
+    if LZ_CONSTEXPR_IF (std::is_same<T, bool>::value) {
+        std::sprintf(buff, "%s", value ? "true" : "false");
+    }
+    else if LZ_CONSTEXPR_IF (std::is_same<T, char>::value) {
+        sd::sprintf(buff, "%c", value);
+    }
+    else if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
+        if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
+            std::sprintf(buff, "%lld", static_cast<long long>(value));
+        }
+        else {
+            std::sprintf(buff, "%llu", static_cast<unsigned long long>(value));
+        }
+    }
+    else if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
+        std::sprintf(buff, "%Lf", static_cast<long double>(value));
+    }
 #endif // __cpp_lib_to_chars
-}
-
-std::string toStringSpecialized(const bool value) {
-    return lz::internal::to_string(value);
 }
 #endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 

@@ -104,7 +104,9 @@ template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
 toStringImplSpecialized(std::string& result, Iterator begin, Iterator end, const StringView delimiter) {
     std::for_each(begin, end, [&delimiter, &result](const ValueType<Iterator>& vt) {
-        result += toStringSpecialized(vt);
+        char buff[std::numeric_limits<ValueType<Iterator>>::digits10 + 3];
+        itemToString(vt, buf);
+        result.append(buf);
         result.append(delimiter.begin(), delimiter.end());
     });
 }
