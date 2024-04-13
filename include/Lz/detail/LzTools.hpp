@@ -127,7 +127,7 @@
 
 #ifdef LZ_HAS_CONCEPTS
 
-namespace lz {
+    namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
@@ -445,7 +445,7 @@ void toStringFromBuff(const char value, char buff[std::numeric_limits<char>::dig
 }
 
 void toStringFromBuff(const bool value, char buff[6]) {
-    sprintf_s(buff, 6, "%s", value ? "true" : "false");
+    std::snprintf(buff, 6, "%s", value ? "true" : "false");
 }
 
 template<class T>
@@ -456,15 +456,15 @@ void toStringFromBuff(const T value, char buff[std::numeric_limits<T>::digits10 
 #else
     if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
         if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
-            sprintf_s(buff, size, "%lld", static_cast<long long>(value));
+            std::snprintf(buff, size, "%lld", static_cast<long long>(value));
         }
         else {
-            sprintf_s(buff, size, "%llu", static_cast<unsigned long long>(value));
+            std::snprintf(buff, size, "%llu", static_cast<unsigned long long>(value));
         }
         return;
     }
     if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
-        sprintf_s(buff, size, "%Lf", static_cast<long double>(value));
+        std::snprintf(buff, size, "%Lf", static_cast<long double>(value));
         return;
     }
 #endif // __cpp_lib_to_chars
