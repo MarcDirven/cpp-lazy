@@ -10,12 +10,10 @@ namespace internal {
 
 template<class RegexTokenIter>
 class RegexSplitIterator {
-    using Traits = std::iterator_traits<RegexTokenIter>;
-
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = StringView;
-    using difference_type = typename Traits::difference_type;
+    using value_type = BasicStringView<typename RegexTokenIter::regex_type::value_type>;
+    using difference_type = typename RegexTokenIter::difference_type;
     using pointer = FakePointerProxy<value_type>;
     using reference = value_type;
 

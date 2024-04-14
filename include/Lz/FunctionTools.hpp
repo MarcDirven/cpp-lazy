@@ -884,6 +884,17 @@ containsIf(const Iterable& iterable, BinaryPredicate predicate, Execution execut
     return lz::containsIf(std::begin(iterable), std::end(iterable), std::move(predicate), execution);
 }
 
+/**
+ * @brief Check if [beginA, endA) starts with [beginB, endB)
+ *
+ * @param beginA The beginnig of the range to check
+ * @param endA The end of the range to check
+ * @param beginB The begin of the range which should be included in [beginA, endA)
+ * @param endB The end of the range which should be included in [beginA, endA)
+ * @param compare The comparison function to use
+ * @param execution The execution policy.
+ * @return true if [beginA, endA) starts with [beginB, endB), false otherwise.
+ */
 template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
          class Execution = std::execution::sequenced_policy>
 bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
@@ -899,12 +910,32 @@ bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB en
     }
 }
 
+/**
+ * @brief Check if @p a starts with @p b
+ *
+ * @param a The range to check
+ * @param b The range which should start in @p a
+ * @param compare The comparison function to use
+ * @param execution The execution policy.
+ * @return true if a starts with b, false otherwise.
+ */
 template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
          class Execution = std::execution::sequenced_policy>
 bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
     return startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare), execution);
 }
 
+/**
+ * @brief Check if [beginA, endA) ends with [beginB, endB)
+ *
+ * @param beginA The beginnig of the range to check
+ * @param endA The end of the range to check
+ * @param beginB The begin of the range which should end in [beginA, endA)
+ * @param endB The end of the range which should end in [beginA, endA)
+ * @param compare The comparison function to use
+ * @param execution The execution policy.
+ * @return true if [beginA, endA) ends with [beginB, endB), false otherwise.
+ */
 template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to<>,
          class Execution = std::execution::sequenced_policy>
 bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
@@ -917,6 +948,15 @@ bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB
                           execution);
 }
 
+/**
+ * @brief Checks if @p a ends with @p b
+ *
+ * @param a The range to check
+ * @param b The range that should end in @p a
+ * @param compare The comparison function to use
+ * @param execution The execution policy.
+ * @return true if a ends with b, false otherwise.
+ */
 template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to<>,
          class Execution = std::execution::sequenced_policy>
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}, Execution execution = std::execution::seq) {
@@ -1215,17 +1255,45 @@ bool containsIf(const Iterable& iterable, BinaryPredicate predicate) {
     return lz::containsIf(std::begin(iterable), std::end(iterable), std::move(predicate));
 }
 
+/**
+ * @brief Check if [beginA, endA) starts with [beginB, endB)
+ *
+ * @param beginA The beginnig of the range to check
+ * @param endA The end of the range to check
+ * @param beginB The begin of the range which should be included in [beginA, endA)
+ * @param endB The end of the range which should be included in [beginA, endA)
+ * @param compare The comparison function to use
+ * @return true if [beginA, endA) starts with [beginB, endB), false otherwise.
+ */
 template<class IteratorA, class IteratorB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueType<IteratorA>)>
 bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
     return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
 }
 
+/**
+ * @brief Check if @p a starts with @p b
+ *
+ * @param a The range to check
+ * @param b The range which should start in @p a
+ * @param compare The comparison function to use
+ * @return true if a starts with b, false otherwise.
+ */
 template<class IterableA, class IterableB,
          class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool startsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
     return lz::startsWith(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(compare));
 }
 
+/**
+ * @brief Check if [beginA, endA) ends with [beginB, endB)
+ *
+ * @param beginA The beginnig of the range to check
+ * @param endA The end of the range to check
+ * @param beginB The begin of the range which should end in [beginA, endA)
+ * @param endB The end of the range which should end in [beginA, endA)
+ * @param compare The comparison function to use
+ * @return true if [beginA, endA) ends with [beginB, endB), false otherwise.
+ */
 template<class IteratorA, class IteratorB, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueType<IteratorA>)>
 bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {}) {
     std::reverse_iterator<IteratorA> revEndA(std::move(beginA));
@@ -1235,6 +1303,14 @@ bool endsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB
     return lz::startsWith(std::move(revBegA), std::move(revEndA), std::move(revBegB), std::move(revEndB), std::move(compare));
 }
 
+/**
+ * @brief Checks if @p a ends with @p b
+ *
+ * @param a The range to check
+ * @param b The range that should end in @p a
+ * @param compare The comparison function to use
+ * @return true if a ends with b, false otherwise.
+ */
 template<class IterableA, class IterableB,
          class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
 bool endsWith(const IterableA& a, const IterableB& b, BinaryPredicate compare = {}) {
