@@ -63,7 +63,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<Iterator, UnaryPredicate, Execution>
 filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution = std::execution::seq) {
     static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                   "function must return type that can be converted to bool");
-    static_cast<void>(internal::checkForwardAndPolicies<Execution, Iterator>());
+    static_cast<void>(internal::isCompatibleForExecution<Execution, Iterator>());
     return { std::move(begin), std::move(end), std::move(predicate), execution };
 }
 

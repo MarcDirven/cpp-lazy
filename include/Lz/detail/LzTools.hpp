@@ -299,7 +299,7 @@ template<class T>
 constexpr bool IsForwardOrStrongerV = IsForwardOrStronger<T>::value;
 
 template<class Execution, class Iterator>
-constexpr bool checkForwardAndPolicies() {
+constexpr bool isCompatibleForExecution() {
     static_assert(std::is_execution_policy_v<Execution>, "Execution must be of type std::execution::*...");
     constexpr bool isSequenced = IsSequencedPolicyV<Execution>;
     if constexpr (!isSequenced) {

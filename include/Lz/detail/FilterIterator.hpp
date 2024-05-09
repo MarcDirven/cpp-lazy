@@ -28,7 +28,7 @@ public:
     template<class I>
     LZ_CONSTEXPR_CXX_20 I find(I first, I last) {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             return std::find_if(std::move(first), std::move(last), _predicate);
         }
         else {

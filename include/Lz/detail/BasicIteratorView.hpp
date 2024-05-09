@@ -358,7 +358,7 @@ public:
      */
     template<class OutputIterator, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 void copyTo(OutputIterator outputIterator, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, OutputIterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, OutputIterator>()) {
             std::copy(_begin, _end, outputIterator);
         }
         else {
@@ -710,8 +710,8 @@ template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to
          class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableA>>() &&
-                  internal::checkForwardAndPolicies<Execution, internal::IterTypeFromIterable<IterableB>>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, internal::IterTypeFromIterable<IterableA>>() &&
+                  internal::isCompatibleForExecution<Execution, internal::IterTypeFromIterable<IterableB>>()) {
         static_cast<void>(execution);
         return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
     }

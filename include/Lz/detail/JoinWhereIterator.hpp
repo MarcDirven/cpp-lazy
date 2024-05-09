@@ -38,7 +38,7 @@ private:
 
     void findNext() {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (checkForwardAndPolicies<Execution, IterA>()) {
+        if constexpr (isCompatibleForExecution<Execution, IterA>()) {
             _iterA = std::find_if(_iterA, _endA, [this](const ValueType<IterA>& a) {
                 auto&& toFind = _selectorA(a);
                 _iterB =

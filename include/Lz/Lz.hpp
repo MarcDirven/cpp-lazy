@@ -444,7 +444,7 @@ public:
      */
     template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& forEach(UnaryFunc func, Execution execution = std::execution::seq) {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             std::for_each(Base::begin(), Base::end(), std::move(func));
         }
@@ -462,7 +462,7 @@ public:
      */
     template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 T foldl(T&& init, BinaryFunction function, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
         }
@@ -480,7 +480,7 @@ public:
     template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 T foldr(T&& init, BinaryFunction function, Execution execution = std::execution::seq) const {
         auto reverseView = reverse();
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::reduce(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
                                std::forward<T>(init), std::move(function));
@@ -509,7 +509,7 @@ public:
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference max(Compare cmp = {}, Execution execution = std::execution::seq) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
         }
@@ -527,7 +527,7 @@ public:
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference min(Compare cmp = {}, Execution execution = std::execution::seq) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
         }
@@ -556,7 +556,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool all(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::all_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -573,7 +573,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool any(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::any_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -590,7 +590,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool none(UnaryPredicate predicate, Execution execution = std::execution::seq) {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::none_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -606,7 +606,7 @@ public:
      */
     template<class T, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type count(const T& value, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count(Base::begin(), Base::end(), value);
         }
@@ -623,7 +623,7 @@ public:
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type countIf(UnaryPredicate predicate,
                                                              Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count_if(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -639,7 +639,7 @@ public:
      */
     template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& sort(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) {
-        if constexpr (internal::checkForwardAndPolicies<Execution, IterView>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, IterView>()) {
             static_cast<void>(execution);
             std::sort(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -657,7 +657,7 @@ public:
     template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
     isSorted(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
         }

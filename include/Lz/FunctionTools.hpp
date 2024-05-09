@@ -370,7 +370,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 mean(Iterator begin, Iterator end, BinaryOp binaryOp = {}, Execution execution = std::execution::seq) {
     using ValueType = internal::ValueType<Iterator>;
     ValueType sum;
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         sum = std::reduce(begin, end, ValueType{ 0 }, std::move(binaryOp));
     }
@@ -556,7 +556,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double
 median(Iterator begin, Iterator end, Comparer comparer = {}, Execution execution = std::execution::seq) {
     static_assert(internal::IsRandomAccess<Iterator>::value, "Iterator must be random access");
     const internal::DiffType<Iterator> len = end - begin;
-    constexpr bool isSequenced = internal::checkForwardAndPolicies<Execution, Iterator>();
+    constexpr bool isSequenced = internal::isCompatibleForExecution<Execution, Iterator>();
     LZ_ASSERT(len > 0, "the length of the sequence cannot be 0");
     const internal::DiffType<Iterator> mid = len / 2;
     const Iterator midIter = begin + mid;
@@ -608,7 +608,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findFirstOrDefault(Iterator begin, Iterator end, const T& toFind, const U& defaultValue,
                    Execution execution = std::execution::seq) {
     using ValueType = internal::ValueType<Iterator>;
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         return static_cast<ValueType>(std::find(std::move(begin), end, toFind) == end ? defaultValue : toFind);
     }
@@ -647,7 +647,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::ValueType<Iterator>
 findFirstOrDefaultIf(Iterator begin, Iterator end, UnaryPredicate predicate, const T& defaultValue,
                      Execution execution = std::execution::seq) {
     using ValueType = internal::ValueType<Iterator>;
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find_if(std::move(begin), end, std::move(predicate));
         return static_cast<ValueType>(pos == end ? defaultValue : *pos);
@@ -755,7 +755,7 @@ findLastOrDefaultIf(const Iterable& iterable, UnaryPredicate predicate, const T&
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class T>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t
 indexOf(Iterator begin, Iterator end, const T& val, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find(begin, end, val);
         return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
@@ -793,7 +793,7 @@ indexOf(const Iterable& iterable, const T& val, Execution execution = std::execu
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERATOR Iterator, class UnaryFunc>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::size_t
 indexOfIf(Iterator begin, Iterator end, UnaryFunc predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find_if(begin, end, std::move(predicate));
         return pos == end ? npos : static_cast<std::size_t>(std::distance(begin, pos));
@@ -828,7 +828,7 @@ indexOfIf(const Iterable& iterable, UnaryFunc predicate, Execution execution = s
 template<LZ_CONCEPT_ITERATOR Iterator, class T, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 contains(Iterator begin, Iterator end, const T& value, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         return std::find(begin, end, value) != end;
     }
@@ -860,7 +860,7 @@ contains(const Iterable& iterable, const T& value, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class BinaryPredicate, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 containsIf(Iterator begin, Iterator end, BinaryPredicate predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         const Iterator pos = std::find_if(begin, end, std::move(predicate));
         return pos != end;
@@ -899,7 +899,7 @@ template<class IteratorA, class IteratorB, class BinaryPredicate = std::equal_to
          class Execution = std::execution::sequenced_policy>
 bool startsWith(IteratorA beginA, IteratorA endA, IteratorB beginB, IteratorB endB, BinaryPredicate compare = {},
                 Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, IteratorA>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, IteratorA>()) {
         return std::search(std::move(beginA), std::move(endA), std::move(beginB), std::move(endB), std::move(compare)) != endA;
     }
     else {
