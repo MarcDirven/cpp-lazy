@@ -519,15 +519,15 @@ public:
         return _size;
     }
 
-    constexpr const CharT& operator[](std::size_t index) const {
+    constexpr const CharT& operator[](const std::size_t index) const {
         return _data[index];
     }
 
-    constexpr BasicStringView substr(std::size_t pos, std::size_t count) const {
+    constexpr BasicStringView substr(const std::size_t pos, const std::size_t count) const noexcept {
         return { _data + pos, count };
     }
 
-    constexpr BasicStringView substr(std::size_t pos) const {
+    constexpr BasicStringView substr(const std::size_t pos) const noexcept {
         return { _data + pos, _size - pos };
     }
 
@@ -552,7 +552,7 @@ public:
         _size -= n;
     }
 
-    LZ_CONSTEXPR_CXX_17 bool contains(const BasicStringView& str) const noexcept {
+    LZ_CONSTEXPR_CXX_17 bool contains(const BasicStringView str) const noexcept {
         return find(str) != npos;
     }
 
@@ -565,27 +565,27 @@ public:
         return std::basic_string<CharT>(_data, _size);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const BasicStringView other) const noexcept {
         return _size == other._size && std::char_traits<CharT>::compare(_data, other._data, _size) == 0;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const BasicStringView other) const noexcept {
         return !(*this == other);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const BasicStringView other) const noexcept {
         return std::char_traits<CharT>::compare(_data, other._data, std::min(_size, other._size)) < 0;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const BasicStringView other) const noexcept {
         return other < *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const BasicStringView other) const noexcept {
         return !(*this > other);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const BasicStringView& other) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const BasicStringView other) const noexcept {
         return !(*this < other);
     }
 
@@ -613,35 +613,35 @@ public:
         return !(*this < str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const CharT* str) const noexcept {
         return *this == BasicStringView(str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const CharT* str) const noexcept {
         return !(*this == str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const CharT* str) const noexcept {
         return *this < BasicStringView(str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const CharT* str) const noexcept {
         return *this > BasicStringView(str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const CharT* str) const noexcept {
         return !(*this > str);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const CharT* str) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const CharT* str) const noexcept {
         return !(*this < str);
     }
-    
+
     explicit operator std::basic_string<CharT>() const {
         return toStdString();
     }
 
-    LZ_CONSTEXPR_CXX_17 std::size_t find(const BasicStringView& str, std::size_t pos = 0) const noexcept {
+    LZ_CONSTEXPR_CXX_17 std::size_t find(const BasicStringView str, std::size_t pos = 0) const noexcept {
         if (pos > _size) {
             return npos;
         }
@@ -660,7 +660,7 @@ private:
 using StringView = BasicStringView<char>;
 
 template<typename CharT>
-std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT>& view) {
+std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT> view) {
     return os.write(view.data(), view.size());
 }
 #else
