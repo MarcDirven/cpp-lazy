@@ -31,7 +31,7 @@ public:
     constexpr MapIterator() = default;
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
-        return _function(std::forward<It>(*_iterator));
+        return _function(*_iterator);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
