@@ -439,240 +439,70 @@ DiffType<Iter> sizeHint(Iter first, Iter last) {
 }
 
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
-void toStringFromBuff(const char value, char buff[std::numeric_limits<char>::digits10 + 3]) {
+template<class T>
+struct SafeBufferSize : std::integral_constant<std::size_t, std::numeric_limits<T>::digits10 + 3> {};
+
+template<>
+struct SafeBufferSize<bool> : std::integral_constant<std::size_t, sizeof("false") - 1> {};
+
+inline void toStringFromBuff(const char value, char buff[SafeBufferSize<char>::value]) {
     buff[0] = value;
-    std::fill(buff + 1, buff + std::numeric_limits<char>::digits10 + 3, '\0');
+    std::fill(buff + 1, buff + SafeBufferSize<char>::value, '\0');
 }
 
-void toStringFromBuff(const bool value, char buff[6]) {
-    std::snprintf(buff, static_cast<std::size_t>(std::end(buff) - std::end(buf)), "%s", value ? "true" : "false");
+inline void toStringFromBuff(const bool value, char buff[SafeBufferSize<bool>::value]) {
+    std::snprintf(buff, SafeBufferSize<bool>::value, "%s", value ? "true" : "false");
+}
+
+#if !defined(__cpp_lib_to_chars) && !defined(__cpp_if_constexpr)
+template<class TCast, class T>
+void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value], const char* fmt) {
+    std::snprintf(buff, SafeBufferSize<T>::value, fmt, static_cast<TCast>(value));
+}
+#endif // !defined(__cpp_lib_to_chars) && !defined(__cpp_if_constexpr)
+
+#ifdef __cpp_lib_to_chars
+template<class T>
+void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
+    std::to_chars(std::begin(buff), std::end(buff), value);
+}
+#elif defined(__cpp_if_constexpr)
+template<class T>
+void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
+    if constexpr (std::is_integral<T>::value) {
+        if constexpr (std::is_signed<T>::value) {
+            toStringFromBuff<long long>(value, buff, "%lld");
+        }
+        else {
+            toStringFromBuff<unsigned long long>(value, buff, "%llu");
+        }
+        return;
+    }
+    else if constexpr (std::is_floating_point<T>::value) {
+        toStringFromBuff<long double>(value, buff, "%Lf");
+    }
+}
+#else
+template<class T>
+EnableIf<std::is_integral<T>::value && std::is_signed<T>::value>
+toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
+    toStringFromBuff<long long>(value, buff, "%lld");
 }
 
 template<class T>
-void toStringFromBuff(const T value, char buff[std::numeric_limits<T>::digits10 + 3]) {
-    constexpr static auto size = std::numeric_limits<T>::digits10 + 3;
-#ifdef __cpp_lib_to_chars
-    std::to_chars(std::begin(buff), std::end(buff), value);
-#else
-    if LZ_CONSTEXPR_IF (std::is_integral<T>::value) {
-        if LZ_CONSTEXPR_IF (std::is_signed<T>::value) {
-            std::snprintf(buff, size, "%lld", static_cast<long long>(value));
-        }
-        else {
-            std::snprintf(buff, size, "%llu", static_cast<unsigned long long>(value));
-        }
-        return;
-    }
-    if LZ_CONSTEXPR_IF (std::is_floating_point<T>::value) {
-        std::snprintf(buff, size, "%Lf", static_cast<long double>(value));
-        return;
-    }
-#endif // __cpp_lib_to_chars
+EnableIf<std::is_integral<T>::value && !std::is_signed<T>::value>
+toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
+    toStringFromBuff<unsigned long long>(value, buff, "%llu");
 }
+
+template<class T>
+EnableIf<std::is_floating_point<T>::value> toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
+    toStringFromBuff<long double>(value, buff, "%Lf");
+}
+#endif
 #endif // if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
 } // namespace internal
-
-LZ_MODULE_EXPORT_SCOPE_BEGIN
-
-#if defined(LZ_HAS_STRING_VIEW)
-template<class C>
-using BasicStringView = std::basic_string_view<C>;
-
-using StringView = std::string_view;
-#elif defined(LZ_STANDALONE)
-template<class CharT>
-class BasicStringView {
-public:
-    static constexpr std::size_t npos = static_cast<std::size_t>(-1);
-
-    BasicStringView() = default;
-
-    constexpr BasicStringView(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
-    }
-
-    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
-    }
-
-    constexpr BasicStringView(const CharT* begin, const CharT* end) noexcept :
-        _data(begin),
-        _size(static_cast<std::size_t>(end - begin)) {
-    }
-
-    constexpr const CharT* data() const noexcept {
-        return _data;
-    }
-
-    constexpr std::size_t size() const noexcept {
-        return _size;
-    }
-
-    constexpr const CharT* begin() const noexcept {
-        return _data;
-    }
-
-    constexpr const CharT* end() const noexcept {
-        return _data + _size;
-    }
-
-    constexpr std::size_t length() const noexcept {
-        return _size;
-    }
-
-    constexpr const CharT& operator[](const std::size_t index) const {
-        return _data[index];
-    }
-
-    constexpr BasicStringView substr(const std::size_t pos, const std::size_t count) const noexcept {
-        return { _data + pos, count };
-    }
-
-    constexpr BasicStringView substr(const std::size_t pos) const noexcept {
-        return { _data + pos, _size - pos };
-    }
-
-    constexpr bool empty() const noexcept {
-        return _size == 0;
-    }
-
-    constexpr const CharT& front() const {
-        return _data[0];
-    }
-
-    constexpr const CharT& back() const {
-        return _data[_size - 1];
-    }
-
-    constexpr void remove_prefix(const std::size_t n) noexcept {
-        _data += n;
-        _size -= n;
-    }
-
-    constexpr void remove_suffix(const std::size_t n) noexcept {
-        _size -= n;
-    }
-
-    LZ_CONSTEXPR_CXX_17 bool contains(const BasicStringView str) const noexcept {
-        return find(str) != npos;
-    }
-
-    void swap(BasicStringView& other) noexcept {
-        std::swap(_data, other._data);
-        std::swap(_size, other._size);
-    }
-
-    std::basic_string<CharT> toStdString() const {
-        return std::basic_string<CharT>(_data, _size);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const BasicStringView other) const noexcept {
-        return _size == other._size && std::char_traits<CharT>::compare(_data, other._data, _size) == 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const BasicStringView other) const noexcept {
-        return !(*this == other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const BasicStringView other) const noexcept {
-        return std::char_traits<CharT>::compare(_data, other._data, std::min(_size, other._size)) < 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const BasicStringView other) const noexcept {
-        return other < *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const BasicStringView other) const noexcept {
-        return !(*this > other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const BasicStringView other) const noexcept {
-        return !(*this < other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const std::basic_string<CharT>& str) const {
-        return *this == BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const std::basic_string<CharT>& str) const {
-        return !(*this == str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const std::basic_string<CharT>& str) const {
-        return *this < BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const std::basic_string<CharT>& str) const {
-        return *this > BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const std::basic_string<CharT>& str) const {
-        return !(*this > str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const std::basic_string<CharT>& str) const {
-        return !(*this < str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const CharT* str) const noexcept {
-        return *this == BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const CharT* str) const noexcept {
-        return !(*this == str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const CharT* str) const noexcept {
-        return *this < BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const CharT* str) const noexcept {
-        return *this > BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const CharT* str) const noexcept {
-        return !(*this > str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const CharT* str) const noexcept {
-        return !(*this < str);
-    }
-
-    explicit operator std::basic_string<CharT>() const {
-        return toStdString();
-    }
-
-    LZ_CONSTEXPR_CXX_17 std::size_t find(const BasicStringView str, std::size_t pos = 0) const noexcept {
-        if (pos > _size) {
-            return npos;
-        }
-        const auto result = std::char_traits<CharT>::find(_data + pos, _size - pos, str.front());
-        if (result == nullptr) {
-            return npos;
-        }
-        return static_cast<std::size_t>(result - _data);
-    }
-
-private:
-    const CharT* _data{ nullptr };
-    std::size_t _size{};
-};
-
-using StringView = BasicStringView<char>;
-
-template<typename CharT>
-std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT> view) {
-    return os.write(view.data(), view.size());
-}
-#else
-
-template<class C>
-using BasicStringView = fmt::basic_string_view<C>;
-
-using StringView = fmt::string_view;
-#endif
-
-LZ_MODULE_EXPORT_SCOPE_END
-
 } // namespace lz
 
 #endif // LZ_LZ_TOOLS_HPP
