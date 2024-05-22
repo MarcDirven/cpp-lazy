@@ -21,7 +21,7 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     std::string toSplit = "hello, world";
     auto splitter = lz::split(toSplit, ", ");
     REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
-    REQUIRE(std::is_same<decltype(*splitter.begin()), lz::StringView>::value);
+    static_assert(std::is_same<decltype(*splitter.begin()), lz::StringView>::value, "Should be StringView");
 
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
