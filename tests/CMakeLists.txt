@@ -57,6 +57,7 @@ add_executable(cpp-lazy-tests
 	rotate-tests.cpp
 	standalone-tests.cpp
 	string-splitter-tests.cpp
+	string-view-tests.cpp
 	take-every-tests.cpp
 	take-tests.cpp
 	unique-tests.cpp
