@@ -446,12 +446,12 @@ inline void toStringFromBuff(const bool value, char buff[SafeBufferSize<bool>::v
     std::snprintf(buff, SafeBufferSize<bool>::value, "%s", value ? "true" : "false");
 }
 
-#if !defined(__cpp_lib_to_chars) && !defined(__cpp_if_constexpr)
+#if !defined(__cpp_lib_to_chars)
 template<class TCast, class T>
 void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value], const char* fmt) {
     std::snprintf(buff, SafeBufferSize<T>::value, fmt, static_cast<TCast>(value));
 }
-#endif // !defined(__cpp_lib_to_chars) && !defined(__cpp_if_constexpr)
+#endif // !defined(__cpp_lib_to_chars)
 
 #ifdef __cpp_lib_to_chars
 template<class T>
