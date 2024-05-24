@@ -1,5 +1,3 @@
-#define LZ_STANDALONE
-
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <Lz/StringSplitter.hpp>

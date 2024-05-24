@@ -1,9 +1,7 @@
+#include <Lz/StringView.hpp>
 
 #undef LZ_HAS_STRING_VIEW
-#define LZ_STANDALONE
 #undef LZ_HAS_FORMAT
-
-#include <Lz/StringView.hpp>
 
 #include <catch2/catch.hpp>
 
