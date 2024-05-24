@@ -4,7 +4,7 @@
 #define LZ_BASIC_ITERATOR_VIEW_HPP
 
 #include "LzTools.hpp"
-#include "StringView.hpp"
+#include "Lz/StringView.hpp"
 
 #include <algorithm>
 #include <array>
