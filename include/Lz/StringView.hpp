@@ -83,12 +83,12 @@ public:
         return _data[_size - 1];
     }
 
-    constexpr void remove_prefix(const std::size_t n) noexcept {
+    LZ_CONSTEXPR_CXX_14 void remove_prefix(const std::size_t n) noexcept {
         _data += n;
         _size -= n;
     }
 
-    constexpr void remove_suffix(const std::size_t n) noexcept {
+    LZ_CONSTEXPR_CXX_14 void remove_suffix(const std::size_t n) noexcept {
         _size -= n;
     }
 
