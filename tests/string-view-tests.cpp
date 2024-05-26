@@ -36,6 +36,25 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
         CHECK(static_cast<std::string>(view) == str);
     }
 
+    SECTION("Prefix and suffix removal") {
+        view = lz::StringView("Hello world");
+        view.remove_prefix(6);
+        CHECK(view == "world");
+        view = lz::StringView("Hello world");
+        view.remove_suffix(5);
+        CHECK(view == "Hello");
+    }
+
+    SECTION("Contains") {
+        CHECK(view.contains("Hello"));
+    }
+
+    SECTION("Find") {
+        CHECK(view.find("world") == 6);
+        CHECK(view.find("Hello") == 0);
+        CHECK(view.find("zzz") == lz::StringView::npos);
+    }
+
     SECTION("Operator==") {
         CHECK(view == str);
     }
