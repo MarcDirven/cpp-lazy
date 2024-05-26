@@ -1,7 +1,6 @@
-#include <Lz/StringView.hpp>
+#if !defined(LZ_HAS_STRING_VIEW)
 
-#undef LZ_HAS_STRING_VIEW
-#undef LZ_HAS_FORMAT
+#include <Lz/StringView.hpp>
 
 #include <catch2/catch.hpp>
 
@@ -63,3 +62,4 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
         CHECK(view[9] == str[9]);
     }
 }	
+#endif
