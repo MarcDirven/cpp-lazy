@@ -192,10 +192,14 @@ public:
         return static_cast<std::size_t>(result - _data);
     }
 
-private:
-    const CharT* _data{ nullptr };
-    std::size_t _size{};
-};
+    LZ_CONSTEXPR_CXX_17 std::size_t find(const char c, std::size_t pos = 0) const noexcept {
+        return std::char_traits<CharT>::find(_data + pos, _size - pos, c) - _data;
+    }
+
+    private:
+        const CharT* _data{ nullptr };
+        std::size_t _size{};
+    };
 
 using StringView = BasicStringView<char>;
 
