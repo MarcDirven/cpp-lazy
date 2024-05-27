@@ -1,3 +1,5 @@
+#include <Lz/detail/LzTools.hpp>
+
 #if !defined(LZ_HAS_STRING_VIEW)
 
 #include <Lz/StringView.hpp>
