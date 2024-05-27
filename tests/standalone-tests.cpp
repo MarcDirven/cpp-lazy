@@ -29,4 +29,9 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 #else
     CHECK(doubles == "1.100000, 2.200000, 3.300000, 4.400000");
 #endif
+
+    char charMap[] = { 'a', 'b', 'c', 'd' };
+    auto charJoined = lz::join(charMap, ", ").toString();
+    REQUIRE(charJoined == "a, b, c, d");
+    REQUIRE(lz::map(charMap, [](char c) { return static_cast<char>(c + 1); }).toString(" ") == "b c d e");
 }

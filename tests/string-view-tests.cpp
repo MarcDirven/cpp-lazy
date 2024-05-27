@@ -44,7 +44,7 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
         CHECK(view == "world");
         view = lz::StringView("Hello world");
         view.remove_suffix(5);
-        CHECK(view == "Hello");
+        CHECK(view == "Hello ");
     }
 
     SECTION("Contains") {

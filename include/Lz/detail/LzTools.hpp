@@ -435,7 +435,7 @@ template<class T>
 struct SafeBufferSize : std::integral_constant<std::size_t, std::numeric_limits<T>::digits10 + 3> {};
 
 template<>
-struct SafeBufferSize<bool> : std::integral_constant<std::size_t, sizeof("false") - 1> {};
+struct SafeBufferSize<bool> : std::integral_constant<std::size_t, sizeof("false") + 1> {};
 
 inline void toStringFromBuff(const char value, char buff[SafeBufferSize<char>::value]) {
     buff[0] = value;
