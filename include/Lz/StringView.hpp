@@ -196,10 +196,13 @@ public:
         return std::char_traits<CharT>::find(_data + pos, _size - pos, c) - _data;
     }
 
-    private:
-        const CharT* _data{ nullptr };
-        std::size_t _size{};
-    };
+private:
+    const CharT* _data{ nullptr };
+    std::size_t _size{};
+};
+
+template<class CharT>
+constexpr std::size_t BasicStringView<CharT>::npos;
 
 using StringView = BasicStringView<char>;
 
