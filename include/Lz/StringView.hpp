@@ -102,7 +102,7 @@ public:
     }
 
     std::basic_string<CharT> toStdString() const {
-        return std::basic_string<CharT>(_data, _size);
+        return { _data, _size };
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const BasicStringView other) const noexcept {
