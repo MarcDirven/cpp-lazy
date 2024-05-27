@@ -61,7 +61,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             _iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
         }
         else {

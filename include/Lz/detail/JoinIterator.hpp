@@ -26,13 +26,13 @@ EnableIf<!std::is_arithmetic<T>::value, std::string> toString(const T& value) {
 
 template<class T>
 EnableIf<std::is_arithmetic<T>::value, std::string> toString(const T value) {
-    char buff[std::numeric_limits<T>::digits10 + 3]{};
+    char buff[SafeBufferSize<T>::value]{};
     toStringFromBuff(value, buff);
     return buff;
 }
 
-std::string toString(const bool value) {
-    char buff[6]{};
+inline std::string toString(const bool value) {
+    char buff[SafeBufferSize<bool>::value]{};
     toStringFromBuff(value, buff);
     return buff;
 }

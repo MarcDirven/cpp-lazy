@@ -36,7 +36,7 @@ private:
 #endif // LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 void find() {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
                 return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
             });

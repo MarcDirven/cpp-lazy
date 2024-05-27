@@ -1,5 +1,3 @@
-#define LZ_STANDALONE
-
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <Lz/StringSplitter.hpp>
@@ -21,7 +19,7 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     std::string toSplit = "hello, world";
     auto splitter = lz::split(toSplit, ", ");
     REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
-    REQUIRE(std::is_same<decltype(*splitter.begin()), lz::StringView>::value);
+    static_assert(std::is_same<decltype(*splitter.begin()), lz::StringView>::value, "Should be StringView");
 
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
@@ -31,4 +29,9 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 #else
     CHECK(doubles == "1.100000, 2.200000, 3.300000, 4.400000");
 #endif
+
+    char charMap[] = { 'a', 'b', 'c', 'd' };
+    auto charJoined = lz::join(charMap, ", ").toString();
+    REQUIRE(charJoined == "a, b, c, d");
+    REQUIRE(lz::map(charMap, [](char c) { return static_cast<char>(c + 1); }).toString(" ") == "b c d e");
 }

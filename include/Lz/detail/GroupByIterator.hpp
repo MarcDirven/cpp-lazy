@@ -37,7 +37,7 @@ class GroupByIterator {
         Ref next = *_subRangeEnd;
         ++_subRangeEnd;
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
             _subRangeEnd = std::find_if(std::move(_subRangeEnd), _end,
                                         [this, &next](const IterValueType& v) { return !_comparer(v, next); });
         }

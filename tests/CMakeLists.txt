@@ -57,12 +57,18 @@ add_executable(cpp-lazy-tests
 	rotate-tests.cpp
 	standalone-tests.cpp
 	string-splitter-tests.cpp
+	string-view-tests.cpp
 	take-every-tests.cpp
 	take-tests.cpp
 	unique-tests.cpp
 	zip-longest-tests.cpp
 	zip-tests.cpp
 )
+
+set_source_files_properties(string-view-tests.cpp PROPERTIES COMPILE_DEFINITIONS "LZ_STANDALONE")
+
+set_source_files_properties(standalone-tests.cpp PROPERTIES COMPILE_DEFINITIONS "LZ_STANDALONE")
+
 target_compile_options(cpp-lazy-tests
 	PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX /diagnostics:caret>

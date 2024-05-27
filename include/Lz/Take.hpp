@@ -48,7 +48,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator> view(Iter
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         end = std::find_if_not(begin, end, std::move(predicate));
     }
     else {
@@ -87,7 +87,7 @@ takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::ex
 template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
 dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::checkForwardAndPolicies<Execution, Iterator>()) {
+    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
         begin = std::find_if_not(std::move(begin), end, std::move(predicate));
     }
