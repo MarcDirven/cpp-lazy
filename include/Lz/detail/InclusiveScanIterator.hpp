@@ -12,6 +12,7 @@ class InclusiveScanIterator {
     T _reducer{};
     FunctionContainer<BinaryOp> _binaryOp{};
     Iterator _iterator{};
+    Iterator _end{};
 
     using IterTraits = std::iterator_traits<Iterator>;
 
@@ -24,10 +25,11 @@ public:
 
     constexpr InclusiveScanIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 InclusiveScanIterator(Iterator iterator, T init, BinaryOp binaryOp) :
+    LZ_CONSTEXPR_CXX_14 InclusiveScanIterator(Iterator iterator, Iterator end, T init, BinaryOp binaryOp) :
         _reducer(std::move(init)),
         _binaryOp(std::move(binaryOp)),
-        _iterator(std::move(iterator)) {
+        _iterator(std::move(iterator)),
+        _end(std::move(end)) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename std::remove_reference<reference>::type const& operator*() const {
@@ -40,7 +42,9 @@ public:
 
     LZ_CONSTEXPR_CXX_20 InclusiveScanIterator& operator++() {
         ++_iterator;
-        _reducer = _binaryOp(std::move(_reducer), *_iterator);
+        if (_iterator != _end) {
+            _reducer = _binaryOp(std::move(_reducer), *_iterator);
+        }
         return *this;
     }
 
