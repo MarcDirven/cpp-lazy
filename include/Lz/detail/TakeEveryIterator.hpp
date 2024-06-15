@@ -239,7 +239,7 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type
     operator-(const TakeEveryIterator& a, const TakeEveryIterator& b) {
         LZ_ASSERT(a._offset == b._offset, "incompatible iterator types: different offsets");
-        return roundEven(a._iterator - b._iterator, a._offset);
+        return roundEven<difference_type>(a._iterator - b._iterator, a._offset);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {

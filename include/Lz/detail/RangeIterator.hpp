@@ -15,7 +15,7 @@ std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference, const Va
         return static_cast<std::ptrdiff_t>(std::ceil(difference / step));
     }
     else {
-        return static_cast<std::ptrdiff_t>(roundEven(difference, step));
+        return roundEven<std::ptrdiff_t>(difference, step);
     }
 }
 #else
@@ -27,7 +27,7 @@ EnableIf<std::is_floating_point<ValueType>::value, std::ptrdiff_t> plusImpl(cons
 template<class ValueType>
 LZ_CONSTEXPR_CXX_14 EnableIf<!std::is_floating_point<ValueType>::value, std::ptrdiff_t>
 plusImpl(const ValueType difference, const ValueType step) noexcept {
-    return static_cast<std::ptrdiff_t>(roundEven(difference, step));
+    return roundEven<std::ptrdiff_t>(difference, step);
 }
 #endif // __cpp_if_constexpr
 
@@ -78,15 +78,17 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD friend difference_type
+    LZ_NODISCARD friend std::ptrdiff_t
     LZ_CONSTEXPR_CXX_20 operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
         LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
         const auto difference = a._iterator - b._iterator;
-        const auto result = plusImpl(static_cast<Arithmetic>(difference), a._step);
+        
         if LZ_CONSTEXPR_IF (std::is_floating_point<Arithmetic>::value) {
+            const auto result = plusImpl(static_cast<Arithmetic>(difference), a._step);
             return std::abs(result);
         }
         else {
+            const auto result = plusImpl(static_cast<std::ptrdiff_t>(difference), static_cast<std::ptrdiff_t>(a._step));
             return result < 0 ? -result : result;
         }
     }

@@ -405,19 +405,19 @@ template<class... Ts>
 LZ_CONSTEXPR_CXX_14 void decompose(const Ts&...) noexcept {
 }
 
-template<LZ_CONCEPT_INTEGRAL Arithmetic>
-LZ_CONSTEXPR_CXX_14 Arithmetic roundEven(const Arithmetic a, const Arithmetic b) noexcept {
+template<class Result, LZ_CONCEPT_INTEGRAL Arithmetic>
+LZ_CONSTEXPR_CXX_14 Result roundEven(const Arithmetic a, const Arithmetic b) noexcept {
     LZ_ASSERT(a != 0 && b != 0, "division by zero error");
     if (b == 1) {
-        return a;
+        return static_cast<Result>(a);
     }
     if (b == -1) {
-        return -a;
+        return -static_cast<Result>(a);
     }
     if (isEven(a) && isEven(b)) {
-        return static_cast<Arithmetic>(a / b);
+        return static_cast<Result>(a / b);
     }
-    return static_cast<Arithmetic>(a / b) + 1;
+    return static_cast<Result>(a / b) + 1;
 }
 
 template<class Iter>
