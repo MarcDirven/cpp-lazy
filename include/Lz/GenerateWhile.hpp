@@ -49,7 +49,7 @@ public:
 template<class GeneratorFunc, class... Args>
 LZ_NODISCARD constexpr GenerateWhile<internal::Decay<GeneratorFunc>, internal::Decay<Args>...>
 generateWhile(GeneratorFunc&& generatorFunc, Args&&... args) {
-    using Pair = decltype(generatorFunc(std::declval<typename std::add_lvalue_reference<Args>::type>()...));
+    using Pair = decltype(generatorFunc(args...));
     using PairFirst = decltype(std::get<0>(std::declval<Pair>()));
 
     static_assert(std::is_convertible<internal::Decay<PairFirst>, bool>::value,

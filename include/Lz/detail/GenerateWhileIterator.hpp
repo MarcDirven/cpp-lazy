@@ -10,10 +10,11 @@ namespace internal {
 template<class GeneratorFunc, class... Args>
 class GenerateWhileIterator {
     using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
-    mutable TupleInvoker _tupleInvoker{};
-    mutable std::tuple<Args...> _args{};
+    TupleInvoker _tupleInvoker{};
+    std::tuple<Args...> _args{};
 
     using FunctionReturnType = decltype(_tupleInvoker(_args));
+    using PairSecond = typename std::tuple_element<1, FunctionReturnType>::type;
     FunctionReturnType _lastReturned;
 
 public:
@@ -36,11 +37,11 @@ public:
         }
     }
 
-    LZ_NODISCARD constexpr reference operator*() {
+    LZ_NODISCARD constexpr PairSecond operator*() const {
         return std::get<1>(_lastReturned);
     }
 
-    LZ_NODISCARD constexpr pointer operator->() {
+    LZ_NODISCARD constexpr pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
