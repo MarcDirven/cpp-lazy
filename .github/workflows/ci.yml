@@ -148,7 +148,7 @@ jobs:
       - name: Run sccache-cache
         uses: mozilla/sccache-action@main
         with:
-          version: "v0.3.3"
+          version: "v0.8.1"
 
       - name: Configure (install)
         run: cmake -S . -B build/install

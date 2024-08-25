@@ -170,7 +170,8 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 JoinIterator& operator+=(const difference_type offset) {
-        _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, 2) * -1 : roundEven<difference_type>(offset, 2);
+        _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, static_cast<difference_type>(2)) * -1 : 
+                                  roundEven<difference_type>(offset, static_cast<difference_type>(2));
         if (!isEven(offset)) {
             _isIteratorTurn = !_isIteratorTurn;
         }

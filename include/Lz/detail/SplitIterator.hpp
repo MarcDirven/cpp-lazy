@@ -15,7 +15,7 @@ std::size_t getDelimiterLength(const CharT* delimiter) {
 }
 
 template<class CharT, std::size_t N>
-std::size_t getDelimiterLength(const CharT (&delimiter)[N]) {
+std::size_t getDelimiterLength(const CharT (& /*delimiter*/)[N]) {
     LZ_ASSERT(N > 0, "delimiter must have a length of at least 1");
     return N - 1;
 }

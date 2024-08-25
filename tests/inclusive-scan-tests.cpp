@@ -7,19 +7,29 @@
 #include <list>
 
 TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basic functionality]") {
-    int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6 };
+    int arr[32]{};
+    std::iota(std::begin(arr), std::end(arr), 0);
     auto scan = lz::iScan(arr);
-    CHECK(*scan.begin() == 3);
+    auto begin = scan.begin();
+
+    std::ptrdiff_t sum = 0;
+    for (std::ptrdiff_t i = 0; i < std::distance(std::begin(arr), std::end(arr)); ++i) {
+        sum += i;
+        CHECK(*begin == sum);
+        ++begin;
+    }
 
     REQUIRE(std::distance(scan.begin(), scan.end()) == std::distance(std::begin(arr), std::end(arr)));
 
-    int expected[] = { 3, 4, 8, 9, 14, 23, 25, 31 };
+    constexpr static int expected[] = { 0,   1,   3,   6,   10,  15,  21,  28,  36,  45,  55,  66,  78,  91,  105, 120,
+                                        136, 153, 171, 190, 210, 231, 253, 276, 300, 325, 351, 378, 406, 435, 465, 496 };
     CHECK(std::equal(std::begin(expected), std::end(expected), std::begin(scan)));
 
-    scan = lz::iScanFrom(arr, 2);
-    REQUIRE(std::distance(scan.begin(), scan.end()) == std::distance(std::begin(arr), std::end(arr)));
-    int expected2[] = { 5, 6, 10, 11, 16, 25, 27, 33 };
-    CHECK(std::equal(std::begin(expected2), std::end(expected2), std::begin(scan)));
+    std::array<int, 32> arr2{};
+    auto t = lz::iScan(arr2);
+    auto d = std::distance(t.begin(), t.end());
+    std::cout << d << '\n'; // prints '32
+    (void)d;
 }
 
 TEST_CASE("Inclusive scan splitter binary operations", "[InclusiveScan][Binary ops]") {

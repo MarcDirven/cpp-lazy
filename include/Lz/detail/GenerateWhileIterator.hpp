@@ -10,15 +10,16 @@ namespace internal {
 template<class GeneratorFunc, class... Args>
 class GenerateWhileIterator {
     using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
-    mutable TupleInvoker _tupleInvoker{};
-    mutable std::tuple<Args...> _args{};
+    TupleInvoker _tupleInvoker{};
+    std::tuple<Args...> _args{};
 
     using FunctionReturnType = decltype(_tupleInvoker(_args));
+    using PairSecond = typename std::tuple_element<1, FunctionReturnType>::type;
     FunctionReturnType _lastReturned;
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = typename FunctionReturnType::second_type;
+    using reference = decltype(std::get<1>(_lastReturned));
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
@@ -26,20 +27,21 @@ public:
     constexpr GenerateWhileIterator() = default;
 
     template<class P>
-    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator, P p) :
+    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator, P&& p) :
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
-        _lastReturned(std::move(p)) {
+        _lastReturned(std::forward<P>(p)) {
         if (isEndIterator) {
-            std::get<0>(_lastReturned) = static_cast<typename FunctionReturnType::first_type>(false);
+            using FirstType = Decay<decltype(std::get<0>(_lastReturned))>;
+            std::get<0>(_lastReturned) = static_cast<FirstType>(false);
         }
     }
 
-    LZ_NODISCARD constexpr reference operator*() {
-        return _lastReturned.second;
+    LZ_NODISCARD constexpr PairSecond operator*() const {
+        return std::get<1>(_lastReturned);
     }
 
-    LZ_NODISCARD constexpr pointer operator->() {
+    LZ_NODISCARD constexpr pointer operator->() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 

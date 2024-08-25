@@ -1,50 +1,122 @@
-#include <benchmark/benchmark.h>
-#include <utility>
-#include <sstream>
-
 #include <Lz/Lz.hpp>
+#include <benchmark/benchmark.h>
+#include <sstream>
+#include <utility>
 
+namespace {
+constexpr std::size_t SizePolicy = 32;
 
-constexpr static size_t SizePolicy = 32;
-
-static void CartesianProduct(benchmark::State& state) {
+void CartesianProduct(benchmark::State& state) {
     std::array<int, SizePolicy / 8> a{};
     std::array<char, SizePolicy / 4> b{};
-    auto cartesian = lz::cartesian(a, b);
 
     for (auto _ : state) {
-        for (auto&& tup : cartesian) {
+        for (auto&& tup : lz::cartesian(a, b)) {
             benchmark::DoNotOptimize(tup);
         }
     }
 }
 
-static void ChunkIf(benchmark::State& state) {
-	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
-	auto half = static_cast<int>(SizePolicy / 2);
-	auto chunk = lz::chunkIf(a, [half](int i) noexcept { return i == half; });
-	for (auto _ : state) {
-		for (auto&& x : chunk) {
-			for (int y : x) {
-				benchmark::DoNotOptimize(y);
-			}
+void ChunkIf(benchmark::State& state) {
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    constexpr static auto half = static_cast<int>(SizePolicy / 2);
 
-		}
-	}
+    for (auto _ : state) {
+        for (auto&& x : lz::chunkIf(a, [](int i) noexcept { return i == half; })) {
+            for (int y : x) {
+                benchmark::DoNotOptimize(y);
+            }
+        }
+    }
 }
 
-static void Chunks(benchmark::State& state) {
-	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
-	for (auto _ : state) {
-		for (auto&& chunk : lz::chunks(a, 8)) {
-			for (int x : chunk) {
-				benchmark::DoNotOptimize(x);
-			}
-		}
-	}
+void Chunks(benchmark::State& state) {
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    for (auto _ : state) {
+        for (auto&& chunk : lz::chunks(a, 8)) {
+            for (int x : chunk) {
+                benchmark::DoNotOptimize(x);
+            }
+        }
+    }
 }
 
-static void Flatten(benchmark::State& state) {
+void Concatenate(benchmark::State& state) {
+    std::string a(SizePolicy / 2, '0');
+    std::string b(SizePolicy / 2, '1');
+
+    for (auto _ : state) {
+        for (char c : lz::concat(a, b)) {
+            benchmark::DoNotOptimize(c);
+        }
+    }
+}
+
+void CString(benchmark::State& state) {
+    constexpr const char* str = "this is a 32 char long stringggg";
+    if (std::strlen(str) != SizePolicy) {
+        throw std::runtime_error(fmt::format("String is not {} characters long", SizePolicy));
+    }
+
+    for (auto _ : state) {
+        for (char c : lz::cString(str)) {
+            benchmark::DoNotOptimize(c);
+        }
+    }
+}
+
+void Enumerate(benchmark::State& state) {
+    std::array<int, SizePolicy> arr{};
+
+    for (auto _ : state) {
+        for (auto pair : lz::enumerate(arr)) {
+            benchmark::DoNotOptimize(pair);
+        }
+    }
+}
+
+void Except(benchmark::State& state) {
+    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy / 2> toLargeExcept = lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
+
+    for (auto _ : state) {
+        for (auto excepted : lz::except(largeArr, toLargeExcept)) {
+            benchmark::DoNotOptimize(excepted);
+        }
+    }
+}
+
+void Exclude(benchmark::State& state) {
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (int i : lz::exclude(a, 5, 10)) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void ExclusiveScan(benchmark::State& state) {
+    auto array = lz::range(SizePolicy).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (std::size_t i : lz::eScan(array, static_cast<std::size_t>(0))) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void Filter(benchmark::State& state) {
+    std::array<int, SizePolicy> arr{};
+
+    for (auto _ : state) {
+        for (int filtered : lz::filter(arr, [](const int i) noexcept { return i == 0; })) {
+            benchmark::DoNotOptimize(filtered);
+        }
+    }
+}
+
+void Flatten(benchmark::State& state) {
     std::array<std::array<int, SizePolicy / 4>, SizePolicy / 8> arr{};
     for (auto _ : state) {
         for (auto&& val : lz::flatten(arr)) {
@@ -53,316 +125,313 @@ static void Flatten(benchmark::State& state) {
     }
 }
 
-static void JoinWhere(benchmark::State& state) {
-    std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    std::vector<int> toJoin = {17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
-
-    auto randomIndex = lz::random<std::size_t>(0, toJoin.size());
-    toJoin[randomIndex.nextRandom()] = arr[randomIndex.nextRandom()]; // Create a value where both values are equal
-	std::sort(toJoin.begin(), toJoin.end());
-    auto joiner = lz::joinWhere(arr, toJoin,
-                                [](int i) noexcept { return i; },
-                                [](int i) noexcept { return i; },
-                                [](int a, int b) noexcept { return std::make_tuple(a, b);});
-    assert(std::is_sorted(arr.begin(), arr.end()));
+void Generate(benchmark::State& state) {
+    size_t cnt = 0;
 
     for (auto _ : state) {
-        for (std::tuple<int, int> val : joiner) {
+        for (auto i : lz::generate([&cnt]() noexcept { return cnt++; }, SizePolicy)) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void GenerateWhile(benchmark::State& state) {
+    for (auto _ : state) {
+        for (auto i : lz::generateWhile(
+                 [](std::size_t& cnt) -> std::pair<bool, std::size_t> {
+                     const auto oldValue = cnt++;
+                     return { oldValue < SizePolicy, cnt };
+                 },
+                 static_cast<std::size_t>(0))) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void GroupBy(benchmark::State& state) {
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (auto &&group : lz::groupBy(arr, [](int a, int b) noexcept { return a == b; })) {
+            benchmark::DoNotOptimize(group.first);
+            for (auto&& pair : group.second) {
+                benchmark::DoNotOptimize(pair);
+            }
+        }
+    }
+}
+
+void InclusiveScan(benchmark::State& state) {
+    auto array = lz::range(SizePolicy).toArray<SizePolicy>();
+    auto t = lz::iScan(array);
+    auto d = std::distance(t.begin(), t.end());
+    (void)d;
+
+    for (auto _ : state) {
+        for (auto i : lz::iScan(array)) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void JoinInt(benchmark::State& state) {
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (std::string s : lz::join(arr, ",")) {
+            benchmark::DoNotOptimize(s);
+        }
+    }
+}
+
+void JoinString(benchmark::State& state) {
+    std::array<std::string, SizePolicy> arr = lz::repeat(std::string("hello"), SizePolicy).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (std::string& s : lz::join(arr, ",")) {
+            benchmark::DoNotOptimize(s);
+        }
+    }
+}
+
+void JoinWhere(benchmark::State& state) {
+    std::vector<int> arr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+    std::vector<int> toJoin = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+
+    auto randomIndex = lz::random<std::size_t>(0, toJoin.size() - 1);
+    toJoin[randomIndex.nextRandom()] = arr[randomIndex.nextRandom()]; // Create a value where both values are equal
+    std::sort(toJoin.begin(), toJoin.end());
+
+    for (auto _ : state) {
+        for (std::tuple<int, int> val : lz::joinWhere(
+                 arr, toJoin, [](int i) noexcept { return i; }, [](int i) noexcept { return i; },
+                 [](int a, int b) noexcept { return std::make_tuple(a, b); })) {
             benchmark::DoNotOptimize(val);
         }
     }
 }
 
-static void Enumerate(benchmark::State& state) {
+void Map(benchmark::State& state) {
     std::array<int, SizePolicy> arr{};
-    auto enumeration = lz::enumerate(arr);
 
     for (auto _ : state) {
-        for (const std::pair<int, int> pair : enumeration) {
-            benchmark::DoNotOptimize(pair);
-        }
-    }
-}
-
-static void Exclude(benchmark::State& state) {
-	std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
-
-	for (auto _ : state) {
-		for (int i : lz::exclude(a, 5, 10)) {
-			benchmark::DoNotOptimize(i);
-		}
-	}
-}
-
-static void Filter(benchmark::State& state) {
-    std::array<int, SizePolicy> arr{};
-    auto filter = lz::filter(arr, [](const int i) noexcept { return i == 0; });
-
-    for (auto _ : state) {
-        for (const int filtered : filter) {
-            benchmark::DoNotOptimize(filtered);
-        }
-    }
-}
-
-static void Map(benchmark::State& state) {
-    std::array<int, SizePolicy> arr{};
-    auto map = lz::map(arr, [](const int i) noexcept { return i == 0 ? 10 : 5; });
-
-    for (auto _ : state) {
-        for (const int mapped : map) {
+        for (int mapped : lz::map(arr, [](const int i) noexcept { return i == 0 ? 10 : 5; })) {
             benchmark::DoNotOptimize(mapped);
         }
     }
 }
 
-static void Range(benchmark::State& state) {
+void Random(benchmark::State& state) {
     for (auto _ : state) {
-        auto range = lz::range<int>(SizePolicy);
-
-        for (const int i : range) {
+        for (int i : lz::random(0, 32, SizePolicy)) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
-static void StringSplitter(benchmark::State& state) {
+void Range(benchmark::State& state) {
+    for (auto _ : state) {
+        for (int i : lz::range<int>(SizePolicy)) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void RegexSplit(benchmark::State& state) {
     std::string toSplit = "hello hello hello hello hello he";
-    auto splitter = lz::split(toSplit, ' ');
+    std::regex r(" ");
 
     for (auto _ : state) {
-#ifndef LZ_HAS_CXX_17
-        // making non const causes: benchmark/benchmark.h:322:48: internal compiler error: in assign_temp,
-        // at function.c:977
-        using StringType = fmt::string_view;
-#else
-        using StringType = const std::string_view;
-#endif
-        for (StringType substring : splitter) {
+        for (lz::StringView substring : lz::regexSplit(toSplit, r)) {
             benchmark::DoNotOptimize(substring);
         }
     }
 }
 
-static void TakeWhile(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    auto takeWhile = lz::takeWhile(array, [](const int i) noexcept { return i != SizePolicy - 1; });
-
+void Repeat(benchmark::State& state) {
     for (auto _ : state) {
-        for (const int taken : takeWhile) {
-            benchmark::DoNotOptimize(taken);
-        }
-    }
-}
-
-static void Take(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    auto taken = lz::take(array, 32);
-
-    for (auto _ : state) {
-        for (const int i : taken) {
-            benchmark::DoNotOptimize(i);
-        }
-    }
-}
-
-static void Slice(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    auto sliced = lz::slice(array, 0, 32);
-
-    for (auto _ : state) {
-        for (const int i : sliced) {
-            benchmark::DoNotOptimize(i);
-        }
-    }
-}
-
-static void Zip4(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
-    std::array<int, SizePolicy> arrayC{};
-    std::array<int, SizePolicy> arrayD{};
-    auto zipper = lz::zip(arrayA, arrayB, arrayC, arrayD);
-
-    for (auto _ : state) {
-        for (const auto tuple : zipper) {
-            benchmark::DoNotOptimize(tuple);
-        }
-    }
-}
-
-static void Zip3(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
-    std::array<int, SizePolicy> arrayC{};
-    auto zipper = lz::zip(arrayA, arrayB, arrayC);
-
-    for (auto _ : state) {
-        for (const auto tuple : zipper) {
-            benchmark::DoNotOptimize(tuple);
-        }
-    }
-}
-
-static void Zip2(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
-    auto zipper = lz::zip(arrayA, arrayB);
-
-    for (auto _ : state) {
-        for (const auto tuple : zipper) {
-            benchmark::DoNotOptimize(tuple);
-        }
-    }
-}
-
-static void Except(benchmark::State& state) {
-    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    std::array<int, SizePolicy / 2> toLargeExcept =
-        lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
-    auto ex = lz::except(largeArr, toLargeExcept);
-
-    for (auto _ : state) {
-        for (const auto excepted : ex) {
-            benchmark::DoNotOptimize(excepted);
-        }
-    }
-}
-
-static void Repeat(benchmark::State& state) {
-    auto repeater = lz::repeat(0, SizePolicy);
-
-    for (auto _ : state) {
-        for (const int r : repeater) {
+        for (int r : lz::repeat(0, SizePolicy)) {
             benchmark::DoNotOptimize(r);
         }
     }
 }
 
-static void TakeEvery(benchmark::State& state) {
-    constexpr size_t offset = 2;
-    std::array<int, SizePolicy * offset> array{};
-    auto takeEvery = lz::takeEvery(array, offset);
+void Rotate(benchmark::State& state) {
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        for (const int taken : takeEvery) {
+        for (int i : lz::rotate(arr.begin() + 5, arr.begin(), arr.end())) {
+            benchmark::DoNotOptimize(i);
+        }
+    }
+}
+
+void StringSplitter(benchmark::State& state) {
+    std::string toSplit = "hello hello hello hello hello he";
+
+    for (auto _ : state) {
+        for (lz::StringView substring : lz::split(toSplit, ' ')) {
+            benchmark::DoNotOptimize(substring);
+        }
+    }
+}
+
+void TakeWhile(benchmark::State& state) {
+    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (int taken : lz::takeWhile(array, [](const int i) noexcept { return i != SizePolicy - 1; })) {
             benchmark::DoNotOptimize(taken);
         }
     }
 }
 
-static void Random(benchmark::State& state) {
-    auto random = lz::random(0, 32, SizePolicy);
+void TakeEvery(benchmark::State& state) {
+    constexpr size_t offset = 2;
+    std::array<int, SizePolicy * offset> array{};
 
     for (auto _ : state) {
-        for (const int i : random) {
+        for (int taken : lz::takeEvery(array, offset)) {
+            benchmark::DoNotOptimize(taken);
+        }
+    }
+}
+
+void DropWhile(benchmark::State& state) {
+    std::array<int, SizePolicy> array = lz::generate(
+                                            [](int& cnt) {
+                                                if (cnt++ == SizePolicy / 2) {
+                                                    return *lz::random(2, 1024, 1).begin();
+                                                }
+                                                return 1;
+                                            },
+                                            SizePolicy, 0)
+                                            .toArray<SizePolicy>();
+
+    for (auto _ : state) {
+        for (int i : lz::dropWhile(array, [](const int i) noexcept { return i == 1; })) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
-static void DropWhile(benchmark::State& state) {
-    int cnt = 0;
-    std::array<int, SizePolicy> array = lz::generate([&cnt]() {
-        if (cnt++ == SizePolicy / 2) {
-            return *lz::random(2, 1024, 1).begin();
-        }
-        return 1;
-    }, SizePolicy).toArray<SizePolicy>();
-
-    auto drop = lz::dropWhile(array, [](const int i) noexcept {
-        return i == 1;
-    });
+void Unique(benchmark::State& state) {
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
 
     for (auto _ : state) {
-        for (const int i : drop) {
-            benchmark::DoNotOptimize(i);
-        }
-    }
-}
-
-static void Generate(benchmark::State& state) {
-    size_t cnt = 0;
-    auto generator = lz::generate([&cnt]() noexcept { return cnt++; }, SizePolicy);
-
-    for (auto _ : state) {
-        for (const auto i : generator) {
-            benchmark::DoNotOptimize(i);
-        }
-    }
-}
-
-static void Concatenate(benchmark::State& state) {
-    std::string a(SizePolicy / 2, '0');
-    std::string b(SizePolicy / 2, '1');
-    auto concatenate = lz::concat(a, b);
-
-    for (auto _ : state) {
-        for (const char c : concatenate) {
+        for (char c : lz::unique(arr)) {
             benchmark::DoNotOptimize(c);
         }
     }
 }
 
-static void Unique(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
-    auto unique = lz::unique(arr);
+void Zip4(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy> arrayB{};
+    std::array<int, SizePolicy> arrayC{};
+    std::array<int, SizePolicy> arrayD{};
 
     for (auto _ : state) {
-        for (const char c : unique) {
-            benchmark::DoNotOptimize(c);
+        for (auto tuple : lz::zip(arrayA, arrayB, arrayC, arrayD)) {
+            benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
-static void JoinInt(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
-    auto join = lz::join(arr, ",");
+void Zip3(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy> arrayB{};
+    std::array<int, SizePolicy> arrayC{};
 
     for (auto _ : state) {
-        for (const std::string s : join) {
-            benchmark::DoNotOptimize(s);
+        for (auto tuple : lz::zip(arrayA, arrayB, arrayC)) {
+            benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
-static void JoinString(benchmark::State& state) {
-    std::array<std::string, SizePolicy> arr = lz::repeat(std::string("hello"), SizePolicy).toArray<SizePolicy>();
-    auto join = lz::join(arr, ",");
+void Zip2(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy> arrayB{};
 
     for (auto _ : state) {
-        for (const std::string& s : join) {
-            benchmark::DoNotOptimize(s);
+        for (auto tuple : lz::zip(arrayA, arrayB)) {
+            benchmark::DoNotOptimize(tuple);
         }
     }
 }
+
+void ZipLongest4(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy - 1> arrayB{};
+    std::array<int, SizePolicy - 2> arrayC{};
+    std::array<int, SizePolicy - 3> arrayD{};
+
+    for (auto _ : state) {
+        for (auto tuple : lz::zipLongest(arrayA, arrayB, arrayC, arrayD)) {
+            benchmark::DoNotOptimize(tuple);
+        }
+    }
+}
+
+void ZipLongest3(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy - 1> arrayB{};
+    std::array<int, SizePolicy - 2> arrayC{};
+
+    for (auto _ : state) {
+        for (auto tuple : lz::zipLongest(arrayA, arrayB, arrayC)) {
+            benchmark::DoNotOptimize(tuple);
+        }
+    }
+}
+
+void ZipLongest2(benchmark::State& state) {
+    std::array<int, SizePolicy> arrayA{};
+    std::array<int, SizePolicy - 1> arrayB{};
+
+    for (auto _ : state) {
+        for (auto tuple : lz::zipLongest(arrayA, arrayB)) {
+            benchmark::DoNotOptimize(tuple);
+        }
+    }
+}
+} // namespace
 
 BENCHMARK(CartesianProduct);
 BENCHMARK(ChunkIf);
 BENCHMARK(Chunks);
 BENCHMARK(Concatenate);
+BENCHMARK(CString);
 BENCHMARK(Enumerate);
 BENCHMARK(Except);
 BENCHMARK(Exclude);
+BENCHMARK(ExclusiveScan);
 BENCHMARK(Filter);
 BENCHMARK(Flatten);
 BENCHMARK(DropWhile);
 BENCHMARK(Generate);
+BENCHMARK(GenerateWhile);
+BENCHMARK(GroupBy);
+BENCHMARK(InclusiveScan);
 BENCHMARK(JoinInt);
 BENCHMARK(JoinString);
 BENCHMARK(JoinWhere);
 BENCHMARK(Map);
 BENCHMARK(Range);
+BENCHMARK(RegexSplit);
 BENCHMARK(Random);
 BENCHMARK(Repeat);
-BENCHMARK(Slice);
+BENCHMARK(Rotate);
 BENCHMARK(StringSplitter);
-BENCHMARK(Take);
 BENCHMARK(TakeWhile);
 BENCHMARK(TakeEvery);
 BENCHMARK(Unique);
 BENCHMARK(Zip4);
 BENCHMARK(Zip3);
 BENCHMARK(Zip2);
+BENCHMARK(ZipLongest4);
+BENCHMARK(ZipLongest3);
+BENCHMARK(ZipLongest2);
 
 BENCHMARK_MAIN();

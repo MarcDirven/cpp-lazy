@@ -208,7 +208,7 @@ using StringView = BasicStringView<char>;
 
 template<typename CharT>
 std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT> view) {
-    return os.write(view.data(), view.size());
+    return os.write(view.data(), static_cast<std::streamsize>(view.size()));
 }
 #else
 

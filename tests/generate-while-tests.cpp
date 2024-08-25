@@ -3,7 +3,7 @@
 #include <list>
 
 TEST_CASE("Generate while changing and creating elements", "[Generate while][Basic functionality]") {
-    const auto compileTest1 = lz::generateWhile([]() { return std::make_pair(false, false); });
+    const auto compileTest1 = lz::generateWhile([](bool) { return std::make_pair(false, false); }, false);
     static_cast<void>(compileTest1);
     const auto compileTest2 = lz::generateWhile([](const int&) { return std::make_pair(false, false); }, 0);
     static_cast<void>(compileTest2);
@@ -28,12 +28,13 @@ TEST_CASE("Generate while changing and creating elements", "[Generate while][Bas
 
 TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
     auto generator = lz::generateWhile(
-        [](int& i) -> std::pair<bool, int> {
+        [](int& i) {
             auto copy = i++;
             return std::make_pair(copy != 4, copy);
         },
         0);
-
+    static_assert(std::is_same<decltype(*generator.begin()), int>::value,
+                  "int and decltype(*generator.begin()) are not the same");
     REQUIRE(*generator.begin() == 0);
 
     SECTION("Operator++") {
