@@ -4,22 +4,22 @@
 #define LZ_GENERATE_WHILE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/GenerateWhileIterator.hpp"
+#include "detail/iterators/GenerateWhileIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class GeneratorFunc, class... Args>
-class GenerateWhile final : public internal::BasicIteratorView<internal::GenerateWhileIterator<GeneratorFunc, Args...>> {
+class GenerateWhile final : public detail::BasicIteratorView<detail::GenerateWhileIterator<GeneratorFunc, Args...>> {
 public:
-    using iterator = internal::GenerateWhileIterator<GeneratorFunc, Args...>;
+    using iterator = detail::GenerateWhileIterator<GeneratorFunc, Args...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     template<class P>
     constexpr GenerateWhile(GeneratorFunc func, std::tuple<Args...> tuple, P&& p) :
-        internal::BasicIteratorView<iterator>(iterator(func, tuple, false, p), iterator(func, tuple, true, p)) {
+        detail::BasicIteratorView<iterator>(iterator(func, tuple, false, p), iterator(func, tuple, true, p)) {
     }
 
     constexpr GenerateWhile() = default;
@@ -47,13 +47,14 @@ public:
  * @return A generator iterator view object.
  */
 template<class GeneratorFunc, class... Args>
-LZ_NODISCARD constexpr GenerateWhile<internal::Decay<GeneratorFunc>, internal::Decay<Args>...>
+LZ_NODISCARD constexpr GenerateWhile<detail::Decay<GeneratorFunc>, detail::Decay<Args>...>
 generateWhile(GeneratorFunc&& generatorFunc, Args&&... args) {
     using Pair = decltype(generatorFunc(args...));
     using PairFirst = decltype(std::get<0>(std::declval<Pair>()));
 
-    static_assert(std::is_convertible<internal::Decay<PairFirst>, bool>::value,
-                  "Function must return a std::pair compatible object (i.e. object::first, object::second), where object::first returns a bool like object.");
+    static_assert(std::is_convertible<detail::Decay<PairFirst>, bool>::value,
+                  "Function must return a std::pair compatible object (i.e. object::first, object::second), where object::first "
+                  "returns a bool like object.");
     Pair result = generatorFunc(args...);
     return { std::forward<GeneratorFunc>(generatorFunc), std::make_tuple(std::forward<Args>(args)...), std::move(result) };
 }

@@ -3,11 +3,12 @@
 #ifndef LZ_MAP_ITERATOR_HPP
 #define LZ_MAP_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator, class Function>
 class MapIterator {
     Iterator _iterator{};
@@ -114,7 +115,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

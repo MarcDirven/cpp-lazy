@@ -3,7 +3,8 @@
 #ifndef LZ_JOIN_ITERATOR_HPP
 #define LZ_JOIN_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 #if defined(LZ_STANDALONE)
 #ifdef LZ_HAS_FORMAT
@@ -12,10 +13,10 @@
 #include <sstream>
 
 #endif // LZ_HAS_FORMAT
-#endif     // LZ_STANDALONE
+#endif // LZ_STANDALONE
 
 namespace lz {
-namespace internal {
+namespace detail {
 #if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 template<class T>
 EnableIf<!std::is_arithmetic<T>::value, std::string> toString(const T& value) {
@@ -83,7 +84,7 @@ private:
 #else
             return fmt::format(_fmt.c_str(), *_iterator);
 #endif // LZ_HAS_CXX_20 && FMT_VERSION >= 90000
-#endif     // LZ_STANDALONE
+#endif // LZ_STANDALONE
         }
         return _delimiter;
     }
@@ -170,8 +171,8 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 JoinIterator& operator+=(const difference_type offset) {
-        _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, static_cast<difference_type>(2)) * -1 : 
-                                  roundEven<difference_type>(offset, static_cast<difference_type>(2));
+        _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, static_cast<difference_type>(2)) * -1
+                                : roundEven<difference_type>(offset, static_cast<difference_type>(2));
         if (!isEven(offset)) {
             _isIteratorTurn = !_isIteratorTurn;
         }
@@ -230,7 +231,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

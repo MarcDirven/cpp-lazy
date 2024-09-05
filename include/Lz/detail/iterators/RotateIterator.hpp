@@ -6,7 +6,7 @@
 #include <iterator>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator>
 class RotateIterator {
     using IterTraits = std::iterator_traits<Iterator>;
@@ -16,13 +16,14 @@ public:
     using value_type = typename IterTraits::value_type;
     using pointer = typename IterTraits::pointer;
     using difference_type = typename IterTraits::difference_type;
-    using iterator_category = typename std::common_type<typename IterTraits::iterator_category, std::bidirectional_iterator_tag>::type;
+    using iterator_category =
+        typename std::common_type<typename IterTraits::iterator_category, std::bidirectional_iterator_tag>::type;
 
 private:
     Iterator _iterator{};
     Iterator _end{};
     Iterator _begin{};
-    bool _fullRotation{false};
+    bool _fullRotation{ false };
 
 public:
     constexpr RotateIterator() = default;
@@ -76,7 +77,7 @@ public:
         return !(a != b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_ROTATE_ITERATOR_HPP

@@ -1,17 +1,19 @@
 #pragma once
 
-#ifndef LZ_EXCLUSIVE_SCAN_ITERATOR_HPP
-#define LZ_EXCLUSIVE_SCAN_ITERATOR_HPP
+#ifndef LZ_INCLUSIVE_SCAN_ITERATOR_HPP
+#define LZ_INCLUSIVE_SCAN_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator, class T, class BinaryOp>
-class ExclusiveScanIterator {
+class InclusiveScanIterator {
     T _reducer{};
     FunctionContainer<BinaryOp> _binaryOp{};
     Iterator _iterator{};
+    Iterator _end{};
 
     using IterTraits = std::iterator_traits<Iterator>;
 
@@ -22,12 +24,13 @@ public:
     using difference_type = typename IterTraits::difference_type;
     using iterator_category = std::forward_iterator_tag;
 
-    constexpr ExclusiveScanIterator() = default;
+    constexpr InclusiveScanIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 ExclusiveScanIterator(Iterator iterator, T init, BinaryOp binaryOp) :
+    LZ_CONSTEXPR_CXX_14 InclusiveScanIterator(Iterator iterator, Iterator end, T init, BinaryOp binaryOp) :
         _reducer(std::move(init)),
         _binaryOp(std::move(binaryOp)),
-        _iterator(std::move(iterator)) {
+        _iterator(std::move(iterator)),
+        _end(std::move(end)) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 typename std::remove_reference<reference>::type const& operator*() const {
@@ -38,27 +41,29 @@ public:
         return _reducer;
     }
 
-    LZ_CONSTEXPR_CXX_20 ExclusiveScanIterator& operator++() {
-        _reducer = _binaryOp(std::move(_reducer), *_iterator);
+    LZ_CONSTEXPR_CXX_20 InclusiveScanIterator& operator++() {
         ++_iterator;
+        if (_iterator != _end) {
+            _reducer = _binaryOp(std::move(_reducer), *_iterator);
+        }
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ExclusiveScanIterator operator++(int) {
-        ExclusiveScanIterator tmp(*this);
+    LZ_CONSTEXPR_CXX_20 InclusiveScanIterator operator++(int) {
+        InclusiveScanIterator tmp(*this);
         ++*this;
         return tmp;
     }
 
-    LZ_NODISCARD constexpr friend bool operator!=(const ExclusiveScanIterator& a, const ExclusiveScanIterator& b) {
+    LZ_NODISCARD constexpr friend bool operator!=(const InclusiveScanIterator& a, const InclusiveScanIterator& b) {
         return a._iterator != b._iterator;
     }
 
-    LZ_NODISCARD constexpr friend bool operator==(const ExclusiveScanIterator& a, const ExclusiveScanIterator& b) {
+    LZ_NODISCARD constexpr friend bool operator==(const InclusiveScanIterator& a, const InclusiveScanIterator& b) {
         return !(a != b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

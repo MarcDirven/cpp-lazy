@@ -3,12 +3,13 @@
 #ifndef LZ_ZIP_ITERATOR_HPP
 #define LZ_ZIP_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #include <algorithm>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class... Iterators>
 class ZipIterator {
     using CurrentCat = typename std::common_type<IterCat<Iterators>...>::type;
@@ -159,7 +160,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

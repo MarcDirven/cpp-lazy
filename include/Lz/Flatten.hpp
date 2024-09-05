@@ -2,21 +2,21 @@
 #define LZ_FLATTEN_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/FlattenIterator.hpp"
+#include "detail/iterators/FlattenIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, int Dims>
-class Flatten final : public internal::BasicIteratorView<internal::FlattenIterator<Iterator, Dims>> {
+class Flatten final : public detail::BasicIteratorView<detail::FlattenIterator<Iterator, Dims>> {
 public:
-    using iterator = internal::FlattenIterator<Iterator, Dims>;
+    using iterator = detail::FlattenIterator<Iterator, Dims>;
     using const_iterator = iterator;
-    using value_type = typename internal::FlattenIterator<Iterator, 0>::value_type;
+    using value_type = typename detail::FlattenIterator<Iterator, 0>::value_type;
 
 private:
-    using Base = internal::BasicIteratorView<iterator>;
+    using Base = detail::BasicIteratorView<iterator>;
 
 public:
     constexpr Flatten() = default;
@@ -36,7 +36,7 @@ public:
  * @param end The ending of the iterable.
  * @return A flatten view object, where its iterator is a forward iterator.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
+template<LZ_CONCEPT_ITERATOR Iterator, int Dims = detail::CountDims<std::iterator_traits<Iterator>>::value - 1>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flattenRange(Iterator begin, Iterator end) {
     static_assert(std::is_default_constructible<Iterator>::value, "underlying iterator needs to be default constructible");
     return { std::move(begin), std::move(end) };
@@ -47,22 +47,22 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flattenRange(Iterator b
  * @param iterable The iterable to flatten.
  * @return A flatten view object, where its iterator is a forward iterator.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>,
-         int Dims = internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
+template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterTypeFromIterable<Iterable>,
+         int Dims = detail::CountDims<std::iterator_traits<Iterator>>::value - 1>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Flatten<Iterator, Dims> flatten(Iterable&& iterable) {
-    return flattenRange<Iterator, Dims>(internal::begin(std::forward<Iterable>(iterable)),
-                                        internal::end(std::forward<Iterable>(iterable)));
+    return flattenRange<Iterator, Dims>(detail::begin(std::forward<Iterable>(iterable)),
+                                        detail::end(std::forward<Iterable>(iterable)));
 }
 
 template<class, class = void>
 struct Dimensions;
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-struct Dimensions<Iterable, internal::EnableIf<!std::is_array<Iterable>::value>>
-    : internal::CountDims<internal::IterTypeFromIterable<Iterable>> {};
+struct Dimensions<Iterable, detail::EnableIf<!std::is_array<Iterable>::value>>
+    : detail::CountDims<detail::IterTypeFromIterable<Iterable>> {};
 
 template<LZ_CONCEPT_ITERABLE Iterable>
-struct Dimensions<Iterable, internal::EnableIf<std::is_array<Iterable>::value>>
+struct Dimensions<Iterable, detail::EnableIf<std::is_array<Iterable>::value>>
     : std::integral_constant<int, static_cast<int>(std::rank<Iterable>::value)> {};
 
 #ifdef LZ_HAS_CXX_17

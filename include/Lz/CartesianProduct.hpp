@@ -4,24 +4,23 @@
 #define LZ_CARTESIAN_PRODUCT_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/CartesianProductIterator.hpp"
+#include "detail/iterators/CartesianProductIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-
 template<class... Iterators>
-class CartesianProduct final : public internal::BasicIteratorView<internal::CartesianProductIterator<Iterators...>> {
+class CartesianProduct final : public detail::BasicIteratorView<detail::CartesianProductIterator<Iterators...>> {
 public:
-    using iterator = internal::CartesianProductIterator<Iterators...>;
+    using iterator = detail::CartesianProductIterator<Iterators...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     constexpr CartesianProduct() = default;
 
     LZ_CONSTEXPR_CXX_20 CartesianProduct(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
-        internal::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 };
 
@@ -48,10 +47,10 @@ cartesianRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
  * @return A cartesian product view object.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CartesianProduct<internal::IterTypeFromIterable<Iterables>...>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CartesianProduct<detail::IterTypeFromIterable<Iterables>...>
 cartesian(Iterables&&... iterables) {
-    return cartesianRange(std::make_tuple(internal::begin(std::forward<Iterables>(iterables))...),
-                          std::make_tuple(internal::end(std::forward<Iterables>(iterables))...));
+    return cartesianRange(std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...),
+                          std::make_tuple(detail::end(std::forward<Iterables>(iterables))...));
 }
 
 // End of group

@@ -3,12 +3,13 @@
 #ifndef LZ_CHUNKS_ITERATOR_HPP
 #define LZ_CHUNKS_ITERATOR_HPP
 
-#include "BasicIteratorView.hpp"
+#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 #include <cmath>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class, bool>
 class ChunksIterator;
 
@@ -33,6 +34,7 @@ private:
         for (difference_type count = 0; count < _chunkSize && _subRangeEnd != _end; count++, ++_subRangeEnd) {
         }
     }
+
 public:
     LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator iterator, Iterator end, const std::size_t chunkSize) :
         _subRangeBegin(iterator),
@@ -183,7 +185,7 @@ private:
             _subRangeEnd = totalOffset >= _end - _subRangeBegin ? _end : _subRangeBegin + totalOffset;
         }
     }
-    
+
 public:
     LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator iterator, Iterator begin, Iterator end, const std::size_t chunkSize) :
         _begin(std::move(begin)),
@@ -295,7 +297,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_CHUNKS_ITERATOR_HPP

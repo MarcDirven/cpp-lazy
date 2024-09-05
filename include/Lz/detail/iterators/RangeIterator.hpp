@@ -3,14 +3,18 @@
 #ifndef LZ_RANGE_ITERATOR_HPP
 #define LZ_RANGE_ITERATOR_HPP
 
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
+
 #include <cmath>
 #include <iterator>
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef __cpp_if_constexpr
 template<class ValueType>
-std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference, const ValueType step) noexcept(!std::is_floating_point_v<ValueType>) {
+std::ptrdiff_t LZ_CONSTEXPR_CXX_20 plusImpl(const ValueType difference,
+                                            const ValueType step) noexcept(!std::is_floating_point_v<ValueType>) {
     if constexpr (std::is_floating_point_v<ValueType>) {
         return static_cast<std::ptrdiff_t>(std::ceil(difference / step));
     }
@@ -78,11 +82,11 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD friend std::ptrdiff_t
-    LZ_CONSTEXPR_CXX_20 operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
+    LZ_NODISCARD friend std::ptrdiff_t LZ_CONSTEXPR_CXX_20
+    operator-(const RangeIterator& a, const RangeIterator& b) noexcept(!std::is_floating_point<Arithmetic>::value) {
         LZ_ASSERT(a._step == b._step, "incompatible iterator types: difference step size");
         const auto difference = a._iterator - b._iterator;
-        
+
         if LZ_CONSTEXPR_IF (std::is_floating_point<Arithmetic>::value) {
             const auto result = plusImpl(static_cast<Arithmetic>(difference), a._step);
             return std::abs(result);
@@ -144,7 +148,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

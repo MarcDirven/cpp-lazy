@@ -3,12 +3,12 @@
 #ifndef LZ_REPEAT_ITERATOR_HPP
 #define LZ_REPEAT_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
 
 #include <limits>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class T>
 class RepeatIterator {
     mutable T _toRepeat{};
@@ -125,7 +125,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

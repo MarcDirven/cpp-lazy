@@ -3,14 +3,17 @@
 #ifndef LZ_EXCLUDE_ITERATOR_HPP
 #define LZ_EXCLUDE_ITERATOR_HPP
 
+#include "Lz/detail/FakePointerProxy.hpp"
+
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator>
 class ExcludeIterator {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = /*typename std::common_type<*/std::forward_iterator_tag/*, typename IterTraits::iterator_category>::type*/;
+    using iterator_category =
+        /*typename std::common_type<*/ std::forward_iterator_tag /*, typename IterTraits::iterator_category>::type*/;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
@@ -72,7 +75,7 @@ public:
         return a._iterator != b._iterator;
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_EXCLUDE_ITERATOR_HPP

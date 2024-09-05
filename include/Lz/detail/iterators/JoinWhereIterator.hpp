@@ -3,11 +3,12 @@
 #ifndef LZ_JOIN_WHERE_ITERATOR_HPP
 #define LZ_JOIN_WHERE_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
 #else
@@ -143,6 +144,6 @@ public:
     }
 };
 
-} // namespace internal
+} // namespace detail
 } // namespace lz
 #endif // LZ_JOIN_WHERE_ITERATOR_HPP

@@ -4,24 +4,24 @@
 #define LZ_STRING_SPLITTER_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/SplitIterator.hpp"
+#include "detail/iterators/SplitIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class SubString, class String, class DelimiterString>
-class StringSplitter final : public internal::BasicIteratorView<internal::SplitIterator<SubString, String, DelimiterString>> {
+class StringSplitter final : public detail::BasicIteratorView<detail::SplitIterator<SubString, String, DelimiterString>> {
 public:
-    using const_iterator = internal::SplitIterator<SubString, String, DelimiterString>;
+    using const_iterator = detail::SplitIterator<SubString, String, DelimiterString>;
     using iterator = const_iterator;
 
 public:
     using value_type = SubString;
 
     LZ_CONSTEXPR_CXX_20 StringSplitter(const String& str, DelimiterString delimiter, std::size_t delimiterLength) :
-        internal::BasicIteratorView<iterator>(iterator(0, str, delimiter, delimiterLength),
-                                              iterator(str.size(), str, delimiter, delimiterLength)) {
+        detail::BasicIteratorView<iterator>(iterator(0, str, delimiter, delimiterLength),
+                                            iterator(str.size(), str, delimiter, delimiterLength)) {
     }
 
     StringSplitter() = default;
@@ -44,7 +44,7 @@ public:
 template<class SubString = StringView, class String, class DelimiterString>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringSplitter<SubString, String, DelimiterString>
 split(const String& str, DelimiterString delimiter) {
-    const auto delimiterLength = internal::getDelimiterLength(delimiter);
+    const auto delimiterLength = detail::getDelimiterLength(delimiter);
     return { str, std::move(delimiter), delimiterLength };
 }
 

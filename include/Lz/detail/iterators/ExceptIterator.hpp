@@ -3,12 +3,13 @@
 #ifndef LZ_EXCEPT_ITERATOR_HPP
 #define LZ_EXCEPT_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 #include <algorithm>
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class IteratorToExcept, class Compare, class Execution>
 #else  // ^^^ has execution vvv ! has execution
@@ -36,7 +37,7 @@ private:
 #endif // LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 void find() {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
                 return !std::binary_search(_toExceptBegin, _toExceptEnd, value, _compare);
             });
@@ -106,7 +107,7 @@ public:
         return !(a != b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

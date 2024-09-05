@@ -3,12 +3,13 @@
 #ifndef LZ_CONCATENATE_ITERATOR_HPP
 #define LZ_CONCATENATE_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #include <numeric>
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifndef __cpp_if_constexpr
 template<class Tuple, std::size_t I, class = void>
 struct PlusPlus {
@@ -384,7 +385,7 @@ public:
     }
 };
 
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_CONCATENATE_ITERATOR_HPP

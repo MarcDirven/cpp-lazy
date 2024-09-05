@@ -4,21 +4,22 @@
 #define LZ_GENERATE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/GenerateIterator.hpp"
+#include "detail/iterators/GenerateIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class GeneratorFunc, class... Args>
-class Generate final : public internal::BasicIteratorView<internal::GenerateIterator<GeneratorFunc, Args...>> {
+class Generate final : public detail::BasicIteratorView<detail::GenerateIterator<GeneratorFunc, Args...>> {
 public:
-    using iterator = internal::GenerateIterator<GeneratorFunc, Args...>;
+    using iterator = detail::GenerateIterator<GeneratorFunc, Args...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop, std::tuple<Args...> tuple) :
-        internal::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop, tuple), iterator(amount, func, isWhileTrueLoop, tuple)) {
+        detail::BasicIteratorView<iterator>(iterator(0, func, isWhileTrueLoop, tuple),
+                                            iterator(amount, func, isWhileTrueLoop, tuple)) {
     }
 
     constexpr Generate() = default;
@@ -46,12 +47,10 @@ public:
  * @return A generator iterator view object.
  */
 template<class GeneratorFunc, class... Args>
-LZ_NODISCARD constexpr Generate<internal::Decay<GeneratorFunc>, internal::Decay<Args>...>
+LZ_NODISCARD constexpr Generate<detail::Decay<GeneratorFunc>, detail::Decay<Args>...>
 generate(GeneratorFunc&& generatorFunc, const std::size_t amount = (std::numeric_limits<std::size_t>::max)(), Args&&... args) {
     return { std::forward<GeneratorFunc>(generatorFunc), amount, amount == (std::numeric_limits<std::size_t>::max)(), std::make_tuple(std::forward<Args>(args)...) };
 }
-
-
 
 // End of group
 /**

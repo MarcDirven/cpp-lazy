@@ -3,19 +3,26 @@
 #ifndef LZ_SPLIT_ITERATOR_HPP
 #define LZ_SPLIT_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
+#include <cstring>
 #include <string>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class CharT>
 std::size_t getDelimiterLength(const CharT* delimiter) {
-    return std::strlen(delimiter);
+    if LZ_CONSTEXPR_IF (std::is_same<CharT, char>::value) {
+        return std::strlen(delimiter);
+    }
+    else {
+        return std::char_traits<CharT>::length(delimiter);
+    }
 }
 
 template<class CharT, std::size_t N>
-std::size_t getDelimiterLength(const CharT (& /*delimiter*/)[N]) {
+std::size_t getDelimiterLength(const CharT (&/*delimiter*/)[N]) {
     LZ_ASSERT(N > 0, "delimiter must have a length of at least 1");
     return N - 1;
 }
@@ -127,7 +134,7 @@ public:
         return tmp;
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

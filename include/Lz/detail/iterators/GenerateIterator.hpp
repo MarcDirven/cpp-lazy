@@ -3,10 +3,11 @@
 #ifndef LZ_GENERATE_ITERATOR_HPP
 #define LZ_GENERATE_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class GeneratorFunc, class... Args>
 class GenerateIterator {
     using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
@@ -24,8 +25,8 @@ public:
 
     constexpr GenerateIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop,
-                               std::tuple<Args...> args) :
+    LZ_CONSTEXPR_CXX_14
+    GenerateIterator(const std::size_t start, GeneratorFunc generatorFunc, const bool isWhileTrueLoop, std::tuple<Args...> args) :
         _current(start),
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
@@ -62,7 +63,7 @@ public:
         return a._current != b._current;
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

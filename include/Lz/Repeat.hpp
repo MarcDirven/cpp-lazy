@@ -4,21 +4,21 @@
 #define LZ_REPEAT_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/RepeatIterator.hpp"
+#include "detail/iterators/RepeatIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class T>
-class Repeat final : public internal::BasicIteratorView<internal::RepeatIterator<T>> {
+class Repeat final : public detail::BasicIteratorView<detail::RepeatIterator<T>> {
 public:
-    using iterator = internal::RepeatIterator<T>;
+    using iterator = detail::RepeatIterator<T>;
     using const_iterator = iterator;
     using value_type = T;
 
     constexpr Repeat(T toRepeat, const std::size_t amount) :
-        internal::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
+        detail::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
     }
 
     constexpr Repeat() = default;
@@ -38,7 +38,7 @@ public:
  * @return A repeat object, containing the random access iterator.
  */
 template<class T>
-LZ_NODISCARD constexpr Repeat<internal::Decay<T>>
+LZ_NODISCARD constexpr Repeat<detail::Decay<T>>
 repeat(T&& toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     return { std::forward<T>(toRepeat), amount };
 }

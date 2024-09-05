@@ -3,10 +3,11 @@
 #ifndef LZ_GENERATE_WHILE_ITERATOR_HPP
 #define LZ_GENERATE_WHILE_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class GeneratorFunc, class... Args>
 class GenerateWhileIterator {
     using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
@@ -27,7 +28,8 @@ public:
     constexpr GenerateWhileIterator() = default;
 
     template<class P>
-    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator, P&& p) :
+    LZ_CONSTEXPR_CXX_14
+    GenerateWhileIterator(GeneratorFunc generatorFunc, std::tuple<Args...> args, const bool isEndIterator, P&& p) :
         _tupleInvoker(makeExpandFn(std::move(generatorFunc), MakeIndexSequence<sizeof...(Args)>())),
         _args(std::move(args)),
         _lastReturned(std::forward<P>(p)) {
@@ -65,7 +67,7 @@ public:
         return std::get<0>(a._lastReturned);
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

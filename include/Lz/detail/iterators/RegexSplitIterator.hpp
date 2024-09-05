@@ -3,10 +3,11 @@
 #ifndef LZ_REGEX_SPLIT_ITERATOR_HPP
 #define LZ_REGEX_SPLIT_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 
 template<class RegexTokenIter>
 class RegexSplitIterator {
@@ -57,7 +58,7 @@ public:
     }
 };
 
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

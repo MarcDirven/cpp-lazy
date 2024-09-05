@@ -3,10 +3,11 @@
 #ifndef LZ_RANDOM_ITERATOR_HPP
 #define LZ_RANDOM_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Arithmetic, class Distribution, class Generator>
 class RandomIterator {
 public:
@@ -141,7 +142,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

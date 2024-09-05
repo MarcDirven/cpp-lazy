@@ -3,10 +3,10 @@
 #ifndef LZ_C_STRING_ITERATOR_HPP
 #define LZ_C_STRING_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/Traits.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class C, bool IsRandomAccess>
 class CStringIterator {
     const C* _it{ nullptr };
@@ -89,7 +89,8 @@ public:
         return tmp;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type operator-(const CStringIterator& a, const CStringIterator& b) noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend difference_type
+    operator-(const CStringIterator& a, const CStringIterator& b) noexcept {
         LZ_ASSERT(a._it != nullptr && b._it != nullptr, "Incompatible iterator types");
         return a._it - b._it;
     }
@@ -119,7 +120,7 @@ public:
         return _it != nullptr && *_it != '\0';
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_C_STRING_ITERATOR_HPP

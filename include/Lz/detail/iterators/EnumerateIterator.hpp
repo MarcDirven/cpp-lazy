@@ -3,10 +3,11 @@
 #ifndef LZ_ENUMERATE_ITERATOR_HPP
 #define LZ_ENUMERATE_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator, class Arithmetic>
 class EnumerateIterator {
     Arithmetic _index;
@@ -115,7 +116,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

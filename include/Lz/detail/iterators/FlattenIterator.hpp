@@ -3,10 +3,10 @@
 #ifndef LZ_FLATTEN_ITERATOR_HPP
 #define LZ_FLATTEN_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class, class U>
 struct AliasWrapper {
     using Type = U;
@@ -169,8 +169,7 @@ public:
     using reference = typename Inner::reference;
     using pointer = typename Inner::pointer;
     using value_type = typename Inner::value_type;
-    using iterator_category =
-        typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
+    using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
     using difference_type = typename Inner::difference_type;
 
 private:
@@ -185,7 +184,7 @@ private:
                 return;
             }
         }
-       _innerIter = {};
+        _innerIter = {};
     }
 
     FlattenWrapper<Iterator> _outerIter{};
@@ -328,7 +327,7 @@ public:
         return tmp;
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_FLATTEN_ITERATOR_HPP

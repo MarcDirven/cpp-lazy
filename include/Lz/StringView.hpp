@@ -3,12 +3,17 @@
 #ifndef LZ_STRING_VIEW_HPP
 #define LZ_STRING_VIEW_HPP
 
-#include "detail/LzTools.hpp"
+#include "detail/CompilerChecks.hpp"
 
 #ifdef LZ_HAS_STRING_VIEW
 #include <string_view>
 #else
+#include <cstddef>
 #include <ostream>
+#endif
+
+#if !defined(LZ_HAS_STRING_VIEW) && !defined(LZ_STANDALONE)
+#include <fmt/core.h>
 #endif
 
 namespace lz {

@@ -3,12 +3,13 @@
 #ifndef LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
 #define LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #include <numeric>
 
 namespace lz {
-namespace internal {
+namespace detail {
 // Edited version of https://github.com/mirandaconrado/product-iterator
 template<class... Iterators>
 class CartesianProductIterator {
@@ -32,7 +33,7 @@ private:
     }
 
     template<std::size_t I>
-    LZ_CONSTEXPR_CXX_14	EnableIf<I == 0, void> previous() const noexcept {
+    LZ_CONSTEXPR_CXX_14 EnableIf<I == 0, void> previous() const noexcept {
     }
 
 #ifdef LZ_MSVC
@@ -331,7 +332,7 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_CARTESIAN_PRODUCT_ITERATOR_HPP

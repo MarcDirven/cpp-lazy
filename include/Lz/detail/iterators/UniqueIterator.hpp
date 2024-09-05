@@ -3,13 +3,18 @@
 #ifndef LZ_UNIQUE_ITERATOR_HPP
 #define LZ_UNIQUE_ITERATOR_HPP
 
-#include "FunctionContainer.hpp"
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
+
+#ifdef LZ_HAS_EXECUTION
+#include "Procs.hpp"
+#endif
 
 #include <algorithm>
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Execution, class Iterator, class Compare>
 #else  // ^^^ lz has execution vvv ! lz has execution
@@ -61,7 +66,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 UniqueIterator& operator++() {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             _iterator = std::adjacent_find(std::move(_iterator), _end, _compare);
         }
         else {
@@ -91,7 +96,7 @@ public:
         return !(a != b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

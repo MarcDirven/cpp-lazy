@@ -3,10 +3,11 @@
 #ifndef LZ_LOOP_ITERATOR_HPP
 #define LZ_LOOP_ITERATOR_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Iterator>
 class LoopIterator {
     using IterTraits = std::iterator_traits<Iterator>;
@@ -120,7 +121,7 @@ public:
         return true;
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_LOOP_ITERATOR_HPP

@@ -3,6 +3,8 @@
 #ifndef LZ_OPTIONAL_HPP
 #define LZ_OPTIONAL_HPP
 
+#include "Lz/detail/CompilerChecks.hpp"
+
 #include <type_traits>
 
 #ifdef __cpp_lib_optional
@@ -10,7 +12,7 @@
 #endif // __cpp_lib_optional
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef __cpp_lib_optional
 template<class T>
 using Optional = std::optional<T>;
@@ -103,7 +105,7 @@ public:
     }
 };
 #endif // __cpp_lib_optional
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif

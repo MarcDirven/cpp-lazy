@@ -59,6 +59,7 @@ add_executable(cpp-lazy-tests
 	string-view-tests.cpp
 	take-every-tests.cpp
 	take-tests.cpp
+	take-while-tests.cpp
 	unique-tests.cpp
 	zip-longest-tests.cpp
 	zip-tests.cpp
@@ -71,7 +72,7 @@ set_source_files_properties(standalone-tests.cpp PROPERTIES COMPILE_DEFINITIONS 
 target_compile_options(cpp-lazy-tests
 	PRIVATE
 	$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /WX /diagnostics:caret>
-	$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion>
+	$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic -Wextra -Wall -Wshadow -Werror -Wconversion -pedantic-errors>
 )
 target_link_libraries(cpp-lazy-tests
 	PRIVATE

@@ -3,11 +3,12 @@
 #ifndef LZ_CHUNK_IF_ITERATOR_HPP
 #define LZ_CHUNK_IF_ITERATOR_HPP
 
-#include "BasicIteratorView.hpp"
-#include "FunctionContainer.hpp"
+#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class UnaryPredicate, class Execution>
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
@@ -38,7 +39,7 @@ private:
     template<class I>
     LZ_CONSTEXPR_CXX_20 I findNext(I first, I last) {
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             return std::find_if(std::move(first), std::move(last), _predicate);
         }
         else {
@@ -135,7 +136,7 @@ public:
         return !(lhs == rhs); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 
 #endif // LZ_CHUNK_IF_ITERATOR_HPP

@@ -3,11 +3,11 @@
 #ifndef LZ_ZIP_LONGEST_ITERATOR_HPP
 #define LZ_ZIP_LONGEST_ITERATOR_HPP
 
-#include "LzTools.hpp"
-#include "Optional.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Optional.hpp"
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<bool, class...>
 class ZipLongestIterator;
 
@@ -310,6 +310,6 @@ public:
         return !(a < b); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 #endif // LZ_ZIP_LONGEST_ITERATOR_HPP

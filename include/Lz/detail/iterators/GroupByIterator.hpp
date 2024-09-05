@@ -3,14 +3,15 @@
 #ifndef LZ_GROUP_BY_ITERATOR_HPP
 #define LZ_GROUP_BY_ITERATOR_HPP
 
-#include "BasicIteratorView.hpp"
-#include "FunctionContainer.hpp"
-#include "LzTools.hpp"
+#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #include <algorithm>
 
 namespace lz {
-namespace internal {
+namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class Comparer, class Execution>
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
@@ -37,7 +38,7 @@ class GroupByIterator {
         Ref next = *_subRangeEnd;
         ++_subRangeEnd;
 #ifdef LZ_HAS_EXECUTION
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             _subRangeEnd = std::find_if(std::move(_subRangeEnd), _end,
                                         [this, &next](const IterValueType& v) { return !_comparer(v, next); });
         }
@@ -110,6 +111,6 @@ public:
         return !(lhs != rhs); // NOLINT
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 #endif // LZ_GROUP_BY_ITERATOR_HPP
