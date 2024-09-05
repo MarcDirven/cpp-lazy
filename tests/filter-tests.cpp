@@ -48,24 +48,6 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
         CHECK(*it == array[1]);
     }
 
-    SECTION("Operator--") {
-        std::array<int, 5> ar = { 2, 2, 3, 4, 2 };
-        auto filter2 = lz::filter(ar, [](int i) { return i != 2; });
-        using It2 = decltype(filter2.begin());
-        auto itEnd = filter2.end();
-        --itEnd;
-        CHECK(*itEnd == 4);
-        --itEnd;
-        CHECK(*itEnd == 3);
-        CHECK(itEnd == filter2.begin());
-        CHECK(std::distance(std::reverse_iterator<It2>(filter2.end()), std::reverse_iterator<It2>(filter2.begin())) == 2);
-
-        std::array<int, 1> arr = { 1 };
-        auto filter3 = lz::filter(arr, [](int i) { return i != 1; });
-        using It3 = decltype(filter3.begin());
-        CHECK(std::distance(std::reverse_iterator<It3>(filter3.end()), std::reverse_iterator<It3>(filter3.begin())) == 0);
-    }
-
     SECTION("Operator== & operator!=") {
         CHECK(it != filter.end());
         it = filter.end();

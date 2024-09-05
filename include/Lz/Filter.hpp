@@ -4,39 +4,35 @@
 #define LZ_FILTER_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/FilterIterator.hpp"
+#include "detail/iterators/FilterIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
-
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution>
-class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>> {
+class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, UnaryPredicate, Execution>> {
+public:
+    using iterator = detail::FilterIterator<Iterator, UnaryPredicate, Execution>;
+
+    LZ_CONSTEXPR_CXX_20 Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, function, execution),
+                                            iterator(end, begin, end, function, execution)) {
+    }
 #else
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
-class Filter final : public internal::BasicIteratorView<internal::FilterIterator<Iterator, UnaryPredicate>> {
-#endif
+class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, UnaryPredicate>> {
 public:
-#ifdef LZ_HAS_EXECUTION
-    using iterator = internal::FilterIterator<Iterator, UnaryPredicate, Execution>;
-#else
-    using iterator = internal::FilterIterator<Iterator, UnaryPredicate>;
+    using iterator = detail::FilterIterator<Iterator, UnaryPredicate>;
+
+    Filter(Iterator begin, Iterator end, UnaryPredicate function) :
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, function), iterator(end, begin, end, function)) {
+    }
 #endif
+
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
-
-#ifdef LZ_HAS_EXECUTION
-    LZ_CONSTEXPR_CXX_20 Filter(Iterator begin, Iterator end, UnaryPredicate function, Execution execution) :
-        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, function, execution),
-                                              iterator(end, begin, end, function, execution)) {
-    }
-#else
-    Filter(Iterator begin, Iterator end, UnaryPredicate function) :
-        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, function), iterator(end, begin, end, function)) {
-    }
-#endif
 
     constexpr Filter() = default;
 };
@@ -63,14 +59,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<Iterator, UnaryPredicate, Execution>
 filterRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution = std::execution::seq) {
     static_assert(std::is_convertible<decltype(predicate(*begin)), bool>::value,
                   "function must return type that can be converted to bool");
-    static_cast<void>(internal::isCompatibleForExecution<Execution, Iterator>());
+    static_cast<void>(detail::isCompatibleForExecution<Execution, Iterator>());
     return { std::move(begin), std::move(end), std::move(predicate), execution };
 }
 
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Filter<detail::IterTypeFromIterable<Iterable>, UnaryPredicate, Execution>
 filter(Iterable&& iterable, UnaryPredicate predicate, Execution execPolicy = std::execution::seq) {
-    return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+    return filterRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                        std::move(predicate), execPolicy);
 }
 
@@ -102,8 +98,8 @@ Filter<Iterator, UnaryPredicate> filterRange(Iterator begin, Iterator end, Unary
  * over using `for (auto... lz::filter(...))`.
  */
 template<class Iterable, class UnaryPredicate>
-Filter<internal::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
-    return filterRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+Filter<detail::IterTypeFromIterable<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
+    return filterRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                        std::move(predicate));
 }
 #endif // LZ_HAS_EXECUTION
