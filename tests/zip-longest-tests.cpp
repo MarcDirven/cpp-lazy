@@ -9,8 +9,8 @@ TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic funct
 
     auto fwd = lz::zipLongest(v, v2, v3);
     auto ra = lz::zipLongest(v, v3);
-    static_assert(lz::internal::IsForward<decltype(fwd.begin())>::value, "");
-    static_assert(lz::internal::IsRandomAccess<decltype(ra.begin())>::value, "");
+    static_assert(lz::detail::IsForward<decltype(fwd.begin())>::value, "");
+    static_assert(lz::detail::IsRandomAccess<decltype(ra.begin())>::value, "");
 
     SECTION("Unequal lengths") {
         CHECK(std::distance(fwd.begin(), fwd.end()) == 7);
