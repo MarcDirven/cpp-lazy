@@ -35,9 +35,9 @@ TEST_CASE("Iterator chaining") {
                          .take(size)
                          .drop(0)
                          .map([](int& i) -> int& { return i; })
-                         .takeWhile([](int i) { return i == 1; })
                          .dropWhile([](int i) { return i != 1; })
                          .sort()
+                         .takeWhile([](int i) { return i == 1; })
                          .enumerate()
                          .all([](std::pair<int, int> i) { return i.second == 1; });
 
