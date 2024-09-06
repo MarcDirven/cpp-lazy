@@ -12,7 +12,7 @@
 #elif defined(LZ_STANDALONE)
 #include <ostream>
 #else
-#include <fmt/ostream.h>
+#include <fmt/core.h>
 #endif
 // clang-format on
 
@@ -51,22 +51,24 @@ public:
         auto end = joinIter.end()._getIterator();
         const auto& delimiter = begin._getDelimiter();
 // clang-format off
-#if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT) 
-        std::format_to(std::ostreambuf_iterator<char>(o), "{}", *iter);
+#if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
+        auto out = std::ostream_iterator<char>(o);
+        std::format_to(out, "{}", *iter);
 #elif defined(LZ_STANDALONE)
         o << *iter;
 #else
-        fmt::print(o, "{}", *iter);     
+        auto out = std::ostream_iterator<char>(o);
+        fmt::format_to(out, "{}", *iter);     
 #endif
         // clang-format on
         for (++iter; iter != end; ++iter) {
 // clang-format off
 #if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
-            std::format_to(std::ostreambuf_iterator<char>(o), "{}{}", delimiter, *iter);
+            std::format_to(out, "{}{}", delimiter, *iter);
 #elif defined(LZ_STANDALONE)
             o << delimiter << *iter;
 #else
-            fmt::print(o, "{}{}", delimiter, *iter);
+            fmt::format_to(out, "{}{}", delimiter, *iter);
 #endif
             // clang-format on
         }

@@ -33,6 +33,7 @@ set(examples
     StringSplitter
     Take
     TakeEvery
+    TakeWhile
     ToContainer
     Unique
     Zip
