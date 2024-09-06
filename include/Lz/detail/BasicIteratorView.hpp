@@ -773,7 +773,7 @@ struct std::formatter<
         return std::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#else
+#elif !defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterable>
 struct fmt::formatter<
     Iterable,

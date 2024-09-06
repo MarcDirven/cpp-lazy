@@ -6,6 +6,7 @@
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/Traits.hpp"
 
+#include <array> // std::get
 #include <cstddef>
 #include <iterator>
 #include <limits>
