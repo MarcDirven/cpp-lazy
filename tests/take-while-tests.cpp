@@ -27,14 +27,16 @@ TEST_CASE("Drop while takes elements and is by reference", "[TakeWhile][Basic fu
     SECTION("Should drop elements") {
         auto dropWhile = lz::dropWhile(array, [](int element) { return element < 5; });
         auto it = dropWhile.begin();
-        CHECK(std::distance(it, dropWhile.end()) == 5);
+        CHECK(std::distance(it, dropWhile.end()) == 6);
     }
 
     SECTION("Should be by reference") {
         auto dropWhile = lz::dropWhile(array, [](int element) { return element < 5; });
         auto it = dropWhile.begin();
         *it = 50;
-        CHECK(array[5] == 50);
+        CHECK(array[4] == 50);
+        CHECK(array[4] != 6);
+        CHECK(array[0] == 1);
     }
 }
 
