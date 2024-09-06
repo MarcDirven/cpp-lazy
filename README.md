@@ -1,4 +1,6 @@
-[![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Total alerts](https://img.shields.io/lgtm/alerts/g/MarcDirven/cpp-lazy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/MarcDirven/cpp-lazy/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/MarcDirven/cpp-lazy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/MarcDirven/cpp-lazy/context:cpp)
+[![Build status](https://github.com/MarcDirven/cpp-lazy/workflows/Continuous%20Integration/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CodeQL](https://github.com/MarcDirven/cpp-lazy/actions/workflows/codeql.yml/badge.svg)](https://github.com/MarcDirven/cpp-lazy/actions/workflows/codeql.yml)
 
 ![](https://i.ibb.co/ccn2V8N/Screenshot-2021-05-05-Make-A-High-Quality-Logo-In-Just-5-Minutes-For-Under-30-v1-cropped.png)
 
@@ -22,7 +24,7 @@ int main() {
 - Easy print using `std::cout << [lz::IteratorView]` or `fmt::print("{}", [lz::IteratorView])`
 - Compatible with old(er) compiler versions; at least `gcc` versions => `4.8` & `clang` => `5.0.0` (previous 
 versions have not been checked, so I'd say at least a compiler with C++11 support).
-- Tested with `-Wpedantic -Wextra -Wall -Wno-unused-function` and `/W4` for MSVC
+- Tested with `-Wpedantic -Wextra -Wall -Wshadow -Wno-unused-function -Werror -Wconversion` and `/WX` for MSVC
 - One optional dependency ([`{fmt}`](https://github.com/fmtlib/fmt))
 - `std::format` compatible
 - STL compatible
@@ -110,6 +112,15 @@ bugs. While this library does all the looping for you and is thoroughly tested u
 equivalent is quite trivial to write yourself, but you may want to look at `lz::concat`.
 
 # Installation
+## With xmake
+Everything higher than version 7.0.2 is supported.
+```xmake
+add_requires("cpp-lazy >=7.0.2")
+
+target("test")
+    add_packages("cpp-lazy")
+```
+
 ## Without CMake
 ### Without `{fmt}`
 - Clone the repository
@@ -163,7 +174,7 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} cpp-lazy::cpp-lazy)
 ```
 
-However, there is a way which is much faster, cleaner and way more recommended. That is: downloading the source code only (LICENSE.md, CMakeLists.txt and the include directories), which can be done as follows (please note that this is supported from cpp-lazy version >= 5.0.1, further, note that you choose the cpp-lazy-src.zip, and not the source-code.zip/source-code.tar.gz):
+However, the following way is recommended (cpp-lazy version >= 5.0.1). Note that you choose the cpp-lazy-src.zip, and not the source-code.zip/source-code.tar.gz):
 ```cmake
 
 # Uncomment this line to use the cpp-lazy standalone version
