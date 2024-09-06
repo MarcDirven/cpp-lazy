@@ -23,7 +23,9 @@
 #else
 #include <sstream>
 #endif // LZ_HAS_FORMAT
-#endif // LZ_STANDALONE
+#else
+#include <fmt/ostream.h>
+#endif
 
 namespace lz {
 
@@ -638,7 +640,26 @@ public:
      * @return The stream object by reference.
      */
     friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<It>& it) {
-        return o << it.toString(" ");
+        const auto end = std::end(it);
+#ifndef LZ_STANDALONE
+        auto out = std::ostream_iterator<char>(o);
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                fmt::format_to(out, "{}", *i);
+                break;
+            }
+            fmt::format_to(out, "{}, ", *i);
+        }
+#else
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                o << *i;
+                break;
+            }
+            o << *i << ", ";
+        }
+#endif
+        return o;
     }
 
     /**
@@ -738,8 +759,6 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 #endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
-LZ_MODULE_EXPORT_SCOPE_END
-
 #if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>
 struct std::formatter<
@@ -754,8 +773,16 @@ struct std::formatter<
         return std::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#endif // defined(LZ_HAS_FORMAT)
+#else
+template<class Iterable>
+struct fmt::formatter<
+    Iterable,
+    lz::detail::EnableIf<
+        std::is_base_of<lz::detail::BasicIteratorView<lz::detail::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
+    : fmt::ostream_formatter {};
+#endif
 
+LZ_MODULE_EXPORT_SCOPE_END
 // End of group
 /**
  * @}
