@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
+#include <array> // tuple_element
 
 namespace lz {
 namespace detail {
