@@ -14,11 +14,10 @@ class MapIterator {
     Iterator _iterator{};
     mutable FunctionContainer<Function> _function{};
 
-    using It = decltype(*_iterator);
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using reference = decltype(_function(std::forward<It>(*_iterator)));
+    using reference = decltype(_function(*_iterator));
     using value_type = Decay<reference>;
     using iterator_category = typename IterTraits::iterator_category;
     using difference_type = typename IterTraits::difference_type;
