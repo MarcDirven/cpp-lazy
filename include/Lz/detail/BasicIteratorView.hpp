@@ -650,6 +650,15 @@ public:
             }
             fmt::format_to(out, "{}, ", *i);
         }
+#elif defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
+        auto out = std::ostream_iterator<char>(o);
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                std::format_to(out, "{}", *i);
+                break;
+            }
+            std::format_to(out, "{}, ", *i);
+        }
 #else
         for (auto i = std::begin(it); i != end; ++i) {
             if (std::next(i) == end) {
