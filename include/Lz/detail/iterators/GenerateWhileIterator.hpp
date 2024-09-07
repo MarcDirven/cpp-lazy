@@ -5,6 +5,8 @@
 
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/Traits.hpp"
+
 
 namespace lz {
 namespace detail {
@@ -15,7 +17,7 @@ class GenerateWhileIterator {
     std::tuple<Args...> _args{};
 
     using FunctionReturnType = decltype(_tupleInvoker(_args));
-    using PairSecond = typename std::tuple_element<1, FunctionReturnType>::type;
+    using PairSecond = TupleElement<1, FunctionReturnType>;
     FunctionReturnType _lastReturned;
 
 public:
