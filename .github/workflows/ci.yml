@@ -19,6 +19,7 @@ env:
 jobs:
   gcc:
     strategy:
+      fail-fast: false
       matrix:
         version: [9, 10, 11]
         standard: [11, 20]
@@ -70,6 +71,7 @@ jobs:
 
   clang:
     strategy:
+      fail-fast: false
       matrix:
         version: [11, 12, 13, 14]
         standard: [11, 20]
@@ -136,6 +138,7 @@ jobs:
 
   msvc:
     strategy:
+      fail-fast: false
       matrix:
         os: [ windows-2019, windows-2022]
         standard: [11, 20]
