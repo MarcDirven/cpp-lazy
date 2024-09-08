@@ -70,6 +70,19 @@ struct TupleExpand {
     explicit constexpr TupleExpand(Fn fn) : _fn(std::move(fn)) {
     }
 
+#if defined(LZ_HAS_CXX_11) && defined(LZ_MSVC)
+    template<class Tuple>
+    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) ->
+        typename std::result_of<FunctionContainer<Fn>(decltype(std::get<I>(std::forward<Tuple>(tuple)))...)>::type {
+        return _fn(std::get<I>(std::forward<Tuple>(tuple))...);
+    }
+
+    template<class Tuple>
+    LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) const ->
+        typename std::result_of<FunctionContainer<Fn>(decltype(std::get<I>(std::forward<Tuple>(tuple)))...)>::type {
+        return _fn(std::get<I>(std::forward<Tuple>(tuple))...);
+    }
+#else
     template<class Tuple>
     LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) -> decltype(_fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
         return _fn(std::get<I>(std::forward<Tuple>(tuple))...);
@@ -79,6 +92,7 @@ struct TupleExpand {
     LZ_CONSTEXPR_CXX_14 auto operator()(Tuple&& tuple) const -> decltype(_fn(std::get<I>(std::forward<Tuple>(tuple))...)) {
         return _fn(std::get<I>(std::forward<Tuple>(tuple))...);
     }
+#endif
 };
 
 template<class Fn, std::size_t... I>
