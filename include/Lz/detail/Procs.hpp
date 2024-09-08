@@ -172,7 +172,7 @@ void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value], const 
 #ifdef __cpp_lib_to_chars
 template<class T>
 void toStringFromBuff(const T value, char buff[SafeBufferSize<T>::value]) {
-    std::to_chars(std::begin(buff), std::end(buff), value);
+    std::to_chars(buff, buff + SafeBufferSize<T>::value, value);
 }
 #elif defined(__cpp_if_constexpr)
 template<class T>
