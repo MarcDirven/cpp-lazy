@@ -4,6 +4,7 @@
 #define LZ_DETAIL_PROCS_HPP
 
 #include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/FunctionContainer.hpp"
 #include "Lz/detail/Traits.hpp"
 
 #include <array> // std::get
@@ -56,9 +57,6 @@ constexpr T* end(T (&array)[N]) noexcept {
     return std::end(array);
 }
 
-template<class>
-class FunctionContainer;
-
 template<class Fn, std::size_t... I>
 struct TupleExpand {
     FunctionContainer<Fn> _fn{};
@@ -84,7 +82,7 @@ constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
 
-template<LZ_CONCEPT_INTEGRAL Arithmetic>
+template<class Arithmetic>
 LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
     return (value % 2) == 0;
 }
@@ -93,7 +91,7 @@ template<class... Ts>
 LZ_CONSTEXPR_CXX_14 void decompose(const Ts&...) noexcept {
 }
 
-template<class Result, LZ_CONCEPT_INTEGRAL Arithmetic>
+template<class Result, class Arithmetic>
 LZ_CONSTEXPR_CXX_14 Result roundEven(const Arithmetic a, const Arithmetic b) noexcept {
     LZ_ASSERT(a != 0 && b != 0, "division by zero error");
     if (b == 1) {
