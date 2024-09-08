@@ -5,6 +5,7 @@
 
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/Procs.hpp"
 
 namespace lz {
 namespace detail {
