@@ -3,12 +3,17 @@
 #ifndef LZ_STRING_VIEW_HPP
 #define LZ_STRING_VIEW_HPP
 
-#include "detail/LzTools.hpp"
+#include "detail/CompilerChecks.hpp"
 
 #ifdef LZ_HAS_STRING_VIEW
 #include <string_view>
 #else
+#include <cstddef>
 #include <ostream>
+#endif
+
+#if !defined(LZ_HAS_STRING_VIEW) && !defined(LZ_STANDALONE)
+#include <fmt/core.h>
 #endif
 
 namespace lz {
@@ -105,78 +110,6 @@ public:
         return { _data, _size };
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const BasicStringView other) const noexcept {
-        return _size == other._size && std::char_traits<CharT>::compare(_data, other._data, _size) == 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const BasicStringView other) const noexcept {
-        return !(*this == other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const BasicStringView other) const noexcept {
-        return std::char_traits<CharT>::compare(_data, other._data, std::min(_size, other._size)) < 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const BasicStringView other) const noexcept {
-        return other < *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const BasicStringView other) const noexcept {
-        return !(*this > other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const BasicStringView other) const noexcept {
-        return !(*this < other);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const std::basic_string<CharT>& str) const {
-        return *this == BasicStringView(str.c_str(), str.size());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const std::basic_string<CharT>& str) const {
-        return !(*this == str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const std::basic_string<CharT>& str) const {
-        return *this < BasicStringView(str.c_str(), str.size());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const std::basic_string<CharT>& str) const {
-        return *this > BasicStringView(str.c_str(), str.size());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const std::basic_string<CharT>& str) const {
-        return !(*this > str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const std::basic_string<CharT>& str) const {
-        return !(*this < str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator==(const CharT* str) const noexcept {
-        return *this == BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator!=(const CharT* str) const noexcept {
-        return !(*this == str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<(const CharT* str) const noexcept {
-        return *this < BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>(const CharT* str) const noexcept {
-        return *this > BasicStringView(str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator<=(const CharT* str) const noexcept {
-        return !(*this > str);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 bool operator>=(const CharT* str) const noexcept {
-        return !(*this < str);
-    }
-
     explicit operator std::basic_string<CharT>() const {
         return toStdString();
     }
@@ -200,6 +133,163 @@ private:
     const CharT* _data{ nullptr };
     std::size_t _size{};
 };
+
+// Equality operator
+template<class CharT>
+inline bool operator==(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return lhs.size() == rhs.size() && std::char_traits<CharT>::compare(lhs.data(), rhs.data(), lhs.size()) == 0;
+}
+
+template<class CharT>
+inline bool operator==(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return lhs == BasicStringView<CharT>(rhs.c_str(), rhs.size());
+}
+
+template<class CharT>
+inline bool operator==(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return BasicStringView<CharT>(lhs.c_str(), lhs.size()) == rhs;
+}
+
+template<class CharT>
+inline bool operator==(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return lhs == BasicStringView<CharT>(rhs);
+}
+
+template<class CharT>
+inline bool operator==(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return BasicStringView<CharT>(lhs) == rhs;
+}
+
+// Inequality operator
+template<class CharT>
+inline bool operator!=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class CharT>
+inline bool operator!=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class CharT>
+inline bool operator!=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<class CharT>
+inline bool operator!=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return !(lhs == rhs);
+}
+
+template<class CharT>
+inline bool operator!=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs == rhs);
+}
+
+// Less than operator
+template<class CharT>
+inline bool operator<(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    const auto cmp = std::char_traits<CharT>::compare(lhs.data(), rhs.data(), std::min(lhs.size(), rhs.size()));
+    return cmp < 0 || (cmp == 0 && lhs.size() < rhs.size());
+}
+
+template<class CharT>
+inline bool operator<(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return lhs < BasicStringView<CharT>(rhs.c_str(), rhs.size());
+}
+
+template<class CharT>
+inline bool operator<(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return BasicStringView<CharT>(lhs.c_str(), lhs.size()) < rhs;
+}
+
+template<class CharT>
+inline bool operator<(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return lhs < BasicStringView<CharT>(rhs);
+}
+
+template<class CharT>
+inline bool operator<(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return BasicStringView<CharT>(lhs) < rhs;
+}
+
+// Greater than operator
+template<class CharT>
+inline bool operator>(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return rhs < lhs;
+}
+
+template<class CharT>
+inline bool operator>(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return rhs < lhs;
+}
+
+template<class CharT>
+inline bool operator>(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return rhs < lhs;
+}
+
+template<class CharT>
+inline bool operator>(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return BasicStringView<CharT>(rhs) < lhs;
+}
+
+template<class CharT>
+inline bool operator>(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return rhs < lhs;
+}
+
+// Less than or equal operator
+template<class CharT>
+inline bool operator<=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class CharT>
+inline bool operator<=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class CharT>
+inline bool operator<=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<class CharT>
+inline bool operator<=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return !(BasicStringView<CharT>(rhs) < lhs);
+}
+
+template<class CharT>
+inline bool operator<=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return !(rhs < lhs);
+}
+
+// Greater than or equal operator
+template<class CharT>
+inline bool operator>=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs < rhs);
+}
+
+template<class CharT>
+inline bool operator>=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return !(lhs < rhs);
+}
+
+template<class CharT>
+inline bool operator>=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs < rhs);
+}
+
+template<class CharT>
+inline bool operator>=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+    return !(lhs < BasicStringView<CharT>(rhs));
+}
+
+template<class CharT>
+inline bool operator>=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+    return !(lhs < rhs);
+}
 
 template<class CharT>
 constexpr std::size_t BasicStringView<CharT>::npos;

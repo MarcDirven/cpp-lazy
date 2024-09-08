@@ -4,21 +4,21 @@
 #define LZ_MAP_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/MapIterator.hpp"
+#include "detail/iterators/MapIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-class Map final : public internal::BasicIteratorView<internal::MapIterator<Iterator, Function>> {
+class Map final : public detail::BasicIteratorView<detail::MapIterator<Iterator, Function>> {
 public:
-    using iterator = internal::MapIterator<Iterator, Function>;
+    using iterator = detail::MapIterator<Iterator, Function>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20 Map(Iterator begin, Iterator end, Function function) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
     }
 
     constexpr Map() = default;
@@ -55,9 +55,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, Function> mapRange(Iterator begin
  * `for (auto... lz::map(...))`.
  */
 template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<internal::IterTypeFromIterable<Iterable>, internal::Decay<Function>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<detail::IterTypeFromIterable<Iterable>, detail::Decay<Function>>
 map(Iterable&& iterable, Function&& function) {
-    return mapRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+    return mapRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                     std::forward<Function>(function));
 }
 

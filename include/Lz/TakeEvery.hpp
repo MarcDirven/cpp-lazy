@@ -4,7 +4,7 @@
 #define LZ_TAKE_EVERY_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/TakeEveryIterator.hpp"
+#include "detail/iterators/TakeEveryIterator.hpp"
 
 namespace lz {
 
@@ -14,34 +14,34 @@ template<LZ_CONCEPT_ITERATOR, bool /* isBidirectional */>
 class TakeEvery;
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-class TakeEvery<Iterator, true> final : public internal::BasicIteratorView<internal::TakeEveryIterator<Iterator, true>> {
+class TakeEvery<Iterator, true> final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator, true>> {
 public:
-    using iterator = internal::TakeEveryIterator<Iterator, true>;
+    using iterator = detail::TakeEveryIterator<Iterator, true>;
     using const_iterator = iterator;
 
     using value_type = typename iterator::value_type;
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset) :
-        internal::BasicIteratorView<iterator>(iterator(begin, begin, end, offset), iterator(end, begin, end, offset)) {
+    TakeEvery(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset) :
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, offset), iterator(end, begin, end, offset)) {
     }
 
     constexpr TakeEvery() = default;
 };
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-class TakeEvery<Iterator, false> final : public internal::BasicIteratorView<internal::TakeEveryIterator<Iterator, false>> {
+class TakeEvery<Iterator, false> final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator, false>> {
 public:
-    using iterator = internal::TakeEveryIterator<Iterator, false>;
+    using iterator = detail::TakeEveryIterator<Iterator, false>;
     using const_iterator = iterator;
 
     using value_type = typename iterator::value_type;
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset) :
-        internal::BasicIteratorView<iterator>(iterator(begin, end, offset), iterator(end, end, offset)) {
+    TakeEvery(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset) :
+        detail::BasicIteratorView<iterator>(iterator(begin, end, offset), iterator(end, end, offset)) {
     }
 
     constexpr TakeEvery() = default;
@@ -65,9 +65,9 @@ public:
  * @return A TakeEvery object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
-takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> offset,
-               const internal::DiffType<Iterator> start = 0) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, detail::IsBidirectional<Iterator>::value>
+takeEveryRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset,
+               const detail::DiffType<Iterator> start = 0) {
     return { std::next(std::move(begin), start), std::move(end), offset };
 }
 
@@ -81,11 +81,11 @@ takeEveryRange(Iterator begin, Iterator end, const internal::DiffType<Iterator> 
  * @param start The start indexOf, optional. Can be used to skip the first element as well.
  * @return A TakeEvery object.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = internal::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, internal::IsBidirectional<Iterator>::value>
-takeEvery(Iterable&& iterable, const internal::DiffType<Iterator> offset, const internal::DiffType<Iterator> start = 0) {
-    return takeEveryRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          offset, start);
+template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterTypeFromIterable<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, detail::IsBidirectional<Iterator>::value>
+takeEvery(Iterable&& iterable, const detail::DiffType<Iterator> offset, const detail::DiffType<Iterator> start = 0) {
+    return takeEveryRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), offset,
+                          start);
 }
 
 // End of group

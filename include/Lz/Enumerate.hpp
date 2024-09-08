@@ -4,23 +4,23 @@
 #define LZ_ENUMERATE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/EnumerateIterator.hpp"
+#include "detail/iterators/EnumerateIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_INTEGRAL IntType>
-class Enumerate final : public internal::BasicIteratorView<internal::EnumerateIterator<Iterator, IntType>> {
+class Enumerate final : public detail::BasicIteratorView<detail::EnumerateIterator<Iterator, IntType>> {
 public:
-    using iterator = internal::EnumerateIterator<Iterator, IntType>;
+    using iterator = detail::EnumerateIterator<Iterator, IntType>;
     using const_iterator = iterator;
 
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
-    Enumerate(Iterator begin, Iterator end, const internal::DiffType<iterator> distance, const IntType start = 0) :
-        internal::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance), end)) {
+    Enumerate(Iterator begin, Iterator end, const detail::DiffType<iterator> distance, const IntType start = 0) :
+        detail::BasicIteratorView<iterator>(iterator(start, begin), iterator(static_cast<IntType>(distance), end)) {
     }
 
     constexpr Enumerate() = default;
@@ -50,7 +50,7 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic<Arithmetic>::value, "the template parameter Arithmetic is meant for arithmetics only");
 #endif
-    return { std::move(begin), std::move(end), internal::sizeHint(begin, end), start };
+    return { std::move(begin), std::move(end), detail::sizeHint(begin, end), start };
 }
 
 /**
@@ -66,9 +66,10 @@ enumerateRange(Iterator begin, Iterator end, const Arithmetic start = 0) {
  * @return Enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
  */
 template<LZ_CONCEPT_ARITHMETIC IntType = int, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<internal::IterTypeFromIterable<Iterable>, IntType>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Enumerate<detail::IterTypeFromIterable<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
-    return lz::enumerateRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), start);
+    return lz::enumerateRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
+                              start);
 }
 
 // End of group

@@ -4,22 +4,22 @@
 #define LZ_RANGE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/RangeIterator.hpp"
+#include "detail/iterators/RangeIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-class Range final : public internal::BasicIteratorView<internal::RangeIterator<Arithmetic>> {
+class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
 public:
-    using iterator = internal::RangeIterator<Arithmetic>;
+    using iterator = detail::RangeIterator<Arithmetic>;
     using const_iterator = iterator;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using value_type = typename iterator::value_type;
 
 private:
-    using Base = internal::BasicIteratorView<iterator>;
+    using Base = detail::BasicIteratorView<iterator>;
 
 public:
     constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :

@@ -4,12 +4,11 @@
 #include <catch2/catch.hpp>
 
 TEST_CASE("Overall tests with LZ_STANDALONE defined") {
-
-    std::array<int, 4> array = { 1, 2, 3, 4 };
-    std::string combined = lz::join(array, ", ").toString();
+    std::array<unsigned, 4> array = { 1, 2, 3, 4 };
+    auto combined = lz::join(array, ", ").toString();
 
     REQUIRE(combined == "1, 2, 3, 4");
-    REQUIRE(lz::map(array, [](int i) { return i + 1; }).toString(" ") == "2 3 4 5");
+    REQUIRE(lz::map(array, [](unsigned i) { return i + 1; }).toString(" ") == "2 3 4 5");
 
     std::array<bool, 4> bools = { true, false, true, false };
     auto boolMap = lz::join(bools, ", ").toString();
@@ -20,7 +19,6 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     auto splitter = lz::split(toSplit, ", ");
     REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
     static_assert(std::is_same<decltype(*splitter.begin()), lz::StringView>::value, "Should be StringView");
-
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
     auto doubles = lz::strJoin(vec, ", ");

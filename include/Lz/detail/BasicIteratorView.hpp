@@ -3,8 +3,11 @@
 #ifndef LZ_BASIC_ITERATOR_VIEW_HPP
 #define LZ_BASIC_ITERATOR_VIEW_HPP
 
-#include "LzTools.hpp"
 #include "Lz/StringView.hpp"
+#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/Concepts.hpp"
+#include "Lz/detail/Procs.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #include <algorithm>
 #include <array>
@@ -20,7 +23,9 @@
 #else
 #include <sstream>
 #endif // LZ_HAS_FORMAT
-#endif // LZ_STANDALONE
+#else
+#include <fmt/ostream.h>
+#endif
 
 namespace lz {
 
@@ -33,7 +38,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  * @return True if it is empty, false otherwise.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty(const Iterator begin, const Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty(const Iterator& begin, const Iterator& end) {
     return begin == end;
 }
 
@@ -55,7 +60,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool empty(const Iterable& iterable) {
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::RefType<Iterator> front(const Iterator& begin, const Iterator& end) {
     LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the first element");
     static_cast<void>(end);
     return *begin;
@@ -67,7 +72,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> front(Iterator begi
  * @return The first element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> front(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::RefType<detail::IterTypeFromIterable<Iterable>> front(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
     return lz::front(std::begin(iterable), std::end(iterable));
 }
@@ -79,9 +84,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterabl
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin, Iterator end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::RefType<Iterator> back(Iterator begin, Iterator end) {
     LZ_ASSERT(!lz::empty(begin, end), "sequence cannot be empty in order to get the last element");
-    static_assert(internal::IsBidirectional<Iterator>::value, "Iterator is not bidirectional. Cannot get last element");
+    static_assert(detail::IsBidirectional<Iterator>::value, "Iterator is not bidirectional. Cannot get last element");
     return *--end;
 }
 
@@ -92,14 +97,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<Iterator> back(Iterator begin
  * @return The last element of the sequence (by reference).
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::RefType<internal::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::RefType<detail::IterTypeFromIterable<Iterable>> back(Iterable&& iterable) {
     LZ_ASSERT(!lz::empty(iterable), "sequence cannot be empty in order to get the last element");
     return lz::back(std::begin(iterable), std::end(iterable));
 }
 
 LZ_MODULE_EXPORT_SCOPE_END
 
-namespace internal {
+namespace detail {
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterator>
 EnableIf<std::is_arithmetic<ValueType<Iterator>>::value>
@@ -163,7 +168,7 @@ toStringImpl(std::string& result, const Iterator& begin, const Iterator& end, co
 }
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::EnableIf<std::is_same<char, ValueType<Iterator>>::value, std::string>
+LZ_CONSTEXPR_CXX_20 detail::EnableIf<std::is_same<char, ValueType<Iterator>>::value, std::string>
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
 #else
@@ -188,7 +193,7 @@ doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter) {
 }
 
 template<class Iterator>
-LZ_CONSTEXPR_CXX_20 internal::EnableIf<!std::is_same<char, ValueType<Iterator>>::value, std::string>
+LZ_CONSTEXPR_CXX_20 detail::EnableIf<!std::is_same<char, ValueType<Iterator>>::value, std::string>
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
 doMakeString(const Iterator& b, const Iterator& e, const StringView delimiter, const StringView fmt) {
 #else
@@ -342,13 +347,13 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Container to(Execution execution = std::execution::seq, Args&&... args) const {
         Container container(std::forward<Args>(args)...);
         tryReserve(container);
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (detail::IsSequencedPolicyV<Execution>) {
             copyTo(std::inserter(container, container.begin()), execution);
         }
         else {
             static_assert(HasResize<Container>::value, "Container needs to have a method resize() in order to use parallel"
                                                        " algorithms. Use std::execution::seq instead");
-            static_assert(internal::IsRandomAccess<It>::value,
+            static_assert(detail::IsRandomAccess<It>::value,
                           "The iterator needs to be random access. Please use copyTo if you want to parallize this function");
             container.resize(static_cast<std::size_t>(_end - _begin));
             copyTo(container.begin(), execution);
@@ -364,7 +369,7 @@ public:
      */
     template<class OutputIterator, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 void copyTo(OutputIterator outputIterator, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, OutputIterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, OutputIterator>()) {
             std::copy(_begin, _end, outputIterator);
         }
         else {
@@ -384,7 +389,7 @@ public:
     template<class OutputIterator, class TransformFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 void
     transformTo(OutputIterator outputIterator, TransformFunc&& transformFunc, Execution execution = std::execution::seq) const {
-        if constexpr (internal::IsSequencedPolicyV<Execution>) {
+        if constexpr (detail::IsSequencedPolicyV<Execution>) {
             std::transform(_begin, _end, outputIterator, std::forward<TransformFunc>(transformFunc));
         }
         else {
@@ -605,7 +610,7 @@ public:
     toUnorderedMap(const KeySelectorFunc keyGen, const Allocator& alloc = {}, const KeyEquality& cmp = {},
                    const Hasher& h = {}) const {
         using UnorderedMap = std::unordered_map<KeyType<KeySelectorFunc>, value_type, Hasher, KeyEquality, Allocator>;
-        UnorderedMap um(static_cast<std::size_t>(internal::sizeHint(_begin, _end)), h, cmp, alloc);
+        UnorderedMap um(static_cast<std::size_t>(detail::sizeHint(_begin, _end)), h, cmp, alloc);
         createMap(um, keyGen);
         return um;
     }
@@ -620,10 +625,10 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::string
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     toString(const StringView delimiter = "", const StringView fmt = "{}") const {
-        return internal::doMakeString(_begin, _end, delimiter, fmt);
+        return detail::doMakeString(_begin, _end, delimiter, fmt);
 #else
     toString(const StringView delimiter = "") const {
-        return internal::doMakeString(_begin, _end, delimiter);
+        return detail::doMakeString(_begin, _end, delimiter);
 #endif
         // clang-format off
     }
@@ -635,7 +640,35 @@ public:
      * @return The stream object by reference.
      */
     friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<It>& it) {
-        return o << it.toString(" ");
+        const auto end = std::end(it);
+#ifndef LZ_STANDALONE
+        auto out = std::ostream_iterator<char>(o);
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                fmt::format_to(out, "{}", *i);
+                break;
+            }
+            fmt::format_to(out, "{}, ", *i);
+        }
+#elif defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
+        auto out = std::ostream_iterator<char>(o);
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                std::format_to(out, "{}", *i);
+                break;
+            }
+            std::format_to(out, "{}, ", *i);
+        }
+#else
+        for (auto i = std::begin(it); i != end; ++i) {
+            if (std::next(i) == end) {
+                o << *i;
+                break;
+            }
+            o << *i << ", ";
+        }
+#endif
+        return o;
     }
 
     /**
@@ -643,7 +676,7 @@ public:
      * @note Please note that this traverses the whole sequence.
      * @return The length of the view.
      */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::DiffType<It> distance() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::DiffType<It> distance() const {
         return std::distance(_begin, _end);
     }
 
@@ -652,7 +685,7 @@ public:
      * @param n The offset.
      * @return The element referred to by `begin() + n`
      */
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It next(const internal::DiffType<It> n = 1) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 It next(const detail::DiffType<It> n = 1) const {
         return std::next(_begin, n);
     }
 
@@ -675,9 +708,9 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference back() const {
         return lz::back(*this);
     }
-}; // namespace internal
+}; // namespace detail
 // clang-format on
-} // namespace internal
+} // namespace detail
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
@@ -687,10 +720,17 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  * @{
  */
 
-template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 lz::internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
-view(Iterable&& iterable) {
-    return { internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)) };
+/**
+ * @brief Returns a view to another view or container. Can be handy to slice, skip a few first or last elements using:
+ * `auto range = lz::view(vec.begin() + 4, vec.end());`
+ * @param begin The beginning of the 'view'.
+ * @param end The ending of the 'view'.
+ * @return A View object that can be converted to an arbitrary container or can be iterated over using
+ * `for (auto... lz::takeRange(...))`.
+ */
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator> view(Iterator begin, Iterator end) {
+    return { begin, end };
 }
 
 #ifndef LZ_HAS_EXECUTION
@@ -701,7 +741,7 @@ view(Iterable&& iterable) {
  * @return true if both are equal, false otherwise.
  */
 template<class IterableA, class IterableB,
-         class BinaryPredicate = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<IterableA>)>
+         class BinaryPredicate = MAKE_BIN_OP(std::equal_to, detail::ValueTypeIterable<IterableA>)>
 bool equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}) {
     return std::equal(std::begin(a), std::end(a), std::begin(b), std::move(predicate));
 }
@@ -716,8 +756,8 @@ template<class IterableA, class IterableB, class BinaryPredicate = std::equal_to
          class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
 equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Execution execution = std::execution::seq) {
-    if constexpr (internal::isCompatibleForExecution<Execution, internal::IterTypeFromIterable<IterableA>>() &&
-                  internal::isCompatibleForExecution<Execution, internal::IterTypeFromIterable<IterableB>>()) {
+    if constexpr (detail::isCompatibleForExecution<Execution, detail::IterTypeFromIterable<IterableA>>() &&
+                  detail::isCompatibleForExecution<Execution, detail::IterTypeFromIterable<IterableB>>()) {
         static_cast<void>(execution);
         return std::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(predicate));
     }
@@ -728,24 +768,30 @@ equal(const IterableA& a, const IterableB& b, BinaryPredicate predicate = {}, Ex
 #endif // LZ_HAS_EXECUTION
 } // Namespace lz
 
-LZ_MODULE_EXPORT_SCOPE_END
-
 #if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>
 struct std::formatter<
     Iterable,
-    lz::internal::EnableIf< // Enable if Iterable is base of BasicIteratorView
-        std::is_base_of<lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
+    lz::detail::EnableIf< // Enable if Iterable is base of BasicIteratorView
+        std::is_base_of<lz::detail::BasicIteratorView<lz::detail::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
     : std::formatter<std::string> {
-    using InnerIter = lz::internal::BasicIteratorView<lz::internal::IterTypeFromIterable<Iterable>>;
+    using InnerIter = lz::detail::BasicIteratorView<lz::detail::IterTypeFromIterable<Iterable>>;
 
     template<class FormatCtx>
     auto format(const InnerIter& it, FormatCtx& ctx) const -> decltype(ctx.out()) {
         return std::formatter<std::string>::format(it.toString(), ctx);
     }
 };
-#endif // defined(LZ_HAS_FORMAT)
+#elif !defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
+template<class Iterable>
+struct fmt::formatter<
+    Iterable,
+    lz::detail::EnableIf<
+        std::is_base_of<lz::detail::BasicIteratorView<lz::detail::IterTypeFromIterable<Iterable>>, Iterable>::value, char>>
+    : fmt::ostream_formatter {};
+#endif
 
+LZ_MODULE_EXPORT_SCOPE_END
 // End of group
 /**
  * @}

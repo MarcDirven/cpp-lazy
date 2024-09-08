@@ -4,21 +4,21 @@
 #define LZ_INCLUSIVE_SCAN_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/InclusiveScanIterator.hpp"
+#include "detail/iterators/InclusiveScanIterator.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class T, class BinaryOp>
-class InclusiveScan final : public internal::BasicIteratorView<internal::InclusiveScanIterator<Iterator, T, BinaryOp>> {
+class InclusiveScan final : public detail::BasicIteratorView<detail::InclusiveScanIterator<Iterator, T, BinaryOp>> {
 public:
-    using iterator = internal::InclusiveScanIterator<Iterator, T, BinaryOp>;
+    using iterator = detail::InclusiveScanIterator<Iterator, T, BinaryOp>;
     using const_iterator = iterator;
 
     constexpr InclusiveScan() = default;
 
     LZ_CONSTEXPR_CXX_14 InclusiveScan(Iterator first, Iterator last, T init, BinaryOp binaryOp) :
-        internal::BasicIteratorView<iterator>(iterator(first, last, init, binaryOp), iterator(last, last, init, binaryOp)) {
+        detail::BasicIteratorView<iterator>(iterator(first, last, init, binaryOp), iterator(last, last, init, binaryOp)) {
     }
 };
 
@@ -50,9 +50,9 @@ public:
  * @param binOp The fold function. Essentially, it is executed as (`init = binOp(std::move(init), *iterator);`)
  * @return An inclusive scan view object.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class T = internal::ValueType<Iterator>,
-         class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<Iterator>)>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 InclusiveScan<Iterator, internal::ValueType<Iterator>, internal::Decay<BinaryOp>>
+template<LZ_CONCEPT_ITERATOR Iterator, class T = detail::ValueType<Iterator>,
+         class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueType<Iterator>)>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 InclusiveScan<Iterator, detail::ValueType<Iterator>, detail::Decay<BinaryOp>>
 iScan(Iterator first, Iterator last, T&& init = {}, BinaryOp&& binOp = {}) {
     auto tmp = binOp(std::forward<T>(init), *first);
     return { std::move(first), std::move(last), std::move(tmp), std::forward<BinaryOp>(binOp) };
@@ -81,12 +81,12 @@ iScan(Iterator first, Iterator last, T&& init = {}, BinaryOp&& binOp = {}) {
  * @return An inclusive scan view object.
  */
 // clang-format off
-template<LZ_CONCEPT_ITERABLE Iterable, class T = internal::ValueTypeIterable<Iterable>, 
-         class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueTypeIterable<Iterable>)>
+template<LZ_CONCEPT_ITERABLE Iterable, class T = detail::ValueTypeIterable<Iterable>, 
+         class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueTypeIterable<Iterable>)>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14
-InclusiveScan<internal::IterTypeFromIterable<Iterable>, internal::ValueTypeIterable<Iterable>, internal::Decay<BinaryOp>>
+InclusiveScan<detail::IterTypeFromIterable<Iterable>, detail::ValueTypeIterable<Iterable>, detail::Decay<BinaryOp>>
 iScan(Iterable&& iterable, T&& init = {}, BinaryOp&& binOp = {}) {
-    return iScan(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)), 
+    return iScan(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), 
                  std::forward<T>(init), std::forward<BinaryOp>(binOp));
 }
 // clang-format on

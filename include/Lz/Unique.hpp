@@ -4,7 +4,7 @@
 #define LZ_UNIQUE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/UniqueIterator.hpp"
+#include "detail/iterators/UniqueIterator.hpp"
 
 namespace lz {
 
@@ -12,27 +12,27 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
-class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Execution, Iterator, Compare>> {
+class Unique final : public detail::BasicIteratorView<detail::UniqueIterator<Execution, Iterator, Compare>> {
 #else
 template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-class Unique final : public internal::BasicIteratorView<internal::UniqueIterator<Iterator, Compare>> {
+class Unique final : public detail::BasicIteratorView<detail::UniqueIterator<Iterator, Compare>> {
 #endif
 public:
 #ifdef LZ_HAS_EXECUTION
-    using iterator = internal::UniqueIterator<Execution, Iterator, Compare>;
+    using iterator = detail::UniqueIterator<Execution, Iterator, Compare>;
 #else
-    using iterator = internal::UniqueIterator<Iterator, Compare>;
+    using iterator = detail::UniqueIterator<Iterator, Compare>;
 #endif
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
     }
 #else
     Unique(Iterator begin, Iterator end, Compare compare) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
     }
 #endif
 
@@ -75,10 +75,10 @@ uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPo
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
 template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
-         class It = internal::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
+         class It = detail::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Unique<Execution, It, Compare>
 unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
-    return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+    return uniqueRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                        std::move(compare), execPolicy);
 }
 #else // ^^^ has execution vvv !has execution
@@ -92,7 +92,7 @@ unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::ex
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterator, class Compare = std::less<internal::ValueType<Iterator>>>
+template<class Iterator, class Compare = std::less<detail::ValueType<Iterator>>>
 #else
 template<class Iterator, class Compare = std::less<>>
 #endif // LZ_HAS_CXX_11
@@ -109,12 +109,12 @@ Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare comp
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterable, class Compare = std::less<internal::ValueTypeIterable<Iterable>>>
+template<class Iterable, class Compare = std::less<detail::ValueTypeIterable<Iterable>>>
 #else
 template<class Iterable, class Compare = std::less<>>
 #endif // LZ_HAS_CXX_11
-Unique<internal::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
-    return uniqueRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+Unique<detail::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
+    return uniqueRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                        std::move(compare));
 }
 

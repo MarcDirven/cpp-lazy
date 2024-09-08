@@ -3,12 +3,12 @@
 #ifndef LZ_FUNCTION_CONTAINER_HPP
 #define LZ_FUNCTION_CONTAINER_HPP
 
-#include "LzTools.hpp"
+#include "Lz/detail/Traits.hpp"
 
-#include <utility>
+#include <type_traits>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<class Func>
 class FunctionContainer {
     mutable Func _func;
@@ -127,17 +127,15 @@ public:
     }
 
     template<class... Args>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const noexcept(noexcept(_func(std::forward<Args>(args)...)))
-        -> decltype(_func(std::forward<Args>(args)...)) {
+    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
     }
 
     template<class... Args>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) noexcept(noexcept(_func(std::forward<Args>(args)...)))
-        -> decltype(_func(std::forward<Args>(args)...)) {
+    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
     }
 };
-} // namespace internal
+} // namespace detail
 } // namespace lz
 #endif // LZ_FUNCTION_CONTAINER_HPP

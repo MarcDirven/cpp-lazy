@@ -4,12 +4,12 @@
 #define LZ_RANDOM_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/RandomIterator.hpp"
+#include "detail/iterators/RandomIterator.hpp"
 
 #include <random>
 
 namespace lz {
-namespace internal {
+namespace detail {
 template<std::size_t N>
 class SeedSequence {
 public:
@@ -117,20 +117,20 @@ inline std::mt19937 createMtEngine() {
     SeedSequence<8> seedSeq(rd);
     return std::mt19937(seedSeq);
 }
-} // namespace internal
+} // namespace detail
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
-class Random final : public internal::BasicIteratorView<internal::RandomIterator<Arithmetic, Distribution, Generator>> {
+class Random final : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution, Generator>> {
 public:
-    using iterator = internal::RandomIterator<Arithmetic, Distribution, Generator>;
+    using iterator = detail::RandomIterator<Arithmetic, Distribution, Generator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
-        internal::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
-                                              iterator(distribution, generator, amount, isWhileTrueLoop)) {
+        detail::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
+                                            iterator(distribution, generator, amount, isWhileTrueLoop)) {
     }
 
     Random() = default;
@@ -206,7 +206,7 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic_v<Arithmetic>, "min/max type should be arithmetic");
 #endif // LZ_HAS_CONCEPTS
-    static std::mt19937 gen = internal::createMtEngine();
+    static std::mt19937 gen = detail::createMtEngine();
     if constexpr (std::is_integral_v<Arithmetic>) {
         std::uniform_int_distribution<Arithmetic> dist(min, max);
         return random(dist, gen, amount);
@@ -233,9 +233,9 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
  */
 template<class Integral>
 LZ_NODISCARD
-internal::EnableIf<std::is_integral<Integral>::value, Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
-random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    static std::mt19937 gen = internal::createMtEngine();
+    detail::EnableIf<std::is_integral<Integral>::value, Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
+    random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
+    static std::mt19937 gen = detail::createMtEngine();
     std::uniform_int_distribution<Integral> dist(min, max);
     return random(dist, gen, amount);
 }
@@ -254,10 +254,10 @@ random(const Integral min, const Integral max, const std::size_t amount = (std::
  * @return A random view object that generates a sequence of random floating point values.
  */
 template<class Floating>
-LZ_NODISCARD internal::EnableIf<std::is_floating_point<Floating>::value,
-                                Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
+LZ_NODISCARD detail::EnableIf<std::is_floating_point<Floating>::value,
+                              Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
 random(const Floating min, const Floating max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    static std::mt19937 gen = internal::createMtEngine();
+    static std::mt19937 gen = detail::createMtEngine();
     std::uniform_real_distribution<Floating> dist(min, max);
     return random(dist, gen, amount);
 }

@@ -3,7 +3,8 @@
 #ifndef LZ_GROUP_BY_HPP
 #define LZ_GROUP_BY_HPP
 
-#include "detail/GroupByIterator.hpp"
+#include "detail/BasicIteratorView.hpp"
+#include "detail/iterators/GroupByIterator.hpp"
 
 namespace lz {
 
@@ -11,23 +12,23 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<LZ_CONCEPT_ITERATOR Iterator, class Comparer, class Execution>
-class GroupBy : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer, Execution>> {
-    using iterator = internal::GroupByIterator<Iterator, Comparer, Execution>;
+class GroupBy : public detail::BasicIteratorView<detail::GroupByIterator<Iterator, Comparer, Execution>> {
+    using iterator = detail::GroupByIterator<Iterator, Comparer, Execution>;
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 template<class Iterator, class Comparer>
-class GroupBy final : public internal::BasicIteratorView<internal::GroupByIterator<Iterator, Comparer>> {
-    using iterator = internal::GroupByIterator<Iterator, Comparer>;
+class GroupBy final : public detail::BasicIteratorView<detail::GroupByIterator<Iterator, Comparer>> {
+    using iterator = detail::GroupByIterator<Iterator, Comparer>;
 #endif
     using const_iterator = iterator;
 
 public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 GroupBy(Iterator begin, Iterator end, Comparer comparer, Execution execution) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer, execution),
-                                              iterator(end, end, comparer, execution))
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer, execution),
+                                            iterator(end, end, comparer, execution))
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
     GroupBy(Iterator begin, Iterator end, Comparer comparer) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer), iterator(end, end, comparer))
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer), iterator(end, end, comparer))
 #endif // LZ_HAS_EXECUTION
     {
     }
@@ -66,9 +67,9 @@ groupByRange(Iterator begin, Iterator end, Comparer comparer = {}, Execution exe
  * @return A GroupBy iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<detail::IterTypeFromIterable<Iterable>, Comparer, Execution>
 groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
-    return groupByRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+    return groupByRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                         std::move(comparer), execution);
 }
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
@@ -82,7 +83,7 @@ groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
-template<class Iterator, class Comparer = MAKE_BIN_OP(std::equal_to, internal::ValueType<Iterator>)>
+template<class Iterator, class Comparer = MAKE_BIN_OP(std::equal_to, detail::ValueType<Iterator>)>
 GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer keySelector = {}) {
     return { std::move(begin), std::move(end), std::move(keySelector) };
 }
@@ -95,9 +96,9 @@ GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer 
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
-template<class Iterable, class Comparer = MAKE_BIN_OP(std::equal_to, internal::ValueTypeIterable<Iterable>)>
-GroupBy<internal::IterTypeFromIterable<Iterable>, Comparer> groupBy(Iterable&& iterable, Comparer comparer = {}) {
-    return groupByRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
+template<class Iterable, class Comparer = MAKE_BIN_OP(std::equal_to, detail::ValueTypeIterable<Iterable>)>
+GroupBy<detail::IterTypeFromIterable<Iterable>, Comparer> groupBy(Iterable&& iterable, Comparer comparer = {}) {
+    return groupByRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                         std::move(comparer));
 }
 

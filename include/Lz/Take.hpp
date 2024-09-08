@@ -4,10 +4,36 @@
 #define LZ_TAKE_HPP
 
 #include "detail/BasicIteratorView.hpp"
+#include "detail/iterators/TakeNIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
+
+template<class Iterator>
+class TakeN : public detail::BasicIteratorView<detail::TakeNIterator<Iterator>> {
+public:
+    using iterator = detail::TakeNIterator<Iterator>;
+    using const_iterator = iterator;
+    using value_type = typename iterator::value_type;
+
+private:
+    template<class IterCat>
+    LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, IterCat /*unused*/) :
+        detail::BasicIteratorView<iterator>(iterator(begin, 0), iterator(begin, n)) {
+    }
+
+    LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, std::random_access_iterator_tag /*unused*/) :
+        detail::BasicIteratorView<iterator>(iterator(begin, 0), iterator(begin + n, n)) {
+    }
+
+public:
+    LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n) :
+        TakeN(std::move(begin), n, typename std::iterator_traits<Iterator>::iterator_category{}) {
+    }
+
+    constexpr TakeN() = default;
+};
 
 // Start of group
 /**
@@ -21,163 +47,91 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  */
 
 /**
- * @brief Returns a view to another view or container. Can be handy to slice, skip a few first or last elements using:
- * `auto range = lz::view(vec.begin() + 4, vec.end());`
- * @param begin The beginning of the 'view'.
- * @param end The ending of the 'view'.
- * @return A View object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeRange(...))`.
+ * @brief Takes the first n elements from the iterator
+ * @param begin The begin iterator.
+ * @param n The amount of elements to take.
+ * @return A TakeN object containing the first `n` elements.
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator> view(Iterator begin, Iterator end) {
-    return { begin, end };
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, TakeN<Iterator>>
+take(Iterator begin, typename std::iterator_traits<Iterator>::difference_type n) {
+    return { std::move(begin), n };
 }
 
-#ifdef LZ_HAS_EXECUTION
+// clang-format off
 /**
- * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
- * returns false, the iterator stops. Its `begin()` function returns an iterator.
- * @param begin The beginning of the iterator.
- * @param end The beginning of the iterator.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @param execution The execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhileRange(...))`.
+ * @brief Takes the first `n` elements from the iterable.
+ * @param iterable The iterable to take elements from.
+ * @param n The amount of elements to take.
+ * @return A TakeN object containing the first `n` elements.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-takeWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
-        end = std::find_if_not(begin, end, std::move(predicate));
-    }
-    else {
-        end = std::find_if_not(execution, begin, end, std::move(predicate));
-    }
-    return { std::move(begin), std::move(end) };
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD
+LZ_CONSTEXPR_CXX_14 detail::EnableIf<detail::HasBeginFunc<Iterable>::value, TakeN<detail::IterTypeFromIterable<Iterable>>>
+take(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> n) {
+    return take(detail::begin(std::forward<Iterable>(iterable)), n);
 }
 
 /**
- * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
- * Its `begin()` function returns an iterator.
- * @param iterable An object that has methods `begin()` and `end()`.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @param execution The execution policy. Must be one of `std::execution`'s tags. Performs the find using this execution.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhile(...))`.
+ * @brief Drops the first `n` elements from the iterator.
+ * @param begin The begin iterator.
+ * @param end The end iterator.
+ * @param n The amount of elements to drop.
+ * @return A BasicIteratorView containing the iterator with the first `n` elements dropped.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
-takeWhile(Iterable&& iterable, Function predicate, Execution execution = std::execution::seq) {
-    return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate), execution);
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD
+LZ_CONSTEXPR_CXX_14 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, detail::BasicIteratorView<Iterator>>
+dropRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> n) {
+    return { std::next(std::move(begin), n), std::move(end) };
 }
 
 /**
- * @brief Creates a Take iterator view object.
- * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
- * false, no more values are being skipped.
- * @param begin The beginning of the sequence.
- * @param end The ending of the sequence.
- * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @param execution The execution policy. Must be one of std::execution::*
- * @return A Take iterator view object.
+ * @brief Drops the first `n` elements from the iterable.
+ * @param iterable The iterable to drop elements from.
+ * @param n The amount of elements to drop.
+ * @return A BasicIteratorView containing the iterable with the first `n` elements dropped.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-dropWhileRange(Iterator begin, Iterator end, Function predicate, Execution execution = std::execution::seq) {
-    if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
-        static_cast<void>(execution);
-        begin = std::find_if_not(std::move(begin), end, std::move(predicate));
-    }
-    else {
-        begin = std::find_if_not(execution, std::move(begin), end, std::move(predicate));
-    }
-    return { std::move(begin), std::move(end) };
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD
+LZ_CONSTEXPR_CXX_14 
+detail::EnableIf<detail::HasBeginFunc<Iterable>::value, detail::BasicIteratorView<detail::IterTypeFromIterable<Iterable>>>
+drop(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> n) {
+    return dropRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), n);
 }
+// clang-format on
 
 /**
- * @brief Creates a Take iterator view object.
- * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
- * false, no more values are being skipped.
- * @param iterable The sequence with the values that can be iterated over.
- * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @param execution The execution policy. Must be one of std::execution::*
- * @return A Take iterator view object.
+ * @brief Slices the iterator from `from` to `to`.
+ * @param begin The begin iterator.
+ * @param end The end iterator.
+ * @param from The beginning of the slice.
+ * @param to The end of the slice.
+ * @return A view containing the iterator sliced from `from` to `to`.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Function, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
-dropWhile(Iterable&& iterable, Function predicate, Execution execution = std::execution::seq) {
-    return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate), execution);
-}
-#else // ^^^ lz has execution vvv lz ! has execution
-/**
- * @brief Takes elements from an iterator from [begin, ...) while the function returns true. If the function
- * returns false, the iterator stops. Its `begin()` function returns an iterator.
- * @param begin The beginning of the iterator.
- * @param end The beginning of the iterator.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhileRange(...))`.
- */
-template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-takeWhileRange(Iterator begin, Iterator end, Function predicate) {
-    end = std::find_if_not(begin, end, std::move(predicate));
-    return { std::move(begin), std::move(end) };
+template<LZ_CONCEPT_ITERATOR Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, TakeN<Iterator>>
+slice(Iterator begin, const detail::DiffType<Iterator> from, const detail::DiffType<Iterator> to) {
+    LZ_ASSERT(to > from, "to must be greater than from");
+    return take(std::next(std::move(begin), from), to - from);
 }
 
+// clang-format off
 /**
- * @brief This function does the same as `lz::takeWhileRange` except that it takes an iterable as parameter.
- * Its `begin()` function returns an iterator.
- * @param iterable An object that has methods `begin()` and `end()`.
- * @param predicate A function that returns a bool and passes a value type in its argument. If the function returns
- * false, the iterator stops.
- * @return A Take object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeWhile(...))`.
+ * @brief Slices the iterable from `from` to `to`.
+ * @param iterable The iterable to slice.
+ * @param from The beginning of the slice.
+ * @param to The end of the slice.
+ * @return A view containing the iterable sliced from `from` to `to`.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
-takeWhile(Iterable&& iterable, Function predicate) {
-    return takeWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate));
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+detail::EnableIf<detail::HasBeginFunc<Iterable>::value, TakeN<detail::IterTypeFromIterable<Iterable>>>
+slice(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> from, const detail::DiffTypeIterable<Iterable> to) {
+    return slice(detail::begin(std::forward<Iterable>(iterable)), from, to);
 }
+// clang-format on
 
-/**
- * @brief Creates a Take iterator view object.
- * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
- * false, no more values are being skipped.
- * @param begin The beginning of the sequence.
- * @param end The ending of the sequence.
- * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @return A Take iterator view object.
- */
-template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<Iterator>
-dropWhileRange(Iterator begin, Iterator end, Function predicate) {
-    begin = std::find_if_not(std::move(begin), end, std::move(predicate));
-    return { std::move(begin), std::move(end) };
-}
-
-/**
- * @brief Creates a Take iterator view object.
- * @details This iterator view object can be used to skip values while `predicate` returns true. After the `predicate` returns
- * false, no more values are being skipped.
- * @param iterable The sequence with the values that can be iterated over.
- * @param predicate Function that must return `bool`, and take a `Iterator::value_type` as function parameter.
- * @return A Take iterator view object.
- */
-template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 internal::BasicIteratorView<internal::IterTypeFromIterable<Iterable>>
-dropWhile(Iterable&& iterable, Function predicate) {
-    return dropWhileRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                          std::move(predicate));
-}
-
-#endif // LZ_HAS_EXECUTION
 // End of group
 /**
  * @}

@@ -4,7 +4,7 @@
 #define LZ_EXCEPT_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/ExceptIterator.hpp"
+#include "detail/iterators/ExceptIterator.hpp"
 
 namespace lz {
 
@@ -12,17 +12,16 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer, class Execution>
-class Except final
-    : public internal::BasicIteratorView<internal::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>> {
+class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>> {
 #else
 template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer>
-class Except final : public internal::BasicIteratorView<internal::ExceptIterator<Iterator, IteratorToExcept, Comparer>> {
+class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept, Comparer>> {
 #endif
 public:
 #ifdef LZ_HAS_EXECUTION
-    using iterator = internal::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>;
+    using iterator = detail::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>;
 #else
-    using iterator = internal::ExceptIterator<Iterator, IteratorToExcept, Comparer>;
+    using iterator = detail::ExceptIterator<Iterator, IteratorToExcept, Comparer>;
 #endif
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
@@ -30,13 +29,13 @@ public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
                                Comparer comparer, Execution execPolicy) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
-                                              iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
+                                            iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
     }
 #else  // ^^^ has execution vvv ! has execution
     Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
-                                              iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
+                                            iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {
     }
 #endif // LZ_HAS_EXECUTION
 
@@ -83,11 +82,11 @@ exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, Iterat
 template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept, class Comparer = std::less<>,
          class Execution = std::execution::sequenced_policy>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Comparer, Execution>
+    Except<detail::IterTypeFromIterable<Iterable>, detail::IterTypeFromIterable<IterableToExcept>, Comparer, Execution>
     except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}, Execution execPolicy = std::execution::seq) {
-    return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                       internal::begin(std::forward<IterableToExcept>(toExcept)),
-                       internal::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer), execPolicy);
+    return exceptRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
+                       detail::begin(std::forward<IterableToExcept>(toExcept)),
+                       detail::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer), execPolicy);
 }
 
 #else // ^^^ has execution vvv ! has execution
@@ -103,7 +102,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20
  * @return An Except view object.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterator, class IteratorToExcept, class Comparer = std::less<internal::ValueType<Iterator>>>
+template<class Iterator, class IteratorToExcept, class Comparer = std::less<detail::ValueType<Iterator>>>
 #else
 template<class Iterator, class IteratorToExcept, class Comparer = std::less<>>
 #endif // LZ_HAS_CXX_11
@@ -121,15 +120,15 @@ exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, Iterat
  * @return An Except view object.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterable, class IterableToExcept, class Comparer = std::less<internal::ValueTypeIterable<Iterable>>>
+template<class Iterable, class IterableToExcept, class Comparer = std::less<detail::ValueTypeIterable<Iterable>>>
 #else
 template<class Iterable, class IterableToExcept, class Comparer = std::less<>>
 #endif // LZ_HAS_CXX_11
-Except<internal::IterTypeFromIterable<Iterable>, internal::IterTypeFromIterable<IterableToExcept>, Comparer>
+Except<detail::IterTypeFromIterable<Iterable>, detail::IterTypeFromIterable<IterableToExcept>, Comparer>
 except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}) {
-    return exceptRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)),
-                       internal::begin(std::forward<IterableToExcept>(toExcept)),
-                       internal::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer));
+    return exceptRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
+                       detail::begin(std::forward<IterableToExcept>(toExcept)),
+                       detail::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer));
 }
 #endif // LZ_HAS_EXECUTION
 

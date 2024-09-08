@@ -4,7 +4,7 @@
 #define LZ_REGEX_SPLIT_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/RegexSplitIterator.hpp"
+#include "detail/iterators/RegexSplitIterator.hpp"
 
 #include <regex>
 
@@ -13,14 +13,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class RegexTokenIter>
-class RegexSplit final : public internal::BasicIteratorView<internal::RegexSplitIterator<RegexTokenIter>> {
+class RegexSplit final : public detail::BasicIteratorView<detail::RegexSplitIterator<RegexTokenIter>> {
 public:
-    using iterator = internal::RegexSplitIterator<RegexTokenIter>;
+    using iterator = detail::RegexSplitIterator<RegexTokenIter>;
     using const_iterator = iterator;
     using value_type = typename RegexTokenIter::value_type;
 
     constexpr RegexSplit(RegexTokenIter first, RegexTokenIter last) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(first), last), iterator(last, last)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(first), last), iterator(last, last)) {
     }
 
     constexpr RegexSplit() = default;

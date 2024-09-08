@@ -4,7 +4,7 @@
 #define LZ_JOIN_WHERE_HPP
 
 #include "detail/BasicIteratorView.hpp"
-#include "detail/JoinWhereIterator.hpp"
+#include "detail/iterators/JoinWhereIterator.hpp"
 
 namespace lz {
 
@@ -12,16 +12,16 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
-class JoinWhere final : public internal::BasicIteratorView<
-                            internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>> {
+class JoinWhere final
+    : public detail::BasicIteratorView<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>> {
 
 public:
-    using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
+    using iterator = detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 class JoinWhere final
-    : public internal::BasicIteratorView<internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
-    using iterator = internal::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
+    : public detail::BasicIteratorView<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
+    using iterator = detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
 #endif
 public:
     using const_iterator = iterator;
@@ -31,15 +31,15 @@ public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b,
                                   ResultSelector resultSelector, Execution execution) :
-        internal::BasicIteratorView<iterator>(
+        detail::BasicIteratorView<iterator>(
             iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector, execution),
             iterator(endA, endA, endB, endB, a, b, resultSelector, execution)) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
     JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
-        internal::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
-                                              iterator(endA, endA, endB, endB, a, b, resultSelector)) {
+        detail::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
+                                            iterator(endA, endA, endB, endB, a, b, resultSelector)) {
     }
 #endif // LZ_HAS_EXECUTION
 
@@ -101,12 +101,12 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
  */
 template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector,
          class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>,
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinWhere<detail::IterTypeFromIterable<IterableA>, detail::IterTypeFromIterable<IterableB>,
                                            SelectorA, SelectorB, ResultSelector, Execution>
 joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
           Execution execution = std::execution::seq) {
-    return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
-                     internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
+    return joinWhere(detail::begin(std::forward<IterableA>(iterableA)), detail::end(std::forward<IterableA>(iterableA)),
+                     detail::begin(std::forward<IterableB>(iterableB)), detail::end(std::forward<IterableB>(iterableB)),
                      std::move(a), std::move(b), std::move(resultSelector), execution);
 }
 #else
@@ -154,11 +154,10 @@ joinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, Selecto
  * @return A join where iterator view object, which can be used to iterate over.
  */
 template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-JoinWhere<internal::IterTypeFromIterable<IterableA>, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB,
-          ResultSelector>
+JoinWhere<detail::IterTypeFromIterable<IterableA>, detail::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>
 joinWhere(IterableA&& iterableA, IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) {
-    return joinWhere(internal::begin(std::forward<IterableA>(iterableA)), internal::end(std::forward<IterableA>(iterableA)),
-                     internal::begin(std::forward<IterableB>(iterableB)), internal::end(std::forward<IterableB>(iterableB)),
+    return joinWhere(detail::begin(std::forward<IterableA>(iterableA)), detail::end(std::forward<IterableA>(iterableA)),
+                     detail::begin(std::forward<IterableB>(iterableB)), detail::end(std::forward<IterableB>(iterableB)),
                      std::move(a), std::move(b), std::move(resultSelector));
 }
 

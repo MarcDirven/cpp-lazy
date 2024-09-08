@@ -1,4 +1,4 @@
-#include <Lz/detail/LzTools.hpp>
+#include <Lz/detail/CompilerChecks.hpp>
 
 #if !defined(LZ_HAS_STRING_VIEW)
 

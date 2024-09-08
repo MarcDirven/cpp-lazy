@@ -10,7 +10,11 @@ int main() {
     auto result = lz::regexSplit(input, r);
 
     for (const lz::StringView word : result) {
+#ifndef LZ_STANDALONE
+        fmt::print("{}\n", word);
+#else
         std::cout << word << std::endl;
+#endif
     }
     // output: Hello World!This is a test
     return 0;

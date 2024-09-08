@@ -37,7 +37,7 @@
 
 namespace lz {
 #ifndef LZ_HAS_CXX_EXECUTION
-namespace internal {
+namespace detail {
 template<class Iterator, class T, class BinOp>
 T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
     while (begin != end) {
@@ -46,7 +46,7 @@ T accumulate(Iterator begin, Iterator end, T init, BinOp binOp) {
     }
     return init;
 }
-} // namespace internal
+} // namespace detail
 #endif // LZ_HAS_CXX_EXECUTION
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
@@ -76,8 +76,8 @@ LZ_CONSTEXPR_CXX_20 IterView<Iterator> chainRange(Iterator begin, Iterator end) 
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> chain(Iterable&& iterable) {
-    return chainRange(internal::begin(std::forward<Iterable>(iterable)), internal::end(std::forward<Iterable>(iterable)));
+LZ_CONSTEXPR_CXX_20 IterView<detail::IterTypeFromIterable<Iterable>> chain(Iterable&& iterable) {
+    return chainRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)));
 }
 
 // End of group
@@ -86,8 +86,8 @@ LZ_CONSTEXPR_CXX_20 IterView<internal::IterTypeFromIterable<Iterable>> chain(Ite
  */
 
 template<class Iterator>
-class IterView final : public internal::BasicIteratorView<Iterator> {
-    using Base = internal::BasicIteratorView<Iterator>;
+class IterView final : public detail::BasicIteratorView<Iterator> {
+    using Base = detail::BasicIteratorView<Iterator>;
     using Traits = std::iterator_traits<Iterator>;
 
 public:
@@ -110,67 +110,70 @@ public:
 
     //! See Concatenate.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD
-        LZ_CONSTEXPR_CXX_20 IterView<internal::ConcatenateIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
-        concat(Iterables&&... iterables) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ConcatenateIterator<Iterator, detail::IterTypeFromIterable<Iterables>...>>
+    concat(Iterables&&... iterables) const {
         return chain(lz::concat(*this, std::forward<Iterables>(iterables)...));
     }
 
     //! See Enumerate.hpp for documentation.
     template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::EnumerateIterator<Iterator, Arithmetic>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::EnumerateIterator<Iterator, Arithmetic>>
     enumerate(const Arithmetic begin = 0) const {
         return chain(lz::enumerate(*this, begin));
     }
 
     //! See Join.hpp for documentation.
-    LZ_NODISCARD IterView<internal::JoinIterator<Iterator>> join(std::string delimiter) const {
+    LZ_NODISCARD IterView<detail::JoinIterator<Iterator>> join(std::string delimiter) const {
         return chain(lz::join(*this, std::move(delimiter)));
     }
 
     //! See Map.hpp for documentation
     template<class UnaryFunction>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, UnaryFunction>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::MapIterator<Iterator, UnaryFunction>>
     map(UnaryFunction unaryFunction) const {
         return chain(lz::map(*this, std::move(unaryFunction)));
     }
 
-    //! See Take.hpp for documentation.
+    //! See TakeWhile.hpp for documentation.
     template<class UnaryPredicate>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> takeWhile(UnaryPredicate predicate) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto takeWhile(UnaryPredicate predicate) const
+        -> decltype(chain(lz::takeWhile(*this, std::move(predicate)))) {
         return chain(lz::takeWhile(*this, std::move(predicate)));
     }
 
-    //! See Take.hpp for documentation. Internally uses std::next to add an amount
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> take(const difference_type amount) const {
-        return chain(lz::view(this->begin(), std::next(this->begin(), amount)));
+    //! See Take.hpp for documentation. Internally uses lz::take to take the amounts
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto take(const difference_type amount) const
+        -> decltype(chain(lz::take(this->begin(), amount))) {
+        return chain(lz::take(this->begin(), amount));
     }
 
     //! Drops the first amount elements from this iterator. Internally uses std::next to add an amount
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> drop(const difference_type amount) const {
-        return chain(lz::view(std::next(this->begin(), amount), this->end()));
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto drop(const difference_type amount) const
+        -> decltype(chain(lz::dropRange(this->begin(), this->end(), amount))) {
+        return chain(lz::drop(*this, amount));
     }
 
-    //! Slices the iterator [from, to). Internally uses std::next to add the amounts
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<Iterator> slice(const difference_type from, const difference_type to) const {
-        return chain(lz::view(std::next(this->begin(), from), std::next(this->begin(), to)));
+    //! Slices the iterator [from, to). Internally uses std::next and lz::take to create a slice.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto slice(const difference_type from, const difference_type to) const
+        -> decltype(chain(lz::slice(this->begin(), from, to))) {
+        return chain(lz::slice(this->begin(), from, to));
     }
 
     //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::TakeEveryIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::TakeEveryIterator<Iterator, detail::IsBidirectional<Iterator>::value>>
     takeEvery(const difference_type offset, const difference_type start = 0) const {
         return chain(lz::takeEvery(*this, offset, start));
     }
 
     //! See Chunks.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunksIterator<Iterator, internal::IsBidirectional<Iterator>::value>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ChunksIterator<Iterator, detail::IsBidirectional<Iterator>::value>>
     chunks(const std::size_t chunkSize) const {
         return chain(lz::chunks(*this, chunkSize));
     }
 
     //! See Zip.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, internal::IterTypeFromIterable<Iterables>>...>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ZipIterator<Iterator, detail::IterTypeFromIterable<Iterables>>...>
     zip(Iterables&&... iterables) const {
         return chain(lz::zip(*this, std::forward<Iterables>(iterables)...));
     }
@@ -184,7 +187,7 @@ public:
 
     //! See FunctionTools.hpp `as` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::MapIterator<Iterator, internal::ConvertFn<T>>> as() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::MapIterator<Iterator, detail::ConvertFn<T>>> as() const {
         return chain(lz::as<T>(*this));
     }
 
@@ -194,7 +197,7 @@ public:
     }
 
     //! See FunctionTools.hpp `reverse` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ZipIterator<Iterator, Iterator>> pairwise() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ZipIterator<Iterator, Iterator>> pairwise() const {
         return chain(lz::pairwise(*this));
     }
 
@@ -203,7 +206,7 @@ public:
     //! See CartesianProduct.hpp for documentation
     template<class... Iterables>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<internal::CartesianProductIterator<Iterator, internal::IterTypeFromIterable<Iterables>...>>
+    LZ_CONSTEXPR_CXX_20 IterView<detail::CartesianProductIterator<Iterator, detail::IterTypeFromIterable<Iterables>...>>
     cartesian(Iterables&&... iterables) const {
         return chain(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
     }
@@ -211,42 +214,41 @@ public:
     // clang-format on
 
     //! See Flatten.hpp for documentation
-    template<int N = lz::internal::CountDims<std::iterator_traits<Iterator>>::value - 1>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FlattenIterator<Iterator, N>> flatten() const {
+    template<int N = lz::detail::CountDims<std::iterator_traits<Iterator>>::value - 1>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::FlattenIterator<Iterator, N>> flatten() const {
         return chain(lz::flatten(*this));
     }
 
     //! See Loop.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::LoopIterator<Iterator>> loop() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::LoopIterator<Iterator>> loop() const {
         return chain(lz::loop(*this));
     }
 
     //! See Exclude.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ExcludeIterator<Iterator>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ExcludeIterator<Iterator>>
     exclude(const difference_type from, const difference_type to) const {
         return chain(lz::exclude(*this, from, to));
     }
-    
+
     // clang-format off
     //! See InclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueType<iterator>)>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<internal::InclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
+    LZ_CONSTEXPR_CXX_20 IterView<detail::InclusiveScanIterator<Iterator, detail::Decay<T>, detail::Decay<BinaryOp>>>
     iScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
         return chain(lz::iScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
     }
 
     //! See ExclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, internal::ValueType<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueType<iterator>)>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<internal::ExclusiveScanIterator<Iterator, internal::Decay<T>, internal::Decay<BinaryOp>>>
+    LZ_CONSTEXPR_CXX_20 IterView<detail::ExclusiveScanIterator<Iterator, detail::Decay<T>, detail::Decay<BinaryOp>>>
     eScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
         return chain(lz::eScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
     }
     // clang-format on
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::RotateIterator<Iterator>>
-    rotate(iterator start) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::RotateIterator<Iterator>> rotate(iterator start) const {
         return chain(lz::rotate(std::move(start), this->begin(), this->end()));
     }
 
@@ -275,7 +277,7 @@ public:
 #ifdef LZ_HAS_EXECUTION
     //! See Filter.hpp for documentation.
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::FilterIterator<Iterator, UnaryPredicate, Execution>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::FilterIterator<Iterator, UnaryPredicate, Execution>>
     filter(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
         return chain(lz::filter(*this, std::move(predicate), execution));
     }
@@ -283,21 +285,21 @@ public:
     //! See Except.hpp for documentation.
     template<class IterableToExcept, class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-        IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
+        IterView<detail::ExceptIterator<Iterator, detail::IterTypeFromIterable<IterableToExcept>, Compare, Execution>>
         except(IterableToExcept&& toExcept, Compare compare = {}, Execution execution = std::execution::seq) const {
         return chain(lz::except(*this, toExcept, std::move(compare), execution));
     }
 
     //! See Unique.hpp for documentation.
     template<class Execution = std::execution::sequenced_policy, class Compare = std::less<>>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::UniqueIterator<Execution, Iterator, Compare>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::UniqueIterator<Execution, Iterator, Compare>>
     unique(Compare compare = {}, Execution execution = std::execution::seq) const {
         return chain(lz::unique(*this, std::move(compare), execution));
     }
 
     //! See ChunkIf.hpp for documentation
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate, Execution>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ChunkIfIterator<Iterator, UnaryPredicate, Execution>>
     chunkIf(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
         return chain(lz::chunkIf(*this, std::move(predicate), execution));
     }
@@ -305,7 +307,7 @@ public:
     //! See FunctionTools.hpp `filterMap` for documentation.
     template<class UnaryMapFunc, class UnaryFilterFunc, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-        IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
+        IterView<detail::MapIterator<detail::FilterIterator<Iterator, UnaryFilterFunc, Execution>, UnaryMapFunc>>
         filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc, Execution execution = std::execution::seq) const {
         return chain(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc), execution));
     }
@@ -319,8 +321,8 @@ public:
     //! See JoinWhere.hpp for documentation
     template<class IterableB, class SelectorA, class SelectorB, class ResultSelector,
              class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>,
-                                                                          SelectorA, SelectorB, ResultSelector, Execution>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::JoinWhereIterator<Iterator, detail::IterTypeFromIterable<IterableB>,
+                                                                        SelectorA, SelectorB, ResultSelector, Execution>>
     joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector,
               Execution execution = std::execution::seq) const {
         return chain(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector), execution));
@@ -335,7 +337,7 @@ public:
 
     //! See GroupBy.hpp for documentation
     template<class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<internal::GroupByIterator<Iterator, Comparer, Execution>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::GroupByIterator<Iterator, Comparer, Execution>>
     groupBy(Comparer comparer = {}, Execution execution = std::execution::seq) const {
         return chain(lz::groupBy(*this, std::move(comparer), execution));
     }
@@ -444,7 +446,7 @@ public:
      */
     template<class UnaryFunc, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& forEach(UnaryFunc func, Execution execution = std::execution::seq) {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             std::for_each(Base::begin(), Base::end(), std::move(func));
         }
@@ -462,7 +464,7 @@ public:
      */
     template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 T foldl(T&& init, BinaryFunction function, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::reduce(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
         }
@@ -480,13 +482,13 @@ public:
     template<class T, class BinaryFunction, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 T foldr(T&& init, BinaryFunction function, Execution execution = std::execution::seq) const {
         auto reverseView = reverse();
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
-            return std::reduce(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
-                               std::forward<T>(init), std::move(function));
+            return std::reduce(detail::begin(std::move(reverseView)), detail::end(std::move(reverseView)), std::forward<T>(init),
+                               std::move(function));
         }
         else {
-            return std::reduce(execution, internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
+            return std::reduce(execution, detail::begin(std::move(reverseView)), detail::end(std::move(reverseView)),
                                std::forward<T>(init), std::move(function));
         }
     }
@@ -509,7 +511,7 @@ public:
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference max(Compare cmp = {}, Execution execution = std::execution::seq) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::max_element(Base::begin(), Base::end(), std::move(cmp));
         }
@@ -527,7 +529,7 @@ public:
     template<class Compare = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference min(Compare cmp = {}, Execution execution = std::execution::seq) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return *std::min_element(Base::begin(), Base::end(), std::move(cmp));
         }
@@ -556,7 +558,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool all(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::all_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -573,7 +575,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool any(UnaryPredicate predicate, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::any_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -590,7 +592,7 @@ public:
      */
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool none(UnaryPredicate predicate, Execution execution = std::execution::seq) {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::none_of(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -606,7 +608,7 @@ public:
      */
     template<class T, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type count(const T& value, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count(Base::begin(), Base::end(), value);
         }
@@ -623,7 +625,7 @@ public:
     template<class UnaryPredicate, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type countIf(UnaryPredicate predicate,
                                                              Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::count_if(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -639,7 +641,7 @@ public:
      */
     template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_CONSTEXPR_CXX_20 IterView<Iterator>& sort(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) {
-        if constexpr (internal::isCompatibleForExecution<Execution, IterView>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, IterView>()) {
             static_cast<void>(execution);
             std::sort(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -657,7 +659,7 @@ public:
     template<class BinaryPredicate = std::less<>, class Execution = std::execution::sequenced_policy>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool
     isSorted(BinaryPredicate predicate = {}, Execution execution = std::execution::seq) const {
-        if constexpr (internal::isCompatibleForExecution<Execution, Iterator>()) {
+        if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
             static_cast<void>(execution);
             return std::is_sorted(Base::begin(), Base::end(), std::move(predicate));
         }
@@ -669,32 +671,32 @@ public:
 
     //! See Filter.hpp for documentation
     template<class UnaryPredicate>
-    IterView<internal::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
+    IterView<detail::FilterIterator<Iterator, UnaryPredicate>> filter(UnaryPredicate predicate) const {
         return chain(lz::filter(*this, std::move(predicate)));
     }
 
     //! See Except.hpp for documentation
     template<class IterableToExcept, class Compare = std::less<value_type>>
-    IterView<internal::ExceptIterator<Iterator, internal::IterTypeFromIterable<IterableToExcept>, Compare>>
+    IterView<detail::ExceptIterator<Iterator, detail::IterTypeFromIterable<IterableToExcept>, Compare>>
     except(IterableToExcept&& toExcept, Compare compare = {}) const {
         return chain(lz::except(*this, toExcept, std::move(compare)));
     }
 
     //! See Unique.hpp for documentation
     template<class Compare = std::less<value_type>>
-    IterView<internal::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
+    IterView<detail::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
         return chain(lz::unique(*this, std::move(compare)));
     }
 
     //! See ChunkIf.hpp for documentation
     template<class UnaryPredicate>
-    IterView<internal::ChunkIfIterator<Iterator, UnaryPredicate>> chunkIf(UnaryPredicate predicate) const {
+    IterView<detail::ChunkIfIterator<Iterator, UnaryPredicate>> chunkIf(UnaryPredicate predicate) const {
         return chain(lz::chunkIf(*this, std::move(predicate)));
     }
 
     //! See FunctionTools.hpp `filterMap` for documentation
     template<class UnaryMapFunc, class UnaryFilterFunc>
-    IterView<internal::MapIterator<internal::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>>
+    IterView<detail::MapIterator<detail::FilterIterator<Iterator, UnaryFilterFunc>, UnaryMapFunc>>
     filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) const {
         return chain(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc)));
     }
@@ -709,7 +711,7 @@ public:
     //! See JoinWhere.hpp for documentation
     template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
     LZ_CONSTEXPR_CXX_20 IterView<
-        internal::JoinWhereIterator<Iterator, internal::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>>
+        detail::JoinWhereIterator<Iterator, detail::IterTypeFromIterable<IterableB>, SelectorA, SelectorB, ResultSelector>>
     joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
         return chain(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
     }
@@ -722,7 +724,7 @@ public:
 
     //! See GroupBy.hpp for documentation
     template<class Comparer = std::equal_to<value_type>>
-    IterView<internal::GroupByIterator<Iterator, Comparer>> groupBy(Comparer comparer = {}) const {
+    IterView<detail::GroupByIterator<Iterator, Comparer>> groupBy(Comparer comparer = {}) const {
         return chain(lz::groupBy(*this, std::move(comparer)));
     }
 
@@ -834,7 +836,7 @@ public:
      */
     template<class T, class BinaryFunction>
     T foldl(T&& init, BinaryFunction function) const {
-        return internal::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
+        return detail::accumulate(Base::begin(), Base::end(), std::forward<T>(init), std::move(function));
     }
 
     /**
@@ -846,8 +848,8 @@ public:
     template<class T, class BinaryFunction>
     T foldr(T&& init, BinaryFunction function) const {
         auto reverseView = reverse();
-        return internal::accumulate(internal::begin(std::move(reverseView)), internal::end(std::move(reverseView)),
-                                    std::forward<T>(init), std::move(function));
+        return detail::accumulate(detail::begin(std::move(reverseView)), detail::end(std::move(reverseView)),
+                                  std::forward<T>(init), std::move(function));
     }
 
     /**

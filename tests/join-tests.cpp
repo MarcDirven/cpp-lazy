@@ -22,8 +22,8 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     }
 
     SECTION("Type checking") {
-        CHECK(std::is_same<decltype(*joinStr.begin()), std::string&>::value);
-        CHECK(std::is_same<decltype(*joinInt.begin()), std::string>::value);
+        static_assert(std::is_same<decltype(*joinStr.begin()), std::string&>::value, "String container should be std::string&");
+        static_assert(std::is_same<decltype(*joinInt.begin()), std::string>::value, "Int container should be std::string");
     }
 
     SECTION("Should be correct size") {
