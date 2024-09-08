@@ -126,17 +126,6 @@ public:
         return *this;
     }
 
-#if defined(LZ_HAS_CXX_11) && defined(LZ_MSVC)
-    template<class... Args>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const -> typename std::result_of<Function(Args&&...)>::type {
-        return _func(std::forward<Args>(args)...);
-    }
-
-    template<class... Args>
-    LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) -> typename std::result_of<Function(Args&&...)>::type {
-        return _func(std::forward<Args>(args)...);
-    }
-#else
     template<class... Args>
     LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) const -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
@@ -146,7 +135,6 @@ public:
     LZ_CONSTEXPR_CXX_14 auto operator()(Args&&... args) -> decltype(_func(std::forward<Args>(args)...)) {
         return _func(std::forward<Args>(args)...);
     }
-#endif
 };
 } // namespace detail
 } // namespace lz
