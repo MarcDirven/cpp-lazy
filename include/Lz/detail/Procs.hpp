@@ -16,6 +16,10 @@
 #include <exception>
 #endif // NDEBUG
 
+#if defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT)) && defined(__cpp_lib_to_chars)
+#include <charconv>
+#endif
+
 #if defined(__cpp_lib_stacktrace) && LZ_HAS_INCLUDE(<stacktrace>)
 #include <stacktrace>
 #endif
