@@ -142,6 +142,10 @@ jobs:
       matrix:
         os: [ windows-2019, windows-2022]
         standard: [11, 20]
+        exclude:
+          # MSVC compiler bug with CXX11 operator surrogate func() with decltype return value
+          - os: windows-2019
+            standard: 11
 
     runs-on: ${{ matrix.os }}
 
