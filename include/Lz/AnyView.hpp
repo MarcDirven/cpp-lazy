@@ -24,7 +24,12 @@ private:
 
 public:
     AnyView() = default;
-
+    
+    /**
+     * @brief Construct a new Any View object
+     * 
+     * @param view Any view, like a vector, list, etc. Can also be another lz range/view
+     */
     template<class View>
     AnyView(View&& view) :
         Base(It(std::make_shared<AnyIteratorImplType<View>>(detail::begin(std::forward<View>(view)))),

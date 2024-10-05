@@ -105,7 +105,7 @@ class AnyIteratorImpl<Iter, T, std::forward_iterator_tag, Reference, Pointer, Di
 
 public:
     using value_type = T;
-    using refernce = Reference;
+    using reference = Reference;
     using pointer = Pointer;
     using difference_type = DiffType;
     using iterator_category = std::forward_iterator_tag;
