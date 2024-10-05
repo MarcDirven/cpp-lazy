@@ -27,6 +27,7 @@ include(CTest)
 
 # ---- Tests ----
 add_executable(cpp-lazy-tests
+	any-view-tests.cpp
 	cartesian-product-tests.cpp
 	chunk-if-tests.cpp
 	chunks-tests.cpp
