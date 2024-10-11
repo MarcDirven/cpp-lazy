@@ -81,5 +81,6 @@ TEST_CASE("Creating a complex AnyView, std::forward_iterator_tag") {
         lz::chain(vec).as<int&>().enumerate().take(static_cast<std::ptrdiff_t>(vec.size()));
     CHECK(vec.size() == static_cast<std::size_t>(view.distance()));
     std::pair<int, int&> pair = *view.begin();
-    CHECK(pair == std::make_pair(0, 1));
+    CHECK(pair.first == 0);
+    CHECK(pair.second == vec[0]);
 }
