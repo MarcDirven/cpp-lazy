@@ -3,6 +3,7 @@
 #ifndef LZ_LZ_HPP
 #define LZ_LZ_HPP
 
+#include "Lz/AnyView.hpp"
 #include "Lz/CString.hpp"
 #include "Lz/CartesianProduct.hpp"
 #include "Lz/ChunkIf.hpp"
