@@ -3,22 +3,22 @@
 #ifndef LZ_ANY_VIEW_HELPERS_HPP
 #define LZ_ANY_VIEW_HELPERS_HPP
 
-#include "Lz/detail/iterators/anyview/AnyIteratorImpl.hpp"
+#include "Lz/detail/iterators/anyview/IteratorBase.hpp"
 
 #include <iterator>
 
 namespace lz {
 namespace detail {
 
-template<class T, class IterCat, class Reference, class Pointer, class DiffType>
+template<class T, class Reference, class IterCat, class DiffType>
 class IteratorWrapper {
-    using AnyIteratorBase = IteratorBase<T, IterCat, Reference, Pointer, DiffType>;
+    using AnyIteratorBase = IteratorBase<Reference, IterCat, DiffType>;
     std::shared_ptr<AnyIteratorBase> _ptr{ nullptr };
 
 public:
     using value_type = T;
     using reference = Reference;
-    using pointer = Pointer;
+    using pointer = FakePointerProxy<reference>;
     using difference_type = DiffType;
     using iterator_category = IterCat;
 
@@ -40,104 +40,107 @@ public:
         return *this;
     }
 
-    Reference operator*() {
-        return **_ptr;
+    IteratorWrapper& operator=(std::shared_ptr<AnyIteratorBase>&& ptr) {
+        if (_ptr != ptr) {
+            _ptr = std::move(ptr);
+        }
+        return *this;
     }
 
-    typename std::add_const<Reference>::type operator*() const {
-        return **_ptr;
+    reference operator*() {
+        return _ptr->dereference();
     }
 
-    Pointer operator->() {
-        return _ptr->operator->();
+    typename std::add_const<reference>::type operator*() const {
+        return _ptr->dereference();
     }
 
-    typename std::add_const<Pointer>::type operator->() const {
-        return _ptr->operator->();
+    pointer operator->() {
+        return _ptr->arrow();
+    }
+
+    pointer operator->() const {
+        return _ptr->arrow();
     }
 
     IteratorWrapper& operator++() {
-        ++(*_ptr);
+        _ptr->increment();
         return *this;
     }
 
     IteratorWrapper operator++(int) {
         IteratorWrapper temp = *this;
-        ++(*_ptr);
+        ++*this;
         return temp;
     }
 
     IteratorWrapper& operator--() {
-        --(*_ptr);
+        _ptr->decrement();
         return *this;
     }
 
     IteratorWrapper operator--(int) {
         IteratorWrapper temp = *this;
-        --(*_ptr);
+        --*this;
         return temp;
     }
 
     bool operator!=(const IteratorWrapper& other) const {
-        return *_ptr != *other._ptr;
+        return !(*this == other);
     }
 
     bool operator==(const IteratorWrapper& other) const {
-        return *_ptr == *other._ptr;
+        return _ptr->eq(*other._ptr);
     }
 
     bool operator<(const IteratorWrapper& other) const {
-        return *_ptr < *other._ptr;
+        return _ptr->lt(*other._ptr);
     }
 
     bool operator>(const IteratorWrapper& other) const {
-        return *_ptr > *other._ptr;
+        return other < *this;
     }
 
     bool operator<=(const IteratorWrapper& other) const {
-        return *_ptr <= *other._ptr;
+        return !(other < *this);
     }
 
     bool operator>=(const IteratorWrapper& other) const {
-        return *_ptr >= *other._ptr;
+        return !(*this < other);
     }
 
-    IteratorWrapper& operator+=(DiffType n) {
-        *_ptr += n;
+    IteratorWrapper& operator+=(const DiffType n) {
+        _ptr->plusIs(n);
         return *this;
     }
 
-    IteratorWrapper& operator-=(DiffType n) {
-        *_ptr -= n;
+    IteratorWrapper& operator-=(const DiffType n) {
+        *this += (-n);
         return *this;
     }
 
     DiffType operator-(const IteratorWrapper& other) const {
-        return *_ptr - *other._ptr;
+        return _ptr->minus(*other._ptr);
     }
 
-    IteratorWrapper operator-(DiffType n) const {
+    IteratorWrapper operator-(const DiffType n) const {
         IteratorWrapper temp = *this;
         temp -= n;
         return temp;
     }
 
-    IteratorWrapper operator+(DiffType n) const {
+    IteratorWrapper operator+(const DiffType n) const {
         IteratorWrapper temp = *this;
-        temp += n;
+        temp._ptr->plusIs(n);
         return temp;
     }
 
-    DiffType operator+(const IteratorWrapper& other) const {
-        return *_ptr + *other._ptr;
-    }
-
     Reference operator[](DiffType n) {
-        return *(*_ptr + n);
+        return *(*this + n);
     }
 
-    typename std::add_const<Reference>::type operator[](DiffType n) const {
-        return *(*_ptr + n);
+    typename std::add_const<Reference>::type operator[](const DiffType n) const {
+        return *(*this + n);
     }
 };
 
