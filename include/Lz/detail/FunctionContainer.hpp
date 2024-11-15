@@ -136,6 +136,10 @@ public:
         return _func(std::forward<Args>(args)...);
     }
 };
+
+template<class Func, class... Iterators>
+using IteratorFnRetT = FunctionReturnType<FunctionContainer<Func>, decltype(*std::declval<Iterators>())...>;
+
 } // namespace detail
 } // namespace lz
 #endif // LZ_FUNCTION_CONTAINER_HPP
