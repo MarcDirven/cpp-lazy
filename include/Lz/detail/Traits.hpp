@@ -85,6 +85,9 @@ using ValueTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Ite
 template<class Iterable>
 using DiffTypeIterable = typename std::iterator_traits<IterTypeFromIterable<Decay<Iterable>>>::difference_type;
 
+template<class... Ts>
+using CommonType = typename std::common_type<Ts...>::type;
+
 template<bool B>
 struct EnableIfImpl {};
 
