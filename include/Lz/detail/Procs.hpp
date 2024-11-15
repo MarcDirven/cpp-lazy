@@ -24,6 +24,10 @@
 #include <stacktrace>
 #endif
 
+#ifdef LZ_HAS_EXECUTION
+#include <execution>
+#endif
+
 namespace lz {
 namespace detail {
 

@@ -87,14 +87,15 @@ public:
         if constexpr (!IsRandomAccess<Iterator>::value) {
             for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
             }
-            return;
-        }
-        const auto distance = _end - _iterator;
-        if (_offset >= distance) {
-            _iterator = _end;
         }
         else {
-            _iterator += _offset;
+            const auto distance = _end - _iterator;
+            if (_offset >= distance) {
+                _iterator = _end;
+            }
+            else {
+                _iterator += _offset;
+            }
         }
     }
 
@@ -102,14 +103,15 @@ public:
         if constexpr (!IsRandomAccess<Iterator>::value) {
             for (difference_type count = _offset; _iterator != _begin && count >= 0; --_iterator, --count) {
             }
-            return;
-        }
-        const auto distance = _iterator - _begin;
-        if (_offset >= distance) {
-            _iterator = _begin;
         }
         else {
-            _iterator -= _offset;
+            const auto distance = _iterator - _begin;
+            if (_offset >= distance) {
+                _iterator = _begin;
+            }
+            else {
+                _iterator -= _offset;
+            }
         }
     }
 #else
