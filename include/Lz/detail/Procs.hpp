@@ -63,8 +63,10 @@ constexpr T* end(T (&array)[N]) noexcept {
 
 template<class Fn, std::size_t... I>
 struct TupleExpand {
+private:
     FunctionContainer<Fn> _fn{};
 
+public:
     constexpr TupleExpand() = default;
 
     explicit constexpr TupleExpand(Fn fn) : _fn(std::move(fn)) {
@@ -85,6 +87,13 @@ template<class Fn, std::size_t... I>
 constexpr TupleExpand<Fn, I...> makeExpandFn(Fn fn, IndexSequence<I...>) {
     return TupleExpand<Fn, I...>(std::move(fn));
 }
+
+template<class GenFn, class... Args>
+using TupleInvoker = decltype(makeExpandFn(std::declval<GenFn>(), MakeIndexSequence<sizeof...(Args)>()));
+
+template<class GenFn, class... Args>
+using TupleInvokerType = decltype(std::declval<TupleInvoker<GenFn, Args...>>()(
+    std::declval<typename std::add_lvalue_reference<std::tuple<Args...>>::type>()));
 
 template<class Arithmetic>
 LZ_CONSTEXPR_CXX_14 bool isEven(const Arithmetic value) noexcept {
