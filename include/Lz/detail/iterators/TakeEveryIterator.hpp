@@ -85,7 +85,7 @@ public:
 #ifdef __cpp_if_constexpr
     LZ_CONSTEXPR_CXX_20 void advance() noexcept {
         if constexpr (!IsRandomAccess<Iterator>::value) {
-            for (difference_type count = 0; _iterator != end && count < _offset; ++_iterator, ++count) {
+            for (difference_type count = 0; _iterator != _end && count < _offset; ++_iterator, ++count) {
             }
             return;
         }
