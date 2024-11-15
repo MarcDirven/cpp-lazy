@@ -46,11 +46,8 @@ public:
  * @return A Range object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::range(...))`.
  */
-template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
+template<class Arithmetic = int>
 LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Arithmetic end, const Arithmetic step = 1) noexcept {
-#ifndef LZ_HAS_CONCEPTS
-    static_assert(std::is_arithmetic<Arithmetic>::value, "type must be of type arithmetic");
-#endif
     return { start, end, step };
 }
 
@@ -62,7 +59,7 @@ LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic start, const Ari
  * @return A Range object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::range(...))`.
  */
-template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
+template<class Arithmetic = int>
 LZ_NODISCARD constexpr Range<Arithmetic> range(const Arithmetic end) noexcept {
     return range<Arithmetic>(0, end, 1);
 }
