@@ -3,6 +3,7 @@
 #ifndef LZ_EXCEPT_ITERATOR_HPP
 #define LZ_EXCEPT_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
 
@@ -12,10 +13,14 @@ namespace lz {
 namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class IteratorToExcept, class Compare, class Execution>
+class ExceptIterator : public IterBase<ExceptIterator<Iterator, IteratorToExcept, Compare, Execution>, RefType<Iterator>,
+                                       FakePointerProxy<RefType<Iterator>>, DiffType<Iterator>, std::forward_iterator_tag> {
 #else  // ^^^ has execution vvv ! has execution
 template<class Iterator, class IteratorToExcept, class Compare>
+class ExceptIterator : public IterBase<ExceptIterator<Iterator, IteratorToExcept, Compare>, RefType<Iterator>,
+                                       FakePointerProxy<RefType<Iterator>>, DiffType<Iterator>, std::forward_iterator_tag> {
 #endif // LZ_HAS_EXECUTION
-class ExceptIterator {
+
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -79,32 +84,21 @@ public:
         find();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ExceptIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_iterator;
         find();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ExceptIterator operator++(int) {
-        ExceptIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ExceptIterator& a, const ExceptIterator& b) noexcept {
-        return a._iterator != b._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ExceptIterator& a, const ExceptIterator& b) noexcept {
-        return !(a != b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ExceptIterator& b) const {
+        return _iterator == b._iterator;
     }
 };
 } // namespace detail

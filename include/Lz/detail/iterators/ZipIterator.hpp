@@ -3,6 +3,7 @@
 #ifndef LZ_ZIP_ITERATOR_HPP
 #define LZ_ZIP_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/Traits.hpp"
 
@@ -11,15 +12,16 @@
 namespace lz {
 namespace detail {
 template<class... Iterators>
-class ZipIterator {
-    using CurrentCat = typename std::common_type<IterCat<Iterators>...>::type;
+class ZipIterator : public IterBase<ZipIterator<Iterators...>, std::tuple<RefType<Iterators>...>,
+                                    std::tuple<FakePointerProxy<RefType<Iterators>>...>, CommonType<DiffType<Iterators>...>,
+                                    CommonType<IterCat<Iterators>...>> {
 
 public:
-    using iterator_category = Conditional<IsBidirectionalTag<CurrentCat>::value, std::forward_iterator_tag, CurrentCat>;
+    using iterator_category = CommonType<IterCat<Iterators>...>;
     using value_type = std::tuple<ValueType<Iterators>...>;
-    using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+    using difference_type = CommonType<DiffType<Iterators>...>;
     using reference = std::tuple<RefType<Iterators>...>;
-    using pointer = std::tuple<PointerType<Iterators>...>;
+    using pointer = std::tuple<FakePointerProxy<RefType<Iterators>>...>;
 
 private:
     using MakeIndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
@@ -52,20 +54,8 @@ private:
     }
 
     template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 void minIs(const IndexSequence<I...> is, const difference_type offset) {
-        plusIs(is, -offset);
-    }
-
-    template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 bool eq(const ZipIterator& other, IndexSequence<I...>) const {
         const bool expander[] = { (std::get<I>(_iterators) == std::get<I>(other._iterators))... };
-        const auto end = std::end(expander);
-        return std::find(std::begin(expander), end, true) != end;
-    }
-
-    template<std::size_t... I>
-    LZ_CONSTEXPR_CXX_20 bool lt(const ZipIterator& other, IndexSequence<I...>) const {
-        const bool expander[] = { (std::get<I>(_iterators) < std::get<I>(other._iterators))... };
         const auto end = std::end(expander);
         return std::find(std::begin(expander), end, true) != end;
     }
@@ -76,88 +66,32 @@ public:
 
     constexpr ZipIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return dereference(MakeIndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         increment(MakeIndexSequenceForThis());
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipIterator operator++(int) {
-        ZipIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ZipIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         decrement(MakeIndexSequenceForThis());
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipIterator operator--(int) {
-        auto tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ZipIterator& operator+=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type offset) {
         plusIs(MakeIndexSequenceForThis(), offset);
-        return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipIterator operator+(const difference_type offset) const {
-        ZipIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ZipIterator& operator-=(const difference_type offset) {
-        minIs(MakeIndexSequenceForThis(), offset);
-        return *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipIterator operator-(const difference_type offset) const {
-        ZipIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ZipIterator& other) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const ZipIterator& other) const {
         return minus(other, MakeIndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipIterator& a, const ZipIterator& b) {
-        return a.eq(b, MakeIndexSequenceForThis());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipIterator& a, const ZipIterator& b) {
-        return !(a == b);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipIterator& a, const ZipIterator& b) {
-        return a.lt(b, MakeIndexSequenceForThis());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipIterator& a, const ZipIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ZipIterator& a, const ZipIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ZipIterator& a, const ZipIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ZipIterator& b) const {
+        return eq(b, MakeIndexSequenceForThis());
     }
 };
 } // namespace detail

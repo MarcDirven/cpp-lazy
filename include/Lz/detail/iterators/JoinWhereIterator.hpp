@@ -3,6 +3,7 @@
 #ifndef LZ_JOIN_WHERE_ITERATOR_HPP
 #define LZ_JOIN_WHERE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
@@ -11,11 +12,17 @@ namespace lz {
 namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
+class JoinWhereIterator
+    : public IterBase<JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>,
+                      IteratorFnRetT<ResultSelector, IterA, IterB>,
+                      FakePointerProxy<IteratorFnRetT<ResultSelector, IterA, IterB>>, std::ptrdiff_t, std::forward_iterator_tag> {
 #else
-
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
+class JoinWhereIterator
+    : public IterBase<JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>,
+                      IteratorFnRetT<ResultSelector, IterA, IterB>,
+                      FakePointerProxy<IteratorFnRetT<ResultSelector, IterA, IterB>>, std::ptrdiff_t, std::forward_iterator_tag> {
 #endif // LZ_HAS_EXECUTION
-class JoinWhereIterator {
 private:
     using IterTraitsA = std::iterator_traits<IterA>;
     using IterTraitsB = std::iterator_traits<IterB>;
@@ -115,32 +122,21 @@ public:
 
     constexpr JoinWhereIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return _resultSelector(*_iterA, *_iterB);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinWhereIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_iterB;
         findNext();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinWhereIterator operator++(int) {
-        JoinWhereIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinWhereIterator& a, const JoinWhereIterator& b) noexcept {
-        return a._iterA == b._iterA;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinWhereIterator& a, const JoinWhereIterator& b) noexcept {
-        return !(a == b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const JoinWhereIterator& b) const noexcept {
+        return _iterA == b._iterA;
     }
 };
 

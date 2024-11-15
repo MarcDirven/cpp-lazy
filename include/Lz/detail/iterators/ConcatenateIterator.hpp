@@ -3,6 +3,7 @@
 #ifndef LZ_CONCATENATE_ITERATOR_HPP
 #define LZ_CONCATENATE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/Traits.hpp"
 
@@ -268,20 +269,26 @@ struct PlusIs {
 #endif // __cpp_if_constexpr
 
 template<class... Iterators>
-class ConcatenateIterator {
+using FirstIt = TupleElement<0, std::tuple<Iterators...>>;
+
+template<class... Iterators>
+class ConcatenateIterator : public IterBase<ConcatenateIterator<Iterators...>, RefType<FirstIt<Iterators...>>,
+                                            FakePointerProxy<RefType<FirstIt<Iterators...>>>, DiffType<FirstIt<Iterators...>>,
+                                            IterCat<FirstIt<Iterators...>>> {
+
     using IterTuple = std::tuple<Iterators...>;
     IterTuple _iterators{};
     IterTuple _begin{};
     IterTuple _end{};
 
-    using FirstTupleIterator = std::iterator_traits<TupleElement<0, IterTuple>>;
+    using FirstTupleIterator = std::iterator_traits<FirstIt<Iterators...>>;
 
 public:
     using value_type = typename FirstTupleIterator::value_type;
-    using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+    using difference_type = CommonType<DiffType<Iterators>...>;
     using reference = typename FirstTupleIterator::reference;
     using pointer = FakePointerProxy<reference>;
-    using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
+    using iterator_category = CommonType<IterCat<Iterators>...>;
 
 private:
     template<std::size_t... I>
@@ -300,88 +307,37 @@ public:
 
     constexpr ConcatenateIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return Deref<IterTuple, 0>()(_iterators, _end);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         PlusPlus<IterTuple, 0>()(_iterators, _end);
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator++(int) {
-        ConcatenateIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         MinusMinus<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end);
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator--(int) {
-        ConcatenateIterator tmp(*this);
-        ++*this;
-        return tmp;
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type offset) {
+        if (offset < 0) {
+            MinIs<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end, -offset);
+        }
+        else {
+            PlusIs<IterTuple, 0>()(_iterators, _end, offset);
+        }
     }
 
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator+=(const difference_type offset) {
-        PlusIs<IterTuple, 0>()(_iterators, _end, offset);
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ConcatenateIterator& operator-=(const difference_type offset) {
-        MinIs<IterTuple, sizeof...(Iterators) - 1>()(_iterators, _begin, _end, offset);
-        return *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator+(const difference_type offset) const {
-        ConcatenateIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ConcatenateIterator operator-(const difference_type offset) const {
-        ConcatenateIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ConcatenateIterator& other) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const ConcatenateIterator& other) const {
         return minus(MakeIndexSequence<sizeof...(Iterators)>(), other);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ConcatenateIterator& a, const ConcatenateIterator& b) noexcept {
-        return NotEqual<IterTuple, 0>()(a._iterators, b._iterators);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ConcatenateIterator& a, const ConcatenateIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-        return b - a > 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ConcatenateIterator& a, const ConcatenateIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ConcatenateIterator& b) const {
+        return !NotEqual<IterTuple, 0>()(_iterators, b._iterators);
     }
 };
 

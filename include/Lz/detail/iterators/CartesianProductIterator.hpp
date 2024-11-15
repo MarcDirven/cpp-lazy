@@ -3,6 +3,7 @@
 #ifndef LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
 #define LZ_CARTESIAN_PRODUCT_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/Traits.hpp"
 
@@ -12,15 +13,17 @@ namespace lz {
 namespace detail {
 // Edited version of https://github.com/mirandaconrado/product-iterator
 template<class... Iterators>
-class CartesianProductIterator {
+class CartesianProductIterator : public IterBase<CartesianProductIterator<Iterators...>, std::tuple<RefType<Iterators>...>,
+                                                 FakePointerProxy<std::tuple<RefType<Iterators>...>>,
+                                                 CommonType<DiffType<Iterators>...>, CommonType<IterCat<Iterators>...>> {
     static_assert(sizeof...(Iterators) > 1, "The size of the iterators must be greater than 1");
 
 public:
     using value_type = std::tuple<ValueType<Iterators>...>;
     using reference = std::tuple<RefType<Iterators>...>;
     using pointer = FakePointerProxy<reference>;
-    using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
-    using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+    using iterator_category = CommonType<IterCat<Iterators>...>;
+    using difference_type = CommonType<DiffType<Iterators>...>;
 
 private:
     std::tuple<Iterators...> _begin{};
@@ -221,13 +224,6 @@ private:
                                std::multiplies<difference_type>{});
     }
 
-    template<std::size_t... Is>
-    LZ_CONSTEXPR_CXX_20 bool lessThan(IndexSequence<Is...>, const CartesianProductIterator& c) const {
-        const bool allLessThan[] = { (std::get<Is>(_iterator) < std::get<Is>(c._iterator))... };
-        const auto end = std::end(allLessThan);
-        return std::find(std::begin(allLessThan), end, false) == end;
-    }
-
     using IndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
 
     void checkEnd() {
@@ -246,90 +242,34 @@ public:
         _end(std::move(end)) {
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return dereference(IndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator& operator++() {
+    void increment() {
         next<sizeof...(Iterators)>();
         checkEnd();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator operator++(int) {
-        CartesianProductIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator& operator--() {
+    void decrement() {
         previous<sizeof...(Iterators)>();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator operator--(int) {
-        CartesianProductIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator& operator+=(const difference_type offset) {
-        operatorPlusImpl<sizeof...(Iterators) - 1>(offset);
+    void plusIs(const difference_type n) {
+        operatorPlusImpl<sizeof...(Iterators) - 1>(n);
         checkEnd();
-        return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CartesianProductIterator operator+(const difference_type offset) const {
-        CartesianProductIterator tmp(*this);
-        tmp += offset;
-        return tmp;
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const CartesianProductIterator& other) const {
+        return _iterator == other._iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 CartesianProductIterator& operator-=(const difference_type offset) {
-        return *this += -offset;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CartesianProductIterator operator-(const difference_type offset) const {
-        CartesianProductIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator==(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) noexcept {
-        return lhs._iterator == rhs._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator!=(const CartesianProductIterator& lhs, const CartesianProductIterator& rhs) noexcept {
-        return !(lhs == rhs); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type
-    operator-(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-        return b.distanceImpl(IndexSequenceForThis(), a);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-        return a.lessThan(IndexSequenceForThis(), b);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator<=(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool
-    operator>=(const CartesianProductIterator& a, const CartesianProductIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const CartesianProductIterator& other) const {
+        return other.distanceImpl(IndexSequenceForThis(), *this);
     }
 };
 } // namespace detail

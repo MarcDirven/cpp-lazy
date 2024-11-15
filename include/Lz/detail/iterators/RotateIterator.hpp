@@ -3,12 +3,16 @@
 #ifndef LZ_ROTATE_ITERATOR_HPP
 #define LZ_ROTATE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
+#include "Lz/detail/Traits.hpp"
+
 #include <iterator>
 
 namespace lz {
 namespace detail {
 template<class Iterator>
-class RotateIterator {
+class RotateIterator : public IterBase<RotateIterator<Iterator>, RefType<Iterator>, PointerType<Iterator>, DiffType<Iterator>,
+                                       CommonType<IterCat<Iterator>, std::bidirectional_iterator_tag>> {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -16,8 +20,7 @@ public:
     using value_type = typename IterTraits::value_type;
     using pointer = typename IterTraits::pointer;
     using difference_type = typename IterTraits::difference_type;
-    using iterator_category =
-        typename std::common_type<typename IterTraits::iterator_category, std::bidirectional_iterator_tag>::type;
+    using iterator_category = CommonType<typename IterTraits::iterator_category, std::bidirectional_iterator_tag>;
 
 private:
     Iterator _iterator{};
@@ -35,46 +38,32 @@ public:
         _fullRotation(fullRotation) {
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator++() {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
+        return _iterator.operator->();
+    }
+
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_iterator;
         if (_iterator == _end) {
             _iterator = _begin;
             _fullRotation = true;
         }
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator operator++(int) {
-        RotateIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 RotateIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         if (_iterator == _begin) {
             _iterator = _end;
             _fullRotation = true;
         }
         --_iterator;
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 RotateIterator operator--(int) {
-        RotateIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator!=(const RotateIterator& a, const RotateIterator& b) {
-        return a._iterator != b._iterator || !(a._fullRotation && b._fullRotation);
-    }
-
-    LZ_NODISCARD constexpr friend bool operator==(const RotateIterator& a, const RotateIterator& b) {
-        return !(a != b); // NOLINT
+    LZ_NODISCARD constexpr bool eq(const RotateIterator& b) const {
+        return _iterator == b._iterator && (_fullRotation && b._fullRotation);
     }
 };
 } // namespace detail

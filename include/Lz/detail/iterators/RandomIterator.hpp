@@ -3,13 +3,15 @@
 #ifndef LZ_RANDOM_ITERATOR_HPP
 #define LZ_RANDOM_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
 namespace detail {
 template<class Arithmetic, class Distribution, class Generator>
-class RandomIterator {
+class RandomIterator : public IterBase<RandomIterator<Arithmetic, Distribution, Generator>, Arithmetic,
+                                       FakePointerProxy<Arithmetic>, std::ptrdiff_t, std::random_access_iterator_tag> {
 public:
     using iterator_category = std::random_access_iterator_tag;
     using value_type = Arithmetic;
@@ -20,30 +22,42 @@ public:
 
 private:
     mutable Distribution _distribution{};
+    Generator* _generator{ nullptr };
     std::ptrdiff_t _current{};
     bool _isWhileTrueLoop{};
-    Generator* _generator{ nullptr };
 
 public:
     RandomIterator(const Distribution& distribution, Generator& generator, const std::ptrdiff_t current,
                    const bool isWhileTrueLoop) :
         _distribution(distribution),
+        _generator(&generator),
         _current(current),
-        _isWhileTrueLoop(isWhileTrueLoop),
-        _generator(&generator) {
+        _isWhileTrueLoop(isWhileTrueLoop) {
     }
 
     RandomIterator() = default;
 
-    LZ_NODISCARD value_type operator*() const {
+    LZ_NODISCARD value_type dereference() const {
         return _distribution(*_generator);
     }
 
     LZ_NODISCARD value_type operator()() const {
-        return _distribution(*_generator);
+        return dereference();
     }
 
-    LZ_NODISCARD pointer operator->() const {
+    void increment() noexcept {
+        if (!_isWhileTrueLoop) {
+            ++_current;
+        }
+    }
+
+    void decrement() noexcept {
+        if (!_isWhileTrueLoop) {
+            --_current;
+        }
+    }
+
+    LZ_NODISCARD pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
@@ -55,91 +69,20 @@ public:
         return (_distribution->max)();
     }
 
-    RandomIterator& operator--() noexcept {
-        if (!_isWhileTrueLoop) {
-            --_current;
-        }
-        return *this;
-    }
-
-    RandomIterator operator--(int) noexcept {
-        RandomIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    RandomIterator& operator+=(const difference_type offset) noexcept {
+    void plusIs(const difference_type offset) noexcept {
         if (!_isWhileTrueLoop) {
             _current += offset;
         }
-        return *this;
     }
 
-    LZ_NODISCARD RandomIterator operator+(const difference_type offset) const noexcept {
-        RandomIterator tmp(*this);
-        tmp += offset;
-        return tmp;
+    LZ_NODISCARD difference_type difference(const RandomIterator& b) const noexcept {
+        LZ_ASSERT(_isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
+        return _current - b._current;
     }
 
-    RandomIterator& operator-=(const difference_type offset) noexcept {
-        if (!_isWhileTrueLoop) {
-            _current -= offset;
-        }
-        return *this;
-    }
-
-    LZ_NODISCARD RandomIterator operator-(const difference_type offset) const noexcept {
-        RandomIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD friend difference_type operator-(const RandomIterator& a, const RandomIterator& b) noexcept {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current - b._current;
-    }
-
-    LZ_NODISCARD value_type operator[](const difference_type offset) const noexcept {
-        return *(*this + offset);
-    }
-
-    RandomIterator& operator++() noexcept {
-        if (!_isWhileTrueLoop) {
-            ++_current;
-        }
-        return *this;
-    }
-
-    RandomIterator operator++(int) noexcept {
-        RandomIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD friend bool operator!=(const RandomIterator& a, const RandomIterator& b) noexcept {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current != b._current;
-    }
-
-    LZ_NODISCARD friend bool operator==(const RandomIterator& a, const RandomIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_NODISCARD friend bool operator<(const RandomIterator& a, const RandomIterator& b) noexcept {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current < b._current;
-    }
-
-    LZ_NODISCARD friend bool operator>(const RandomIterator& a, const RandomIterator& b) noexcept {
-        return b < a;
-    }
-
-    LZ_NODISCARD friend bool operator<=(const RandomIterator& a, const RandomIterator& b) noexcept {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD friend bool operator>=(const RandomIterator& a, const RandomIterator& b) noexcept {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD bool eq(const RandomIterator& b) const noexcept {
+        LZ_ASSERT(_isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
+        return _current == b._current;
     }
 };
 } // namespace detail

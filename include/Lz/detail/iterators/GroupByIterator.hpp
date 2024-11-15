@@ -3,6 +3,7 @@
 #ifndef LZ_GROUP_BY_ITERATOR_HPP
 #define LZ_GROUP_BY_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/BasicIteratorView.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
@@ -14,11 +15,19 @@ namespace lz {
 namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class Comparer, class Execution>
+class GroupByIterator
+    : public IterBase<GroupByIterator<Iterator, Comparer, Execution>, std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>,
+                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>>, std::ptrdiff_t,
+                      std::forward_iterator_tag> {
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 template<class Iterator, class Comparer>
+class GroupByIterator
+    : public IterBase<GroupByIterator<Iterator, Comparer>, std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>,
+                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>>, std::ptrdiff_t,
+                      std::forward_iterator_tag> {
 #endif // end LZ_HAS_EXECUTION
-class GroupByIterator {
+
     Iterator _subRangeEnd{};
     Iterator _subRangeBegin{};
     Iterator _end{};
@@ -53,8 +62,7 @@ class GroupByIterator {
     }
 
 public:
-    using iterator_category =
-        typename std::common_type<std::forward_iterator_tag, typename std::iterator_traits<Iterator>::iterator_category>::type;
+    using iterator_category = std::forward_iterator_tag;
     using value_type = std::pair<Decay<Ref>, BasicIteratorView<Iterator>>;
     using reference = std::pair<Ref, BasicIteratorView<Iterator>>;
     using pointer = FakePointerProxy<reference>;
@@ -83,32 +91,21 @@ public:
         advance();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return { *_subRangeBegin, { _subRangeBegin, _subRangeEnd } };
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 GroupByIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         _subRangeBegin = _subRangeEnd;
         advance();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 GroupByIterator operator++(int) {
-        GroupByIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const GroupByIterator& lhs, const GroupByIterator& rhs) noexcept {
-        return lhs._subRangeBegin != rhs._subRangeBegin;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const GroupByIterator& lhs, const GroupByIterator& rhs) noexcept {
-        return !(lhs != rhs); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const GroupByIterator& rhs) const noexcept {
+        return _subRangeBegin == rhs._subRangeBegin;
     }
 };
 } // namespace detail

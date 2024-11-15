@@ -3,8 +3,10 @@
 #ifndef LZ_ZIP_LONGEST_ITERATOR_HPP
 #define LZ_ZIP_LONGEST_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/Optional.hpp"
+#include "Lz/detail/Traits.hpp"
 
 namespace lz {
 namespace detail {
@@ -12,11 +14,14 @@ template<bool, class...>
 class ZipLongestIterator;
 
 template<class... Iterators>
-class ZipLongestIterator<false /*is random access*/, Iterators...> {
+class ZipLongestIterator<false /*is random access*/, Iterators...>
+    : public IterBase<ZipLongestIterator<false, Iterators...>, std::tuple<Optional<ValueType<Iterators>>...>,
+                      FakePointerProxy<std::tuple<Optional<ValueType<Iterators>>...>>, CommonType<DiffType<Iterators>...>,
+                      std::forward_iterator_tag> {
 public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = std::tuple<Optional<ValueType<Iterators>>...>;
-    using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+    using difference_type = CommonType<DiffType<Iterators>...>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
 
@@ -71,40 +76,32 @@ public:
 
     constexpr ZipLongestIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type dereference() const {
         return dereference(MakeIndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         increment(MakeIndexSequenceForThis());
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator operator++(int) {
-        ZipLongestIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return a.eq(b, MakeIndexSequenceForThis());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return !(a == b);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ZipLongestIterator& b) const {
+        return eq(b, MakeIndexSequenceForThis());
     }
 };
 
 template<class... Iterators>
-class ZipLongestIterator<true /*is random access*/, Iterators...> {
+class ZipLongestIterator<true /*is random access*/, Iterators...>
+    : public IterBase<ZipLongestIterator<true, Iterators...>, std::tuple<Optional<ValueType<Iterators>>...>,
+                      FakePointerProxy<std::tuple<Optional<ValueType<Iterators>>...>>, CommonType<DiffType<Iterators>...>,
+                      std::random_access_iterator_tag> {
 public:
-    using iterator_category = typename std::common_type<IterCat<Iterators>...>::type;
+    using iterator_category = CommonType<IterCat<Iterators>...>;
     using value_type = std::tuple<Optional<ValueType<Iterators>>...>;
-    using difference_type = typename std::common_type<DiffType<Iterators>...>::type;
+    using difference_type = CommonType<DiffType<Iterators>...>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
 
@@ -226,59 +223,32 @@ public:
 
     constexpr ZipLongestIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type dereference() const {
         return dereference(MakeIndexSequenceForThis());
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         increment(MakeIndexSequenceForThis());
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator operator++(int) {
-        ZipLongestIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         decrement(MakeIndexSequenceForThis());
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator operator--(int) {
-        auto tmp(*this);
-        --*this;
-        return tmp;
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type offset) {
+        if (offset < 0) {
+            minIs(MakeIndexSequenceForThis(), -offset);
+        }
+        else {
+            plusIs(MakeIndexSequenceForThis(), offset);
+        }
     }
 
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator& operator+=(const difference_type offset) {
-        plusIs(MakeIndexSequenceForThis(), offset);
-        return *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongestIterator operator+(const difference_type offset) const {
-        ZipLongestIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ZipLongestIterator& operator-=(const difference_type offset) {
-        minIs(MakeIndexSequenceForThis(), offset);
-        return *this;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongestIterator operator-(const difference_type offset) const {
-        ZipLongestIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type operator-(const ZipLongestIterator& other) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const ZipLongestIterator& other) const {
         return minus(other, MakeIndexSequenceForThis());
     }
 
@@ -286,28 +256,8 @@ public:
         return *(*this + offset);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return a.eq(b, MakeIndexSequenceForThis());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return !(a == b);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return a.lt(b, MakeIndexSequenceForThis());
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ZipLongestIterator& a, const ZipLongestIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ZipLongestIterator& b) const {
+        return eq(b, MakeIndexSequenceForThis());
     }
 };
 } // namespace detail

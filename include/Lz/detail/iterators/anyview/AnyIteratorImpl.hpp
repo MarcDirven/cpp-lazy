@@ -39,6 +39,10 @@ public:
         return *_iter;
     }
 
+    reference dereference() const override {
+        return *_iter;
+    }
+
     pointer arrow() override {
         return pointer{ dereference() };
     }
@@ -81,6 +85,10 @@ public:
     ~AnyIteratorImpl() override = default;
 
     reference dereference() override {
+        return *_iter;
+    }
+
+    reference dereference() const override {
         return *_iter;
     }
 
@@ -129,6 +137,10 @@ public:
     ~AnyIteratorImpl() override = default;
 
     reference dereference() override {
+        return *_iter;
+    }
+
+    reference dereference() const override {
         return *_iter;
     }
 

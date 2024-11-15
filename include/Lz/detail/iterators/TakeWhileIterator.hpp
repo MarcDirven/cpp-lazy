@@ -3,14 +3,18 @@
 #ifndef LZ_TAKE_WHILE_ITERATOR_HPP
 #define LZ_TAKE_WHILE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/Traits.hpp"
 
 namespace lz {
 namespace detail {
 template<class Iterator, class UnaryPredicate>
-class TakeWhileIterator {
+class TakeWhileIterator : public IterBase<TakeWhileIterator<Iterator, UnaryPredicate>, RefType<Iterator>,
+                                          FakePointerProxy<RefType<Iterator>>, DiffType<Iterator>, std::forward_iterator_tag> {
+
     Iterator _iterator{};
     Iterator _end{};
     FunctionContainer<UnaryPredicate> _unaryPredicate{};
@@ -39,32 +43,21 @@ public:
         incrementedCheck();
     }
 
-    LZ_CONSTEXPR_CXX_20 TakeWhileIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_iterator;
         incrementedCheck();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 TakeWhileIterator operator++(int) {
-        TakeWhileIterator tmp = *this;
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const TakeWhileIterator& a, const TakeWhileIterator& b) noexcept {
-        return a._iterator != b._iterator;
-    }
-
-    LZ_CONSTEXPR_CXX_20 friend bool operator==(const TakeWhileIterator& a, const TakeWhileIterator& b) noexcept {
-        return !(a != b);
+    LZ_CONSTEXPR_CXX_20 bool eq(const TakeWhileIterator& b) const noexcept {
+        return _iterator == b._iterator;
     }
 };
 } // namespace detail

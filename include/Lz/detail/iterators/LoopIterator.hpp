@@ -3,13 +3,16 @@
 #ifndef LZ_LOOP_ITERATOR_HPP
 #define LZ_LOOP_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 namespace lz {
 namespace detail {
 template<class Iterator>
-class LoopIterator {
+class LoopIterator : public IterBase<LoopIterator<Iterator>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
+                                     DiffType<Iterator>, IterCat<Iterator>> {
     using IterTraits = std::iterator_traits<Iterator>;
 
     Iterator _begin{};
@@ -29,80 +32,45 @@ public:
         _end(std::move(end)) {
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_iterator;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 LoopIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_iterator;
         if (_iterator == _end) {
             _iterator = _begin;
         }
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 LoopIterator operator++(int) {
-        LoopIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 LoopIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         if (_iterator == _begin) {
             _iterator = _end;
         }
         --_iterator;
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 LoopIterator operator--(int) {
-        LoopIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 LoopIterator& operator+=(const difference_type offset) {
-        _iterator += offset % (_end - _begin);
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_20 LoopIterator& operator-=(difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 void plusIs(difference_type offset) {
+        if (offset >= 0) {
+            _iterator += offset % (_end - _begin);
+            return;
+        }
+        offset *= -1;
         const auto dist = _end - _begin;
         offset %= dist;
         _iterator -= offset == 0 ? dist : offset;
-        return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LoopIterator operator+(const difference_type offset) const {
-        LoopIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 LoopIterator operator-(const difference_type offset) const {
-        LoopIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD constexpr friend difference_type operator-(const LoopIterator&, const LoopIterator&) noexcept {
+    LZ_NODISCARD constexpr difference_type difference(const LoopIterator&) const noexcept {
         return (std::numeric_limits<difference_type>::max)();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
-    LZ_NODISCARD constexpr friend bool operator!=(const LoopIterator&, const LoopIterator&) noexcept {
-        return true;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator==(const LoopIterator& a, const LoopIterator& b) noexcept {
-        return !(a != b); // NOLINT
+    LZ_NODISCARD constexpr bool eq(const LoopIterator&) const noexcept {
+        return false;
     }
 
     LZ_NODISCARD constexpr friend bool operator<(const LoopIterator&, const LoopIterator&) noexcept {
