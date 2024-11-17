@@ -17,34 +17,34 @@ private:
 
 public:
     Derived& operator++() {
-        static_cast<Derived*>(this)->increment();
-        return *static_cast<Derived*>(this);
+        static_cast<Derived&>(*this).increment();
+        return static_cast<Derived&>(*this);
     }
 
     Derived operator++(int) {
-        Derived copy = *static_cast<Derived*>(this);
-        static_cast<Derived*>(this)->increment();
+        Derived copy = static_cast<Derived&>(*this);
+        static_cast<Derived&>(*this).increment();
         return copy;
     }
 
     Reference operator*() const {
-        return static_cast<const Derived*>(this)->dereference();
+        return static_cast<const Derived&>(*this).dereference();
     }
 
     Reference operator*() {
-        return static_cast<Derived*>(this)->dereference();
+        return static_cast<Derived&>(*this).dereference();
     }
 
     Pointer operator->() const {
-        return static_cast<const Derived*>(this)->arrow();
+        return static_cast<const Derived&>(*this).arrow();
     }
 
-    bool operator==(const Derived& other) const {
-        return static_cast<const Derived*>(this)->eq(other);
+    friend bool operator==(const Derived& a, const Derived& b) {
+        return static_cast<const Derived&>(a).eq(static_cast<const Derived&>(b));
     }
 
-    bool operator!=(const Derived& other) const {
-        return !(*this == other);
+    friend bool operator!=(const Derived& a, const Derived& b) {
+        return !(a == b);
     }
 };
 
@@ -53,13 +53,13 @@ struct IterBase<Derived, Reference, Pointer, DifferenceType, std::bidirectional_
     : public IterBase<Derived, Reference, Pointer, DifferenceType, std::forward_iterator_tag> {
 
     Derived& operator--() {
-        static_cast<Derived*>(this)->decrement();
-        return *static_cast<Derived*>(this);
+        static_cast<Derived&>(*this).decrement();
+        return static_cast<Derived&>(*this);
     }
 
     Derived operator--(int) {
         Derived copy = *static_cast<Derived*>(this);
-        static_cast<Derived*>(this)->decrement();
+        static_cast<Derived&>(*this)->decrement();
         return copy;
     }
 };
@@ -69,22 +69,22 @@ struct IterBase<Derived, Reference, Pointer, DifferenceType, std::random_access_
     : public IterBase<Derived, Reference, Pointer, DifferenceType, std::bidirectional_iterator_tag> {
 
     Derived& operator+=(const DifferenceType n) {
-        static_cast<Derived*>(this)->plusIs(n);
-        return *static_cast<Derived*>(this);
+        static_cast<Derived&>(*this).plusIs(n);
+        return static_cast<Derived&>(*this);
     }
 
     Derived operator+(const DifferenceType n) const {
-        auto tmp = *static_cast<const Derived*>(this);
+        auto tmp = static_cast<const Derived&>(*this);
         tmp += n;
         return tmp;
     }
 
-    DifferenceType operator-(const Derived& other) const {
-        return static_cast<const Derived*>(this)->difference(other);
+    friend DifferenceType operator-(const Derived& a, const Derived& b) {
+        return static_cast<const Derived&>(a).difference(static_cast<const Derived&>(b));
     }
 
     Derived operator-(const DifferenceType n) const {
-        Derived temp = *static_cast<const Derived*>(this);
+        Derived temp = static_cast<const Derived&>(*this);
         temp -= n;
         return temp;
     }
@@ -98,20 +98,20 @@ struct IterBase<Derived, Reference, Pointer, DifferenceType, std::random_access_
         return *(*this + n);
     }
 
-    bool operator<(const Derived& other) const {
-        return other - *static_cast<const Derived*>(this) > 0;
+    friend bool operator<(const Derived& a, const Derived& b) {
+        return b - a > 0;
     }
 
-    bool operator>(const Derived& other) const {
-        return other < *static_cast<const Derived*>(this);
+    friend bool operator>(const Derived& a, const Derived& b) {
+        return b < a;
     }
 
-    bool operator<=(const Derived& other) const {
-        return !(other < *static_cast<const Derived*>(this));
+    friend bool operator<=(const Derived& a, const Derived& b) {
+        return !(b < a);
     }
 
-    bool operator>=(const Derived& other) const {
-        return !(*static_cast<const Derived*>(this) < other);
+    friend bool operator>=(const Derived& a, const Derived& b) {
+        return !(a < b);
     }
 };
 } // namespace lz
