@@ -720,19 +720,6 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  * @{
  */
 
-/**
- * @brief Returns a view to another view or container. Can be handy to slice, skip a few first or last elements using:
- * `auto range = lz::view(vec.begin() + 4, vec.end());`
- * @param begin The beginning of the 'view'.
- * @param end The ending of the 'view'.
- * @return A View object that can be converted to an arbitrary container or can be iterated over using
- * `for (auto... lz::takeRange(...))`.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator> view(Iterator begin, Iterator end) {
-    return { begin, end };
-}
-
 #ifndef LZ_HAS_EXECUTION
 /**
  * Use this function to check if two lz iterators are the same.

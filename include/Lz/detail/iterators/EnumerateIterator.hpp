@@ -3,117 +3,65 @@
 #ifndef LZ_ENUMERATE_ITERATOR_HPP
 #define LZ_ENUMERATE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/Traits.hpp"
 
 namespace lz {
 namespace detail {
 template<class Iterator, class Arithmetic>
-class EnumerateIterator {
-    Arithmetic _index;
-    Iterator _iterator;
+class EnumerateIterator final
+    : public IterBase<EnumerateIterator<Iterator, Arithmetic>, std::pair<Arithmetic, RefType<Iterator>>,
+                      FakePointerProxy<std::pair<Arithmetic, RefType<Iterator>>>, DiffType<Iterator>, IterCat<Iterator>> {
 
-    using IterTraits = std::iterator_traits<Iterator>;
+    Arithmetic _index{};
+    Iterator _iterator{};
+
+    using Traits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category =
-        Conditional<IsRandomAccess<Iterator>::value, typename IterTraits::iterator_category, std::forward_iterator_tag>;
-    using value_type = std::pair<Arithmetic, typename IterTraits::value_type>;
-    using difference_type = typename IterTraits::difference_type;
-    using reference = std::pair<Arithmetic, typename IterTraits::reference>;
+    using value_type = std::pair<Arithmetic, typename Traits::value_type>;
+    using reference = std::pair<Arithmetic, typename Traits::reference>;
     using pointer = FakePointerProxy<reference>;
+    using difference_type = typename Traits::difference_type;
+    using iterator_category = typename Traits::iterator_category;
 
     constexpr EnumerateIterator(const Arithmetic start, Iterator iterator) : _index(start), _iterator(std::move(iterator)) {
     }
 
     constexpr EnumerateIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
-        return { _index, *_iterator };
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 FakePointerProxy<reference> operator->() const {
-        return FakePointerProxy<decltype(**this)>(**this);
-    }
-
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator& operator++() {
+    EnumerateIterator& increment() {
         ++_index;
         ++_iterator;
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator operator++(int) {
-        EnumerateIterator tmp = *this;
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator& operator--() {
+    EnumerateIterator& decrement() {
         --_index;
         --_iterator;
         return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator operator--(int) {
-        EnumerateIterator tmp(*this);
-        --*this;
-        return tmp;
+    reference dereference() const {
+        return { _index, *_iterator };
     }
 
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator& operator+=(const difference_type offset) {
-        _index += static_cast<Arithmetic>(offset);
-        _iterator += offset;
-        return *this;
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
+        return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 EnumerateIterator operator+(const difference_type offset) const {
-        EnumerateIterator tmp(*this);
-        tmp += offset;
-        return tmp;
+    LZ_CONSTEXPR_CXX_20 bool eq(const EnumerateIterator& other) const {
+        return _iterator == other._iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 EnumerateIterator& operator-=(const difference_type offset) {
-        _index -= static_cast<Arithmetic>(offset);
-        _iterator -= offset;
-        return *this;
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type n) {
+        _index += static_cast<Arithmetic>(n);
+        _iterator += n;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 EnumerateIterator operator-(const difference_type offset) const {
-        EnumerateIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const EnumerateIterator& a, const EnumerateIterator& b) {
-        return a._iterator - b._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const EnumerateIterator& a, const EnumerateIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const EnumerateIterator& a, const EnumerateIterator& b) noexcept {
-        return a._iterator != b._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const EnumerateIterator& a, const EnumerateIterator& b) {
-        return a._iterator < b._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const EnumerateIterator& a, const EnumerateIterator& b) {
-        return b < a; // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const EnumerateIterator& a, const EnumerateIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const EnumerateIterator& a, const EnumerateIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_CONSTEXPR_CXX_20 difference_type difference(const EnumerateIterator& other) const {
+        return _iterator - other._iterator;
     }
 };
 } // namespace detail

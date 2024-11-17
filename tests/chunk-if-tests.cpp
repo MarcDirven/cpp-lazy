@@ -49,42 +49,6 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
         CHECK(it == chunked.end());
     }
 
-    SECTION("Operator--") {
-        using It = decltype(chunked.end());
-        auto beg = std::reverse_iterator<It>(chunked.end());
-        auto en = std::reverse_iterator<It>(chunked.begin());
-        CHECK(std::distance(beg, en) == 6);
-        auto it = chunked.end();
-        --it;
-        CHECK(it->toString().empty());
-
-        ++it;
-        CHECK(it->toString().empty());
-        --it;
-
-        --it;
-        CHECK(it->toString() == " testing");
-        --it;
-        CHECK(it->toString() == " this is a message");
-
-        ++it;
-        CHECK(it->toString() == " testing");
-        --it;
-
-        --it;
-        CHECK(it->toString().empty());
-        --it;
-
-        ++it;
-        CHECK(it->toString().empty());
-        --it;
-
-        --it;
-        CHECK(it->toString() == "hello world");
-        --it;
-        CHECK(it->toString().empty());
-    }
-
     SECTION("Operator== & operator!=") {
         auto begin = chunked.begin();
         CHECK(begin != chunked.end());

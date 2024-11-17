@@ -125,6 +125,8 @@ TEST_CASE("TakeEvery binary operations", "[TakeEvery][Binary ops]") {
 
         CHECK(iterator < takeEvery.end());
         CHECK(iterator + distance - 1 > takeEvery.end() - distance);
+        auto d = iterator + distance - 1;
+        CHECK(d <= takeEvery.end());
         CHECK(iterator + distance - 1 <= takeEvery.end());
         CHECK(iterator + size - 1 >= takeEvery.end() - 1);
     }

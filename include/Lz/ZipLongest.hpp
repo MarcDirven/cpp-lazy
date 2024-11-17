@@ -11,10 +11,10 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-class ZipLongest final
-    : public detail::BasicIteratorView<detail::ZipLongestIterator<
-          detail::IsRandomAccessTag<typename std::common_type<detail::IterCat<Iterators>...>::type>::value, Iterators...>> {
-    using IterCat = typename std::common_type<detail::IterCat<Iterators>...>::type;
+class ZipLongest final : public detail::BasicIteratorView<detail::ZipLongestIterator<
+                             detail::IsRandomAccessTag<detail::CommonType<detail::IterCat<Iterators>...>>::value, Iterators...>> {
+
+    using IterCat = detail::CommonType<detail::IterCat<Iterators>...>;
 
     static_assert(sizeof...(Iterators) > 0, "Cannot create zip longest object with 0 iterators");
 

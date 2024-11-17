@@ -3,6 +3,7 @@
 #ifndef LZ_FLATTEN_ITERATOR_HPP
 #define LZ_FLATTEN_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 
 namespace lz {
@@ -87,7 +88,8 @@ using CountDims = typename CountDimsHelper<IsIterator<T>::value>::template type<
 
 // Improvement of https://stackoverflow.com/a/21076724/8729023
 template<class Iterator>
-class FlattenWrapper {
+class FlattenWrapper : public IterBase<FlattenWrapper<Iterator>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
+                                       DiffType<Iterator>, CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>> {
     Iterator _begin{};
     Iterator _current{};
     Iterator _end{};
@@ -98,8 +100,7 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
     using value_type = typename IterTraits::value_type;
-    using iterator_category =
-        typename std::common_type<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>::type;
+    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>;
     using difference_type = typename IterTraits::difference_type;
 
     constexpr FlattenWrapper() = default;
@@ -122,55 +123,46 @@ public:
         return _current != _begin;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenWrapper& a, const FlattenWrapper& b) noexcept {
-        return a._current != b._current;
+    LZ_CONSTEXPR_CXX_20 bool eq(const FlattenWrapper& b) const noexcept {
+        return _current == b._current;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenWrapper& a, const FlattenWrapper& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_current;
     }
 
-    LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 FlattenWrapper& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_current;
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 FlattenWrapper operator++(int) {
-        FlattenWrapper tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenWrapper& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         --_current;
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenWrapper operator--(int) {
-        FlattenWrapper tmp(*this);
-        ++*this;
-        return tmp;
     }
 };
 
+template<class, int>
+class FlattenIterator;
+
 template<class Iterator, int N>
-class FlattenIterator {
-    using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
+using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
+
+template<class Iterator, int N>
+class FlattenIterator
+    : public IterBase<FlattenIterator<Iterator, N>, RefType<Inner<Iterator, N>>, FakePointerProxy<RefType<Inner<Iterator, N>>>,
+                      DiffType<Inner<Iterator, N>>, CommonType<std::bidirectional_iterator_tag, IterCat<Inner<Iterator, N>>>> {
+
+    using ThisInner = Inner<Iterator, N>;
 
 public:
-    using reference = typename Inner::reference;
-    using pointer = typename Inner::pointer;
-    using value_type = typename Inner::value_type;
-    using iterator_category = typename std::common_type<std::bidirectional_iterator_tag, typename Inner::iterator_category>::type;
-    using difference_type = typename Inner::difference_type;
+    using reference = typename ThisInner::reference;
+    using pointer = typename ThisInner::pointer;
+    using value_type = typename ThisInner::value_type;
+    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename ThisInner::iterator_category>;
+    using difference_type = typename ThisInner::difference_type;
 
 private:
     LZ_CONSTEXPR_CXX_20 void advance() {
@@ -188,7 +180,7 @@ private:
     }
 
     FlattenWrapper<Iterator> _outerIter{};
-    Inner _innerIter{};
+    ThisInner _innerIter{};
 
 public:
     constexpr FlattenIterator() = default;
@@ -209,39 +201,27 @@ public:
     LZ_CONSTEXPR_CXX_20 bool hasPrev() const {
         return _innerIter.hasPrev() || _outerIter.hasPrev();
     }
-
-    LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) noexcept {
-        return a._outerIter != b._outerIter || a._innerIter != b._innerIter;
+    LZ_CONSTEXPR_CXX_20 bool eq(const FlattenIterator& b) const noexcept {
+        return _outerIter == b._outerIter && _innerIter == b._innerIter;
     }
 
-    LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_innerIter;
     }
 
-    LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 FlattenIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_innerIter;
         this->advance();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 FlattenIterator operator++(int) {
-        FlattenIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         if (_innerIter.hasPrev()) {
             --_innerIter;
-            return *this;
+            return;
         }
         while (_outerIter.hasPrev()) {
             --_outerIter;
@@ -249,21 +229,18 @@ public:
             _innerIter = { end, std::begin(*_outerIter), end };
             if (_innerIter.hasPrev()) {
                 --_innerIter;
-                return *this;
+                return;
             }
         }
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenIterator operator--(int) {
-        FlattenIterator tmp(*this);
-        --*this;
-        return tmp;
     }
 };
 
 template<class Iterator>
-class FlattenIterator<Iterator, 0> {
+class FlattenIterator<Iterator, 0>
+    : public IterBase<FlattenIterator<Iterator, 0>, RefType<FlattenWrapper<Iterator>>,
+                      FakePointerProxy<RefType<FlattenWrapper<Iterator>>>, DiffType<FlattenWrapper<Iterator>>,
+                      CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator>>>> {
+
     FlattenWrapper<Iterator> _range;
     using Traits = std::iterator_traits<Iterator>;
 
@@ -271,8 +248,7 @@ public:
     using pointer = typename Traits::pointer;
     using reference = typename Traits::reference;
     using value_type = typename Traits::value_type;
-    using iterator_category =
-        typename std::common_type<std::bidirectional_iterator_tag, typename Traits::iterator_category>::type;
+    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename Traits::iterator_category>;
     using difference_type = typename Traits::difference_type;
 
     constexpr FlattenIterator() = default;
@@ -289,42 +265,24 @@ public:
         return _range.hasSome();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_range;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
-        return &*_range;
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
+        return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const FlattenIterator& a, const FlattenIterator& b) noexcept {
-        return a._range != b._range;
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const FlattenIterator& b) const noexcept {
+        return _range == b._range;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const FlattenIterator& a, const FlattenIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         ++_range;
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 FlattenIterator operator++(int) {
-        FlattenIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         --_range;
-        return *this;
-    }
-
-    LZ_CONSTEXPR_CXX_20 FlattenIterator operator--(int) {
-        FlattenIterator tmp(*this);
-        --*this;
-        return tmp;
     }
 };
 } // namespace detail

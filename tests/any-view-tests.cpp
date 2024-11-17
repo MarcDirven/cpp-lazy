@@ -77,8 +77,8 @@ TEST_CASE("Creating a basic any view from std::list, bidirectional iterator") {
 
 TEST_CASE("Creating a complex AnyView, std::forward_iterator_tag") {
     std::vector<int> vec = { 1, 2, 3, 4, 5, 6 };
-    lz::AnyView<std::pair<int, int&>, std::pair<int, int&>> view =
-        lz::chain(vec).as<int&>().enumerate().take(static_cast<std::ptrdiff_t>(vec.size()));
+    using Pair = std::pair<int, int&>;
+    lz::AnyView<Pair, Pair> view = lz::chain(vec).as<int&>().enumerate().take(static_cast<std::ptrdiff_t>(vec.size()));
     CHECK(vec.size() == static_cast<std::size_t>(view.distance()));
     std::pair<int, int&> pair = *view.begin();
     CHECK(pair.first == 0);

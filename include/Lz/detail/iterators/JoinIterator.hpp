@@ -3,8 +3,10 @@
 #ifndef LZ_JOIN_ITERATOR_HPP
 #define LZ_JOIN_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
+#include "Lz/detail/Traits.hpp"
 
 #if defined(LZ_STANDALONE)
 #ifdef LZ_HAS_FORMAT
@@ -40,7 +42,13 @@ inline std::string toString(const bool value) {
 #endif // defined(LZ_STANDALONE) && (!defined(LZ_HAS_FORMAT))
 
 template<class Iterator>
-class JoinIterator {
+class JoinIterator
+    : public IterBase<
+          JoinIterator<Iterator>,
+          Conditional<std::is_same<std::string, ValueType<Iterator>>::value, RefType<Iterator>, std::string>,
+          FakePointerProxy<Conditional<std::is_same<std::string, ValueType<Iterator>>::value, RefType<Iterator>, std::string>>,
+          DiffType<Iterator>, IterCat<Iterator>> {
+
     using IterTraits = std::iterator_traits<Iterator>;
     using ContainerType = typename IterTraits::value_type;
 
@@ -134,101 +142,49 @@ public:
 
     JoinIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return deref();
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         if (_isIteratorTurn) {
             ++_iterator;
         }
         _isIteratorTurn = !_isIteratorTurn;
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinIterator& operator++(int) {
-        JoinIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 JoinIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         _isIteratorTurn = !_isIteratorTurn;
         if (_isIteratorTurn) {
             --_iterator;
         }
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinIterator operator--(int) {
-        JoinIterator tmp(*this);
-        --*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 JoinIterator& operator+=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type offset) {
         _iterator += offset < 0 ? roundEven<difference_type>(offset * -1, static_cast<difference_type>(2)) * -1
                                 : roundEven<difference_type>(offset, static_cast<difference_type>(2));
         if (!isEven(offset)) {
             _isIteratorTurn = !_isIteratorTurn;
         }
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 JoinIterator& operator-=(const difference_type offset) {
-        return *this += -offset;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinIterator operator+(const difference_type offset) const {
-        JoinIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const JoinIterator& a, const JoinIterator& b) {
-        LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const JoinIterator& b) const {
+        LZ_ASSERT(_delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
         // distance * 2 for delimiter, - 1 for removing last delimiter
-        return (a._iterator - b._iterator) * 2 - 1;
+        return (_iterator - b._iterator) * 2 - 1;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const JoinIterator& b) const noexcept {
+        LZ_ASSERT(_delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
+        return _iterator == b._iterator;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
         return indexOperator(offset);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 JoinIterator operator-(const difference_type offset) const {
-        JoinIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const JoinIterator& a, const JoinIterator& b) noexcept {
-        LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
-        return a._iterator == b._iterator;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const JoinIterator& a, const JoinIterator& b) noexcept {
-        return !(a == b); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const JoinIterator& a, const JoinIterator& b) {
-        LZ_ASSERT(a._delimiter == b._delimiter, "incompatible iterator types: found different delimiters");
-        return b - a > 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const JoinIterator& a, const JoinIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const JoinIterator& a, const JoinIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const JoinIterator& a, const JoinIterator& b) {
-        return !(a < b); // NOLINT
     }
 };
 } // namespace detail

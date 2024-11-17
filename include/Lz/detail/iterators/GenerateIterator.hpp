@@ -3,6 +3,7 @@
 #ifndef LZ_GENERATE_ITERATOR_HPP
 #define LZ_GENERATE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
 #include "Lz/detail/Procs.hpp"
@@ -10,16 +11,18 @@
 namespace lz {
 namespace detail {
 template<class GeneratorFunc, class... Args>
-class GenerateIterator {
-    using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
+class GenerateIterator
+    : public IterBase<GenerateIterator<GeneratorFunc, Args...>, TupleInvokerType<GeneratorFunc, Args...>,
+                      FakePointerProxy<TupleInvokerType<GeneratorFunc, Args...>>, std::ptrdiff_t, std::forward_iterator_tag> {
+
     std::size_t _current{};
-    mutable TupleInvoker _tupleInvoker{};
+    mutable TupleInvoker<GeneratorFunc, Args...> _tupleInvoker{};
     mutable std::tuple<Args...> _args{};
     bool _isWhileTrueLoop{ false };
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = decltype(_tupleInvoker(_args));
+    using reference = TupleInvokerType<GeneratorFunc, Args...>;
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
@@ -34,34 +37,23 @@ public:
         _isWhileTrueLoop(isWhileTrueLoop) {
     }
 
-    LZ_NODISCARD constexpr reference operator*() {
+    LZ_NODISCARD constexpr reference dereference() const {
         return _tupleInvoker(_args);
     }
 
-    LZ_NODISCARD constexpr pointer operator->() const {
+    LZ_NODISCARD constexpr pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator& operator++() {
+    LZ_CONSTEXPR_CXX_14 void increment() {
         if (!_isWhileTrueLoop) {
             ++_current;
         }
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateIterator operator++(int) {
-        GenerateIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator==(const GenerateIterator& a, const GenerateIterator& b) noexcept {
-        return !(a != b); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool operator!=(const GenerateIterator& a, const GenerateIterator& b) noexcept {
-        LZ_ASSERT(a._isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
-        return a._current != b._current;
+    LZ_NODISCARD constexpr bool eq(const GenerateIterator& b) const noexcept {
+        LZ_ASSERT(_isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
+        return _current == b._current;
     }
 };
 } // namespace detail

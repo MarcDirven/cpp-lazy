@@ -3,26 +3,31 @@
 #ifndef LZ_GENERATE_WHILE_ITERATOR_HPP
 #define LZ_GENERATE_WHILE_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/Procs.hpp"
 #include "Lz/detail/Traits.hpp"
-
 
 namespace lz {
 namespace detail {
 template<class GeneratorFunc, class... Args>
-class GenerateWhileIterator {
-    using TupleInvoker = decltype(makeExpandFn(std::declval<GeneratorFunc>(), MakeIndexSequence<sizeof...(Args)>()));
-    TupleInvoker _tupleInvoker{};
+using GenerateWhileRef = TupleElement<1, TupleInvokerType<GeneratorFunc, Args...>>;
+
+template<class GeneratorFunc, class... Args>
+class GenerateWhileIterator
+    : public IterBase<GenerateWhileIterator<GeneratorFunc, Args...>, GenerateWhileRef<GeneratorFunc, Args...>,
+                      FakePointerProxy<GenerateWhileRef<GeneratorFunc, Args...>>, std::ptrdiff_t, std::forward_iterator_tag> {
+
+    TupleInvoker<GeneratorFunc, Args...> _tupleInvoker{};
     std::tuple<Args...> _args{};
 
-    using FunctionReturnType = decltype(_tupleInvoker(_args));
-    using PairSecond = TupleElement<1, FunctionReturnType>;
+    using FunctionReturnType = TupleInvokerType<GeneratorFunc, Args...>;
     FunctionReturnType _lastReturned;
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = decltype(std::get<1>(_lastReturned));
+    using reference = TupleElement<1, FunctionReturnType>;
     using value_type = Decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = FakePointerProxy<reference>;
@@ -41,32 +46,20 @@ public:
         }
     }
 
-    LZ_NODISCARD constexpr PairSecond operator*() const {
+    LZ_NODISCARD constexpr reference dereference() const {
         return std::get<1>(_lastReturned);
     }
 
-    LZ_NODISCARD constexpr pointer operator->() const {
+    LZ_NODISCARD constexpr pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator& operator++() {
+    LZ_CONSTEXPR_CXX_14 void increment() {
         _lastReturned = _tupleInvoker(_args);
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_14 GenerateWhileIterator operator++(int) {
-        GenerateWhileIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator==(const GenerateWhileIterator& a, const GenerateWhileIterator& b) noexcept {
-        return not(a != b); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 friend bool
-    operator!=(const GenerateWhileIterator& a, const GenerateWhileIterator&) noexcept {
-        return std::get<0>(a._lastReturned);
+    LZ_NODISCARD constexpr bool eq(const GenerateWhileIterator&) const noexcept {
+        return !std::get<0>(_lastReturned);
     }
 };
 } // namespace detail

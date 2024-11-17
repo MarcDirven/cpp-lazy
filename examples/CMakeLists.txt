@@ -14,6 +14,7 @@ set(examples
     Chunks
     Concatenate
     CString
+    CustomIterator
     Enumerate
     Except
     Exclude

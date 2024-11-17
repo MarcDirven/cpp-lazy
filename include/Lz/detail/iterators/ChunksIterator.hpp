@@ -3,6 +3,7 @@
 #ifndef LZ_CHUNKS_ITERATOR_HPP
 #define LZ_CHUNKS_ITERATOR_HPP
 
+#include "Lz/IterBase.hpp"
 #include "Lz/detail/BasicIteratorView.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 
@@ -14,7 +15,10 @@ template<class, bool>
 class ChunksIterator;
 
 template<class Iterator>
-class ChunksIterator<Iterator, false /* isBidirectional */> {
+class ChunksIterator<Iterator, false /* isBidirectional */>
+    : public IterBase<ChunksIterator<Iterator, false>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
+                      DiffType<Iterator>, IterCat<Iterator>> {
+
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -49,38 +53,30 @@ public:
 
     constexpr ChunksIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return { _subRangeBegin, _subRangeEnd };
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         _subRangeBegin = _subRangeEnd;
         nextChunk();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunksIterator operator++(int) {
-        ChunksIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
-        LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
-        return lhs._subRangeBegin != rhs._subRangeBegin;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
-        return !(lhs != rhs); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ChunksIterator& rhs) const noexcept {
+        LZ_ASSERT(_chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
+        return _subRangeBegin == rhs._subRangeBegin;
     }
 };
 
 template<class Iterator>
-class ChunksIterator<Iterator, true /* isBidirectional */> {
+class ChunksIterator<Iterator, true /* isBidirectional */>
+    : public IterBase<ChunksIterator<Iterator, true>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
+                      DiffType<Iterator>, IterCat<Iterator>> {
+
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -201,100 +197,44 @@ public:
 
     constexpr ChunksIterator() = default;
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator*() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return { _subRangeBegin, _subRangeEnd };
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer operator->() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 pointer arrow() const {
         return FakePointerProxy<decltype(**this)>(**this);
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator++() {
+    LZ_CONSTEXPR_CXX_20 void increment() {
         _subRangeBegin = _subRangeEnd;
         nextChunk();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunksIterator operator++(int) {
-        ChunksIterator tmp(*this);
-        ++*this;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator--() {
+    LZ_CONSTEXPR_CXX_20 void decrement() {
         _subRangeEnd = _subRangeBegin;
         prevChunk();
-        return *this;
     }
 
-    LZ_CONSTEXPR_CXX_20 ChunksIterator operator--(int) {
-        ChunksIterator tmp(*this);
-        ++*this;
-        return tmp;
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ChunksIterator& rhs) const noexcept {
+        LZ_ASSERT(_chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
+        return _subRangeBegin == rhs._subRangeBegin;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator!=(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
-        LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
-        return lhs._subRangeBegin != rhs._subRangeBegin;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator==(const ChunksIterator& lhs, const ChunksIterator& rhs) noexcept {
-        return !(lhs != rhs); // NOLINT
-    }
-
-    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator+=(const difference_type offset) {
+    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type offset) {
         const auto totalOffset = _chunkSize * offset;
-        if (offset == 0) {
-            return *this;
-        }
         if (totalOffset < 0) {
             handleNegativeOffset(offset, totalOffset);
         }
-        else {
+        // Use > so that we distinguish 0
+        else if (totalOffset > 0) {
             handlePositiveOffset(totalOffset);
         }
-        return *this;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator+(const difference_type offset) const {
-        ChunksIterator tmp(*this);
-        tmp += offset;
-        return tmp;
-    }
-
-    LZ_CONSTEXPR_CXX_20 ChunksIterator& operator-=(const difference_type offset) {
-        return *this += -offset;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ChunksIterator operator-(const difference_type offset) const {
-        ChunksIterator tmp(*this);
-        tmp -= offset;
-        return tmp;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend difference_type operator-(const ChunksIterator& lhs, const ChunksIterator& rhs) {
-        LZ_ASSERT(lhs._chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
-        const auto dist = lhs._subRangeBegin - rhs._subRangeBegin;
-        return dist == 0 ? 0 : roundEven<difference_type>(dist, lhs._chunkSize);
-    }
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference operator[](const difference_type offset) const {
-        return *(*this + offset);
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<(const ChunksIterator& a, const ChunksIterator& b) {
-        return b - a > 0;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>(const ChunksIterator& a, const ChunksIterator& b) {
-        return b < a;
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator<=(const ChunksIterator& a, const ChunksIterator& b) {
-        return !(b < a); // NOLINT
-    }
-
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 friend bool operator>=(const ChunksIterator& a, const ChunksIterator& b) {
-        return !(a < b); // NOLINT
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const ChunksIterator& rhs) const {
+        LZ_ASSERT(_chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
+        const auto dist = _subRangeBegin - rhs._subRangeBegin;
+        return dist == 0 ? 0 : roundEven<difference_type>(dist, _chunkSize);
     }
 };
 } // namespace detail
