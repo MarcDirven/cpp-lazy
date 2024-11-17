@@ -24,13 +24,13 @@ TEST_CASE("Basic functionality loop", "[Loop][Basic functionality]") {
         CHECK(looper.begin() + static_cast<std::ptrdiff_t>(vec.size()) != looper.end());
 
         CHECK(looper.begin() < looper.end());
-        CHECK(looper.begin() > looper.end());
-        CHECK(looper.begin() >= looper.end());
+        CHECK(!(looper.begin() > looper.end()));
+        CHECK(!(looper.begin() >= looper.end()));
         CHECK(looper.begin() <= looper.end());
 
-        CHECK(looper.end() < looper.begin());
+        CHECK(!(looper.end() < looper.begin()));
         CHECK(looper.end() > looper.begin());
         CHECK(looper.end() >= looper.begin());
-        CHECK(looper.end() <= looper.begin());
+        CHECK(!(looper.end() <= looper.begin()));
     }
 }

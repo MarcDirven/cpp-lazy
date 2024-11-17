@@ -65,28 +65,15 @@ public:
         _iterator -= offset == 0 ? dist : offset;
     }
 
-    LZ_NODISCARD constexpr difference_type difference(const LoopIterator&) const noexcept {
+    LZ_NODISCARD constexpr difference_type difference(const LoopIterator& it) const noexcept {
+        if (it._iterator == _end) {
+            return 0;
+        }
         return (std::numeric_limits<difference_type>::max)();
     }
 
     LZ_NODISCARD constexpr bool eq(const LoopIterator&) const noexcept {
         return false;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator<(const LoopIterator&, const LoopIterator&) noexcept {
-        return true;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator>(const LoopIterator&, const LoopIterator&) noexcept {
-        return true;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator<=(const LoopIterator&, const LoopIterator&) noexcept {
-        return true;
-    }
-
-    LZ_NODISCARD constexpr friend bool operator>=(const LoopIterator&, const LoopIterator&) noexcept {
-        return true;
     }
 };
 } // namespace detail
