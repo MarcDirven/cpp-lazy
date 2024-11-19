@@ -96,7 +96,9 @@
 #define LZ_HAS_FORMAT
 #endif // format
 
-#if LZ_HAS_ATTRIBUTE(no_unique_address)
+#if LZ_HAS_ATTRIBUTE(no_unique_address) && defined(_WIN32)
+#define LZ_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#elif LZ_HAS_ATTRIBUTE(no_unique_address)
 #define LZ_NO_UNIQUE_ADDRESS [[no_unique_address]]
 #else
 #define LZ_NO_UNIQUE_ADDRESS
