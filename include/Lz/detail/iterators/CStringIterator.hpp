@@ -8,13 +8,19 @@
 
 namespace lz {
 namespace detail {
-template<class C, bool IsRandomAccess>
-class CStringIterator : public IterBase<CStringIterator<C, IsRandomAccess>, const C&, const C*, std::ptrdiff_t,
-                                        Conditional<IsRandomAccess, std::random_access_iterator_tag, std::forward_iterator_tag>> {
+
+template<class C, class Tag>
+class CStringIterator;
+
+template<class C, class Tag>
+using CStringSentinelSelector = SentinelSelector<Tag, CStringIterator<C, Tag>>;
+
+template<class C, class Tag>
+class CStringIterator
+    : public IterBase<CStringIterator<C, Tag>, const C&, const C*, std::ptrdiff_t, Tag, CStringSentinelSelector<C, Tag>> {
     const C* _it{ nullptr };
 
 public:
-    using iterator_category = Conditional<IsRandomAccess, std::random_access_iterator_tag, std::forward_iterator_tag>;
     using value_type = C;
     using difference_type = std::ptrdiff_t;
     using pointer = const C*;
@@ -45,6 +51,10 @@ public:
             return *_it == '\0';
         }
         return _it == b._it;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 bool eq(DefaultSentinel) const noexcept {
+        return _it != nullptr && *_it == '\0';
     }
 
     LZ_CONSTEXPR_CXX_14 void decrement() noexcept {

@@ -12,7 +12,7 @@ namespace lz {
 namespace detail {
 template<class Iterator>
 class RotateIterator : public IterBase<RotateIterator<Iterator>, RefType<Iterator>, PointerType<Iterator>, DiffType<Iterator>,
-                                       CommonType<IterCat<Iterator>, std::bidirectional_iterator_tag>> {
+                                       detail::CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>> {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
@@ -20,7 +20,6 @@ public:
     using value_type = typename IterTraits::value_type;
     using pointer = typename IterTraits::pointer;
     using difference_type = typename IterTraits::difference_type;
-    using iterator_category = CommonType<typename IterTraits::iterator_category, std::bidirectional_iterator_tag>;
 
 private:
     Iterator _iterator{};

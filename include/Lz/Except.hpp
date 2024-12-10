@@ -10,34 +10,21 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-#ifdef LZ_HAS_EXECUTION
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer, class Execution>
-class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>> {
-#else
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer>
-class Except final : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, IteratorToExcept, Comparer>> {
-#endif
+template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_ITERATOR IteratorToExcept, class SentinelToExcept, class Comparer>
+class Except final
+    : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>,
+                                       DefaultSentinel> {
+
 public:
-#ifdef LZ_HAS_EXECUTION
-    using iterator = detail::ExceptIterator<Iterator, IteratorToExcept, Comparer, Execution>;
-#else
-    using iterator = detail::ExceptIterator<Iterator, IteratorToExcept, Comparer>;
-#endif
+    using iterator = detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>;
+
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-#ifdef LZ_HAS_EXECUTION
-    LZ_CONSTEXPR_CXX_20 Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd,
-                               Comparer comparer, Execution execPolicy) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, toExceptBegin, toExceptEnd, comparer, execPolicy),
-                                            iterator(end, end, toExceptBegin, toExceptEnd, comparer, execPolicy)) {
+    Except(Iterator begin, S end, IteratorToExcept toExceptBegin, SentinelToExcept toExceptEnd, Comparer comparer) :
+        detail::BasicIteratorView<iterator, DefaultSentinel>(
+            iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer)) {
     }
-#else  // ^^^ has execution vvv ! has execution
-    Except(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer),
-                                            iterator(end, end, toExceptEnd, toExceptEnd, comparer)) {
-    }
-#endif // LZ_HAS_EXECUTION
 
     constexpr Except() = default;
 };
@@ -47,90 +34,23 @@ public:
  * @{
  */
 
-#ifdef LZ_HAS_EXECUTION
 /**
- * @brief Skips elements in [begin, end) that is contained by [toExceptBegin, toExceptEnd). [toExceptBegin, toExceptEnd) must be
- * sorted manually before creating this view.
- * @attention [toExceptBegin, toExceptEnd) must be sorted  manually before creating this view.
- * @param execPolicy The std::execution::* policy.
- * @param begin The beginning of the sequence to skip elements in.
- * @param end The ending of the sequence to skip elements in.
- * @param toExceptBegin The beginning of the sequence that may not be contained in [begin, end).
- * @param toExceptEnd The ending of the sequence that may not be contained in [begin, end).
- * @param comparer Comparer for binary search (operator < is default) in IteratorToExcept.
- * @return An Except view object.
- */
-template<LZ_CONCEPT_ITERATOR Iterator, LZ_CONCEPT_ITERATOR IteratorToExcept, class Comparer = std::less<>,
-         class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Except<Iterator, IteratorToExcept, Comparer, Execution>
-exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {},
-            Execution execPolicy = std::execution::seq) {
-    return {
-        std::move(begin), std::move(end), std::move(toExceptBegin), std::move(toExceptEnd), std::move(comparer), execPolicy
-    };
-}
-
-/**
- * @brief Skips elements iterable that is contained by toExcept. ToExcept must be sorted manually before creating this view.
- * @attention ToExcept must be sorted manually before creating this view.
- * @param execPolicy The std::execution::* policy.
+ * @brief Skips elements in @p iterable that is contained by @p toExcept. @p toExcept must be sorted manually before creating this
+ * view.
+ * @attention @p toExcept must be sorted manually before creating this view.
  * @param iterable Sequence to iterate over.
  * @param toExcept Sequence that contains items that must be skipped in `iterable`.
  * @param comparer Comparer for binary search (operator < is default) in IterableToExcept
  * @return An Except view object.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, LZ_CONCEPT_ITERABLE IterableToExcept, class Comparer = std::less<>,
-         class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    Except<detail::IterTypeFromIterable<Iterable>, detail::IterTypeFromIterable<IterableToExcept>, Comparer, Execution>
-    except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}, Execution execPolicy = std::execution::seq) {
-    return exceptRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
-                       detail::begin(std::forward<IterableToExcept>(toExcept)),
-                       detail::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer), execPolicy);
-}
-
-#else // ^^^ has execution vvv ! has execution
-/**
- * @brief Skips elements in [begin, end) that is contained by [toExceptBegin, toExceptEnd). [toExceptBegin, toExceptEnd) must be
- * sorted manually before creating this view.
- * @attention [toExceptBegin, toExceptEnd) must be sorted  manually before creating this view.
- * @param begin The beginning of the sequence to skip elements in.
- * @param end The ending of the sequence to skip elements in.
- * @param toExceptBegin The beginning of the sequence that may not be contained in [begin, end).
- * @param toExceptEnd The ending of the sequence that may not be contained in [begin, end).
- * @param comparer Comparer for binary search (operator < is default) in IteratorToExcept.
- * @return An Except view object.
- */
-#ifdef LZ_HAS_CXX_11
-template<class Iterator, class IteratorToExcept, class Comparer = std::less<detail::ValueType<Iterator>>>
-#else
-template<class Iterator, class IteratorToExcept, class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
-Except<Iterator, IteratorToExcept, Comparer>
-exceptRange(Iterator begin, Iterator end, IteratorToExcept toExceptBegin, IteratorToExcept toExceptEnd, Comparer comparer = {}) {
-    return { std::move(begin), std::move(end), std::move(toExceptBegin), std::move(toExceptEnd), std::move(comparer) };
-}
-
-/**
- * @brief Skips elements iterable that is contained by toExcept. ToExcept must be sorted manually before creating this view.
- * @attention ToExcept must be sorted manually before creating this view.
- * @param iterable Sequence to iterate over.
- * @param toExcept Sequence that contains items that must be skipped in `iterable`.
- * @param comparer Comparer for binary search (operator < is default) in IterableToExcept
- * @return An Except view object.
- */
-#ifdef LZ_HAS_CXX_11
-template<class Iterable, class IterableToExcept, class Comparer = std::less<detail::ValueTypeIterable<Iterable>>>
-#else
-template<class Iterable, class IterableToExcept, class Comparer = std::less<>>
-#endif // LZ_HAS_CXX_11
-Except<detail::IterTypeFromIterable<Iterable>, detail::IterTypeFromIterable<IterableToExcept>, Comparer>
+template<LZ_CONCEPT_ITERATOR Iterable, class IterableToExcept,
+         class Comparer = MAKE_BIN_OP(std::less, ValueType<IterT<Iterable>>)>
+Except<IterT<Iterable>, SentinelT<Iterable>, IterT<IterableToExcept>, SentinelT<IterableToExcept>, Comparer>
 except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}) {
-    return exceptRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
-                       detail::begin(std::forward<IterableToExcept>(toExcept)),
-                       detail::end(std::forward<IterableToExcept>(toExcept)), std::move(comparer));
+    return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
+             detail::begin(std::forward<IterableToExcept>(toExcept)), detail::end(std::forward<IterableToExcept>(toExcept)),
+             std::move(comparer) };
 }
-#endif // LZ_HAS_EXECUTION
 
 // End of group
 /**

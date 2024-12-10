@@ -55,8 +55,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<Iterator, Function> mapRange(Iterator begin
  * `for (auto... lz::map(...))`.
  */
 template<class Function, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<detail::IterTypeFromIterable<Iterable>, detail::Decay<Function>>
-map(Iterable&& iterable, Function&& function) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<IterT<Iterable>, detail::Decay<Function>> map(Iterable&& iterable, Function&& function) {
     return mapRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                     std::forward<Function>(function));
 }

@@ -139,7 +139,7 @@ TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {
     auto takeEvery = lz::takeEvery(array, offset);
 
     SECTION("To array") {
-        std::array<int, static_cast<std::size_t>(size / offset)> actual = takeEvery.toArray<offset>();
+        std::array<int, static_cast<std::size_t>(size / offset)> actual = takeEvery.to<std::array<int, offset>>();
         CHECK(actual == std::array<int, offset>{ 1, 3 });
     }
 
@@ -149,18 +149,18 @@ TEST_CASE("TakeEvery to containers", "[TakeEvery][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        std::list<int> actual = takeEvery.to<std::list>();
+        std::list<int> actual = takeEvery.to<std::list<int>>();
         CHECK(actual == std::list<int>{ 1, 3 });
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = takeEvery.toMap([](const int i) { return i; });
+        std::map<int, int> actual = takeEvery.toMap([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(3, 3) };
         CHECK(actual == expected);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = takeEvery.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = takeEvery.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(3, 3) };
         CHECK(actual == expected);
     }

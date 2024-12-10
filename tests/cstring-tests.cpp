@@ -1,4 +1,5 @@
 #include <Lz/CString.hpp>
+#include <Lz/Common.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -39,10 +40,14 @@ TEST_CASE("CString binary operations", "[CString][Binary ops]") {
         CHECK(beg != cString.end());
         CHECK(begRA != cStrRandomAccess.end());
 
-        beg = cString.end();
-        begRA = cStrRandomAccess.end();
+        auto common = lz::common(cString);
+        auto beginCommon = common.begin();
+        auto endCommon = common.end();
+        CHECK(beginCommon != endCommon);
+        beginCommon = common.end();
+        CHECK(beginCommon == endCommon);
 
-        CHECK(beg == cString.end());
+        begRA = cStrRandomAccess.end();
         CHECK(begRA == cStrRandomAccess.end());
     }
 
@@ -85,7 +90,6 @@ TEST_CASE("CString binary operations", "[CString][Binary ops]") {
         CHECK(cStrRandomAccess);
         CHECK(cStrRandomAccess.begin());
 
-        CHECK(!cString.end());
         CHECK(cStrRandomAccess.end());
 
         auto tmp = lz::cString("");
@@ -100,7 +104,7 @@ TEST_CASE("CString to containers", "[CString][To container]") {
 
     SECTION("To array") {
         std::array<char, 14> expected = { 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!' };
-        CHECK(str.toArray<14>() == expected);
+        CHECK(str.to<std::array<char, 14>>() == expected);
     }
 
     SECTION("To vector") {
@@ -110,18 +114,18 @@ TEST_CASE("CString to containers", "[CString][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<char> expected = { 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!' };
-        CHECK(str.to<std::list>() == expected);
+        CHECK(str.to<std::list<char>>() == expected);
     }
 
     SECTION("To map") {
         std::map<char, char> expected = { { '1', '1' }, { '2', '2' }, { '3', '3' }, { '4', '4' }, { '5', '5' },
                                           { '6', '6' }, { '7', '7' }, { '8', '8' }, { '9', '9' } };
-        CHECK(mapStr.toMap([](char c) { return c; }) == expected);
+        CHECK(mapStr.toMap([](char c) { return std::make_pair(c, c); }) == expected);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<char, char> expected = { { '1', '1' }, { '2', '2' }, { '3', '3' }, { '4', '4' }, { '5', '5' },
                                                     { '6', '6' }, { '7', '7' }, { '8', '8' }, { '9', '9' } };
-        CHECK(mapStr.toUnorderedMap([](char c) { return c; }) == expected);
+        CHECK(mapStr.toUnorderedMap([](char c) { return std::make_pair(c, c); }) == expected);
     }
 }

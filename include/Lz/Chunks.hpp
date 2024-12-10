@@ -9,34 +9,31 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<class, bool>
-class Chunks;
-
-template<class Iterator>
-class Chunks<Iterator, true> final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, true>> {
+template<class Iterator, class S>
+class Chunks final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, S>, DefaultSentinel> {
 public:
-    using iterator = detail::ChunksIterator<Iterator, true>;
+    using iterator = detail::ChunksIterator<Iterator, S>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
-    Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, chunkSize), iterator(end, begin, end, chunkSize)) {
+    Chunks(Iterator begin, S end, const std::size_t chunkSize) :
+        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(std::move(begin), std::move(end), chunkSize)) {
     }
 
     constexpr Chunks() = default;
 };
 
 template<class Iterator>
-class Chunks<Iterator, false> final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, false>> {
+class Chunks<Iterator, Iterator> final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, Iterator>> {
 public:
-    using iterator = detail::ChunksIterator<Iterator, false>;
+    using iterator = detail::ChunksIterator<Iterator, Iterator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
     Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), chunkSize), iterator(std::move(end), chunkSize)) {
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, chunkSize), iterator(end, begin, end, chunkSize)) {
     }
 
     constexpr Chunks() = default;
@@ -50,28 +47,14 @@ public:
 /**
  * Chops a sequence into chunks of `chunkSize`. The value type of the iterator is another iterator, so a double for loop is
  * necessary to iterate over.
- * @param begin The beginning of the sequence.
- * @param end The ending of the sequence.
- * @param chunkSize The size of the chunks to be.
- * @return A Chunk iterator view object.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<Iterator, detail::IsBidirectional<Iterator>::value>
-chunksRange(Iterator begin, Iterator end, const std::size_t chunkSize) {
-    return { begin, end, chunkSize };
-}
-
-/**
- * Chops a sequence into chunks of `chunkSize`. The value type of the iterator is another iterator, so a double for loop is
- * necessary to iterate over.
  * @param iterable The sequence to be chopped into chunks.
  * @param chunkSize The size of the chunks to be.
  * @return A Chunk iterator view object.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class I = detail::IterTypeFromIterable<Iterable>>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<I, detail::IsBidirectional<I>::value>
+template<LZ_CONCEPT_ITERABLE Iterable>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Chunks<IterT<Iterable>, SentinelT<Iterable>>
 chunks(Iterable&& iterable, const std::size_t chunkSize) {
-    return chunksRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), chunkSize);
+    return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), chunkSize };
 }
 
 // End of group

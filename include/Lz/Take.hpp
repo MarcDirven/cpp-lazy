@@ -10,17 +10,20 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<class Iterator>
-class TakeN : public detail::BasicIteratorView<detail::TakeNIterator<Iterator>> {
+template<class Iterator, class S>
+class TakeN : public detail::BasicIteratorView<detail::TakeNIterator<Iterator, S>,
+                                               typename detail::TakeNIterator<Iterator, S>::Sentinel> {
+
 public:
-    using iterator = detail::TakeNIterator<Iterator>;
+    using iterator = detail::TakeNIterator<Iterator, S>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
 private:
+    using TakeNSent = TakeNSentinel<typename iterator::difference_type>;
     template<class IterCat>
     LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, IterCat /*unused*/) :
-        detail::BasicIteratorView<iterator>(iterator(begin, 0), iterator(begin, n)) {
+        detail::BasicIteratorView<iterator, TakeNSent>(iterator(begin, 0), TakeNSent{ n }) {
     }
 
     LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, std::random_access_iterator_tag /*unused*/) :
@@ -29,7 +32,7 @@ private:
 
 public:
     LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n) :
-        TakeN(std::move(begin), n, typename std::iterator_traits<Iterator>::iterator_category{}) {
+        TakeN(std::move(begin), n, IterCat<Iterator>{}) {
     }
 
     constexpr TakeN() = default;
@@ -39,26 +42,11 @@ public:
 /**
  * @defgroup ItFns Iterator free functions.
  * These are the iterator functions and can all be used to iterate over in a
- * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`,
- * `toVector<Allocator>`, `toArray<N>`, `to<container>. toMap, toUnorderedMap` (specifying its value type of the container is not
- *  necessary, so e.g. `to<std::list>()` will do), `begin()`, `end()` methods and `value_type` and `iterator`
- *  typedefs.
+ * `for (auto var : lz::someiterator(...))`-like fashion. Also, all objects contain a `toVector`, `to<container>`, toMap,
+ * toUnorderedMap`. These functions are used to convert the iterator to a container.
  * @{
  */
 
-/**
- * @brief Takes the first n elements from the iterator
- * @param begin The begin iterator.
- * @param n The amount of elements to take.
- * @return A TakeN object containing the first `n` elements.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, TakeN<Iterator>>
-take(Iterator begin, typename std::iterator_traits<Iterator>::difference_type n) {
-    return { std::move(begin), n };
-}
-
-// clang-format off
 /**
  * @brief Takes the first `n` elements from the iterable.
  * @param iterable The iterable to take elements from.
@@ -66,24 +54,9 @@ take(Iterator begin, typename std::iterator_traits<Iterator>::difference_type n)
  * @return A TakeN object containing the first `n` elements.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD
-LZ_CONSTEXPR_CXX_14 detail::EnableIf<detail::HasBeginFunc<Iterable>::value, TakeN<detail::IterTypeFromIterable<Iterable>>>
-take(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> n) {
-    return take(detail::begin(std::forward<Iterable>(iterable)), n);
-}
-
-/**
- * @brief Drops the first `n` elements from the iterator.
- * @param begin The begin iterator.
- * @param end The end iterator.
- * @param n The amount of elements to drop.
- * @return A BasicIteratorView containing the iterator with the first `n` elements dropped.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD
-LZ_CONSTEXPR_CXX_14 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, detail::BasicIteratorView<Iterator>>
-dropRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> n) {
-    return { std::next(std::move(begin), n), std::move(end) };
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 TakeN<IterT<Iterable>, SentinelT<Iterable>>
+take(Iterable&& iterable, const DiffTypeIterable<Iterable> n) {
+    return TakeN<IterT<Iterable>, SentinelT<Iterable>>(detail::begin(std::forward<Iterable>(iterable)), n);
 }
 
 /**
@@ -93,30 +66,12 @@ dropRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> n) {
  * @return A BasicIteratorView containing the iterable with the first `n` elements dropped.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD
-LZ_CONSTEXPR_CXX_14 
-detail::EnableIf<detail::HasBeginFunc<Iterable>::value, detail::BasicIteratorView<detail::IterTypeFromIterable<Iterable>>>
-drop(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> n) {
-    return dropRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), n);
-}
-// clang-format on
-
-/**
- * @brief Slices the iterator from `from` to `to`.
- * @param begin The begin iterator.
- * @param end The end iterator.
- * @param from The beginning of the slice.
- * @param to The end of the slice.
- * @return A view containing the iterator sliced from `from` to `to`.
- */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::EnableIf<!detail::HasBeginFunc<Iterator>::value, TakeN<Iterator>>
-slice(Iterator begin, const detail::DiffType<Iterator> from, const detail::DiffType<Iterator> to) {
-    LZ_ASSERT(to > from, "to must be greater than from");
-    return take(std::next(std::move(begin), from), to - from);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::BasicIteratorView<IterT<Iterable>, SentinelT<Iterable>>
+drop(Iterable&& iterable, const DiffTypeIterable<Iterable> n) {
+    auto next = std::next(std::begin(iterable), n);
+    return { std::move(next), detail::end(std::forward<Iterable>(iterable)) };
 }
 
-// clang-format off
 /**
  * @brief Slices the iterable from `from` to `to`.
  * @param iterable The iterable to slice.
@@ -125,12 +80,11 @@ slice(Iterator begin, const detail::DiffType<Iterator> from, const detail::DiffT
  * @return A view containing the iterable sliced from `from` to `to`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-detail::EnableIf<detail::HasBeginFunc<Iterable>::value, TakeN<detail::IterTypeFromIterable<Iterable>>>
-slice(Iterable&& iterable, const detail::DiffTypeIterable<Iterable> from, const detail::DiffTypeIterable<Iterable> to) {
-    return slice(detail::begin(std::forward<Iterable>(iterable)), from, to);
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeN<IterT<Iterable>, SentinelT<Iterable>>
+slice(Iterable&& iterable, const DiffTypeIterable<Iterable> from, const DiffTypeIterable<Iterable> to) {
+    auto next = std::next(detail::begin(std::forward<Iterable>(iterable)), from);
+    return TakeN<IterT<Iterable>, SentinelT<Iterable>>(std::move(next), to - from);
 }
-// clang-format on
 
 // End of group
 /**

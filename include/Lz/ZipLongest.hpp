@@ -11,10 +11,11 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-class ZipLongest final : public detail::BasicIteratorView<detail::ZipLongestIterator<
-                             detail::IsRandomAccessTag<detail::CommonType<detail::IterCat<Iterators>...>>::value, Iterators...>> {
+class ZipLongest final
+    : public detail::BasicIteratorView<
+          detail::ZipLongestIterator<detail::IsRandomAccessTag<detail::CommonType<IterCat<Iterators>...>>::value, Iterators...>> {
 
-    using IterCat = detail::CommonType<detail::IterCat<Iterators>...>;
+    using IterCat = detail::CommonType<IterCat<Iterators>...>;
 
     static_assert(sizeof...(Iterators) > 0, "Cannot create zip longest object with 0 iterators");
 
@@ -79,7 +80,7 @@ zipLongestRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
  * @return ZipLongest object that contains the iterator.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongest<detail::IterTypeFromIterable<Iterables>...> zipLongest(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongest<IterT<Iterables>...> zipLongest(Iterables&&... iterables) {
     auto begin = std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...);
     auto end = std::make_tuple(detail::end(std::forward<Iterables>(iterables))...);
     return lz::zipLongestRange(std::move(begin), std::move(end));

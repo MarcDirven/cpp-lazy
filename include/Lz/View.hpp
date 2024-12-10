@@ -6,8 +6,8 @@
 #include "Lz/detail/BasicIteratorView.hpp"
 
 namespace lz {
-template<LZ_CONCEPT_ITERATOR Iterator>
-using View = detail::BasicIteratorView<Iterator>;
+template<LZ_CONCEPT_ITERATOR Iterator, class S = Iterator>
+using View = detail::BasicIteratorView<Iterator, S>;
 
 // Start of group
 /**
@@ -23,8 +23,8 @@ using View = detail::BasicIteratorView<Iterator>;
  * @return A View object that can be converted to an arbitrary container or can be iterated over using
  * `for (auto... lz::takeRange(...))`.
  */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator> view(Iterator begin, Iterator end) {
+template<LZ_CONCEPT_ITERATOR Iterator, class S>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator, S> view(Iterator begin, S end) {
     return { begin, end };
 }
 

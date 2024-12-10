@@ -125,7 +125,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
 
     SECTION("To array") {
         std::array<int, static_cast<std::size_t>(size)> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        auto actual = range.toArray<static_cast<std::size_t>(size)>();
+        auto actual = range.to<std::array<int, static_cast<std::size_t>(size)>>();
 
         CHECK(expected == actual);
     }
@@ -139,13 +139,13 @@ TEST_CASE("Range to containers", "[Range][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<int> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        auto actual = range.to<std::list>();
+        auto actual = range.to<std::list<int>>();
 
         CHECK(expected == actual);
     }
 
     SECTION("To map") {
-        std::map<int, int> expected = range.toMap([](const int i) { return i; });
+        std::map<int, int> expected = range.toMap([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> actual;
 
         for (int i : lz::range(size)) {
@@ -156,7 +156,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> expected = range.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> expected = range.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> actual;
 
         for (int i : lz::range(size)) {

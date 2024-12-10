@@ -194,8 +194,6 @@ random(const Distribution& distribution, Generator& generator,
  * tends to be more faster than its `std::seed_seq` implementation.
  * @param min The minimum value, included.
  * @param max The maximum value, included.
- * @tparam Distribution The distribution for generating the random numbers. `std::uniform_int_distribution` by default.
- * @tparam Generator The random number generator. `std::mt19937` by default.
  * @param amount The amount of numbers to create. If left empty or equal to `std::numeric_limits<std::size_t>::max()`
  * it is interpreted as a `while-true` loop.
  * @return A random view object that generates a sequence of random numbers

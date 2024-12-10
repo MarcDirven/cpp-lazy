@@ -1,4 +1,4 @@
-#include "Lz/FunctionTools.hpp"
+#include "Lz/IterTools.hpp"
 #include "Lz/Rotate.hpp"
 
 #include <catch2/catch.hpp>
@@ -90,7 +90,7 @@ TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     auto rotator = lz::rotate(vec.begin() + 2, vec.begin(), vec.end());
 
     SECTION("To array") {
-        CHECK(rotator.toArray<size>() == std::array<int, size>{ 3, 4, 5, 6, 1, 2 });
+        CHECK(rotator.to<std::array<int, size>>() == std::array<int, size>{ 3, 4, 5, 6, 1, 2 });
     }
 
     SECTION("To vector") {
@@ -98,16 +98,16 @@ TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(rotator.to<std::list>() == std::list<int>{ 3, 4, 5, 6, 1, 2 });
+        CHECK(rotator.to<std::list<int>>() == std::list<int>{ 3, 4, 5, 6, 1, 2 });
     }
 
     SECTION("To map") {
-        auto map = rotator.toMap([](int i) { return i; });
+        auto map = rotator.toMap([](int i) { return std::make_pair(i, i); });
         CHECK(map == std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 1, 1 }, { 2, 2 } });
     }
 
     SECTION("To unordered map") {
-        auto map = rotator.toUnorderedMap([](int i) { return i; });
+        auto map = rotator.toUnorderedMap([](int i) { return std::make_pair(i, i); });
         CHECK(map == std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 1, 1 }, { 2, 2 } });
     }
 }

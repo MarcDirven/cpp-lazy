@@ -57,7 +57,7 @@ TEST_CASE("Inclusive scan splitter to containers", "[InclusiveScan][To container
 
     SECTION("To array") {
         std::array<int, 8> expected = { 2, 7, 13, 17, 104, 112, 157, 164 };
-        auto actual = scanner.toArray<expected.size()>();
+        auto actual = scanner.to<std::array<int, expected.size()>>();
         CHECK(actual == expected);
     }
 
@@ -69,14 +69,14 @@ TEST_CASE("Inclusive scan splitter to containers", "[InclusiveScan][To container
 
     SECTION("To other container using to<>()") {
         std::list<int> expected = { 2, 7, 13, 17, 104, 112, 157, 164 };
-        auto actual = scanner.to<std::list>();
+        auto actual = scanner.to<std::list<int>>();
         CHECK(expected == actual);
     }
 
     SECTION("To map") {
         std::map<int, int> expected = { { 4, 2 },     { 14, 7 },    { 26, 13 },   { 34, 17 },
                                         { 208, 104 }, { 224, 112 }, { 314, 157 }, { 328, 164 } };
-        auto actual = scanner.toMap([](int i) { return i + i; });
+        auto actual = scanner.toMap([](int i) { return std::make_pair(i + i, i); });
         for (auto&& p : actual) {
             UNSCOPED_INFO(fmt::format("({}, {})", p.first, p.second));
         }
@@ -86,7 +86,7 @@ TEST_CASE("Inclusive scan splitter to containers", "[InclusiveScan][To container
     SECTION("To unordered map") {
         std::unordered_map<int, int> expected = { { 4, 2 },     { 14, 7 },    { 26, 13 },   { 34, 17 },
                                                   { 208, 104 }, { 224, 112 }, { 314, 157 }, { 328, 164 } };
-        auto actual = scanner.toUnorderedMap([](int i) { return i + i; });
+        auto actual = scanner.toUnorderedMap([](int i) { return std::make_pair(i + i, i); });
         CHECK(expected == actual);
     }
 }

@@ -4,34 +4,44 @@
 #define LZ_C_STRING_HPP
 
 #include "detail/BasicIteratorView.hpp"
+#include "detail/Traits.hpp"
 #include "detail/iterators/CStringIterator.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<class C, bool IsRandomAccess>
-class CString final : public detail::BasicIteratorView<detail::CStringIterator<C, IsRandomAccess>> {
+template<class C, class Tag>
+class CString final
+    : public detail::BasicIteratorView<detail::CStringIterator<C, Tag>, typename detail::CStringIterator<C, Tag>::Sentinel> {
+    using Sentinel = typename detail::CStringIterator<C, Tag>::Sentinel;
+
 public:
-    using iterator = detail::CStringIterator<C, IsRandomAccess>;
+    using iterator = detail::CStringIterator<C, Tag>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
+    constexpr CString(const C* begin) noexcept : detail::BasicIteratorView<iterator, Sentinel>(iterator(begin)) {
+    }
+
     constexpr CString(const C* begin, const C* end) noexcept :
-        detail::BasicIteratorView<iterator>(iterator(begin), iterator(end)) {
+        detail::BasicIteratorView<iterator, iterator>(iterator(begin), iterator(end)) {
     }
 
     constexpr CString() = default;
 
-    template<bool RA = IsRandomAccess>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::EnableIf<!RA, std::size_t> size() const noexcept {
-        std::size_t size = 0;
-        for (auto i = this->begin(); i != this->end(); ++i, ++size) {}
-        return size;
+    template<class S = Sentinel>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::EnableIf<!std::is_same<detail::CStringIterator<C, S>, S>::value, std::size_t>
+    size() const noexcept {
+        std::size_t s = 0;
+        for (auto i = this->begin(); i != this->end(); ++i, ++s) {
+        }
+        return s;
     }
 
-    template<bool RA = IsRandomAccess>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::EnableIf<RA, std::size_t> size() const noexcept {
+    template<class S = Sentinel>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::EnableIf<std::is_same<detail::CStringIterator<C, S>, S>::value, std::size_t>
+    size() const noexcept {
         return static_cast<std::size_t>(this->_end - this->_begin);
     }
 
@@ -53,7 +63,7 @@ public:
  * @return CString object containing a random access iterator
  */
 template<class C>
-LZ_NODISCARD constexpr CString<C, true> cString(const C* begin, const C* end) noexcept {
+LZ_NODISCARD constexpr CString<C, std::random_access_iterator_tag> cString(const C* begin, const C* end) noexcept {
     return { begin, end };
 }
 
@@ -64,8 +74,8 @@ LZ_NODISCARD constexpr CString<C, true> cString(const C* begin, const C* end) no
  * @return CString object containing a forward iterator
  */
 template<class C>
-LZ_NODISCARD constexpr CString<C, false> cString(const C* s) noexcept {
-    return { s, nullptr };
+LZ_NODISCARD constexpr CString<C, std::forward_iterator_tag> cString(const C* s) noexcept {
+    return { s };
 }
 
 // End of group

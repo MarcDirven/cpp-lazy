@@ -8,12 +8,13 @@ TEST_CASE("Exclude changing and creating elements", "[Exclude][Basic functionali
     auto excluded1 = lz::exclude(arr, 3, 5);
     auto excluded2 = lz::exclude(arr, 0, 2);
     auto excluded3 = lz::exclude(arr, 8, 10);
+    static_assert(!std::is_same<decltype(excluded1.end()), decltype(excluded1.begin())>::value, "Must be sentinel");
 
     SECTION("Should Exclude out element") {
         constexpr auto signedSize = static_cast<std::ptrdiff_t>(arr.size() - 2);
-        CHECK(std::distance(excluded1.begin(), excluded1.end()) == signedSize);
-        CHECK(std::distance(excluded2.begin(), excluded2.end()) == signedSize);
-        CHECK(std::distance(excluded3.begin(), excluded3.end()) == signedSize);
+        CHECK(lz::distance(excluded1.begin(), excluded1.end()) == signedSize);
+        CHECK(lz::distance(excluded2.begin(), excluded2.end()) == signedSize);
+        CHECK(lz::distance(excluded3.begin(), excluded3.end()) == signedSize);
     }
 
     SECTION("Should be by reference") {
@@ -76,14 +77,14 @@ TEST_CASE("Exclude binary operations", "[Exclude][Binary ops]") {
     }
 
     SECTION("Lz distance") {
-        CHECK(std::distance(exBeg1, exEnd1) == 8);
-        CHECK(std::distance(std::next(exBeg1, 3), exEnd1) == 5);
+        CHECK(lz::distance(exBeg1, exEnd1) == 8);
+        CHECK(lz::distance(std::next(exBeg1, 3), exEnd1) == 5);
 
-        CHECK(std::distance(exBeg2, exEnd2) == 8);
-        CHECK(std::distance(std::next(exBeg2, 1), exEnd2) == 7);
+        CHECK(lz::distance(exBeg2, exEnd2) == 8);
+        CHECK(lz::distance(std::next(exBeg2, 1), exEnd2) == 7);
 
-        CHECK(std::distance(exBeg3, exEnd3) == 7);
-        CHECK(std::distance(std::next(exBeg3, 7), exEnd3) == 0);
+        CHECK(lz::distance(exBeg3, exEnd3) == 7);
+        CHECK(lz::distance(std::next(exBeg3, 7), exEnd3) == 0);
     }
 }
 
@@ -95,9 +96,9 @@ TEST_CASE("Exclude to containers", "[Exclude][To container]") {
     auto excluded3 = lz::exclude(arr, 7, 10);
 
     SECTION("To array") {
-        CHECK(excluded1.toArray<8>() == std::array<int, 8>{ 1, 2, 3, 6, 7, 8, 9, 10 });
-        CHECK(excluded2.toArray<8>() == std::array<int, 8>{ 3, 4, 5, 6, 7, 8, 9, 10 });
-        CHECK(excluded3.toArray<7>() == std::array<int, 7>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(excluded1.to<std::array<int, 8>>() == std::array<int, 8>{ 1, 2, 3, 6, 7, 8, 9, 10 });
+        CHECK(excluded2.to<std::array<int, 8>>() == std::array<int, 8>{ 3, 4, 5, 6, 7, 8, 9, 10 });
+        CHECK(excluded3.to<std::array<int, 7>>() == std::array<int, 7>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To vector") {
@@ -107,26 +108,26 @@ TEST_CASE("Exclude to containers", "[Exclude][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(excluded1.to<std::list>() == std::list<int>{ 1, 2, 3, 6, 7, 8, 9, 10 });
-        CHECK(excluded2.to<std::list>() == std::list<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
-        CHECK(excluded3.to<std::list>() == std::list<int>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(excluded1.to<std::list<int>>() == std::list<int>{ 1, 2, 3, 6, 7, 8, 9, 10 });
+        CHECK(excluded2.to<std::list<int>>() == std::list<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
+        CHECK(excluded3.to<std::list<int>>() == std::list<int>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To map") {
-        CHECK(excluded1.toMap([](int i) { return i; }) ==
+        CHECK(excluded1.toMap([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toMap([](int i) { return i; }) ==
+        CHECK(excluded2.toMap([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toMap([](int i) { return i; }) ==
+        CHECK(excluded3.toMap([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 
     SECTION("To unordered map") {
-        CHECK(excluded1.toUnorderedMap([](int i) { return i; }) ==
+        CHECK(excluded1.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toUnorderedMap([](int i) { return i; }) ==
+        CHECK(excluded2.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toUnorderedMap([](int i) { return i; }) ==
+        CHECK(excluded3.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 }

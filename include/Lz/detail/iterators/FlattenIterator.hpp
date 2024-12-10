@@ -87,12 +87,16 @@ template<class T>
 using CountDims = typename CountDimsHelper<IsIterator<T>::value>::template type<T>;
 
 // Improvement of https://stackoverflow.com/a/21076724/8729023
-template<class Iterator>
-class FlattenWrapper : public IterBase<FlattenWrapper<Iterator>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
-                                       DiffType<Iterator>, CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>> {
+template<class Iterator, class S>
+class FlattenWrapper
+    : public IterBase<
+          FlattenWrapper<Iterator, S>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>, DiffType<Iterator>,
+          CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>,
+          SentinelSelector<CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>, FlattenWrapper<Iterator, S>>> {
+
     Iterator _begin{};
     Iterator _current{};
-    Iterator _end{};
+    S _end{};
 
     using IterTraits = std::iterator_traits<Iterator>;
 
@@ -100,12 +104,11 @@ public:
     using reference = typename IterTraits::reference;
     using pointer = FakePointerProxy<reference>;
     using value_type = typename IterTraits::value_type;
-    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename IterTraits::iterator_category>;
     using difference_type = typename IterTraits::difference_type;
 
     constexpr FlattenWrapper() = default;
 
-    LZ_CONSTEXPR_CXX_20 FlattenWrapper(Iterator current, Iterator begin, Iterator end) :
+    LZ_CONSTEXPR_CXX_20 FlattenWrapper(Iterator current, Iterator begin, S end) :
         _begin(std::move(begin)),
         _current(std::move(current)),
         _end(std::move(end)) {
@@ -127,6 +130,10 @@ public:
         return _current == b._current;
     }
 
+    LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
+        return _current == _end;
+    }
+
     LZ_CONSTEXPR_CXX_20 reference dereference() const {
         return *_current;
     }
@@ -144,24 +151,23 @@ public:
     }
 };
 
-template<class, int>
+template<class, class, int>
 class FlattenIterator;
 
-template<class Iterator, int N>
-using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), N - 1>;
+template<class Iterator, class S, int N>
+using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), decltype(std::begin(*std::declval<S>())), N - 1>;
 
-template<class Iterator, int N>
-class FlattenIterator
-    : public IterBase<FlattenIterator<Iterator, N>, RefType<Inner<Iterator, N>>, FakePointerProxy<RefType<Inner<Iterator, N>>>,
-                      DiffType<Inner<Iterator, N>>, CommonType<std::bidirectional_iterator_tag, IterCat<Inner<Iterator, N>>>> {
+template<class Iterator, class S, int N>
+class FlattenIterator : public IterBase<FlattenIterator<Iterator, S, N>, RefType<Inner<Iterator, S, N>>,
+                                        FakePointerProxy<RefType<Inner<Iterator, S, N>>>, DiffType<Inner<Iterator, S, N>>,
+                                        CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>> {
 
-    using ThisInner = Inner<Iterator, N>;
+    using ThisInner = Inner<Iterator, S, N>;
 
 public:
     using reference = typename ThisInner::reference;
     using pointer = typename ThisInner::pointer;
     using value_type = typename ThisInner::value_type;
-    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename ThisInner::iterator_category>;
     using difference_type = typename ThisInner::difference_type;
 
 private:
@@ -179,13 +185,13 @@ private:
         _innerIter = {};
     }
 
-    FlattenWrapper<Iterator> _outerIter{};
+    FlattenWrapper<Iterator, S> _outerIter{};
     ThisInner _innerIter{};
 
 public:
     constexpr FlattenIterator() = default;
 
-    LZ_CONSTEXPR_CXX_20 FlattenIterator(Iterator it, Iterator begin, Iterator end) :
+    LZ_CONSTEXPR_CXX_20 FlattenIterator(Iterator it, Iterator begin, S end) :
         _outerIter(std::move(it), std::move(begin), std::move(end)) {
         if (_outerIter.hasSome()) {
             const auto beg = std::begin(*_outerIter);
@@ -201,8 +207,13 @@ public:
     LZ_CONSTEXPR_CXX_20 bool hasPrev() const {
         return _innerIter.hasPrev() || _outerIter.hasPrev();
     }
+
     LZ_CONSTEXPR_CXX_20 bool eq(const FlattenIterator& b) const noexcept {
         return _outerIter == b._outerIter && _innerIter == b._innerIter;
+    }
+
+    LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
+        return _outerIter.hasSome() && _innerIter.hasSome();
     }
 
     LZ_CONSTEXPR_CXX_20 reference dereference() const {
@@ -235,26 +246,26 @@ public:
     }
 };
 
-template<class Iterator>
-class FlattenIterator<Iterator, 0>
-    : public IterBase<FlattenIterator<Iterator, 0>, RefType<FlattenWrapper<Iterator>>,
-                      FakePointerProxy<RefType<FlattenWrapper<Iterator>>>, DiffType<FlattenWrapper<Iterator>>,
-                      CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator>>>> {
+template<class Iterator, class S>
+class FlattenIterator<Iterator, S, 0>
+    : public IterBase<FlattenIterator<Iterator, S, 0>, RefType<FlattenWrapper<Iterator, S>>,
+                      FakePointerProxy<RefType<FlattenWrapper<Iterator, S>>>, DiffType<FlattenWrapper<Iterator, S>>,
+                      CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator, S>>>,
+                      SentinelSelector<CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator, S>>>,
+                                       FlattenIterator<Iterator, S, 0>>> {
 
-    FlattenWrapper<Iterator> _range;
+    FlattenWrapper<Iterator, S> _range;
     using Traits = std::iterator_traits<Iterator>;
 
 public:
     using pointer = typename Traits::pointer;
     using reference = typename Traits::reference;
     using value_type = typename Traits::value_type;
-    using iterator_category = CommonType<std::bidirectional_iterator_tag, typename Traits::iterator_category>;
     using difference_type = typename Traits::difference_type;
 
     constexpr FlattenIterator() = default;
 
-    constexpr FlattenIterator(Iterator it, Iterator begin, Iterator end) :
-        _range(std::move(it), std::move(begin), std::move(end)) {
+    constexpr FlattenIterator(Iterator it, S begin, Iterator end) : _range(std::move(it), std::move(begin), std::move(end)) {
     }
 
     LZ_CONSTEXPR_CXX_20 bool hasPrev() const noexcept {
@@ -275,6 +286,10 @@ public:
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const FlattenIterator& b) const noexcept {
         return _range == b._range;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
+        return _range.hasSome();
     }
 
     LZ_CONSTEXPR_CXX_20 void increment() {

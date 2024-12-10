@@ -23,7 +23,7 @@ public:
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset) :
+    TakeEvery(Iterator begin, Iterator end, const DiffType<Iterator> offset) :
         detail::BasicIteratorView<iterator>(iterator(begin, begin, end, offset), iterator(end, begin, end, offset)) {
     }
 
@@ -40,7 +40,7 @@ public:
 
 public:
     LZ_CONSTEXPR_CXX_20
-    TakeEvery(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset) :
+    TakeEvery(Iterator begin, Iterator end, const DiffType<Iterator> offset) :
         detail::BasicIteratorView<iterator>(iterator(begin, end, offset), iterator(end, end, offset)) {
     }
 
@@ -66,8 +66,7 @@ public:
  */
 template<LZ_CONCEPT_ITERATOR Iterator>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, detail::IsBidirectional<Iterator>::value>
-takeEveryRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> offset,
-               const detail::DiffType<Iterator> start = 0) {
+takeEveryRange(Iterator begin, Iterator end, const DiffType<Iterator> offset, const DiffType<Iterator> start = 0) {
     return { std::next(std::move(begin), start), std::move(end), offset };
 }
 
@@ -81,9 +80,9 @@ takeEveryRange(Iterator begin, Iterator end, const detail::DiffType<Iterator> of
  * @param start The start indexOf, optional. Can be used to skip the first element as well.
  * @return A TakeEvery object.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = detail::IterTypeFromIterable<Iterable>>
+template<LZ_CONCEPT_ITERABLE Iterable, class Iterator = IterT<Iterable>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 TakeEvery<Iterator, detail::IsBidirectional<Iterator>::value>
-takeEvery(Iterable&& iterable, const detail::DiffType<Iterator> offset, const detail::DiffType<Iterator> start = 0) {
+takeEvery(Iterable&& iterable, const DiffType<Iterator> offset, const DiffType<Iterator> start = 0) {
     return takeEveryRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), offset,
                           start);
 }

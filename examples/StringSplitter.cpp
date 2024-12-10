@@ -1,4 +1,4 @@
-#include <Lz/StringSplitter.hpp>
+#include <Lz/Splitter.hpp>
 #include <iostream>
 
 // For fmt string_view

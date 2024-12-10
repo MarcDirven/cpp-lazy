@@ -21,7 +21,7 @@ TEST_CASE("Generate while changing and creating elements", "[Generate while][Bas
             },
             0);
         std::array<int, 4> expected = { 0, 1, 2, 3 };
-        auto actual = generator.toArray<expected.size()>();
+        auto actual = generator.to<std::array<int, expected.size()>>();
         CHECK(expected == actual);
     }
 }
@@ -66,7 +66,7 @@ TEST_CASE("Generate while to containers", "[GenerateWhile][To container]") {
 
     SECTION("To array") {
         std::array<int, 4> expected = { 0, 1, 2, 3 };
-        auto actual = generator.toArray<4>();
+        auto actual = generator.to<std::array<int, 4>>();
         CHECK(expected == actual);
     }
 
@@ -78,19 +78,19 @@ TEST_CASE("Generate while to containers", "[GenerateWhile][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<int> expected = { 0, 1, 2, 3 };
-        auto actual = generator.to<std::list>();
+        auto actual = generator.to<std::list<int>>();
         CHECK(expected == actual);
     }
 
     SECTION("To map") {
         std::map<int, int> expected = { { 0, 0 }, { 1, 1 }, { 2, 2}, { 3, 3 }};
-        auto actual = generator.toMap([](int i) { return i; });
+        auto actual = generator.toMap([](int i) { return std::make_pair(i, i); });
         CHECK(actual == expected);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<int, int> expected = { { 0, 0 }, { 1, 1 }, { 2, 2}, { 3, 3 }};
-        auto actual = generator.toUnorderedMap([](int i) { return i; });
+        auto actual = generator.toUnorderedMap([](int i) { return std::make_pair(i, i); });
         CHECK(actual == expected);
     }
 }

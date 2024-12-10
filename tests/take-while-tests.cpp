@@ -66,7 +66,7 @@ TEST_CASE("TakeWhile to containers", "[TakeWhile][To container]") {
     auto takeWhile = lz::takeWhile(array, [](int element) { return element < 5; });
 
     SECTION("To array") {
-        auto arr = takeWhile.toArray<4>();
+        auto arr = takeWhile.to<std::array<int, 4>>();
         REQUIRE(arr.size() == 4);
         REQUIRE(arr[0] == 1);
         REQUIRE(arr[1] == 2);
@@ -80,19 +80,19 @@ TEST_CASE("TakeWhile to containers", "[TakeWhile][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto lst = takeWhile.to<std::list>();
+        auto lst = takeWhile.to<std::list<int>>();
         REQUIRE(std::equal(lst.begin(), lst.end(), takeWhile.begin()));
     }
 
     SECTION("To map") {
-        auto map = takeWhile.toMap([](int i) { return i; });
+        auto map = takeWhile.toMap([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);
     }
 
     SECTION("To unordered map") {
-        auto map = takeWhile.toUnorderedMap([](int i) { return i; });
+        auto map = takeWhile.toUnorderedMap([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::unordered_map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);

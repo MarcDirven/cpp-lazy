@@ -11,18 +11,16 @@
 
 namespace lz {
 namespace detail {
-template<class, bool>
-class ChunksIterator;
 
-template<class Iterator>
-class ChunksIterator<Iterator, false /* isBidirectional */>
-    : public IterBase<ChunksIterator<Iterator, false>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
-                      DiffType<Iterator>, IterCat<Iterator>> {
+template<class Iterator, class S>
+/* Forward iterator */
+class ChunksIterator
+    : public IterBase<ChunksIterator<Iterator, S>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
+                      DiffType<Iterator>, IterCat<Iterator>, DefaultSentinel> {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = typename IterTraits::iterator_category;
     using value_type = BasicIteratorView<Iterator>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
@@ -31,7 +29,7 @@ public:
 private:
     Iterator _subRangeBegin{};
     Iterator _subRangeEnd{};
-    Iterator _end{};
+    S _end{};
     difference_type _chunkSize{};
 
     LZ_CONSTEXPR_CXX_20 void nextChunk() {
@@ -40,7 +38,7 @@ private:
     }
 
 public:
-    LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator iterator, Iterator end, const std::size_t chunkSize) :
+    LZ_CONSTEXPR_CXX_20 ChunksIterator(Iterator iterator, S end, const std::size_t chunkSize) :
         _subRangeBegin(iterator),
         _subRangeEnd(std::move(iterator)),
         _end(std::move(end)),
@@ -70,12 +68,16 @@ public:
         LZ_ASSERT(_chunkSize == rhs._chunkSize, "incompatible iterators: different chunk sizes");
         return _subRangeBegin == rhs._subRangeBegin;
     }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
+        return _subRangeBegin == _end;
+    }
 };
 
 template<class Iterator>
-class ChunksIterator<Iterator, true /* isBidirectional */>
-    : public IterBase<ChunksIterator<Iterator, true>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
-                      DiffType<Iterator>, IterCat<Iterator>> {
+class ChunksIterator<Iterator, Iterator /* Bidirectional or higher */>
+    : public IterBase<ChunksIterator<Iterator, Iterator>, BasicIteratorView<Iterator>,
+                      FakePointerProxy<BasicIteratorView<Iterator>>, DiffType<Iterator>, IterCat<Iterator>> {
 
     using IterTraits = std::iterator_traits<Iterator>;
 

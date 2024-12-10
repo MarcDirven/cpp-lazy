@@ -1,9 +1,9 @@
-#include "Lz/FunctionTools.hpp"
+#include "Lz/IterTools.hpp"
 
 #include <Lz/Flatten.hpp>
 #include <catch2/catch.hpp>
 #include <list>
-
+//TODO: write test with sentinels
 TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
     SECTION("Flatten 1D") {
         std::vector<int> vec = { 1, 2, 3, 4 };
@@ -82,7 +82,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     auto flattened = lz::flatten(vecs);
 
     SECTION("To array") {
-        CHECK(flattened.toArray<7>() == std::array<int, 7>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(flattened.to<std::array<int,7>>() == std::array<int, 7>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To vector") {
@@ -90,11 +90,11 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(flattened.to<std::list>() == std::list<int>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(flattened.to<std::list<int>>() == std::list<int>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = flattened.toMap([](const int i) { return i; });
+        std::map<int, int> actual = flattened.toMap([](const int i) { return std::make_pair(i, i); });
 
         std::map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),
@@ -105,7 +105,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = flattened.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = flattened.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),

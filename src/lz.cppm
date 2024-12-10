@@ -37,9 +37,9 @@ export {
 #include "Lz/Exclude.hpp"
 #include "Lz/Filter.hpp"
 #include "Lz/Flatten.hpp"
-#include "Lz/FunctionTools.hpp"
 #include "Lz/Generate.hpp"
 #include "Lz/GroupBy.hpp"
+#include "Lz/IterTools.hpp"
 #include "Lz/Join.hpp"
 #include "Lz/JoinWhere.hpp"
 #include "Lz/Loop.hpp"
@@ -49,10 +49,11 @@ export {
 #include "Lz/Range.hpp"
 #include "Lz/Repeat.hpp"
 #include "Lz/Rotate.hpp"
-#include "Lz/StringSplitter.hpp"
+#include "Lz/Splitter.hpp"
 #include "Lz/Take.hpp"
 #include "Lz/TakeEvery.hpp"
 #include "Lz/Unique.hpp"
 #include "Lz/Zip.hpp"
 #include "Lz/ZipLongest.hpp"
+
 }

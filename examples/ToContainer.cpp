@@ -42,7 +42,7 @@ int main() {
     std::cout << '\n';
 
     // To list
-    auto list = generator.to<std::list>();
+    auto list = generator.to<std::list<char>>();
     for (char val : set) {
         std::cout << val << '\n';
     }
@@ -54,7 +54,7 @@ int main() {
     std::cout << '\n';
 
     // To map
-    std::map<char, char> map = generator.toMap([](const char c) { return static_cast<char>(c + 1); });
+    std::map<char, char> map = generator.toMap([](const char c) { return std::make_pair(static_cast<char>(c + 1), c); });
     for (std::pair<char, char> pair : map) {
         std::cout << pair.first << ' ' << pair.second << '\n';
     }
@@ -72,18 +72,7 @@ int main() {
     generator.transformTo(std::back_inserter(transformToVec), [](const char i) { return i + 1; });
     // transformToVec = {b, c, d, e}
 
-    // Must match a constructor of template parameter Container (in this case std::vector)
-    // C++17
-    // auto cpy = generator.to<std::vector<long>>(std::execution::seq, 100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0,
-    // ...} with size() = 100 pre c++17
-#ifdef LZ_HAS_EXECUTION
-    auto cpy = generator.to<std::vector<long>>(std::execution::seq,
-                                               100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
-#else
-    auto cpy = generator.to<std::vector<long>>(100); // cpy = std::vector<long> {97, 98, 99, 100, 0, 0, ...} with size() = 100
-#endif
-
-    auto out = generator.transformAs<std::vector>([](char c) -> char { return c + 1; });
+    auto out = generator.transformAs<std::vector<char>>([](char c) -> char { return c + 1; });
     for (char val : out) {
         std::cout << val << '\n';
     }

@@ -21,7 +21,7 @@ set(examples
     ExclusiveScan
     Filter
     Flatten
-    FunctionTools
+    Algorithm
     Generate
     GroupBy
     InclusiveScan

@@ -1,7 +1,18 @@
 #include <Lz/Except.hpp>
 #include <Lz/Range.hpp>
+#include <Lz/CString.hpp>
 #include <catch2/catch.hpp>
 #include <list>
+
+TEST_CASE("Except tests with sentinels") {
+    const char* str = "Hello, World!";
+    const char* toExcept = "eo";
+    auto cStr = lz::cString(str);
+    auto cStrToExcept = lz::cString(toExcept);
+    auto except = lz::except(cStr, cStrToExcept);
+    static_assert(!std::is_same<decltype(except.begin()), decltype(except.end())>::value, "Must be sentinel");
+    CHECK(except.to<std::string>() == "Hll, Wrld!");
+}
 
 TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functionality]") {
     std::vector<int> array{ 1, 2, 3, 4, 5 };
@@ -15,8 +26,8 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
         constexpr std::size_t s = 32;
         constexpr std::size_t es = 16;
 
-        std::array<int, s> largeArr = lz::range(static_cast<int>(s)).toArray<s>();
-        std::array<int, es> toLargeExcept = lz::range(static_cast<int>(es)).toArray<es>();
+        std::array<int, s> largeArr = lz::range(static_cast<int>(s)).to<std::array<int, s>>();
+        std::array<int, es> toLargeExcept = lz::range(static_cast<int>(es)).to<std::array<int, es>>();
 
         auto ex = lz::except(largeArr, toLargeExcept);
         for (int i : ex) {
@@ -36,7 +47,7 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
     SECTION("Excepted with >") {
         std::sort(toExcept.begin(), toExcept.end(), std::greater<int>());      // NOLINT
         auto exceptGreater = lz::except(array, toExcept, std::greater<int>()); // NOLINT
-        CHECK(exceptGreater.toArray<3>() == std::array<int, 3>{ 1, 2, 4 });
+        CHECK(exceptGreater.to<std::array<int, 3>>() == std::array<int, 3>{ 1, 2, 4 });
     }
 }
 
@@ -55,7 +66,9 @@ TEST_CASE("Except binary operations", "[Except][Binary ops]") {
 
     SECTION("Operator== & operator!=") {
         CHECK(it != except.end());
-        it = except.end();
+        while (it != except.end()) {
+            ++it;
+        }
         CHECK(it == except.end());
     }
 }
@@ -66,7 +79,7 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     auto except = lz::except(a, b);
 
     SECTION("To array") {
-        auto excepted = except.toArray<2>();
+        auto excepted = except.to<std::array<int, 2>>();
         CHECK(excepted == std::array<int, 2>{ 2, 4 });
     }
 
@@ -76,12 +89,12 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto excepted = except.to<std::list>();
+        auto excepted = except.to<std::list<int>>();
         CHECK(excepted == std::list<int>{ 2, 4 });
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = except.toMap([](const int i) { return i; });
+        std::map<int, int> actual = except.toMap([](const int i) { return std::make_pair(i, i); });
 
         std::map<int, int> expected = {
             std::make_pair(2, 2),
@@ -92,7 +105,7 @@ TEST_CASE("Except to containers", "[Except][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = except.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = except.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(2, 2),

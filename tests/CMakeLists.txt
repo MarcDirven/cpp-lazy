@@ -27,10 +27,12 @@ include(CTest)
 
 # ---- Tests ----
 add_executable(cpp-lazy-tests
+	algorithm-tests.cpp
 	any-view-tests.cpp
 	cartesian-product-tests.cpp
 	chunk-if-tests.cpp
 	chunks-tests.cpp
+	common-tests.cpp
 	concatenate-tests.cpp
 	cstring-tests.cpp
 	enumerate-tests.cpp
@@ -39,12 +41,12 @@ add_executable(cpp-lazy-tests
 	exclusive-scan-tests.cpp
 	filter-tests.cpp
 	flatten-tests.cpp
-	function-tools-tests.cpp
 	generate-tests.cpp
 	generate-while-tests.cpp
 	group-by-tests.cpp
 	inclusive-scan-tests.cpp
 	init-tests.cpp
+	iter-tools-tests.cpp
 	join-tests.cpp
 	join-where-tests.cpp
 	loop-tests.cpp

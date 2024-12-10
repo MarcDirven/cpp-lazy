@@ -50,9 +50,9 @@ public:
  * @param binOp The fold function. Essentially, it is executed as (`init = binOp(std::move(init), *iterator);`)
  * @return An inclusive scan view object.
  */
-template<LZ_CONCEPT_ITERATOR Iterator, class T = detail::ValueType<Iterator>,
-         class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueType<Iterator>)>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 InclusiveScan<Iterator, detail::ValueType<Iterator>, detail::Decay<BinaryOp>>
+template<LZ_CONCEPT_ITERATOR Iterator, class T = ValueType<Iterator>,
+         class BinaryOp = MAKE_BIN_OP(std::plus, ValueType<Iterator>)>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 InclusiveScan<Iterator, ValueType<Iterator>, detail::Decay<BinaryOp>>
 iScan(Iterator first, Iterator last, T&& init = {}, BinaryOp&& binOp = {}) {
     auto tmp = binOp(std::forward<T>(init), *first);
     return { std::move(first), std::move(last), std::move(tmp), std::forward<BinaryOp>(binOp) };
@@ -81,10 +81,10 @@ iScan(Iterator first, Iterator last, T&& init = {}, BinaryOp&& binOp = {}) {
  * @return An inclusive scan view object.
  */
 // clang-format off
-template<LZ_CONCEPT_ITERABLE Iterable, class T = detail::ValueTypeIterable<Iterable>, 
-         class BinaryOp = MAKE_BIN_OP(std::plus, detail::ValueTypeIterable<Iterable>)>
+template<LZ_CONCEPT_ITERABLE Iterable, class T = ValueTypeIterable<Iterable>, 
+         class BinaryOp = MAKE_BIN_OP(std::plus, ValueTypeIterable<Iterable>)>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_14
-InclusiveScan<detail::IterTypeFromIterable<Iterable>, detail::ValueTypeIterable<Iterable>, detail::Decay<BinaryOp>>
+InclusiveScan<IterT<Iterable>, ValueTypeIterable<Iterable>, detail::Decay<BinaryOp>>
 iScan(Iterable&& iterable, T&& init = {}, BinaryOp&& binOp = {}) {
     return iScan(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), 
                  std::forward<T>(init), std::forward<BinaryOp>(binOp));

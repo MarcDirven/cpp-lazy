@@ -36,7 +36,9 @@ public:
     constexpr BasicStringView(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
     }
 
-    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
+    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept :
+        _data(data),
+        _size(std::char_traits<CharT>::length(data)) {
     }
 
     constexpr BasicStringView(const CharT* begin, const CharT* end) noexcept :

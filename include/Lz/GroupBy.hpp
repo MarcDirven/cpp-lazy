@@ -67,7 +67,7 @@ groupByRange(Iterator begin, Iterator end, Comparer comparer = {}, Execution exe
  * @return A GroupBy iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Comparer = std::equal_to<>, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<detail::IterTypeFromIterable<Iterable>, Comparer, Execution>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 GroupBy<IterT<Iterable>, Comparer, Execution>
 groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::execution::seq) {
     return groupByRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                         std::move(comparer), execution);
@@ -83,7 +83,7 @@ groupBy(Iterable&& iterable, Comparer comparer = {}, Execution execution = std::
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
-template<class Iterator, class Comparer = MAKE_BIN_OP(std::equal_to, detail::ValueType<Iterator>)>
+template<class Iterator, class Comparer = MAKE_BIN_OP(std::equal_to, ValueType<Iterator>)>
 GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer keySelector = {}) {
     return { std::move(begin), std::move(end), std::move(keySelector) };
 }
@@ -96,8 +96,8 @@ GroupBy<Iterator, Comparer> groupByRange(Iterator begin, Iterator end, Comparer 
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A GroupBy iterator view object.
  */
-template<class Iterable, class Comparer = MAKE_BIN_OP(std::equal_to, detail::ValueTypeIterable<Iterable>)>
-GroupBy<detail::IterTypeFromIterable<Iterable>, Comparer> groupBy(Iterable&& iterable, Comparer comparer = {}) {
+template<class Iterable, class Comparer = MAKE_BIN_OP(std::equal_to, ValueTypeIterable<Iterable>)>
+GroupBy<IterT<Iterable>, Comparer> groupBy(Iterable&& iterable, Comparer comparer = {}) {
     return groupByRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                         std::move(comparer));
 }

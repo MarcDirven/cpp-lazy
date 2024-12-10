@@ -14,13 +14,13 @@ TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality
 
     SECTION("Should be unique") {
         std::array<int, size> expected = { 1, 2, 3 };
-        CHECK(expected == unique.toArray<size>());
+        CHECK(expected == unique.to<std::array<int, size>>());
     }
 
     SECTION("Should be unique too, using >") {
         std::array<int, size> expected = { 3, 2, 1 };
         auto uniqueGreater = lz::unique(expected, std::greater<int>()); // NOLINT
-        CHECK(expected == uniqueGreater.toArray<size>());
+        CHECK(expected == uniqueGreater.to<std::array<int, size>>());
         CHECK(std::is_sorted(expected.begin(), expected.end(), std::greater<int>())); // NOLINT
     }
 }
@@ -50,7 +50,7 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     auto unique = lz::unique(arr);
 
     SECTION("To array") {
-        auto uniqueArray = unique.toArray<size>();
+        auto uniqueArray = unique.to<std::array<int, size>>();
         std::array<int, size> expected = { 1, 2, 3 };
         CHECK(uniqueArray == expected);
     }
@@ -62,13 +62,13 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto uniqueList = unique.to<std::list>();
+        auto uniqueList = unique.to<std::list<int>>();
         std::list<int> expected = { 1, 2, 3 };
         CHECK(uniqueList == expected);
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = unique.toMap([](const int i) { return i; });
+        std::map<int, int> actual = unique.toMap([](const int i) { return std::make_pair(i, i); });
 
         std::map<int, int> expected = {
             std::make_pair(1, 1),
@@ -80,7 +80,7 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = unique.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = unique.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(1, 1),

@@ -9,9 +9,10 @@
 TEST_CASE("ExclusiveScan basic functionality", "[ExclusiveScan][Basic functionality]") {
     int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6 };
     auto scan = lz::eScan(arr);
+    static_assert(!std::is_same<decltype(scan.begin()), decltype(scan.end())>::value, "Iterators should not be the same type");
 
     CHECK(*scan.begin() == 0);
-    CHECK(std::distance(std::begin(scan), std::end(scan)) == std::distance(std::begin(arr), std::end(arr)));
+    CHECK(lz::distance(std::begin(scan), std::end(scan)) == std::distance(std::begin(arr), std::end(arr)));
     constexpr auto isSame = std::is_same<int&, decltype(*scan.begin())>::value;
     CHECK(isSame);
 }
@@ -35,7 +36,9 @@ TEST_CASE("Exclusive scan binary operations", "[ExclusiveScan][Binary ops]") {
     SECTION("Operator== & operator!=") {
         CHECK(scan.begin() != scan.end());
         auto begin = scan.begin();
-        begin = scan.end();
+        while (begin != scan.end()) {
+            ++begin;
+        }
         CHECK(begin == scan.end());
         begin = scan.begin();
         ++begin;
@@ -50,7 +53,7 @@ TEST_CASE("Exclusive scan to container", "[ExclusiveScan][To container]") {
 
     SECTION("To array") {
         std::array<int, 8> expected = { 0, 2, 7, 13, 17, 104, 112, 157 };
-        auto actual = scanner.toArray<expected.size()>();
+        auto actual = scanner.to<std::array<int, expected.size()>>();
         CHECK(actual == expected);
     }
 
@@ -62,21 +65,21 @@ TEST_CASE("Exclusive scan to container", "[ExclusiveScan][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<int> expected = { 0, 2, 7, 13, 17, 104, 112, 157 };
-        auto actual = scanner.to<std::list>();
+        auto actual = scanner.to<std::list<int>>();
         CHECK(expected == actual);
     }
 
     SECTION("To map") {
         std::map<int, int> expected = { { 0, 0 },   { 4, 2 },     { 14, 7 },    { 26, 13 },
                                         { 34, 17 }, { 208, 104 }, { 224, 112 }, { 314, 157 } };
-        auto actual = scanner.toMap([](int i) { return i + i; });
+        auto actual = scanner.toMap([](int i) { return std::make_pair(i + i, i); });
         CHECK(expected == actual);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<int, int> expected = { { 0, 0 },   { 4, 2 },     { 14, 7 },    { 26, 13 },
                                                   { 34, 17 }, { 208, 104 }, { 224, 112 }, { 314, 157 } };
-        auto actual = scanner.toUnorderedMap([](int i) { return i + i; });
+        auto actual = scanner.toUnorderedMap([](int i) { return std::make_pair(i + i, i); });
         CHECK(expected == actual);
     }
 }

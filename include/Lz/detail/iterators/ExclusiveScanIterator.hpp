@@ -9,12 +9,13 @@
 
 namespace lz {
 namespace detail {
-template<class Iterator, class T, class BinaryOp>
-class ExclusiveScanIterator : public IterBase<ExclusiveScanIterator<Iterator, T, BinaryOp>, T&, FakePointerProxy<T&>,
-                                              DiffType<Iterator>, std::forward_iterator_tag> {
+template<class Iterator, class S, class T, class BinaryOp>
+class ExclusiveScanIterator : public IterBase<ExclusiveScanIterator<Iterator, S, T, BinaryOp>, T&, FakePointerProxy<T&>,
+                                              DiffType<Iterator>, std::forward_iterator_tag, DefaultSentinel> {
     mutable T _reducer{};
     FunctionContainer<BinaryOp> _binaryOp{};
     Iterator _iterator{};
+    S _end{};
 
     using IterTraits = std::iterator_traits<Iterator>;
 
@@ -23,14 +24,14 @@ public:
     using value_type = Decay<reference>;
     using pointer = FakePointerProxy<reference>;
     using difference_type = typename IterTraits::difference_type;
-    using iterator_category = std::forward_iterator_tag;
 
     constexpr ExclusiveScanIterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 ExclusiveScanIterator(Iterator iterator, T init, BinaryOp binaryOp) :
+    LZ_CONSTEXPR_CXX_14 ExclusiveScanIterator(Iterator iterator, S end, T init, BinaryOp binaryOp) :
         _reducer(std::move(init)),
         _binaryOp(std::move(binaryOp)),
-        _iterator(std::move(iterator)) {
+        _iterator(std::move(iterator)),
+        _end(std::move(end)) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference dereference() const {
@@ -48,6 +49,10 @@ public:
 
     LZ_NODISCARD constexpr bool eq(const ExclusiveScanIterator& b) const {
         return _iterator == b._iterator;
+    }
+
+    LZ_NODISCARD constexpr bool eq(DefaultSentinel) const {
+        return _iterator == _end;
     }
 };
 } // namespace detail

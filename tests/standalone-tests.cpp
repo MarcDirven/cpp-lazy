@@ -1,6 +1,6 @@
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
-#include <Lz/StringSplitter.hpp>
+#include <Lz/Splitter.hpp>
 #include <catch2/catch.hpp>
 
 TEST_CASE("Overall tests with LZ_STANDALONE defined") {
@@ -17,8 +17,8 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
 
     std::string toSplit = "hello, world";
     auto splitter = lz::split(toSplit, ", ");
-    REQUIRE(std::distance(splitter.begin(), splitter.end()) == 2);
-    static_assert(std::is_same<decltype(*splitter.begin()), lz::StringView>::value, "Should be StringView");
+    REQUIRE(lz::distance(splitter.begin(), splitter.end()) == 2);
+    static_assert(std::is_same<decltype(*splitter.begin()), lz::View<decltype(toSplit.begin())>>::value, "Should be lz::View");
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
     auto doubles = lz::strJoin(vec, ", ");

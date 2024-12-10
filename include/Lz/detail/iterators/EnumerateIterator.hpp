@@ -9,10 +9,15 @@
 
 namespace lz {
 namespace detail {
-template<class Iterator, class Arithmetic>
+
+template<class Iterator>
+using EnumerateTag = IterCatDecay<IterCat<Iterator>, std::random_access_iterator_tag, std::forward_iterator_tag>;
+
+template<class Iterator, class S, class Arithmetic>
 class EnumerateIterator final
-    : public IterBase<EnumerateIterator<Iterator, Arithmetic>, std::pair<Arithmetic, RefType<Iterator>>,
-                      FakePointerProxy<std::pair<Arithmetic, RefType<Iterator>>>, DiffType<Iterator>, IterCat<Iterator>> {
+    : public IterBase<EnumerateIterator<Iterator, S, Arithmetic>, std::pair<Arithmetic, RefType<Iterator>>,
+                      FakePointerProxy<std::pair<Arithmetic, RefType<Iterator>>>, DiffType<Iterator>, EnumerateTag<Iterator>,
+                      SentinelSelector<EnumerateTag<Iterator>, EnumerateIterator<Iterator, S, Arithmetic>, S>> {
 
     Arithmetic _index{};
     Iterator _iterator{};
@@ -24,7 +29,6 @@ public:
     using reference = std::pair<Arithmetic, typename Traits::reference>;
     using pointer = FakePointerProxy<reference>;
     using difference_type = typename Traits::difference_type;
-    using iterator_category = typename Traits::iterator_category;
 
     constexpr EnumerateIterator(const Arithmetic start, Iterator iterator) : _index(start), _iterator(std::move(iterator)) {
     }
@@ -62,6 +66,10 @@ public:
 
     LZ_CONSTEXPR_CXX_20 difference_type difference(const EnumerateIterator& other) const {
         return _iterator - other._iterator;
+    }
+
+    LZ_CONSTEXPR_CXX_20 bool eq(const S& s) const {
+        return _iterator == s;
     }
 };
 } // namespace detail

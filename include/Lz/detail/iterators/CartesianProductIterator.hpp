@@ -11,24 +11,75 @@
 
 namespace lz {
 namespace detail {
-// Edited version of https://github.com/mirandaconrado/product-iterator
+struct Vt {}; // ValueType
+struct Rt {}; // ReferenceType
+struct Ic {}; // IterCat
+struct Dt {}; // DiffType
+
+template<class IterTuple, class Tag>
+struct IterTupleType;
+
 template<class... Iterators>
-class CartesianProductIterator : public IterBase<CartesianProductIterator<Iterators...>, std::tuple<RefType<Iterators>...>,
-                                                 FakePointerProxy<std::tuple<RefType<Iterators>...>>,
-                                                 CommonType<DiffType<Iterators>...>, CommonType<IterCat<Iterators>...>> {
-    static_assert(sizeof...(Iterators) > 1, "The size of the iterators must be greater than 1");
+struct IterTupleType<std::tuple<Iterators...>, Vt> {
+    using type = std::tuple<ValueType<Iterators>...>;
+};
+
+template<class... Iterators>
+struct IterTupleType<std::tuple<Iterators...>, Rt> {
+    using type = std::tuple<RefType<Iterators>...>;
+};
+
+template<class... Iterators>
+struct IterTupleType<std::tuple<Iterators...>, Ic> {
+    using type = CommonType<IterCat<Iterators>...>;
+};
+
+template<class... Iterators>
+struct IterTupleType<std::tuple<Iterators...>, Dt> {
+    using type = CommonType<DiffType<Iterators>...>;
+};
+
+template<class IterTuple>
+using ValueTypeIterTupleT = typename IterTupleType<IterTuple, Vt>::type;
+
+template<class IterTuple>
+using RefTypeIterTupleT = typename IterTupleType<IterTuple, Rt>::type;
+
+template<class IterTuple>
+using IterCatIterTupleT = typename IterTupleType<IterTuple, Ic>::type;
+
+template<class IterTuple>
+using DiffTypeIterTupleT = typename IterTupleType<IterTuple, Dt>::type;
+
+template<class IterTuple, class SentinelTuple>
+class CartesianProductIterator;
+
+template<class IterTuple, class SentinelTuple>
+using DefaultSentinelSelector =
+    SentinelSelector<IterCatIterTupleT<IterTuple>, CartesianProductIterator<IterTuple, SentinelTuple>>;
+
+// Edited version of https://github.com/mirandaconrado/product-iterator
+template<class IterTuple, class SentinelTuple>
+class CartesianProductIterator
+    : public IterBase<CartesianProductIterator<IterTuple, SentinelTuple>, RefTypeIterTupleT<IterTuple>,
+                      FakePointerProxy<RefTypeIterTupleT<IterTuple>>, DiffTypeIterTupleT<IterTuple>, IterCatIterTupleT<IterTuple>,
+                      DefaultSentinelSelector<IterTuple, SentinelTuple>> {
+
+    static constexpr std::size_t Size = std::tuple_size<IterTuple>::value;
+    static_assert(Size > 1, "The size of the iterators must be greater than 1");
+
+    using TupleElement1 = TupleElement<0, IterTuple>;
 
 public:
-    using value_type = std::tuple<ValueType<Iterators>...>;
-    using reference = std::tuple<RefType<Iterators>...>;
+    using value_type = ValueTypeIterTupleT<IterTuple>;
+    using reference = RefTypeIterTupleT<IterTuple>;
     using pointer = FakePointerProxy<reference>;
-    using iterator_category = CommonType<IterCat<Iterators>...>;
-    using difference_type = CommonType<DiffType<Iterators>...>;
+    using difference_type = DiffTypeIterTupleT<IterTuple>;
 
 private:
-    std::tuple<Iterators...> _begin{};
-    std::tuple<Iterators...> _iterator{};
-    std::tuple<Iterators...> _end{};
+    IterTuple _begin{};
+    IterTuple _iterator{};
+    SentinelTuple _end{};
 
 #ifndef __cpp_if_constexpr
     template<std::size_t I>
@@ -49,8 +100,15 @@ private:
         auto& prev = std::get<I - 1>(_iterator);
         ++prev;
 
+        auto& first = std::get<0>(_iterator);
+        auto peekFirst = std::next(first);
+        if (std::get<Size - 1>(_iterator) == std::get<Size - 1>(_end) && peekFirst == std::get<0>(_end)) {
+            first = std::move(peekFirst);
+            return;
+        }
+
         if (prev == std::get<I - 1>(_end)) {
-            if (I != 1) {
+            if constexpr (I != 1) {
                 prev = std::get<I - 1>(_begin);
                 next<I - 1>();
             }
@@ -135,6 +193,13 @@ private:
         else {
             auto& prev = std::get<I - 1>(_iterator);
             ++prev;
+
+            auto& first = std::get<0>(_iterator);
+            auto peekFirst = std::next(first);
+            if (std::get<Size - 1>(_iterator) == std::get<Size - 1>(_end) && peekFirst == std::get<0>(_end)) {
+                first = std::move(peekFirst);
+                return;
+            }
 
             if (prev == std::get<I - 1>(_end)) {
                 if constexpr (I != 1) {
@@ -224,7 +289,7 @@ private:
                                std::multiplies<difference_type>{});
     }
 
-    using IndexSequenceForThis = MakeIndexSequence<sizeof...(Iterators)>;
+    using IndexSequenceForThis = MakeIndexSequence<Size>;
 
     void checkEnd() {
         if (std::get<0>(_iterator) == std::get<0>(_end)) {
@@ -236,7 +301,7 @@ public:
     constexpr CartesianProductIterator() = default;
 
     LZ_CONSTEXPR_CXX_20
-    CartesianProductIterator(std::tuple<Iterators...> iterator, std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
+    CartesianProductIterator(IterTuple iterator, IterTuple begin, SentinelTuple end) :
         _begin(std::move(begin)),
         _iterator(std::move(iterator)),
         _end(std::move(end)) {
@@ -251,21 +316,24 @@ public:
     }
 
     void increment() {
-        next<sizeof...(Iterators)>();
-        checkEnd();
+        next<Size>();
     }
 
     void decrement() {
-        previous<sizeof...(Iterators)>();
+        previous<Size>();
     }
 
     void plusIs(const difference_type n) {
-        operatorPlusImpl<sizeof...(Iterators) - 1>(n);
+        operatorPlusImpl<Size - 1>(n);
         checkEnd();
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const CartesianProductIterator& other) const {
         return _iterator == other._iterator;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const {
+        return _iterator == _end;
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const CartesianProductIterator& other) const {

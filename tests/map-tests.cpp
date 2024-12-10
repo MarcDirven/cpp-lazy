@@ -7,12 +7,6 @@ struct TestStruct {
     int testFieldInt;
 };
 
-#ifdef LZ_HAS_EXECUTION
-#    define LZ_PAR std::execution::par
-#else
-#    define LZ_PAR
-#endif
-
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
@@ -103,7 +97,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
 
     SECTION("To array") {
-        auto stringArray = map.toArray<size>();
+        auto stringArray = map.to<std::array<std::string, size>>();
 
         for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringArray[i] == array[i].testFieldStr);
@@ -111,7 +105,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To vector") {
-        auto stringVector = map.toVector(LZ_PAR);
+        auto stringVector = map.toVector();
 
         for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringVector[i] == array[i].testFieldStr);
@@ -119,7 +113,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto stringList = map.to<std::list>();
+        auto stringList = map.to<std::list<std::string>>();
         auto listIterator = stringList.begin();
 
         for (std::size_t i = 0; i < array.size(); i++, ++listIterator) {
@@ -128,7 +122,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To map") {
-        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) { return s; });
+        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) { return std::make_pair(s, s); });
 
         std::map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),
@@ -140,7 +134,8 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<std::string, std::string> actual = map.toUnorderedMap([](const std::string& s) { return s; });
+        std::unordered_map<std::string, std::string> actual =
+            map.toUnorderedMap([](const std::string& s) { return std::make_pair(s, s); });
 
         std::unordered_map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),

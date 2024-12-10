@@ -1,12 +1,38 @@
+#include "Lz/Algorithm.hpp"
+#include "Lz/CString.hpp"
 #include "Lz/CartesianProduct.hpp"
 
 #include <catch2/catch.hpp>
 #include <list>
 
+TEST_CASE("Is sentinel") {
+    const char* str = "Hello,";
+    const char* str2 = " World!";
+    auto cstr1 = lz::cString(str);
+    auto cstr2 = lz::cString(str2);
+    auto cart = lz::cartesian(cstr1, cstr2);
+
+    SECTION("Should be sentinel") {
+        static_assert(!std::is_same<decltype(cart.begin()), decltype(cart.end())>::value, "Should not be the same");
+    }
+
+    SECTION("Should be correct length") {
+        CHECK(static_cast<std::size_t>(lz::distance(cart.begin(), cart.end())) == std::strlen(str) * std::strlen(str2));
+    }
+
+    SECTION("Should make permutation") {
+        CHECK(*cart.begin() == std::make_tuple('H', ' '));
+    }
+}
+
 TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct][Basic functionality]") {
     std::vector<int> vec = { 1, 2, 3 };
     std::vector<char> chars = { 'a', 'b', 'c' };
     auto cartesian = lz::cartesian(vec, chars);
+
+    SECTION("Should not be sentinel") {
+        static_assert(std::is_same<decltype(cartesian.begin()), decltype(cartesian.end())>::value, "Should be the same");
+    }
 
     SECTION("Should be by reference") {
         auto& elmVec = std::get<0>(*cartesian.begin());
@@ -112,7 +138,7 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
 
     SECTION("To array") {
         constexpr std::size_t size = 9;
-        std::array<std::tuple<int, char>, size> result = cartesian.toArray<size>();
+        auto result = cartesian.to<std::array<std::tuple<int, char>, size>>();
         std::array<std::tuple<int, char>, size> expected = {
             std::make_tuple(1, 'a'), std::make_tuple(1, 'b'), std::make_tuple(1, 'c'),
 
@@ -136,7 +162,7 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
     }
 
     SECTION("To other container using to<>()") {
-        std::list<std::tuple<int, char>> result = cartesian.to<std::list>();
+        auto result = cartesian.to<std::list<std::tuple<int, char>>>();
         std::list<std::tuple<int, char>> expected = {
             std::make_tuple(1, 'a'), std::make_tuple(1, 'b'), std::make_tuple(1, 'c'),
 
@@ -148,8 +174,10 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
     }
 
     SECTION("To map") {
-        std::map<int, std::tuple<int, char>> result = cartesian.toMap(
-            [](const typename decltype(cartesian)::iterator::value_type& v) { return std::get<0>(v) + std::get<1>(v); });
+        std::map<int, std::tuple<int, char>> result =
+            cartesian.toMap([](const typename decltype(cartesian)::iterator::value_type& v) {
+                return std::make_pair(std::get<0>(v) + std::get<1>(v), v);
+            });
         decltype(result) expected = {
             { 1 + 'a', std::make_tuple(1, 'a') }, { 1 + 'b', std::make_tuple(1, 'b') }, { 1 + 'c', std::make_tuple(1, 'c') },
 
@@ -161,8 +189,10 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, std::tuple<int, char>> result = cartesian.toUnorderedMap(
-            [](const typename decltype(cartesian)::iterator::value_type& v) { return std::get<0>(v) + std::get<1>(v); });
+        std::unordered_map<int, std::tuple<int, char>> result =
+            cartesian.toUnorderedMap([](const typename decltype(cartesian)::iterator::value_type& v) {
+                return std::make_pair(std::get<0>(v) + std::get<1>(v), v);
+            });
         decltype(result) expected = {
             { 1 + 'a', std::make_tuple(1, 'a') }, { 1 + 'b', std::make_tuple(1, 'b') }, { 1 + 'c', std::make_tuple(1, 'c') },
 

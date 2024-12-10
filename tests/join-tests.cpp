@@ -12,9 +12,11 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     CHECK(joinInt.toString() == "1, 2, 3, 4, 5");
     CHECK(joinStr.toString() == "h, e, l, l, o");
 
-    std::ostringstream ss;
-    ss << joinInt;
-    CHECK(ss.str() == "1, 2, 3, 4, 5");
+    SECTION("String streams") {
+        std::ostringstream ss;
+        ss << joinInt;
+        CHECK(ss.str() == "1, 2, 3, 4, 5");
+    }
 
     SECTION("Should convert to string") {
         CHECK(*joinInt.begin() == "1");

@@ -48,7 +48,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<Iterator> loopRange(Iterator begin, Iterat
  * @return A loop iterator object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<detail::IterTypeFromIterable<Iterable>> loop(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<IterT<Iterable>> loop(Iterable&& iterable) {
     return loopRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)));
 }
 

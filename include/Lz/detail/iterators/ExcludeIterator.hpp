@@ -9,14 +9,13 @@
 
 namespace lz {
 namespace detail {
-template<class Iterator>
-class ExcludeIterator : public IterBase<ExcludeIterator<Iterator>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
-                                        DiffType<Iterator>, std::forward_iterator_tag> {
+template<class Iterator, class S>
+class ExcludeIterator : public IterBase<ExcludeIterator<Iterator, S>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
+                                        DiffType<Iterator>, std::forward_iterator_tag, S> {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = std::forward_iterator_tag;
     using value_type = typename IterTraits::value_type;
     using difference_type = typename IterTraits::difference_type;
     using reference = typename IterTraits::reference;
@@ -24,21 +23,17 @@ public:
 
 private:
     Iterator _iterator{};
-    Iterator _begin{};
-    Iterator _end{};
     difference_type _index{};
     difference_type _from{};
     difference_type _to{};
 
 public:
     LZ_CONSTEXPR_CXX_20
-    ExcludeIterator(Iterator it, Iterator begin, Iterator end, const difference_type from, const difference_type to) :
-        _iterator(std::move(it)),
-        _begin(std::move(begin)),
-        _end(std::move(end)),
+    ExcludeIterator(Iterator begin, S end, const difference_type from, const difference_type to) :
+        _iterator(std::move(begin)),
         _from(from),
         _to(to) {
-        if (_iterator == _begin && _from == 0) {
+        if (_iterator != end && _from == 0) {
             _iterator = std::next(std::move(_iterator), _to);
             _index = _to;
         }
@@ -65,6 +60,10 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const ExcludeIterator& b) const noexcept {
         LZ_ASSERT(_to == b._to && _from == b._from, "incompatible iterator types: from and to must be equal");
         return _iterator == b._iterator;
+    }
+
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const S& s) const noexcept {
+        return _iterator == s;
     }
 };
 } // namespace detail

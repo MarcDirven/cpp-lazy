@@ -18,7 +18,7 @@ void CartesianProduct(benchmark::State& state) {
 }
 
 void ChunkIf(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
     constexpr static auto half = static_cast<int>(SizePolicy / 2);
 
     for (auto _ : state) {
@@ -31,7 +31,7 @@ void ChunkIf(benchmark::State& state) {
 }
 
 void Chunks(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
     for (auto _ : state) {
         for (auto&& chunk : lz::chunks(a, 8)) {
             for (int x : chunk) {
@@ -76,8 +76,9 @@ void Enumerate(benchmark::State& state) {
 }
 
 void Except(benchmark::State& state) {
-    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
-    std::array<int, SizePolicy / 2> toLargeExcept = lz::range(static_cast<int>(SizePolicy) / 2).toArray<SizePolicy / 2>();
+    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).to<std::array<int, SizePolicy>>();
+    std::array<int, SizePolicy / 2> toLargeExcept =
+        lz::range(static_cast<int>(SizePolicy) / 2).to<std::array<int, SizePolicy / 2>>();
 
     for (auto _ : state) {
         for (auto excepted : lz::except(largeArr, toLargeExcept)) {
@@ -87,7 +88,7 @@ void Except(benchmark::State& state) {
 }
 
 void Exclude(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (int i : lz::exclude(a, 5, 10)) {
@@ -97,7 +98,7 @@ void Exclude(benchmark::State& state) {
 }
 
 void ExclusiveScan(benchmark::State& state) {
-    auto array = lz::range(SizePolicy).toArray<SizePolicy>();
+    auto array = lz::range(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (std::size_t i : lz::eScan(array, static_cast<std::size_t>(0))) {
@@ -149,7 +150,7 @@ void GenerateWhile(benchmark::State& state) {
 }
 
 void GroupBy(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (auto &&group : lz::groupBy(arr, [](int a, int b) noexcept { return a == b; })) {
@@ -162,7 +163,7 @@ void GroupBy(benchmark::State& state) {
 }
 
 void InclusiveScan(benchmark::State& state) {
-    auto array = lz::range(SizePolicy).toArray<SizePolicy>();
+    auto array = lz::range(SizePolicy).to<std::array<int, SizePolicy>>();
     auto t = lz::iScan(array);
     auto d = std::distance(t.begin(), t.end());
     (void)d;
@@ -175,7 +176,7 @@ void InclusiveScan(benchmark::State& state) {
 }
 
 void JoinInt(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (std::string s : lz::join(arr, ",")) {
@@ -185,7 +186,7 @@ void JoinInt(benchmark::State& state) {
 }
 
 void JoinString(benchmark::State& state) {
-    std::array<std::string, SizePolicy> arr = lz::repeat(std::string("hello"), SizePolicy).toArray<SizePolicy>();
+    std::array<std::string, SizePolicy> arr = lz::repeat(std::string("hello"), SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (std::string& s : lz::join(arr, ",")) {
@@ -257,7 +258,7 @@ void Repeat(benchmark::State& state) {
 }
 
 void Rotate(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (int i : lz::rotate(arr.begin() + 5, arr.begin(), arr.end())) {
@@ -277,7 +278,7 @@ void StringSplitter(benchmark::State& state) {
 }
 
 void TakeWhile(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).toArray<SizePolicy>();
+    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (int taken : lz::takeWhile(array, [](const int i) noexcept { return i != SizePolicy - 1; })) {
@@ -306,7 +307,7 @@ void DropWhile(benchmark::State& state) {
                                                 return 1;
                                             },
                                             SizePolicy, 0)
-                                            .toArray<SizePolicy>();
+                                            .to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (int i : lz::dropWhile(array, [](const int i) noexcept { return i == 1; })) {
@@ -316,7 +317,7 @@ void DropWhile(benchmark::State& state) {
 }
 
 void Unique(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).toArray<SizePolicy>();
+    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
         for (char c : lz::unique(arr)) {

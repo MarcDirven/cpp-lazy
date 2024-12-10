@@ -1,6 +1,17 @@
+#include <Lz/CString.hpp>
 #include <Lz/Take.hpp>
 #include <catch2/catch.hpp>
 #include <list>
+
+TEST_CASE("Take with sentinels") {
+    const char* str = "Hello, world!";
+    auto cString = lz::cString(str);
+    auto take = lz::take(cString, 5);
+    static_assert(!std::is_same<decltype(take.begin()), decltype(take.end())>::value, "Should be sentinel");
+    static_assert(std::is_same<decltype(take.end()), lz::TakeNSentinel<typename decltype(take.begin())::difference_type>>::value,
+                  "Should be sentinel");
+    CHECK(take.toVector() == std::vector<char>({ 'H', 'e', 'l', 'l', 'o' }));
+}
 
 TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") {
     std::array<int, 10> array = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -70,7 +81,7 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     auto takeEvery = lz::take(array, 4);
 
     SECTION("To array") {
-        auto arr = takeEvery.toArray<4>();
+        auto arr = takeEvery.to<std::array<int, 4>>();
         REQUIRE(arr.size() == 4);
         REQUIRE(arr[0] == 1);
         REQUIRE(arr[1] == 2);
@@ -84,19 +95,19 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto lst = takeEvery.to<std::list>();
+        auto lst = takeEvery.to<std::list<int>>();
         REQUIRE(std::equal(lst.begin(), lst.end(), takeEvery.begin()));
     }
 
     SECTION("To map") {
-        auto map = takeEvery.toMap([](int i) { return i; });
+        auto map = takeEvery.toMap([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);
     }
 
     SECTION("To unordered map") {
-        auto map = takeEvery.toUnorderedMap([](int i) { return i; });
+        auto map = takeEvery.toUnorderedMap([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::unordered_map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);
@@ -127,7 +138,7 @@ TEST_CASE("Drop & slice") {
 
     SECTION("Slice iterator") {
         std::vector<int> vec = { 1, 2, 3, 4, 5, 6, 7, 8 };
-        auto slice = lz::slice(vec.begin(), 2, 6);
+        auto slice = lz::slice(vec, 2, 6);
         std::vector<int> expected = { 3, 4, 5, 6 };
         REQUIRE(std::equal(slice.begin(), slice.end(), expected.begin()));
     }

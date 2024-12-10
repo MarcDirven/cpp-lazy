@@ -74,8 +74,8 @@ uniqueRange(Iterator begin, Iterator end, Compare compare = {}, Execution execPo
  * @param sortFunc (Optional) to find adjacent elements.
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
-template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable,
-         class It = detail::IterTypeFromIterable<Iterable>, class Compare = std::less<>>
+template<class Execution = std::execution::sequenced_policy, LZ_CONCEPT_ITERABLE Iterable, class It = IterT<Iterable>,
+         class Compare = std::less<>>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Unique<Execution, It, Compare>
 unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::execution::seq) {
     return uniqueRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
@@ -92,7 +92,7 @@ unique(Iterable&& iterable, Compare compare = {}, Execution execPolicy = std::ex
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : uniqueRange(...))` fashion.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterator, class Compare = std::less<detail::ValueType<Iterator>>>
+template<class Iterator, class Compare = std::less<ValueType<Iterator>>>
 #else
 template<class Iterator, class Compare = std::less<>>
 #endif // LZ_HAS_CXX_11
@@ -109,11 +109,11 @@ Unique<Iterator, Compare> uniqueRange(Iterator begin, Iterator end, Compare comp
  * @return An Unique iterator view object, which can be used to iterate over in a `(for ... : unique(...))` fashion.
  */
 #ifdef LZ_HAS_CXX_11
-template<class Iterable, class Compare = std::less<detail::ValueTypeIterable<Iterable>>>
+template<class Iterable, class Compare = std::less<ValueTypeIterable<Iterable>>>
 #else
 template<class Iterable, class Compare = std::less<>>
 #endif // LZ_HAS_CXX_11
-Unique<detail::IterTypeFromIterable<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
+Unique<IterT<Iterable>, Compare> unique(Iterable&& iterable, Compare compare = {}) {
     return uniqueRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                        std::move(compare));
 }

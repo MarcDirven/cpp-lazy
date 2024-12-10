@@ -10,15 +10,26 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<class... Iterators>
-class Concatenate final : public detail::BasicIteratorView<detail::ConcatenateIterator<Iterators...>> {
+template<class IterTuple, class SentinelTuple>
+class Concatenate final
+    : public detail::BasicIteratorView<detail::ConcatenateIterator<IterTuple, SentinelTuple>,
+                                       typename detail::ConcatenateIterator<IterTuple, SentinelTuple>::Sentinel> {
+
+    LZ_CONSTEXPR_CXX_20 Concatenate(IterTuple begin, SentinelTuple end, std::forward_iterator_tag /* unused */) :
+        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(begin, begin, end)) {
+    }
+
+    LZ_CONSTEXPR_CXX_20 Concatenate(IterTuple begin, SentinelTuple end, std::bidirectional_iterator_tag /* unused */) :
+        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+    }
+
 public:
-    using iterator = detail::ConcatenateIterator<Iterators...>;
+    using iterator = detail::ConcatenateIterator<IterTuple, SentinelTuple>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    LZ_CONSTEXPR_CXX_20 Concatenate(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+    LZ_CONSTEXPR_CXX_20 Concatenate(IterTuple begin, SentinelTuple end) :
+        Concatenate(std::move(begin), std::move(end), IterCat<iterator>{}) {
     }
 
     constexpr Concatenate() = default;
@@ -30,22 +41,6 @@ public:
  */
 
 /**
- * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the tuple must be greater
- * than greater than or equal to 2. The underlying value types must be the same.
- * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
- * @param begin A tuple of iterators pointing to the beginning.
- * @param end A tuple of iterators pointing to the ending.
- * @return A concatenate view object, which contains the iterator, that can be used to iterate over.
- */
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<Iterators...>
-concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
-    static_assert(sizeof...(Iterators) >= 2, "amount of iterators/containers cannot be less than or equal to 1");
-    static_assert(detail::IsAllSame<detail::ValueType<Iterators>...>::value, "value types of iterators do no match");
-    return { std::move(begin), std::move(end) };
-}
-
-/**
  * @brief Creates a concat view object from a tuple of beginnings and a tuple of endings. The size of the parameter pack must be
  * greater than or equal to 2. The underlying value types must be the same.
  * @details This view object, contains the iterators that 'glues'/'concatenates' two or more containers together.
@@ -53,9 +48,13 @@ concatRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
  * @return A concatenate view object, which contains the iterator, that can be used to iterate over.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<detail::IterTypeFromIterable<Iterables>...> concat(Iterables&&... iterables) {
-    return concatRange(std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...),
-                       std::make_tuple(detail::end(std::forward<Iterables>(iterables))...));
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Concatenate<std::tuple<IterT<Iterables>...>, std::tuple<SentinelT<Iterables>...>>
+concat(Iterables&&... iterables) {
+    constexpr auto tupleSize = sizeof...(Iterables);
+    static_assert(tupleSize >= 2, "amount of iterators/containers cannot be less than or equal to 1");
+    static_assert(detail::IsAllSame<ValueType<IterT<Iterables>>...>::value, "all value types must be the same");
+    return { std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...),
+             std::make_tuple(detail::end(std::forward<Iterables>(iterables))...) };
 }
 
 // End of group

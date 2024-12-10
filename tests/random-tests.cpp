@@ -6,19 +6,19 @@ TEST_CASE("Random should be random", "[Random][Basic functionality]") {
     constexpr std::size_t size = 5;
 
     SECTION("Random doubles") {
-        const auto randomArray = lz::random<long double>(0., 1., size).toArray<size>();
-        auto randomArray2 = lz::random<long double>(0., 1., size).toArray<size>();
+        const auto randomArray = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
+        auto randomArray2 = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
         while (randomArray == randomArray2) {
-            randomArray2 = lz::random<long double>(0., 1., size).toArray<size>();
+            randomArray2 = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
         }
         REQUIRE(randomArray != randomArray2);
     }
 
     SECTION("Random ints") {
         const auto randomArray =
-            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).toArray<size>();
+            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).to<std::array<int, size>>();
         const auto randomArray2 =
-            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).toArray<size>();
+            lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).to<std::array<int, size>>();
         REQUIRE(randomArray != randomArray2);
     }
 }
@@ -98,7 +98,8 @@ TEST_CASE("Random to containers", "[Random][To container]") {
     auto range = lz::random(0., 1., size);
 
     SECTION("To array") {
-        CHECK(range.toArray<size>().size() == size);
+        CHECK(range.to<std::array<double, size>>().size() == size);
+        CHECK(std::all_of(range.begin(), range.end(), [](double val) { return val >= 0. && val <= 1.; }));
     }
 
     SECTION("To vector") {
@@ -106,16 +107,16 @@ TEST_CASE("Random to containers", "[Random][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        CHECK(range.to<std::list>().size() == size);
+        CHECK(range.to<std::list<double>>().size() == size);
     }
 
     SECTION("To map") {
-        std::map<double, double> actual = range.toMap([](const double i) { return i; });
+        std::map<double, double> actual = range.toMap([](const double i) { return std::make_pair(i, i); });
         CHECK(actual.size() == size);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) { return i; });
+        std::unordered_map<double, double> actual = range.toUnorderedMap([](const double i) { return std::make_pair(i, i); });
         CHECK(actual.size() == size);
     }
 }

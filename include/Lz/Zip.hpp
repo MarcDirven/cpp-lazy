@@ -58,7 +58,7 @@ public:
 template<LZ_CONCEPT_ITERATOR... Iterators>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
     static_assert(sizeof...(Iterators) > 0, "Cannot create zip object with 0 iterators");
-    using CommonIterTag = detail::CommonType<detail::IterCat<Iterators>...>;
+    using CommonIterTag = detail::CommonType<IterCat<Iterators>...>;
     if LZ_CONSTEXPR_IF (detail::IsRandomAccessTag<CommonIterTag>::value) {
         end = detail::createEndSmallestIterator(begin, std::move(end), detail::MakeIndexSequence<sizeof...(Iterators)>());
     }
@@ -77,7 +77,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<Iterators...> zipRange(std::tuple<Iterators
  * `for (auto tuple :  lz::zip(...))`.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<detail::IterTypeFromIterable<Iterables>...> zip(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<IterT<Iterables>...> zip(Iterables&&... iterables) {
     auto begin = std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...);
     auto end = std::make_tuple(detail::end(std::forward<Iterables>(iterables))...);
     return lz::zipRange(std::move(begin), std::move(end));

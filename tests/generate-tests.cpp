@@ -58,7 +58,7 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
         amount, counter);
 
     SECTION("To array") {
-        std::array<std::size_t, amount> array = generator.toArray<amount>();
+        auto array = generator.to<std::array<std::size_t, amount>>();
         std::array<std::size_t, amount> expected = { 0, 1, 2, 3 };
 
         CHECK(array == expected);
@@ -72,14 +72,15 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        std::list<std::size_t> vector = generator.to<std::list>();
+        std::list<std::size_t> vector = generator.to<std::list<std::size_t>>();
         std::list<std::size_t> expected = { 0, 1, 2, 3 };
 
         CHECK(vector == expected);
     }
 
     SECTION("To map") {
-        std::map<std::size_t, std::size_t> map = generator.toMap([](const std::size_t elm) { return elm * 10; });
+        std::map<std::size_t, std::size_t> map =
+            generator.toMap([](const std::size_t elm) { return std::make_pair(elm * 10, elm); });
 
         std::map<std::size_t, std::size_t> expected = { { 0, 0 }, { 10, 1 }, { 20, 2 }, { 30, 3 } };
 
@@ -88,7 +89,7 @@ TEST_CASE("Generate to containers", "[Generate][To container]") {
 
     SECTION("To unordered map") {
         std::unordered_map<std::size_t, std::size_t> map =
-            generator.toUnorderedMap([](const std::size_t elm) { return elm * 10; });
+            generator.toUnorderedMap([](const std::size_t elm) { return std::make_pair(elm * 10, elm); });
 
         std::unordered_map<std::size_t, std::size_t> expected = { { 0, 0 }, { 10, 1 }, { 20, 2 }, { 30, 3 } };
 

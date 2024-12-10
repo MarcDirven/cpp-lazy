@@ -124,7 +124,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     std::array<short, size> c = { 1, 2, 3, 4 };
 
     SECTION("To array") {
-        auto array = lz::zip(a, b, c).toArray<size>();
+        auto array = lz::zip(a, b, c).to<std::array<std::tuple<int, float, short>, size>>();
 
         for (std::size_t i = 0; i < array.size(); i++) {
             auto& aElement = std::get<0>(array[i]);
@@ -152,7 +152,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        auto list = lz::zip(a, b, c).to<std::list>();
+        auto list = lz::zip(a, b, c).to<std::list<std::tuple<int, float, short>>>();
         auto listIterator = list.begin();
 
         for (std::size_t i = 0; i < list.size(); i++) {
@@ -170,7 +170,8 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
 
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
-        std::map<int, Tuple> actual = lz::zip(a, b, c).toMap([](const Tuple& tup) { return std::get<0>(tup); });
+        std::map<int, Tuple> actual =
+            lz::zip(a, b, c).toMap([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
         std::map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),
             std::make_pair(2, std::make_tuple(2, 2.f, static_cast<short>(2))),
@@ -184,7 +185,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
         std::unordered_map<int, Tuple> actual =
-            lz::zip(a, b, c).toUnorderedMap([](const Tuple& tup) { return std::get<0>(tup); });
+            lz::zip(a, b, c).toUnorderedMap([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
 
         std::unordered_map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),

@@ -29,6 +29,10 @@
 #endif
 
 namespace lz {
+
+template<class Iter, class S>
+DiffType<Iter> distance(Iter first, S last);
+
 namespace detail {
 
 [[noreturn]] inline void assertionFail(const char* file, const int line, const char* func, const char* message) {
@@ -123,10 +127,10 @@ LZ_CONSTEXPR_CXX_14 Result roundEven(const Arithmetic a, const Arithmetic b) noe
     return static_cast<Result>(a / b) + 1;
 }
 
-template<class Iter>
-DiffType<Iter> sizeHint(Iter first, Iter last) {
+template<class Iter, class S>
+DiffType<Iter> sizeHint(Iter first, S last) {
     if LZ_CONSTEXPR_IF (IsRandomAccess<Iter>::value) {
-        return std::distance(std::move(first), std::move(last));
+        return lz::distance(std::move(first), std::move(last));
     }
     else {
         return 0;

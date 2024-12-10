@@ -78,7 +78,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     auto repeater = lz::repeat(toRepeat, times);
 
     SECTION("To array") {
-        std::array<int, times> array = repeater.toArray<times>();
+        std::array<int, times> array = repeater.to<std::array<int, times>>();
         for (int i : array) {
             CHECK(i == toRepeat);
         }
@@ -93,7 +93,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To other container using to<>()") {
-        std::list<int> lst = repeater.to<std::list>();
+        std::list<int> lst = repeater.to<std::list<int>>();
         for (int i : lst) {
             CHECK(i == toRepeat);
         }
@@ -101,7 +101,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = repeater.toMap([](const int i) { return i; });
+        std::map<int, int> actual = repeater.toMap([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> expected;
 
         for (int i = 0; i < times; i++) {
@@ -112,7 +112,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) { return i; });
+        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> expected;
 
         for (int i = 0; i < times; i++) {
