@@ -216,7 +216,7 @@ Iter lowerBound(Iter begin, S end, const T& value, Predicate predicate) {
 
 template<class Iter, class S, class T, class Predicate>
 bool binarySearch(Iter begin, S end, const T& value, Predicate predicate) {
-    Iter it = detail::lowerBound(begin, end, value, std::move(predicate));
+    Iter it = detail::lowerBound(std::move(begin), end, value, std::move(predicate));
     return it != end && *it == value;
 }
 } // namespace detail

@@ -10,7 +10,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class Chunks final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, S>, DefaultSentinel> {
+class Chunks final : public detail::BasicIterable<detail::ChunksIterator<Iterator, S>, DefaultSentinel> {
 public:
     using iterator = detail::ChunksIterator<Iterator, S>;
     using const_iterator = iterator;
@@ -18,14 +18,14 @@ public:
 
     LZ_CONSTEXPR_CXX_20
     Chunks(Iterator begin, S end, const std::size_t chunkSize) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(std::move(begin), std::move(end), chunkSize)) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(std::move(begin), std::move(end), chunkSize)) {
     }
 
     constexpr Chunks() = default;
 };
 
 template<class Iterator>
-class Chunks<Iterator, Iterator> final : public detail::BasicIteratorView<detail::ChunksIterator<Iterator, Iterator>> {
+class Chunks<Iterator, Iterator> final : public detail::BasicIterable<detail::ChunksIterator<Iterator, Iterator>> {
 public:
     using iterator = detail::ChunksIterator<Iterator, Iterator>;
     using const_iterator = iterator;
@@ -33,7 +33,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20
     Chunks(Iterator begin, Iterator end, const std::size_t chunkSize) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, chunkSize), iterator(end, begin, end, chunkSize)) {
+        detail::BasicIterable<iterator>(iterator(begin, begin, end, chunkSize), iterator(end, begin, end, chunkSize)) {
     }
 
     constexpr Chunks() = default;

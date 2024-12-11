@@ -3,11 +3,11 @@
 #ifndef LZ_VIEW_HPP
 #define LZ_VIEW_HPP
 
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 
 namespace lz {
 template<LZ_CONCEPT_ITERATOR Iterator, class S = Iterator>
-using View = detail::BasicIteratorView<Iterator, S>;
+using View = detail::BasicIterable<Iterator, S>;
 
 // Start of group
 /**
@@ -24,7 +24,7 @@ using View = detail::BasicIteratorView<Iterator, S>;
  * `for (auto... lz::takeRange(...))`.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class S>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator, S> view(Iterator begin, S end) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<Iterator, S> view(Iterator begin, S end) {
     return { begin, end };
 }
 

@@ -3,7 +3,7 @@
 #ifndef LZ_COMMON_HPP
 #define LZ_COMMON_HPP
 
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 #include "Lz/detail/CompilerChecks.hpp"
 #include "Lz/detail/iterators/CommonIterator.hpp"
 
@@ -12,8 +12,8 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class CommonView : public detail::BasicIteratorView<detail::CommonIterator<Iterator, S>> {
-    using Base = detail::BasicIteratorView<detail::CommonIterator<Iterator, S>>;
+class CommonView : public detail::BasicIterable<detail::CommonIterator<Iterator, S>> {
+    using Base = detail::BasicIterable<detail::CommonIterator<Iterator, S>>;
 
 public:
     using iterator = detail::CommonIterator<Iterator, S>;

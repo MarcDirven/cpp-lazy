@@ -3,7 +3,7 @@
 #ifndef LZ_REPEAT_HPP
 #define LZ_REPEAT_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/RepeatIterator.hpp"
 
 namespace lz {
@@ -11,14 +11,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class T>
-class Repeat final : public detail::BasicIteratorView<detail::RepeatIterator<T>> {
+class Repeat final : public detail::BasicIterable<detail::RepeatIterator<T>> {
 public:
     using iterator = detail::RepeatIterator<T>;
     using const_iterator = iterator;
     using value_type = T;
 
     constexpr Repeat(T toRepeat, const std::size_t amount) :
-        detail::BasicIteratorView<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
+        detail::BasicIterable<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
     }
 
     constexpr Repeat() = default;

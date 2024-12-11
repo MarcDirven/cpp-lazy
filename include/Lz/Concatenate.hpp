@@ -3,7 +3,7 @@
 #ifndef LZ_CONCATENATE_HPP
 #define LZ_CONCATENATE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/ConcatenateIterator.hpp"
 
 namespace lz {
@@ -12,15 +12,15 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class IterTuple, class SentinelTuple>
 class Concatenate final
-    : public detail::BasicIteratorView<detail::ConcatenateIterator<IterTuple, SentinelTuple>,
+    : public detail::BasicIterable<detail::ConcatenateIterator<IterTuple, SentinelTuple>,
                                        typename detail::ConcatenateIterator<IterTuple, SentinelTuple>::Sentinel> {
 
     LZ_CONSTEXPR_CXX_20 Concatenate(IterTuple begin, SentinelTuple end, std::forward_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(begin, begin, end)) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(begin, begin, end)) {
     }
 
     LZ_CONSTEXPR_CXX_20 Concatenate(IterTuple begin, SentinelTuple end, std::bidirectional_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+        detail::BasicIterable<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 
 public:

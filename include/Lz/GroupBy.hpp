@@ -3,7 +3,7 @@
 #ifndef LZ_GROUP_BY_HPP
 #define LZ_GROUP_BY_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/GroupByIterator.hpp"
 
 namespace lz {
@@ -12,11 +12,11 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<LZ_CONCEPT_ITERATOR Iterator, class Comparer, class Execution>
-class GroupBy : public detail::BasicIteratorView<detail::GroupByIterator<Iterator, Comparer, Execution>> {
+class GroupBy : public detail::BasicIterable<detail::GroupByIterator<Iterator, Comparer, Execution>> {
     using iterator = detail::GroupByIterator<Iterator, Comparer, Execution>;
 #else // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 template<class Iterator, class Comparer>
-class GroupBy final : public detail::BasicIteratorView<detail::GroupByIterator<Iterator, Comparer>> {
+class GroupBy final : public detail::BasicIterable<detail::GroupByIterator<Iterator, Comparer>> {
     using iterator = detail::GroupByIterator<Iterator, Comparer>;
 #endif
     using const_iterator = iterator;
@@ -24,11 +24,11 @@ class GroupBy final : public detail::BasicIteratorView<detail::GroupByIterator<I
 public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 GroupBy(Iterator begin, Iterator end, Comparer comparer, Execution execution) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer, execution),
+        detail::BasicIterable<iterator>(iterator(std::move(begin), end, comparer, execution),
                                             iterator(end, end, comparer, execution))
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
     GroupBy(Iterator begin, Iterator end, Comparer comparer) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, comparer), iterator(end, end, comparer))
+        detail::BasicIterable<iterator>(iterator(std::move(begin), end, comparer), iterator(end, end, comparer))
 #endif // LZ_HAS_EXECUTION
     {
     }

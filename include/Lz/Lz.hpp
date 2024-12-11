@@ -78,13 +78,13 @@ LZ_CONSTEXPR_CXX_20 IterView<IterT<Iterable>, SentinelT<Iterable>> chain(Iterabl
  */
 
 template<class Iterator, class S = Iterator>
-class IterView final : public detail::BasicIteratorView<Iterator, S> {
-    using Base = detail::BasicIteratorView<Iterator, S>;
+class IterView final : public detail::BasicIterable<Iterator, S> {
+    using Base = detail::BasicIterable<Iterator, S>;
     using Traits = std::iterator_traits<Iterator>;
 
 public:
-    using detail::BasicIteratorView<Iterator, S>::begin;
-    using detail::BasicIteratorView<Iterator, S>::end;
+    using detail::BasicIterable<Iterator, S>::begin;
+    using detail::BasicIterable<Iterator, S>::end;
 
     using iterator = Iterator;
     using const_iterator = iterator;

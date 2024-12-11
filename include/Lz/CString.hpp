@@ -3,7 +3,7 @@
 #ifndef LZ_C_STRING_HPP
 #define LZ_C_STRING_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/Traits.hpp"
 #include "detail/iterators/CStringIterator.hpp"
 
@@ -13,7 +13,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class C, class Tag>
 class CString final
-    : public detail::BasicIteratorView<detail::CStringIterator<C, Tag>, typename detail::CStringIterator<C, Tag>::Sentinel> {
+    : public detail::BasicIterable<detail::CStringIterator<C, Tag>, typename detail::CStringIterator<C, Tag>::Sentinel> {
     using Sentinel = typename detail::CStringIterator<C, Tag>::Sentinel;
 
 public:
@@ -21,11 +21,11 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    constexpr CString(const C* begin) noexcept : detail::BasicIteratorView<iterator, Sentinel>(iterator(begin)) {
+    constexpr CString(const C* begin) noexcept : detail::BasicIterable<iterator, Sentinel>(iterator(begin)) {
     }
 
     constexpr CString(const C* begin, const C* end) noexcept :
-        detail::BasicIteratorView<iterator, iterator>(iterator(begin), iterator(end)) {
+        detail::BasicIterable<iterator, iterator>(iterator(begin), iterator(end)) {
     }
 
     constexpr CString() = default;

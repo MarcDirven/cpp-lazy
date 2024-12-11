@@ -63,7 +63,7 @@ class Variant {
     }
 
 public:
-    static constexpr std::size_t npos = -1;
+    static constexpr std::size_t npos{ static_cast<std::size_t>(-1) };
 
     Variant() : state(State::None) {
     }
@@ -175,13 +175,13 @@ auto get(const Variant<U, V>& t) -> decltype(t.get<T>()) {
 }
 
 template<class T, class U, class V>
-auto get_if(const Variant<U, V>* t) -> decltype(t->get_if<T>()) {
-    return t->get_if<T>();
+auto get(Variant<U, V>& t) -> decltype(t.get<T>()) {
+    return t.get<T>();
 }
 
 template<class T, class U, class V>
-auto get(Variant<U, V>& t) -> decltype(t.get<T>()) {
-    return t.get<T>();
+auto get_if(const Variant<U, V>* t) -> decltype(t->get_if<T>()) {
+    return t->get_if<T>();
 }
 
 template<class T, class U, class V>
@@ -193,7 +193,7 @@ auto get_if(Variant<U, V>* t) -> decltype(t->get_if<T>()) {
 
 template<class Iterator, class S>
 class CommonIterator : public IterBase<CommonIterator<Iterator, S>, RefType<Iterator>, FakePointerProxy<RefType<Iterator>>,
-                                       DiffType<Iterator>, IterCat<Iterator>, S> {
+                                       DiffType<Iterator>, IterCat<Iterator>, CommonIterator<Iterator, S>> {
     Variant<Iterator, S> _data;
     static_assert(!std::is_same<Iterator, S>::value, "Iterator and Sentinel must be different types");
 
@@ -225,36 +225,46 @@ public:
     }
 
     reference dereference() const {
+#ifdef __cpp_lib_variant
         using std::get_if;
+#endif
         auto&& iter = get_if<Iterator>(&_data);
         LZ_ASSERT(iter != nullptr, "Cannot get pointer from a sentinel");
         return **iter;
     }
 
     FakePointerProxy<reference> arrow() const {
+#ifdef __cpp_lib_variant
         using std::get_if;
+#endif
         auto&& iter = get_if<Iterator>(&_data);
         LZ_ASSERT(iter != nullptr, "Cannot get pointer from a sentinel");
         return FakePointerProxy<decltype(**this)>(**iter);
     }
 
     void increment() {
+#ifdef __cpp_lib_variant
         using std::get_if;
+#endif
         auto&& iter = get_if<Iterator>(&_data);
         LZ_ASSERT(iter != nullptr, "Cannot increment a sentinel");
         ++(*iter);
     }
 
     void decrement() {
-        using std::get;
+#ifdef __cpp_lib_variant
+        using std::get_if;
+#endif
         auto&& iter = get_if<Iterator>(&_data);
         LZ_ASSERT(iter != nullptr, "Cannot decrement a sentinel");
         --(*iter);
     }
 
     bool eq(const CommonIterator& rhs) const {
-        using std::get;
+#ifdef __cpp_lib_variant
         using std::get_if;
+        using std::get;
+#endif
 
         auto&& lhsIter = get_if<Iterator>(&_data);
         auto&& rhsIter = get_if<Iterator>(&rhs._data);
@@ -272,29 +282,24 @@ public:
     }
 
     void plusIs(const difference_type n) {
+#ifdef __cpp_lib_variant
         using std::get_if;
+#endif
         auto&& iter = get_if<Iterator>(&_data);
         LZ_ASSERT(iter != nullptr, "Cannot increment sentinel");
         *iter += n;
     }
 
     difference_type difference(const CommonIterator& rhs) const {
-        using std::get;
+#ifdef __cpp_lib_variant
         using std::get_if;
+        using std::get;
+#endif
 
         auto&& lhsIter = get_if<Iterator>(&_data);
         auto&& rhsIter = get_if<Iterator>(&rhs._data);
-
-        if (lhsIter && rhsIter) {
-            return *lhsIter - *rhsIter;
-        }
-        if (lhsIter /* && !rhsIter */) {
-            return *lhsIter - get<S>(rhs._data);
-        }
-        if (rhsIter /* && !lhsIter */) {
-            return get<S>(_data) - *rhsIter;
-        }
-        return std::get<S>(_data) - std::get<S>(rhs._data);
+        LZ_ASSERT(lhsIter && rhsIter, "Cannot get difference between a sentinel and an iterator");
+        return *lhsIter - *rhsIter;
     }
 };
 } // namespace detail

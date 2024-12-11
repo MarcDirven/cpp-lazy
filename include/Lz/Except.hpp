@@ -3,7 +3,7 @@
 #ifndef LZ_EXCEPT_HPP
 #define LZ_EXCEPT_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/ExceptIterator.hpp"
 
 namespace lz {
@@ -12,7 +12,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_ITERATOR IteratorToExcept, class SentinelToExcept, class Comparer>
 class Except final
-    : public detail::BasicIteratorView<detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>,
+    : public detail::BasicIterable<detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>,
                                        DefaultSentinel> {
 
 public:
@@ -22,7 +22,7 @@ public:
     using value_type = typename iterator::value_type;
 
     Except(Iterator begin, S end, IteratorToExcept toExceptBegin, SentinelToExcept toExceptEnd, Comparer comparer) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(
+        detail::BasicIterable<iterator, DefaultSentinel>(
             iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer)) {
     }
 

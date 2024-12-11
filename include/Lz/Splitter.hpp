@@ -30,16 +30,16 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringView toStringView(const View<Iterator, S>
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S, class Iterator2, class S2>
-class Splitter final : public detail::BasicIteratorView<detail::SplitIterator<Iterator, S, Iterator2, S2>, DefaultSentinel> {
+class Splitter final : public detail::BasicIterable<detail::SplitIterator<Iterator, S, Iterator2, S2>, DefaultSentinel> {
 public:
     using const_iterator = detail::SplitIterator<Iterator, S, Iterator2, S2>;
     using iterator = const_iterator;
 
 public:
-    using value_type = detail::BasicIteratorView<iterator>;
+    using value_type = detail::BasicIterable<iterator>;
 
     LZ_CONSTEXPR_CXX_20 Splitter(Iterator begin, S end, Iterator2 begin2, S2 end2) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(begin, end, begin2, end2)) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(begin, end, begin2, end2)) {
     }
 
     Splitter() = default;

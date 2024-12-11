@@ -3,7 +3,7 @@
 #ifndef LZ_ZIP_LONGEST_HPP
 #define LZ_ZIP_LONGEST_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/ZipLongestIterator.hpp"
 
 namespace lz {
@@ -12,7 +12,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
 class ZipLongest final
-    : public detail::BasicIteratorView<
+    : public detail::BasicIterable<
           detail::ZipLongestIterator<detail::IsRandomAccessTag<detail::CommonType<IterCat<Iterators>...>>::value, Iterators...>> {
 
     using IterCat = detail::CommonType<IterCat<Iterators>...>;
@@ -28,13 +28,13 @@ public:
     template<class I = IterCat>
     LZ_CONSTEXPR_CXX_20 ZipLongest(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
                                    detail::EnableIf<!detail::IsRandomAccessTag<I>::value, int> = 0) :
-        detail::BasicIteratorView<iterator>(iterator(begin, end), iterator(end, begin)) {
+        detail::BasicIterable<iterator>(iterator(begin, end), iterator(end, begin)) {
     }
 
     template<class I = IterCat>
     LZ_CONSTEXPR_CXX_20 ZipLongest(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
                                    detail::EnableIf<detail::IsRandomAccessTag<I>::value, int> = 0) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(begin, end, end)) {
+        detail::BasicIterable<iterator>(iterator(begin, begin, end), iterator(begin, end, end)) {
     }
 
     constexpr ZipLongest() = default;

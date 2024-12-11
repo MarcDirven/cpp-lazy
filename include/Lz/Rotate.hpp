@@ -3,7 +3,7 @@
 #ifndef LZ_ROTATE_HPP
 #define LZ_ROTATE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/RotateIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator>
-class Rotate final : public detail::BasicIteratorView<detail::RotateIterator<Iterator>> {
+class Rotate final : public detail::BasicIterable<detail::RotateIterator<Iterator>> {
 public:
     using iterator = detail::RotateIterator<Iterator>;
     using const_iterator = iterator;
@@ -19,7 +19,7 @@ public:
     constexpr Rotate() = default;
 
     Rotate(Iterator start, Iterator begin, Iterator end) :
-        detail::BasicIteratorView<iterator>(iterator(start, begin, end, false), iterator(start, begin, end, true)) {
+        detail::BasicIterable<iterator>(iterator(start, begin, end, false), iterator(start, begin, end, true)) {
     }
 };
 

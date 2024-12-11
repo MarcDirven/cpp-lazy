@@ -5,7 +5,7 @@
 
 #include "Lz/IterBase.hpp"
 #include "Lz/detail/Algorithm.hpp"
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
 
@@ -13,13 +13,13 @@ namespace lz {
 namespace detail {
 
 template<class Iterator, class S, class UnaryPredicate>
-class ChunkIfIterator : public IterBase<ChunkIfIterator<Iterator, S, UnaryPredicate>, BasicIteratorView<Iterator>,
-                                        FakePointerProxy<BasicIteratorView<Iterator>>, DiffType<Iterator>,
+class ChunkIfIterator : public IterBase<ChunkIfIterator<Iterator, S, UnaryPredicate>, BasicIterable<Iterator>,
+                                        FakePointerProxy<BasicIterable<Iterator>>, DiffType<Iterator>,
                                         std::forward_iterator_tag, DefaultSentinel> {
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = BasicIteratorView<Iterator>;
+    using value_type = BasicIterable<Iterator>;
     using difference_type = typename IterTraits::difference_type;
     using reference = value_type;
     using pointer = FakePointerProxy<reference>;

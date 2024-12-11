@@ -3,7 +3,7 @@
 #ifndef LZ_FILTER_HPP
 #define LZ_FILTER_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/FilterIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S, class UnaryPredicate>
-class Filter final : public detail::BasicIteratorView<detail::FilterIterator<Iterator, S, UnaryPredicate>,
+class Filter final : public detail::BasicIterable<detail::FilterIterator<Iterator, S, UnaryPredicate>,
                                                       typename detail::FilterIterator<Iterator, S, UnaryPredicate>::Sentinel> {
 public:
     using iterator = detail::FilterIterator<Iterator, S, UnaryPredicate>;
@@ -22,11 +22,11 @@ private:
     using Sentinel = typename detail::FilterIterator<Iterator, S, UnaryPredicate>::Sentinel;
 
     Filter(Iterator begin, S end, UnaryPredicate function, std::forward_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(begin, begin, end, function)) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(begin, begin, end, function)) {
     }
 
     Filter(Iterator begin, Iterator end, UnaryPredicate function, std::bidirectional_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator, iterator>(iterator(begin, begin, end, function),
+        detail::BasicIterable<iterator, iterator>(iterator(begin, begin, end, function),
                                                       iterator(end, begin, end, function)) {
     }
 

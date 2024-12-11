@@ -3,7 +3,7 @@
 #ifndef LZ_RANDOM_HPP
 #define LZ_RANDOM_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/RandomIterator.hpp"
 
 #include <random>
@@ -122,14 +122,14 @@ inline std::mt19937 createMtEngine() {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
-class Random final : public detail::BasicIteratorView<detail::RandomIterator<Arithmetic, Distribution, Generator>> {
+class Random final : public detail::BasicIterable<detail::RandomIterator<Arithmetic, Distribution, Generator>> {
 public:
     using iterator = detail::RandomIterator<Arithmetic, Distribution, Generator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
-        detail::BasicIteratorView<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
+        detail::BasicIterable<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
                                             iterator(distribution, generator, amount, isWhileTrueLoop)) {
     }
 

@@ -3,7 +3,7 @@
 #ifndef LZ_ANY_VIEW_HPP
 #define LZ_ANY_VIEW_HPP
 
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 #include "Lz/detail/Procs.hpp"
 #include "Lz/detail/iterators/AnyViewHelpers.hpp"
 #include "Lz/detail/iterators/anyview/AnyIteratorImpl.hpp"
@@ -31,10 +31,10 @@ namespace lz {
  * @tparam DiffType The difference_type. It is used for the return type of iterator - iterator
  */
 template<class T, class Reference = T&, class IterCat = std::forward_iterator_tag, class DiffType = std::ptrdiff_t>
-class AnyView final : public detail::BasicIteratorView<detail::IteratorWrapper<T, Reference, IterCat, DiffType>> {
+class AnyView final : public detail::BasicIterable<detail::IteratorWrapper<T, Reference, IterCat, DiffType>> {
 private:
     using It = detail::IteratorWrapper<T, Reference, IterCat, DiffType>;
-    using Base = detail::BasicIteratorView<It>;
+    using Base = detail::BasicIterable<It>;
 
     template<typename View>
     using AnyIteratorImplType = detail::AnyIteratorImpl<decltype(detail::begin(std::forward<View>(std::declval<View>()))), T,

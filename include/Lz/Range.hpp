@@ -3,7 +3,7 @@
 #ifndef LZ_RANGE_HPP
 #define LZ_RANGE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/RangeIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-class Range final : public detail::BasicIteratorView<detail::RangeIterator<Arithmetic>> {
+class Range final : public detail::BasicIterable<detail::RangeIterator<Arithmetic>> {
 public:
     using iterator = detail::RangeIterator<Arithmetic>;
     using const_iterator = iterator;
@@ -19,7 +19,7 @@ public:
     using value_type = typename iterator::value_type;
 
 private:
-    using Base = detail::BasicIteratorView<iterator>;
+    using Base = detail::BasicIterable<iterator>;
 
 public:
     constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :

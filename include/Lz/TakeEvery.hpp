@@ -3,7 +3,7 @@
 #ifndef LZ_TAKE_EVERY_HPP
 #define LZ_TAKE_EVERY_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/TakeEveryIterator.hpp"
 
 namespace lz {
@@ -14,7 +14,7 @@ template<LZ_CONCEPT_ITERATOR, bool /* isBidirectional */>
 class TakeEvery;
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-class TakeEvery<Iterator, true> final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator, true>> {
+class TakeEvery<Iterator, true> final : public detail::BasicIterable<detail::TakeEveryIterator<Iterator, true>> {
 public:
     using iterator = detail::TakeEveryIterator<Iterator, true>;
     using const_iterator = iterator;
@@ -24,14 +24,14 @@ public:
 public:
     LZ_CONSTEXPR_CXX_20
     TakeEvery(Iterator begin, Iterator end, const DiffType<Iterator> offset) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end, offset), iterator(end, begin, end, offset)) {
+        detail::BasicIterable<iterator>(iterator(begin, begin, end, offset), iterator(end, begin, end, offset)) {
     }
 
     constexpr TakeEvery() = default;
 };
 
 template<LZ_CONCEPT_ITERATOR Iterator>
-class TakeEvery<Iterator, false> final : public detail::BasicIteratorView<detail::TakeEveryIterator<Iterator, false>> {
+class TakeEvery<Iterator, false> final : public detail::BasicIterable<detail::TakeEveryIterator<Iterator, false>> {
 public:
     using iterator = detail::TakeEveryIterator<Iterator, false>;
     using const_iterator = iterator;
@@ -41,7 +41,7 @@ public:
 public:
     LZ_CONSTEXPR_CXX_20
     TakeEvery(Iterator begin, Iterator end, const DiffType<Iterator> offset) :
-        detail::BasicIteratorView<iterator>(iterator(begin, end, offset), iterator(end, end, offset)) {
+        detail::BasicIterable<iterator>(iterator(begin, end, offset), iterator(end, end, offset)) {
     }
 
     constexpr TakeEvery() = default;

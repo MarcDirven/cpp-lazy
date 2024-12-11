@@ -4,7 +4,7 @@
 #define LZ_GROUP_BY_ITERATOR_HPP
 
 #include "Lz/IterBase.hpp"
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 #include "Lz/detail/FunctionContainer.hpp"
 #include "Lz/detail/Traits.hpp"
@@ -16,15 +16,15 @@ namespace detail {
 #ifdef LZ_HAS_EXECUTION
 template<class Iterator, class Comparer, class Execution>
 class GroupByIterator
-    : public IterBase<GroupByIterator<Iterator, Comparer, Execution>, std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>,
-                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>>, std::ptrdiff_t,
+    : public IterBase<GroupByIterator<Iterator, Comparer, Execution>, std::pair<RefType<Iterator>, BasicIterable<Iterator>>,
+                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIterable<Iterator>>>, std::ptrdiff_t,
                       std::forward_iterator_tag> {
 #else  // ^^ LZ_HAS_EXECUTION vv !LZ_HAS_EXECUTION
 
 template<class Iterator, class Comparer>
 class GroupByIterator
-    : public IterBase<GroupByIterator<Iterator, Comparer>, std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>,
-                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIteratorView<Iterator>>>, std::ptrdiff_t,
+    : public IterBase<GroupByIterator<Iterator, Comparer>, std::pair<RefType<Iterator>, BasicIterable<Iterator>>,
+                      FakePointerProxy<std::pair<RefType<Iterator>, BasicIterable<Iterator>>>, std::ptrdiff_t,
                       std::forward_iterator_tag> {
 #endif // end LZ_HAS_EXECUTION
 
@@ -63,8 +63,8 @@ class GroupByIterator
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::pair<Decay<Ref>, BasicIteratorView<Iterator>>;
-    using reference = std::pair<Ref, BasicIteratorView<Iterator>>;
+    using value_type = std::pair<Decay<Ref>, BasicIterable<Iterator>>;
+    using reference = std::pair<Ref, BasicIterable<Iterator>>;
     using pointer = FakePointerProxy<reference>;
     using difference_type = std::ptrdiff_t;
 

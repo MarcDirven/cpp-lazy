@@ -3,7 +3,7 @@
 #ifndef LZ_TAKE_HPP
 #define LZ_TAKE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/TakeNIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class TakeN : public detail::BasicIteratorView<detail::TakeNIterator<Iterator, S>,
+class TakeN : public detail::BasicIterable<detail::TakeNIterator<Iterator, S>,
                                                typename detail::TakeNIterator<Iterator, S>::Sentinel> {
 
 public:
@@ -23,11 +23,11 @@ private:
     using TakeNSent = TakeNSentinel<typename iterator::difference_type>;
     template<class IterCat>
     LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, IterCat /*unused*/) :
-        detail::BasicIteratorView<iterator, TakeNSent>(iterator(begin, 0), TakeNSent{ n }) {
+        detail::BasicIterable<iterator, TakeNSent>(iterator(begin, 0), TakeNSent{ n }) {
     }
 
     LZ_CONSTEXPR_CXX_20 TakeN(Iterator begin, typename iterator::difference_type n, std::random_access_iterator_tag /*unused*/) :
-        detail::BasicIteratorView<iterator>(iterator(begin, 0), iterator(begin + n, n)) {
+        detail::BasicIterable<iterator>(iterator(begin, 0), iterator(begin + n, n)) {
     }
 
 public:
@@ -63,10 +63,10 @@ take(Iterable&& iterable, const DiffTypeIterable<Iterable> n) {
  * @brief Drops the first `n` elements from the iterable.
  * @param iterable The iterable to drop elements from.
  * @param n The amount of elements to drop.
- * @return A BasicIteratorView containing the iterable with the first `n` elements dropped.
+ * @return A BasicIterable containing the iterable with the first `n` elements dropped.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::BasicIteratorView<IterT<Iterable>, SentinelT<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 detail::BasicIterable<IterT<Iterable>, SentinelT<Iterable>>
 drop(Iterable&& iterable, const DiffTypeIterable<Iterable> n) {
     auto next = std::next(std::begin(iterable), n);
     return { std::move(next), detail::end(std::forward<Iterable>(iterable)) };

@@ -3,7 +3,7 @@
 #ifndef LZ_ZIP_HPP
 #define LZ_ZIP_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/ZipIterator.hpp"
 
 namespace lz {
@@ -23,7 +23,7 @@ Tuple createEndSmallestIterator(const Tuple& begin, Tuple end, IndexSequence<Is.
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-class Zip final : public detail::BasicIteratorView<detail::ZipIterator<Iterators...>> {
+class Zip final : public detail::BasicIterable<detail::ZipIterator<Iterators...>> {
 public:
     using iterator = detail::ZipIterator<Iterators...>;
     using const_iterator = iterator;
@@ -31,7 +31,7 @@ public:
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20 Zip(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
+        detail::BasicIterable<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 
     constexpr Zip() = default;

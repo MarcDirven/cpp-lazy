@@ -3,7 +3,7 @@
 #ifndef LZ_ENUMERATE_HPP
 #define LZ_ENUMERATE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/EnumerateIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_INTEGRAL IntType>
-class Enumerate final : public detail::BasicIteratorView<detail::EnumerateIterator<Iterator, S, IntType>,
+class Enumerate final : public detail::BasicIterable<detail::EnumerateIterator<Iterator, S, IntType>,
                                                          typename detail::EnumerateIterator<Iterator, S, IntType>::Sentinel> {
 
 public:
@@ -25,12 +25,12 @@ public:
 private:
     LZ_CONSTEXPR_CXX_20
     Enumerate(Iterator begin, Iterator end, std::random_access_iterator_tag /* unused */, const IntType start = 0) :
-        detail::BasicIteratorView<iterator, iterator>(iterator(start, begin),
+        detail::BasicIterable<iterator, iterator>(iterator(start, begin),
                                                       iterator(static_cast<IntType>(detail::sizeHint(begin, end)), end)) {
     }
 
     LZ_CONSTEXPR_CXX_20 Enumerate(Iterator begin, S end, std::forward_iterator_tag /* unused */, const IntType start = 0) :
-        detail::BasicIteratorView<iterator, S>(iterator(start, std::move(begin)), std::move(end)) {
+        detail::BasicIterable<iterator, S>(iterator(start, std::move(begin)), std::move(end)) {
     }
 
 public:

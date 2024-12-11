@@ -3,7 +3,7 @@
 #ifndef LZ_EXCLUDE_HPP
 #define LZ_EXCLUDE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/ExcludeIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class Exclude final : public detail::BasicIteratorView<detail::ExcludeIterator<Iterator, S>, S> {
+class Exclude final : public detail::BasicIterable<detail::ExcludeIterator<Iterator, S>, S> {
 public:
     using iterator = detail::ExcludeIterator<Iterator, S>;
     using const_iterator = iterator;
@@ -20,7 +20,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20
     Exclude(Iterator begin, S end, const DiffType<Iterator> from, const DiffType<Iterator> to) :
-        detail::BasicIteratorView<iterator, S>(iterator(begin, end, from, to), std::move(end)) {
+        detail::BasicIterable<iterator, S>(iterator(begin, end, from, to), std::move(end)) {
     }
 };
 

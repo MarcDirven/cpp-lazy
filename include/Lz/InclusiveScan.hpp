@@ -3,14 +3,14 @@
 #ifndef LZ_INCLUSIVE_SCAN_HPP
 #define LZ_INCLUSIVE_SCAN_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/InclusiveScanIterator.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class T, class BinaryOp>
-class InclusiveScan final : public detail::BasicIteratorView<detail::InclusiveScanIterator<Iterator, T, BinaryOp>> {
+class InclusiveScan final : public detail::BasicIterable<detail::InclusiveScanIterator<Iterator, T, BinaryOp>> {
 public:
     using iterator = detail::InclusiveScanIterator<Iterator, T, BinaryOp>;
     using const_iterator = iterator;
@@ -18,7 +18,7 @@ public:
     constexpr InclusiveScan() = default;
 
     LZ_CONSTEXPR_CXX_14 InclusiveScan(Iterator first, Iterator last, T init, BinaryOp binaryOp) :
-        detail::BasicIteratorView<iterator>(iterator(first, last, init, binaryOp), iterator(last, last, init, binaryOp)) {
+        detail::BasicIterable<iterator>(iterator(first, last, init, binaryOp), iterator(last, last, init, binaryOp)) {
     }
 };
 

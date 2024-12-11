@@ -3,7 +3,7 @@
 #ifndef LZ_CARTESIAN_PRODUCT_HPP
 #define LZ_CARTESIAN_PRODUCT_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/CartesianProductIterator.hpp"
 
 namespace lz {
@@ -12,18 +12,18 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class IterTuple, class SentinelTuple>
 class CartesianProduct final
-    : public detail::BasicIteratorView<detail::CartesianProductIterator<IterTuple, SentinelTuple>,
+    : public detail::BasicIterable<detail::CartesianProductIterator<IterTuple, SentinelTuple>,
                                        typename detail::CartesianProductIterator<IterTuple, SentinelTuple>::Sentinel> {
 
     using Sentinel = typename detail::CartesianProductIterator<IterTuple, SentinelTuple>::Sentinel;
 
     LZ_CONSTEXPR_CXX_20
     CartesianProduct(IterTuple begin, SentinelTuple end, std::forward_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator, Sentinel>(iterator(begin, begin, end)) {
+        detail::BasicIterable<iterator, Sentinel>(iterator(begin, begin, end)) {
     }
 
     LZ_CONSTEXPR_CXX_20 CartesianProduct(IterTuple begin, SentinelTuple end, std::bidirectional_iterator_tag /* unused */) :
-        detail::BasicIteratorView<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
+        detail::BasicIterable<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 
 public:

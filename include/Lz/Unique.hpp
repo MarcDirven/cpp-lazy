@@ -3,7 +3,7 @@
 #ifndef LZ_UNIQUE_HPP
 #define LZ_UNIQUE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/UniqueIterator.hpp"
 
 namespace lz {
@@ -12,10 +12,10 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #ifdef LZ_HAS_EXECUTION
 template<class Execution, LZ_CONCEPT_ITERATOR Iterator, class Compare>
-class Unique final : public detail::BasicIteratorView<detail::UniqueIterator<Execution, Iterator, Compare>> {
+class Unique final : public detail::BasicIterable<detail::UniqueIterator<Execution, Iterator, Compare>> {
 #else
 template<LZ_CONCEPT_ITERATOR Iterator, class Compare>
-class Unique final : public detail::BasicIteratorView<detail::UniqueIterator<Iterator, Compare>> {
+class Unique final : public detail::BasicIterable<detail::UniqueIterator<Iterator, Compare>> {
 #endif
 public:
 #ifdef LZ_HAS_EXECUTION
@@ -28,11 +28,11 @@ public:
 
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 Unique(Iterator begin, Iterator end, Compare compare, Execution e) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
+        detail::BasicIterable<iterator>(iterator(std::move(begin), end, compare, e), iterator(end, end, compare, e)) {
     }
 #else
     Unique(Iterator begin, Iterator end, Compare compare) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
+        detail::BasicIterable<iterator>(iterator(std::move(begin), end, compare), iterator(end, end, compare)) {
     }
 #endif
 

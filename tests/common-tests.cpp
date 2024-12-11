@@ -13,6 +13,8 @@ TEST_CASE("Basic CommonView test") {
 TEST_CASE("CommonView binary operations", "[CommonView][Binary ops]") {
     const char* a = "hello ";
     auto cStringView = lz::cString(a);
+    cStringView.begin() == lz::DefaultSentinel{};
+    lz::DefaultSentinel{} == cStringView.begin();   
     auto common = lz::common(cStringView);
 
     auto begin = common.begin();

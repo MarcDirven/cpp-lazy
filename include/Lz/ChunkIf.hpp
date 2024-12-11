@@ -10,7 +10,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S, class UnaryPredicate>
-class ChunkIf final : public detail::BasicIteratorView<detail::ChunkIfIterator<Iterator, S, UnaryPredicate>, DefaultSentinel> {
+class ChunkIf final : public detail::BasicIterable<detail::ChunkIfIterator<Iterator, S, UnaryPredicate>, DefaultSentinel> {
 public:
     using iterator = detail::ChunkIfIterator<Iterator, S, UnaryPredicate>;
     using const_iterator = iterator;
@@ -19,7 +19,7 @@ public:
     constexpr ChunkIf() = default;
 
     ChunkIf(Iterator begin, S end, UnaryPredicate predicate) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(iterator(std::move(begin), std::move(end), std::move(predicate))) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(std::move(begin), std::move(end), std::move(predicate))) {
     }
 };
 

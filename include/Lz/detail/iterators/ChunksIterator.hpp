@@ -4,7 +4,7 @@
 #define LZ_CHUNKS_ITERATOR_HPP
 
 #include "Lz/IterBase.hpp"
-#include "Lz/detail/BasicIteratorView.hpp"
+#include "Lz/detail/BasicIterable.hpp"
 #include "Lz/detail/FakePointerProxy.hpp"
 
 #include <cmath>
@@ -15,13 +15,13 @@ namespace detail {
 template<class Iterator, class S>
 /* Forward iterator */
 class ChunksIterator
-    : public IterBase<ChunksIterator<Iterator, S>, BasicIteratorView<Iterator>, FakePointerProxy<BasicIteratorView<Iterator>>,
+    : public IterBase<ChunksIterator<Iterator, S>, BasicIterable<Iterator>, FakePointerProxy<BasicIterable<Iterator>>,
                       DiffType<Iterator>, IterCat<Iterator>, DefaultSentinel> {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = BasicIteratorView<Iterator>;
+    using value_type = BasicIterable<Iterator>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
     using difference_type = typename IterTraits::difference_type;
@@ -76,14 +76,14 @@ public:
 
 template<class Iterator>
 class ChunksIterator<Iterator, Iterator /* Bidirectional or higher */>
-    : public IterBase<ChunksIterator<Iterator, Iterator>, BasicIteratorView<Iterator>,
-                      FakePointerProxy<BasicIteratorView<Iterator>>, DiffType<Iterator>, IterCat<Iterator>> {
+    : public IterBase<ChunksIterator<Iterator, Iterator>, BasicIterable<Iterator>,
+                      FakePointerProxy<BasicIterable<Iterator>>, DiffType<Iterator>, IterCat<Iterator>> {
 
     using IterTraits = std::iterator_traits<Iterator>;
 
 public:
     using iterator_category = typename IterTraits::iterator_category;
-    using value_type = BasicIteratorView<Iterator>;
+    using value_type = BasicIterable<Iterator>;
     using reference = value_type;
     using pointer = FakePointerProxy<value_type>;
     using difference_type = typename IterTraits::difference_type;

@@ -83,7 +83,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<IterT<Strings>> unlines(Strings&& strings)
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<std::reverse_iterator<Iterator>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<std::reverse_iterator<Iterator>>
 reverse(Iterator begin, Iterator end) {
 #ifndef LZ_HAS_CONCEPTS
     static_assert(detail::IsBidirectional<Iterator>::value, "the type of the iterator must be bidirectional or stronger");
@@ -99,7 +99,7 @@ reverse(Iterator begin, Iterator end) {
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<std::reverse_iterator<IterT<Iterable>>> reverse(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<std::reverse_iterator<IterT<Iterable>>> reverse(Iterable&& iterable) {
     // ADL std::reverse
     return lz::reverse(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)));
 }
@@ -263,7 +263,7 @@ auto select(Iterable&& iterable, SelectorIterable&& selectors)
  * @return An iterator view object.
  */
 template<class Iterator, class UnaryPredicateFirst, class UnaryPredicateLast>
-detail::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<Iterator>>>
+detail::BasicIterable<std::reverse_iterator<std::reverse_iterator<Iterator>>>
 trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast last) {
     auto takenFirst = lz::dropWhileRange(std::move(begin), std::move(end), std::move(first));
     auto takenLast = lz::dropWhile(lz::reverse(std::move(takenFirst)), std::move(last));
@@ -279,7 +279,7 @@ trim(Iterator begin, Iterator end, UnaryPredicateFirst first, UnaryPredicateLast
  * @return An iterator view object.
  */
 template<class Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-detail::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<IterT<Iterable>>>>
+detail::BasicIterable<std::reverse_iterator<std::reverse_iterator<IterT<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
     return lz::trim(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                     std::move(first), std::move(last));
@@ -292,7 +292,7 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
  * @return The string, with trimmed spaces/tabs/newlines at the front and end.
  */
 LZ_NODISCARD
-LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
+LZ_CONSTEXPR_CXX_20 detail::BasicIterable<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
 trimString(std::string::const_iterator begin, std::string::const_iterator end) {
     const auto isSpaceFn = [](const char c) {
         return static_cast<bool>(std::isspace(static_cast<unsigned char>(c)));
@@ -306,7 +306,7 @@ trimString(std::string::const_iterator begin, std::string::const_iterator end) {
  * @return The string, with trimmed spaces/tabs/newlines at the front and end.
  */
 LZ_NODISCARD
-LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
+LZ_CONSTEXPR_CXX_20 detail::BasicIterable<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
 trimString(const std::string& s) {
     return lz::trimString(s.begin(), s.end());
 }

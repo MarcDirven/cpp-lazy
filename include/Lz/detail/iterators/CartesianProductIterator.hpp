@@ -108,7 +108,7 @@ private:
         }
 
         if (prev == std::get<I - 1>(_end)) {
-            if constexpr (I != 1) {
+            if (I != 1) {
                 prev = std::get<I - 1>(_begin);
                 next<I - 1>();
             }

@@ -3,7 +3,7 @@
 #ifndef LZ_GENERATE_WHILE_HPP
 #define LZ_GENERATE_WHILE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/GenerateWhileIterator.hpp"
 
 namespace lz {
@@ -11,7 +11,7 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class GeneratorFunc, class... Args>
-class GenerateWhile final : public detail::BasicIteratorView<detail::GenerateWhileIterator<GeneratorFunc, Args...>> {
+class GenerateWhile final : public detail::BasicIterable<detail::GenerateWhileIterator<GeneratorFunc, Args...>> {
 public:
     using iterator = detail::GenerateWhileIterator<GeneratorFunc, Args...>;
     using const_iterator = iterator;
@@ -19,7 +19,7 @@ public:
 
     template<class P>
     constexpr GenerateWhile(GeneratorFunc func, std::tuple<Args...> tuple, P&& p) :
-        detail::BasicIteratorView<iterator>(iterator(func, tuple, false, p), iterator(func, tuple, true, p)) {
+        detail::BasicIterable<iterator>(iterator(func, tuple, false, p), iterator(func, tuple, true, p)) {
     }
 
     constexpr GenerateWhile() = default;

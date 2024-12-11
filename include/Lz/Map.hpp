@@ -3,7 +3,7 @@
 #ifndef LZ_MAP_HPP
 #define LZ_MAP_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/MapIterator.hpp"
 
 namespace lz {
@@ -11,14 +11,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class Function>
-class Map final : public detail::BasicIteratorView<detail::MapIterator<Iterator, Function>> {
+class Map final : public detail::BasicIterable<detail::MapIterator<Iterator, Function>> {
 public:
     using iterator = detail::MapIterator<Iterator, Function>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20 Map(Iterator begin, Iterator end, Function function) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
+        detail::BasicIterable<iterator>(iterator(std::move(begin), function), iterator(std::move(end), function)) {
     }
 
     constexpr Map() = default;

@@ -25,7 +25,7 @@ struct PlusPlus {
 };
 
 template<class Tuple, class SentinelTuple, std::size_t I>
-struct PlusPlus<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value>> {
+struct PlusPlus<Tuple, SentinelTuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value>> {
     LZ_CONSTEXPR_CXX_20 void operator()(const Tuple& /*iterators*/, const SentinelTuple& /*end*/) const {
     }
 };
@@ -39,7 +39,7 @@ struct NotEqual {
 };
 
 template<class Tuple, class SentinelTuple, std::size_t I>
-struct NotEqual<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
+struct NotEqual<Tuple, SentinelTuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
     LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const SentinelTuple& end) const noexcept {
         return std::get<I>(iterators) != std::get<I>(end);
     }
@@ -54,9 +54,9 @@ struct Deref {
     }
 };
 
-template<class Tuple, std::size_t I>
-struct Deref<Tuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const Tuple&) const -> decltype(*std::get<I>(iterators)) {
+template<class Tuple, class SentinelTuple, std::size_t I>
+struct Deref<Tuple, SentinelTuple, I, EnableIf<I == std::tuple_size<Decay<Tuple>>::value - 1>> {
+    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const SentinelTuple&) const -> decltype(*std::get<I>(iterators)) {
         return *std::get<I>(iterators);
     }
 };

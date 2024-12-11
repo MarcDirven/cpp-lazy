@@ -3,7 +3,7 @@
 #ifndef LZ_JOIN_WHERE_HPP
 #define LZ_JOIN_WHERE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/JoinWhereIterator.hpp"
 
 namespace lz {
@@ -13,14 +13,14 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 #ifdef LZ_HAS_EXECUTION
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector, class Execution>
 class JoinWhere final
-    : public detail::BasicIteratorView<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>> {
+    : public detail::BasicIterable<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>> {
 
 public:
     using iterator = detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector, Execution>;
 #else
 template<class IterA, class IterB, class SelectorA, class SelectorB, class ResultSelector>
 class JoinWhere final
-    : public detail::BasicIteratorView<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
+    : public detail::BasicIterable<detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>> {
     using iterator = detail::JoinWhereIterator<IterA, IterB, SelectorA, SelectorB, ResultSelector>;
 #endif
 public:
@@ -31,14 +31,14 @@ public:
 #ifdef LZ_HAS_EXECUTION
     LZ_CONSTEXPR_CXX_20 JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b,
                                   ResultSelector resultSelector, Execution execution) :
-        detail::BasicIteratorView<iterator>(
+        detail::BasicIterable<iterator>(
             iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector, execution),
             iterator(endA, endA, endB, endB, a, b, resultSelector, execution)) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
     JoinWhere(IterA iterA, IterA endA, IterB iterB, IterB endB, SelectorA a, SelectorB b, ResultSelector resultSelector) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
+        detail::BasicIterable<iterator>(iterator(std::move(iterA), endA, std::move(iterB), endB, a, b, resultSelector),
                                             iterator(endA, endA, endB, endB, a, b, resultSelector)) {
     }
 #endif // LZ_HAS_EXECUTION

@@ -120,7 +120,7 @@ template<class T>
 struct HasReserve<T, decltype((void)std::declval<T&>().reserve(1), 0)> : std::true_type {};
 
 template<class It, class S = It>
-class BasicIteratorView {
+class BasicIterable {
 protected:
     It _begin{};
     S _end{};
@@ -188,24 +188,24 @@ public:
     }
 #endif // LZ_HAS_REF_QUALIFIER
 
-    constexpr BasicIteratorView() = default;
+    constexpr BasicIterable() = default;
 
-    constexpr BasicIteratorView(It&& begin, S&& end) noexcept : _begin(std::move(begin)), _end(std::move(end)) {
+    constexpr BasicIterable(It&& begin, S&& end) noexcept : _begin(std::move(begin)), _end(std::move(end)) {
     }
 
-    constexpr BasicIteratorView(It&& begin, const S& end) noexcept : _begin(std::move(begin)), _end(end) {
+    constexpr BasicIterable(It&& begin, const S& end) noexcept : _begin(std::move(begin)), _end(end) {
     }
 
-    constexpr BasicIteratorView(const It& begin, S&& end) noexcept : _begin(begin), _end(std::move(end)) {
+    constexpr BasicIterable(const It& begin, S&& end) noexcept : _begin(begin), _end(std::move(end)) {
     }
 
-    constexpr BasicIteratorView(const It& begin, const S& end) noexcept : _begin(begin), _end(end) {
+    constexpr BasicIterable(const It& begin, const S& end) noexcept : _begin(begin), _end(end) {
     }
 
-    constexpr BasicIteratorView(const It& begin) noexcept : _begin(begin) {
+    constexpr BasicIterable(const It& begin) noexcept : _begin(begin) {
     }
 
-    constexpr BasicIteratorView(It&& begin) noexcept : _begin(std::move(begin)) {
+    constexpr BasicIterable(It&& begin) noexcept : _begin(std::move(begin)) {
     }
 
     /**
@@ -336,7 +336,7 @@ public:
      * @param it The iterator to print.
      * @return The stream object by reference.
      */
-    friend std::ostream& operator<<(std::ostream& o, const BasicIteratorView<It, S>& it) {
+    friend std::ostream& operator<<(std::ostream& o, const BasicIterable<It, S>& it) {
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
         stringify(it, std::ostream_iterator<value_type>(o), ", ", "{}");
 #else
@@ -389,10 +389,10 @@ public:
 #if defined(LZ_HAS_FORMAT) && defined(LZ_STANDALONE)
 template<class Iterable>
 struct std::formatter<Iterable,
-                      lz::detail::EnableIf< // Enable if Iterable is base of BasicIteratorView
-                          std::is_base_of<lz::detail::BasicIteratorView<lz::IterT<Iterable>>, Iterable>::value, char>>
+                      lz::detail::EnableIf< // Enable if Iterable is base of BasicIterable
+                          std::is_base_of<lz::detail::BasicIterable<lz::IterT<Iterable>>, Iterable>::value, char>>
     : std::formatter<std::string> {
-    using InnerIter = lz::detail::BasicIteratorView<lz::IterT<Iterable>>;
+    using InnerIter = lz::detail::BasicIterable<lz::IterT<Iterable>>;
 
     template<class FormatCtx>
     auto format(const InnerIter& it, FormatCtx& ctx) const -> decltype(ctx.out()) {
@@ -402,7 +402,7 @@ struct std::formatter<Iterable,
 #elif !defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterable>
 struct fmt::formatter<
-    Iterable, lz::detail::EnableIf<std::is_base_of<lz::detail::BasicIteratorView<lz::IterT<Iterable>>, Iterable>::value, char>>
+    Iterable, lz::detail::EnableIf<std::is_base_of<lz::detail::BasicIterable<lz::IterT<Iterable>>, Iterable>::value, char>>
     : fmt::ostream_formatter {};
 #endif
 

@@ -43,21 +43,21 @@ public:
     }
 
     template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator==(const Derived& a, const Sentinel& b) {
-        return a.eq(b);
-    }
-
-    friend bool operator==(const Derived& a, const Derived& b) {
-        return a.eq(b);
-    }
-
-    friend bool operator!=(const Derived& a, const Sentinel& b) {
-        return !(a == b);
+    bool operator==(const Sentinel& b) const {
+        return static_cast<const Derived&>(*this).eq(b);
     }
 
     template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator!=(const Derived& a, const Sentinel& b) {
-        return !(a == b);
+    bool operator!=(const Sentinel& b) const {
+        return !(*this == b);
+    }
+
+    bool operator==(const Derived& b) const {
+        return static_cast<const Derived&>(*this).eq(b);
+    }
+
+    bool operator!=(const Derived& b) const {
+        return !(*this == b);
     }
 };
 

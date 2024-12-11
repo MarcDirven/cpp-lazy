@@ -3,7 +3,7 @@
 #ifndef LZ_EXCLUSIVE_SCAN_HPP
 #define LZ_EXCLUSIVE_SCAN_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/Traits.hpp"
 #include "detail/iterators/ExclusiveScanIterator.hpp"
 
@@ -12,7 +12,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S, class T, class BinaryOp>
 class ExclusiveScan final
-    : public detail::BasicIteratorView<detail::ExclusiveScanIterator<Iterator, S, T, BinaryOp>, DefaultSentinel> {
+    : public detail::BasicIterable<detail::ExclusiveScanIterator<Iterator, S, T, BinaryOp>, DefaultSentinel> {
 public:
     using iterator = detail::ExclusiveScanIterator<Iterator, S, T, BinaryOp>;
     using const_iterator = iterator;
@@ -20,7 +20,7 @@ public:
     constexpr ExclusiveScan() = default;
 
     LZ_CONSTEXPR_CXX_14 ExclusiveScan(Iterator first, S last, T init, BinaryOp binaryOp) :
-        detail::BasicIteratorView<iterator, DefaultSentinel>(
+        detail::BasicIterable<iterator, DefaultSentinel>(
             iterator(std::move(first), std::move(last), std::move(init), std::move(binaryOp))) {
     }
 };

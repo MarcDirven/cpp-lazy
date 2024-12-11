@@ -1,7 +1,7 @@
 #ifndef LZ_FLATTEN_HPP
 #define LZ_FLATTEN_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/FlattenIterator.hpp"
 
 namespace lz {
@@ -9,14 +9,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S, int Dims>
-class Flatten final : public detail::BasicIteratorView<detail::FlattenIterator<Iterator, S, Dims>> {
+class Flatten final : public detail::BasicIterable<detail::FlattenIterator<Iterator, S, Dims>> {
 public:
     using iterator = detail::FlattenIterator<Iterator, S, Dims>;
     using const_iterator = iterator;
     using value_type = typename detail::FlattenIterator<Iterator, S, 0>::value_type;
 
 private:
-    using Base = detail::BasicIteratorView<iterator>;
+    using Base = detail::BasicIterable<iterator>;
 
 public:
     constexpr Flatten() = default;

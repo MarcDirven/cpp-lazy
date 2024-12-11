@@ -3,14 +3,14 @@
 #ifndef LZ_TAKE_WHILE_HPP
 #define LZ_TAKE_WHILE_HPP
 
-#include "detail/BasicIteratorView.hpp"
+#include "detail/BasicIterable.hpp"
 #include "detail/iterators/TakeWhileIterator.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class UnaryPredicate>
-class TakeWhile : public detail::BasicIteratorView<detail::TakeWhileIterator<Iterator, UnaryPredicate>> {
+class TakeWhile : public detail::BasicIterable<detail::TakeWhileIterator<Iterator, UnaryPredicate>> {
 public:
     using iterator = detail::TakeWhileIterator<Iterator, UnaryPredicate>;
     using const_iterator = iterator;
@@ -19,7 +19,7 @@ public:
     constexpr TakeWhile() = default;
 
     constexpr TakeWhile(Iterator begin, Iterator end, UnaryPredicate predicate) :
-        detail::BasicIteratorView<iterator>(iterator(std::move(begin), end, predicate), iterator(end, end, predicate)) {
+        detail::BasicIterable<iterator>(iterator(std::move(begin), end, predicate), iterator(end, end, predicate)) {
     }
 };
 
@@ -67,7 +67,7 @@ takeWhile(Iterable&& iterable, UnaryPredicate predicate) {
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<Iterator>
 dropWhileRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution execution = std::execution::seq) {
     if constexpr (detail::isCompatibleForExecution<Execution, Iterator>()) {
         static_cast<void>(execution);
@@ -89,7 +89,7 @@ dropWhileRange(Iterator begin, Iterator end, UnaryPredicate predicate, Execution
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate, class Execution = std::execution::sequenced_policy>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<IterT<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<IterT<Iterable>>
 dropWhile(Iterable&& iterable, UnaryPredicate predicate, Execution execution = std::execution::seq) {
     return dropWhileRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                           std::move(predicate), execution);
@@ -106,7 +106,7 @@ dropWhile(Iterable&& iterable, UnaryPredicate predicate, Execution execution = s
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class UnaryPredicate>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<Iterator>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<Iterator>
 dropWhileRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
     begin = std::find_if_not(std::move(begin), end, std::move(predicate));
     return { std::move(begin), std::move(end) };
@@ -121,7 +121,7 @@ dropWhileRange(Iterator begin, Iterator end, UnaryPredicate predicate) {
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIteratorView<IterT<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::BasicIterable<IterT<Iterable>>
 dropWhile(Iterable&& iterable, UnaryPredicate predicate) {
     return dropWhileRange(detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
                           std::move(predicate));
