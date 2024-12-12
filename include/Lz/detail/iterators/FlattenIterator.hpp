@@ -154,15 +154,17 @@ public:
 template<class, class, int>
 class FlattenIterator;
 
-template<class Iterator, class S, int N>
-using Inner = FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), decltype(std::begin(*std::declval<S>())), N - 1>;
+template<class Iterator, int N>
+using Inner =
+    FlattenIterator<decltype(std::begin(*std::declval<Iterator>())), decltype(std::end(*std::declval<Iterator>())), N - 1>;
 
 template<class Iterator, class S, int N>
-class FlattenIterator : public IterBase<FlattenIterator<Iterator, S, N>, RefType<Inner<Iterator, S, N>>,
-                                        FakePointerProxy<RefType<Inner<Iterator, S, N>>>, DiffType<Inner<Iterator, S, N>>,
-                                        CommonType<std::bidirectional_iterator_tag, IterCat<Iterator>>> {
+class FlattenIterator
+    : public IterBase<FlattenIterator<Iterator, S, N>, RefType<Inner<Iterator, N>>, FakePointerProxy<RefType<Inner<Iterator, N>>>,
+                      DiffType<Inner<Iterator, N>>, CommonType<std::bidirectional_iterator_tag, IterCat<Inner<Iterator, N>>>,
+                      SentinelSelector<IterCat<Inner<Iterator, N>>, FlattenIterator<Iterator, S, N>>> {
 
-    using ThisInner = Inner<Iterator, S, N>;
+    using ThisInner = Inner<Iterator, N>;
 
 public:
     using reference = typename ThisInner::reference;
@@ -177,7 +179,7 @@ private:
         }
         for (++_outerIter; _outerIter.hasSome(); ++_outerIter) {
             const auto begin = std::begin(*_outerIter);
-            _innerIter = { begin, begin, std::end(*_outerIter) };
+            _innerIter = ThisInner(begin, begin, std::end(*_outerIter));
             if (_innerIter.hasSome()) {
                 return;
             }
@@ -195,7 +197,7 @@ public:
         _outerIter(std::move(it), std::move(begin), std::move(end)) {
         if (_outerIter.hasSome()) {
             const auto beg = std::begin(*_outerIter);
-            _innerIter = { beg, beg, std::end(*_outerIter) };
+            _innerIter = ThisInner(beg, beg, std::end(*_outerIter));
             this->advance();
         }
     }
@@ -213,7 +215,7 @@ public:
     }
 
     LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
-        return _outerIter.hasSome() && _innerIter.hasSome();
+        return !hasSome();
     }
 
     LZ_CONSTEXPR_CXX_20 reference dereference() const {
@@ -237,7 +239,7 @@ public:
         while (_outerIter.hasPrev()) {
             --_outerIter;
             const auto end = std::end(*_outerIter);
-            _innerIter = { end, std::begin(*_outerIter), end };
+            _innerIter = ThisInner(end, std::begin(*_outerIter), end);
             if (_innerIter.hasPrev()) {
                 --_innerIter;
                 return;
@@ -251,7 +253,7 @@ class FlattenIterator<Iterator, S, 0>
     : public IterBase<FlattenIterator<Iterator, S, 0>, RefType<FlattenWrapper<Iterator, S>>,
                       FakePointerProxy<RefType<FlattenWrapper<Iterator, S>>>, DiffType<FlattenWrapper<Iterator, S>>,
                       CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator, S>>>,
-                      SentinelSelector<CommonType<std::bidirectional_iterator_tag, IterCat<FlattenWrapper<Iterator, S>>>,
+                      SentinelSelector<CommonType<IterCat<FlattenWrapper<Iterator, S>>, std::bidirectional_iterator_tag>,
                                        FlattenIterator<Iterator, S, 0>>> {
 
     FlattenWrapper<Iterator, S> _range;
@@ -265,7 +267,7 @@ public:
 
     constexpr FlattenIterator() = default;
 
-    constexpr FlattenIterator(Iterator it, S begin, Iterator end) : _range(std::move(it), std::move(begin), std::move(end)) {
+    constexpr FlattenIterator(Iterator it, Iterator begin, S end) : _range(std::move(it), std::move(begin), std::move(end)) {
     }
 
     LZ_CONSTEXPR_CXX_20 bool hasPrev() const noexcept {
@@ -289,7 +291,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(DefaultSentinel) const noexcept {
-        return _range.hasSome();
+        return !hasSome();
     }
 
     LZ_CONSTEXPR_CXX_20 void increment() {

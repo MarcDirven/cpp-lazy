@@ -9,19 +9,27 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S, int Dims>
-class Flatten final : public detail::BasicIterable<detail::FlattenIterator<Iterator, S, Dims>> {
+class Flatten final : public detail::BasicIterable<detail::FlattenIterator<Iterator, S, Dims>,
+                                                   typename detail::FlattenIterator<Iterator, S, Dims>::Sentinel> {
 public:
     using iterator = detail::FlattenIterator<Iterator, S, Dims>;
     using const_iterator = iterator;
     using value_type = typename detail::FlattenIterator<Iterator, S, 0>::value_type;
 
 private:
-    using Base = detail::BasicIterable<iterator>;
+    using Base = detail::BasicIterable<iterator, typename iterator::Sentinel>;
+
+    LZ_CONSTEXPR_CXX_20 Flatten(Iterator begin, S end, std::forward_iterator_tag) : Base(iterator(begin, begin, end)) {
+    }
+
+    LZ_CONSTEXPR_CXX_20 Flatten(Iterator begin, S end, std::bidirectional_iterator_tag) :
+        Base(iterator(begin, begin, end), iterator(end, begin, end)) {
+    }
 
 public:
     constexpr Flatten() = default;
 
-    LZ_CONSTEXPR_CXX_20 Flatten(Iterator begin, S end) : Base(iterator(begin, begin, end), iterator(end, begin, end)) {
+    LZ_CONSTEXPR_CXX_20 Flatten(Iterator begin, S end) : Flatten(std::move(begin), std::move(end), IterCat<iterator>{}) {
     }
 };
 
