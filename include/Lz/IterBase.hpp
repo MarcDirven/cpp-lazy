@@ -61,6 +61,18 @@ public:
     }
 };
 
+template<class Derived, class Reference, class Pointer, class DifferenceType, class IterCat, class S>
+detail::EnableIf<!std::is_same<S, Derived>::value, bool>
+operator==(const S& a, const IterBase<Derived, Reference, Pointer, DifferenceType, IterCat, S>& b) {
+    return b == a;
+}
+
+template<class Derived, class Reference, class Pointer, class DifferenceType, class IterCat, class S>
+detail::EnableIf<!std::is_same<S, Derived>::value, bool>
+operator!=(const S& a, const IterBase<Derived, Reference, Pointer, DifferenceType, IterCat, S>& b) {
+    return !(a == b);
+}
+
 template<class Derived, class Reference, class Pointer, class DifferenceType, class S>
 struct IterBase<Derived, Reference, Pointer, DifferenceType, std::bidirectional_iterator_tag, S>
     : public IterBase<Derived, Reference, Pointer, DifferenceType, std::forward_iterator_tag, S> {
@@ -100,11 +112,6 @@ struct IterBase<Derived, Reference, Pointer, DifferenceType, std::random_access_
         return a.difference(b);
     }
 
-    template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend DifferenceType operator-(const Derived& a, const Sentinel& b) {
-        return a.difference(b);
-    }
-
     Derived operator-(const DifferenceType n) const {
         Derived temp = static_cast<const Derived&>(*this);
         temp -= n;
@@ -120,36 +127,16 @@ struct IterBase<Derived, Reference, Pointer, DifferenceType, std::random_access_
         return *(*this + n);
     }
 
-    template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator<(const Derived& a, const Sentinel& b) {
-        return b - a > 0;
-    }
-
     friend bool operator<(const Derived& a, const Derived& b) {
         return b - a > 0;
-    }
-
-    template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator>(const Derived& a, const Sentinel& b) {
-        return b < a;
     }
 
     friend bool operator>(const Derived& a, const Derived& b) {
         return b < a;
     }
 
-    template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator<=(const Derived& a, const Sentinel& b) {
-        return !(b < a);
-    }
-
     friend bool operator<=(const Derived& a, const Derived& b) {
         return !(b < a);
-    }
-
-    template<class D = Derived, class = detail::EnableIf<!std::is_same<D, Sentinel>::value>>
-    friend bool operator>=(const Derived& a, const Sentinel& b) {
-        return !(a < b);
     }
 
     friend bool operator>=(const Derived& a, const Derived& b) {
