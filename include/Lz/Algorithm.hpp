@@ -341,18 +341,27 @@ bool containsIf(Iterable&& iterable, UnaryPredicate predicate) {
 }
 
 /**
- * @brief
+ * @brief Searches for the first element in the partitioned range [begin(iterable), end(iterable)) which is not ordered before
+ * @p value.
  *
- * @param iterable
- * @param value
- * @param predicate
- * @return IterT<Iterable>
+ * @param iterable The iterable to check
+ * @param value The value to check for
+ * @param predicate The to use when comparing the values
+ * @return Iteartor to the first element that satisfies the value or `end(iterable)` if the element is not found
  */
 template<class Iterable, class T, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, ValueTypeIterable<Iterable>)>
 IterT<Iterable> lowerBound(Iterable&& iterable, const T& value, BinaryPredicate predicate) {
     return detail::lowerBound(std::begin(iterable), std::end(iterable), value, std::move(predicate));
 }
 
+/**
+ * @brief Searches for the first occurrence of the value @p value in the range [begin(iterable), end(iterable)) using the binary
+ * search algorithm. @p iterable must be sorted beforehand.
+ * @param iterable The iterable to search in
+ * @param value The value to search for
+ * @param predicate Predicate to search the value with
+ * @return true if the value is found, false otherwise
+ */
 template<class Iterable, class T, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, ValueTypeIterable<Iterable>)>
 bool binarySearch(Iterable&& iterable, const T& value, BinaryPredicate predicate) {
     return detail::binarySearch(std::begin(iterable), std::end(iterable), value, std::move(predicate));
