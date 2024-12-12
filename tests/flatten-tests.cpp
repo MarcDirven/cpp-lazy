@@ -1,9 +1,26 @@
 #include "Lz/IterTools.hpp"
 
+#include <Lz/CString.hpp>
 #include <Lz/Flatten.hpp>
 #include <catch2/catch.hpp>
 #include <list>
-//TODO: write test with sentinels
+
+TEST_CASE("Flatten with sentinels") {
+    using CString = decltype(lz::cString(""));
+
+    std::forward_list<CString> array = { lz::cString("Hello"), lz::cString(", "), lz::cString("World"), lz::cString("!") };
+    auto flattened = lz::flatten(array);
+    auto str = flattened.to<std::string>();
+    CHECK(str == "Hello, World!");
+
+    auto flattenOne = lz::flatten(lz::cString("hello, world"));
+    CHECK(flattenOne.to<std::string>() == "hello, world");
+
+    CString arr[] = { lz::cString("Hello"), lz::cString(", "), lz::cString("World"), lz::cString("!") };
+    auto flattenedArray = lz::flatten(arr);
+    CHECK(flattenedArray.to<std::string>() == "Hello, World!");
+}
+
 TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
     SECTION("Flatten 1D") {
         std::vector<int> vec = { 1, 2, 3, 4 };
