@@ -36,12 +36,14 @@ TEST_CASE("Generate binary operations", "[Generate][Binary ops]") {
 
     SECTION("Operator++") {
         ++begin;
-        CHECK(std::distance(begin, generator.end()) == amount - 1);
+        CHECK(lz::distance(begin, generator.end()) == amount - 1);
     }
 
     SECTION("Operator== & Operator!=") {
         CHECK(begin != generator.end());
-        begin = generator.end();
+        while (begin != generator.end()) {
+            ++begin;
+        }
         CHECK(begin == generator.end());
     }
 }
