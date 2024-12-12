@@ -11,15 +11,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class GeneratorFunc, class... Args>
-class Generate final : public detail::BasicIterable<detail::GenerateIterator<GeneratorFunc, Args...>> {
+class Generate final : public detail::BasicIterable<detail::GenerateIterator<GeneratorFunc, Args...>, DefaultSentinel> {
 public:
     using iterator = detail::GenerateIterator<GeneratorFunc, Args...>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     constexpr Generate(GeneratorFunc func, const std::size_t amount, const bool isWhileTrueLoop, std::tuple<Args...> tuple) :
-        detail::BasicIterable<iterator>(iterator(0, func, isWhileTrueLoop, tuple),
-                                            iterator(amount, func, isWhileTrueLoop, tuple)) {
+        detail::BasicIterable<iterator, DefaultSentinel>(iterator(amount, std::move(func), isWhileTrueLoop, std::move(tuple))) {
     }
 
     constexpr Generate() = default;
