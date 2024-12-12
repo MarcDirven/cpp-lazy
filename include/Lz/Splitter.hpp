@@ -20,11 +20,6 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringView toStringView(const View<Iterator, S>
     return StringView(&*(view.begin()));
 }
 
-template<class Iterator, class S>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 StringView toStringView(const View<Iterator, S>& view, std::bidirectional_iterator_tag) {
-    return toStringView(view, std::forward_iterator_tag{});
-}
-
 } // namespace detail
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
