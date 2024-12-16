@@ -132,7 +132,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
 
     SECTION("To vector") {
         std::vector<int> expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        auto actual = range.toVector();
+        auto actual = range.to_vector();
 
         CHECK(expected == actual);
     }
@@ -145,7 +145,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> expected = range.toMap([](const int i) { return std::make_pair(i, i); });
+        std::map<int, int> expected = range.to_map([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> actual;
 
         for (int i : lz::range(size)) {
@@ -156,7 +156,7 @@ TEST_CASE("Range to containers", "[Range][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> expected = range.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
+        std::unordered_map<int, int> expected = range.to_unordered_map([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> actual;
 
         for (int i : lz::range(size)) {

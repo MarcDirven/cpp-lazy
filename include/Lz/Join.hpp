@@ -3,8 +3,8 @@
 #ifndef LZ_JOIN_HPP
 #define LZ_JOIN_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/JoinIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/join.hpp"
 
 // clang-format off
 #if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)
@@ -21,27 +21,27 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S>
-    class Join final : public detail::basic_iterable < detail::join_iterator<Iterator, S>,
-    typename detail::join_iterator<Iterator, S::sentinel> {
+class join_iterable final : public detail::basic_iterable<detail::join_iterator<Iterator, S>, 
+                                                          typename detail::join_iterator<Iterator, S::sentinel>> {
 
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, S end, std::string delimiter, std::forward_iterator_tag) :
+    LZ_CONSTEXPR_CXX_20 join_iterable(Iterator begin, S end, std::string delimiter, std::forward_iterator_tag) :
         detail::basic_iterable<iterator, S>(iterator(std::move(begin), std::move(delimiter), true), std::move(end)) {
     }
 
-    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, S end, std::string delimiter, std::bidirectional_iterator_tag) :
+    LZ_CONSTEXPR_CXX_20 join_iterable(Iterator begin, S end, std::string delimiter, std::bidirectional_iterator_tag) :
         detail::basic_iterable<iterator>(iterator(std::move(begin), delimiter, true),
                                          iterator(std::move(end), delimiter, false)) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
-    Join(Iterator begin, S end, std::string delimiter, std::string fmt, std::forward_iterator_tag) :
+    join_iterable(Iterator begin, S end, std::string delimiter, std::string fmt, std::forward_iterator_tag) :
         detail::basic_iterable<iterator, S>(iterator(std::move(begin), std::move(delimiter), std::move(fmt), true),
                                             std::move(end)) {
     }
 
     LZ_CONSTEXPR_CXX_20
-    Join(Iterator begin, S end, std::string delimiter, std::string fmt, std::bidirectional_iterator_tag) :
+    join_iterable(Iterator begin, S end, std::string delimiter, std::string fmt, std::bidirectional_iterator_tag) :
         detail::basic_iterable<iterator>(iterator(std::move(begin), delimiter, fmt, true),
                                          iterator(std::move(end), delimiter, fmt, false)) {
     }
@@ -53,21 +53,21 @@ public:
     using value_type = typename iterator::value_type;
 
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
-    LZ_CONSTEXPR_CXX_20 Join(Iterator begin, S end, std::string delimiter) :
-        Join(std::move(begin), std::move(end), std::move(delimiter), iter_cat<Iterator>{}) {
+    LZ_CONSTEXPR_CXX_20 join_iterable(Iterator begin, S end, std::string delimiter) :
+        join_iterable(std::move(begin), std::move(end), std::move(delimiter), iter_cat<Iterator>{}) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
-    Join(Iterator begin, S end, std::string delimiter, std::string fmt) :
-        Join(std::move(begin), std::move(end), std::move(delimiter), std::move(fmt), iter_cat<Iterator>{}) {
+    join_iterable(Iterator begin, S end, std::string delimiter, std::string fmt) :
+        join_iterable(std::move(begin), std::move(end), std::move(delimiter), std::move(fmt), iter_cat<Iterator>{}) {
     }
 #endif // has format
 
-    Join() = default;
+    join_iterable() = default;
 
-    friend std::ostream& operator<<(std::ostream& o, const Join<Iterator, S>& joinIter) {
+    friend std::ostream& operator<<(std::ostream& o, const join_iterable<Iterator, S>& joinIter) {
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
-        detail::stringify(joinIter, std::ostream_iterator<typename Join<Iterator, S>::value_type::value_type>(o), "", "{}");
+        detail::stringify(joinIter, std::ostream_iterator<typename join_iterable<Iterator, S>::value_type::value_type>(o), "", "{}");
 #else
         detail::stringify(joinIter, o, "");
 #endif
@@ -82,28 +82,28 @@ public:
 
 #if defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 /**
- * @brief Creates a Join object.
- * @note If you're going to call .to_string() on this, it is better to use `strJoin` for performance reasons.
+ * @brief Creates a join_iterable object.
+ * @note If you're going to call .to_string() on this, it is better to use `str_join` for performance reasons.
  * @details Combines the iterator values followed by the delimiter. It is evaluated in a
  * `"[value][delimiter][value][delimiter]..."`-like fashion.
  * @param iterable The iterable to join with the delimiter.
  * @param delimiter The delimiter to separate the previous and the next values in the sequence.
- * @return A Join iterator view object.
+ * @return A join_iterable iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<iter<Iterable>, sentinel<Iterable>> join(Iterable&& iterable, std::string delimiter) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter<Iterable>, sentinel<Iterable>> join(Iterable&& iterable, std::string delimiter) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::move(delimiter) };
 }
 
 /**
- * Converts a sequence to a  `std::string` without creating an iterator Join object.
+ * Converts a sequence to a  `std::string` without creating an iterator join_iterable object.
  * @param iterable The iterable to convert to string
  * @param delimiter The delimiter to separate each value from the sequence.
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-std::string strJoin(Iterable&& iterable, const char* delimiter = "") {
+std::string str_join(Iterable&& iterable, const char* delimiter = "") {
     // clang-format off
     return detail::basic_iterable<iter<Iterable>, sentinel<Iterable>>(
         detail::begin(std::forward<Iterable>(iterable)),detail::end(std::forward<Iterable>(iterable)))
@@ -114,35 +114,35 @@ std::string strJoin(Iterable&& iterable, const char* delimiter = "") {
 #else
 
 /**
- * @brief Creates a Join object.
- * @note If you're going to call .to_string() on this, it is better to use `strJoin` for performance reasons.
+ * @brief Creates a join_iterable object.
+ * @note If you're going to call .to_string() on this, it is better to use `str_join` for performance reasons.
  * @details Combines the iterator values followed by the delimiter. It is evaluated in a
  * `"[value][delimiter][value][delimiter]..."`-like fashion.
  * @param iterable The iterable to join with the delimiter.
  * @param delimiter The delimiter to separate the previous and the next values in the sequence.
  * @param fmt The std:: or fmt:: formatting args (`"{}"` is default).
- * @return A Join iterator view object.
+ * @return A join_iterable iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<iter<Iterable>, sentinel<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter<Iterable>, sentinel<Iterable>>
 join(Iterable&& iterable, std::string delimiter, std::string fmt = "{}") {
     return { std::begin(iterable), std::end(iterable), std::move(delimiter), std::move(fmt) };
 }
 
 /**
- * Converts a sequence to a `std::string` without creating an iterator Join object.
+ * Converts a sequence to a `std::string` without creating an iterator join_iterable object.
  * @param iterable The iterable to convert to string
  * @param delimiter The delimiter to separate each value from the sequence.
  * @param fmt The format args. (`{}` is default, not applicable if std::format isn't available or LZ_STANDALONE is defined)
  * @return A string where each item in `iterable` is appended to a string, separated by `delimiter`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-std::string strJoin(Iterable&& iterable, std::string delimiter = "", std::string fmt = "{}") {
-    // clang-format off
+std::string str_join(Iterable&& iterable, std::string delimiter = "", std::string fmt = "{}") {
+// clang-format off
     return detail::basic_iterable<iter<Iterable>, sentinel<Iterable>>(
         detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)))
             .to_string(std::move(delimiter), std::move(fmt));
-    // clang-format on
+// clang-format on
 }
 #endif // has format
 

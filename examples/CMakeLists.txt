@@ -30,12 +30,12 @@ set(examples
     Map
     Random
     Range
-    RegexSplit
+    regex_split
     Repeat
     StringSplitter
     Take
     TakeEvery
-    TakeWhile
+    take_while
     ToContainer
     Unique
     Zip

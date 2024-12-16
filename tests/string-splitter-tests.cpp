@@ -146,7 +146,7 @@ TEST_CASE("Splitter to containers", "[Splitter][To container]") {
 
     SECTION("To map") {
         std::map<std::string, std::string> actual =
-            splitter.toMap([](const View& v) { return std::make_pair(v.toString(), v.toString()); });
+            splitter.to_map([](const View& v) { return std::make_pair(v.toString(), v.toString()); });
         std::map<std::string, std::string> expected = {
             std::make_pair(std::string("Hello"), std::string("Hello")),
             std::make_pair(std::string("world"), std::string("world")),
@@ -160,7 +160,7 @@ TEST_CASE("Splitter to containers", "[Splitter][To container]") {
 
     SECTION("To unordered map") {
         std::unordered_map<std::string, std::string> actual =
-            splitter.toUnorderedMap([](const View& v) { return std::make_pair(v.toString(), v.toString()); });
+            splitter.to_unordered_map([](const View& v) { return std::make_pair(v.toString(), v.toString()); });
         std::unordered_map<std::string, std::string> expected = { std::make_pair(std::string("Hello"), std::string("Hello")),
                                                                   std::make_pair(std::string("world"), std::string("world")),
                                                                   std::make_pair(std::string("test"), std::string("test")),

@@ -6,7 +6,7 @@
 
 TEST_CASE("Enumerate with sentinels") {
     const char* str = "Hello";
-    auto cString = lz::cString(str);
+    auto cString = lz::c_string(str);
     auto enumerated = lz::enumerate(cString);
     static_assert(!std::is_same<decltype(enumerated.begin()), decltype(enumerated.end())>::value,
                   "Begin and end should not be the same type");
@@ -117,7 +117,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     }
 
     SECTION("To vector") {
-        std::vector<std::pair<int, int>> actualArray = lz::enumerate(vec).toVector();
+        std::vector<std::pair<int, int>> actualArray = lz::enumerate(vec).to_vector();
         auto expectedPair = std::make_pair(0, 1);
 
         for (const auto& actualPair : actualArray) {
@@ -139,7 +139,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     SECTION("To map") {
         auto enumerator = lz::enumerate(array);
         std::map<int, std::pair<int, int>> actual =
-            enumerator.toMap([](const std::pair<int, int> pair) { return std::make_pair(pair.second, pair); });
+            enumerator.to_map([](const std::pair<int, int> pair) { return std::make_pair(pair.second, pair); });
 
         std::map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),
@@ -153,7 +153,7 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     SECTION("To unordered map") {
         auto enumerator = lz::enumerate(array);
         std::unordered_map<int, std::pair<int, int>> actual =
-            enumerator.toUnorderedMap([](const std::pair<int, int> pair) { return std::make_pair(pair.second, pair); });
+            enumerator.to_unordered_map([](const std::pair<int, int> pair) { return std::make_pair(pair.second, pair); });
 
         std::unordered_map<int, std::pair<int, int>> expected = {
             std::make_pair(1, std::make_pair(0, 1)),

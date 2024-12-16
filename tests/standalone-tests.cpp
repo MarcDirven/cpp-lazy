@@ -21,7 +21,7 @@ TEST_CASE("Overall tests with LZ_STANDALONE defined") {
     static_assert(std::is_same<decltype(*splitter.begin()), lz::View<decltype(toSplit.begin())>>::value, "Should be lz::View");
 
     std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
-    auto doubles = lz::strJoin(vec, ", ");
+    auto doubles = lz::str_join(vec, ", ");
 #ifdef __cpp_lib_to_chars
     CHECK(doubles == "1.1, 2.2, 3.3, 4.4");
 #else

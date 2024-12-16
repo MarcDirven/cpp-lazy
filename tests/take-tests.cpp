@@ -7,10 +7,10 @@
 
 TEST_CASE("Take with sentinels") {
     const char* str = "Hello, world!";
-    auto cString = lz::cString(str);
+    auto cString = lz::c_string(str);
     auto take = lz::take(cString, 5);
     static_assert(!std::is_same<decltype(take.begin()), decltype(take.end())>::value, "Should be sentinel");
-    auto expected = lz::cString("Hello");
+    auto expected = lz::c_string("Hello");
     REQUIRE(lz::equal(take, expected));
 }
 
@@ -91,7 +91,7 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     }
 
     SECTION("To vector") {
-        auto vec = takeEvery.toVector();
+        auto vec = takeEvery.to_vector();
         REQUIRE(std::equal(vec.begin(), vec.end(), takeEvery.begin()));
     }
 
@@ -101,14 +101,14 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     }
 
     SECTION("To map") {
-        auto map = takeEvery.toMap([](int i) { return std::make_pair(i, i); });
+        auto map = takeEvery.to_map([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);
     }
 
     SECTION("To unordered map") {
-        auto map = takeEvery.toUnorderedMap([](int i) { return std::make_pair(i, i); });
+        auto map = takeEvery.to_unordered_map([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::unordered_map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);

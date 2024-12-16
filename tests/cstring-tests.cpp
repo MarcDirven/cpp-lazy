@@ -1,75 +1,75 @@
-#include <Lz/CString.hpp>
+#include <Lz/c_string.hpp>
 #include <Lz/Common.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Basic test") {
     const char* s = "hello, world!";
-    auto cstr = lz::cString(s);
-    auto cstrHello = lz::cString(s, s + 5);
+    auto cstr = lz::c_string(s);
+    auto cstr_hello = lz::c_string(s, s + 5);
 
     SECTION("Correct size") {
         auto size = cstr.size();
         CHECK(size == std::strlen(s));
 
-        auto helloSize = cstrHello.size();
-        CHECK(helloSize == std::strlen("hello"));
+        auto hello_size = cstr_hello.size();
+        CHECK(hello_size == std::strlen("hello"));
     }
 
     SECTION("Correct string") {
-        CHECK(lz::equal(cstrHello, lz::cString("hello")));
-        CHECK(lz::equal(cstr, lz::cString("hello, world!")));
+        CHECK(lz::equal(cstr_hello, lz::c_string("hello")));
+        CHECK(lz::equal(cstr, lz::c_string("hello, world!")));
     }
 }
 
 TEST_CASE("CString binary operations", "[CString][Binary ops]") {
     const char* string = "123 456 789";
-    auto cString = lz::cString(string);
-    auto cStrRandomAccess = lz::cString(string, string + 3);
+    auto c_string = lz::c_string(string);
+    auto c_str_random_access = lz::c_string(string, string + 3);
 
     SECTION("Operator++") {
-        auto begin = cString.begin();
+        auto begin = c_string.begin();
         CHECK(*begin == '1');
         ++begin;
         CHECK(*begin == '2');
     }
 
     SECTION("Operator== & Operator!=") {
-        auto beg = cString.begin();
-        auto begRA = cStrRandomAccess.begin();
-        CHECK(beg != cString.end());
-        CHECK(begRA != cStrRandomAccess.end());
+        auto beg = c_string.begin();
+        auto beg_ra = c_str_random_access.begin();
+        CHECK(beg != c_string.end());
+        CHECK(beg_ra != c_str_random_access.end());
 
-        auto common = lz::common(cString);
-        auto beginCommon = common.begin();
-        auto endCommon = common.end();
-        CHECK(beginCommon != endCommon);
-        beginCommon = common.end();
-        CHECK(beginCommon == endCommon);
+        auto common = lz::common(c_string);
+        auto begin_common = common.begin();
+        auto end_common = common.end();
+        CHECK(begin_common != end_common);
+        begin_common = common.end();
+        CHECK(begin_common == end_common);
 
-        begRA = cStrRandomAccess.end();
-        CHECK(begRA == cStrRandomAccess.end());
+        beg_ra = c_str_random_access.end();
+        CHECK(beg_ra == c_str_random_access.end());
     }
 
     SECTION("Operator--") {
-        auto end = cStrRandomAccess.end();
+        auto end = c_str_random_access.end();
         CHECK(*--end == '3');
         --end, --end;
-        CHECK(end == cStrRandomAccess.begin());
+        CHECK(end == c_str_random_access.begin());
     }
 
     SECTION("Operator+(int), tests += as well") {
-        auto begRA = cStrRandomAccess.begin();
-        begRA += 2;
-        CHECK(*begRA == '3');
+        auto beg_ra = c_str_random_access.begin();
+        beg_ra += 2;
+        CHECK(*beg_ra == '3');
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(cStrRandomAccess.end() - cStrRandomAccess.begin() == 3);
+        CHECK(c_str_random_access.end() - c_str_random_access.begin() == 3);
     }
 
     SECTION("Operator[]()") {
-        auto begin = cStrRandomAccess.begin();
+        auto begin = c_str_random_access.begin();
         CHECK(begin[0] == '1');
         CHECK(begin[1] == '2');
         CHECK(begin[2] == '3');
@@ -77,30 +77,30 @@ TEST_CASE("CString binary operations", "[CString][Binary ops]") {
 
     SECTION("Operator<, <, <=, >, >=") {
         const std::ptrdiff_t amount = 3;
-        auto begin = cStrRandomAccess.begin();
-        CHECK(begin < cStrRandomAccess.end());
-        CHECK(begin + amount + 1 > cStrRandomAccess.end());
-        CHECK(begin + amount <= cStrRandomAccess.end());
-        CHECK(begin + amount >= cStrRandomAccess.end());
+        auto begin = c_str_random_access.begin();
+        CHECK(begin < c_str_random_access.end());
+        CHECK(begin + amount + 1 > c_str_random_access.end());
+        CHECK(begin + amount <= c_str_random_access.end());
+        CHECK(begin + amount >= c_str_random_access.end());
     }
 
     SECTION("Operator bool") {
-        CHECK(cString);
-        CHECK(cString.begin());
-        CHECK(cStrRandomAccess);
-        CHECK(cStrRandomAccess.begin());
+        CHECK(c_string);
+        CHECK(c_string.begin());
+        CHECK(c_str_random_access);
+        CHECK(c_str_random_access.begin());
 
-        CHECK(cStrRandomAccess.end());
+        CHECK(c_str_random_access.end());
 
-        auto tmp = lz::cString("");
+        auto tmp = lz::c_string("");
         CHECK(!tmp);
         CHECK(!tmp.begin());
     }
 }
 
 TEST_CASE("CString to containers", "[CString][To container]") {
-    auto str = lz::cString("Hello, World!");
-    auto mapStr = lz::cString("123456789");
+    auto str = lz::c_string("Hello, World!");
+    auto map_str = lz::c_string("123456789");
 
     SECTION("To array") {
         std::array<char, 14> expected = { 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!' };
@@ -109,7 +109,7 @@ TEST_CASE("CString to containers", "[CString][To container]") {
 
     SECTION("To vector") {
         std::vector<char> expected = { 'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!' };
-        CHECK(str.toVector() == expected);
+        CHECK(str.to_vector() == expected);
     }
 
     SECTION("To other container using to<>()") {
@@ -120,12 +120,12 @@ TEST_CASE("CString to containers", "[CString][To container]") {
     SECTION("To map") {
         std::map<char, char> expected = { { '1', '1' }, { '2', '2' }, { '3', '3' }, { '4', '4' }, { '5', '5' },
                                           { '6', '6' }, { '7', '7' }, { '8', '8' }, { '9', '9' } };
-        CHECK(mapStr.toMap([](char c) { return std::make_pair(c, c); }) == expected);
+        CHECK(map_str.to_map([](char c) { return std::make_pair(c, c); }) == expected);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<char, char> expected = { { '1', '1' }, { '2', '2' }, { '3', '3' }, { '4', '4' }, { '5', '5' },
                                                     { '6', '6' }, { '7', '7' }, { '8', '8' }, { '9', '9' } };
-        CHECK(mapStr.toUnorderedMap([](char c) { return std::make_pair(c, c); }) == expected);
+        CHECK(map_str.to_unordered_map([](char c) { return std::make_pair(c, c); }) == expected);
     }
 }

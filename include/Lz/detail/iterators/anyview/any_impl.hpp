@@ -7,7 +7,7 @@
 
 namespace lz {
 namespace detail {
-template<class Iter, class T, class Reference, class iter_cat, class DiffType>
+template<class Iter, class T, class Reference, class IterCat, class DiffType>
 class any_iterator_impl;
 
 template<class Iter, class T, class Reference, class DiffType>
@@ -69,7 +69,7 @@ class any_iterator_impl<Iter, T, Reference, std::bidirectional_iterator_tag, Dif
     static_assert(std::is_same<Reference, decltype(*_iter)>::value,
                   "The iterator operator* returns a different type than template parameter `Reference`");
 
-    using any_iter_base = IteratorBase<Reference, std::bidirectional_iterator_tag, DiffType>;
+    using any_iter_base = iterator_base<Reference, std::bidirectional_iterator_tag, DiffType>;
 
 public:
     using value_type = T;
@@ -122,7 +122,7 @@ class any_iterator_impl<Iter, T, Reference, std::random_access_iterator_tag, Dif
     static_assert(std::is_same<Reference, decltype(*_iter)>::value,
                   "The iterator operator* returns a different type than template parameter `Reference`");
 
-    using any_iter_base = IteratorBase<Reference, std::random_access_iterator_tag, DiffType>;
+    using any_iter_base = iterator_base<Reference, std::random_access_iterator_tag, DiffType>;
 
 public:
     using value_type = T;

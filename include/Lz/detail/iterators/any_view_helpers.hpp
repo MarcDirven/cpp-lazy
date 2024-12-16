@@ -15,7 +15,7 @@ template<class T, class Reference, class IterCat, class DiffType>
 class iterator_wrapper : public iter_base<iterator_wrapper<T, Reference, IterCat, DiffType>, Reference, fake_ptr_proxy<Reference>,
                                           DiffType, IterCat> {
 
-    using any_iter_base = iterator_bae<Reference, IterCat, DiffType>;
+    using any_iter_base = iterator_base<Reference, IterCat, DiffType>;
     std::shared_ptr<any_iter_base> _ptr{ nullptr };
 
 public:

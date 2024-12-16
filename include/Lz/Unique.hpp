@@ -46,15 +46,11 @@ public:
  * @attention `iterable` must be sorted in order to work correctly.
  * @details Use this iterator view to eventually get an iterator of unique_iterable values.
  * @param iterable The iterable sequence.
- * @param sortFunc (Optional) to find adjacent elements.
- * @return An unique_iterable iterator view object, which can be used to iterate over in a `(for ... : unique_iterable(...))`
+ * @param compare The comparer. operator< is assumed by default.
+ * @return An unique_iterable iterator view object, which can be used to iterate over in a `(for ... : unqiue(...))`
  * fashion.
  */
-#ifdef LZ_HAS_CXX_11
-template<class Iterable, class Compare = std::less<value_type_tIterable<Iterable>>>
-#else
-template<class Iterable, class BinaryOp = std::less<>>
-#endif // LZ_HAS_CXX_11
+template<class Iterable, class BinaryOp = MAKE_BIN_OP(std::less, value_type_iterable<Iterable>)>
 unique_iterable<iter<Iterable>, sentinel<Iterable>, BinaryOp> unique(Iterable&& iterable, BinaryOp compare = {}) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), std::move(compare) };
 }

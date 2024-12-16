@@ -72,7 +72,7 @@ std::generate(randomNumbers.begin(), randomNumbers.end(), [&dist, &gen]{ return 
 
 That is pretty verbose. Instead, try this for change:
 ```cpp
-std::vector<int> randomNumbers = lz::random(0, 32, n).toVector();
+std::vector<int> randomNumbers = lz::random(0, 32, n).to_vector();
 ```
 > I want to search if the sequence of random numbers contain 6. 
 
@@ -83,7 +83,7 @@ std::mt19937 gen(rd());
 std::uniform_int_distribution dist(0, 32);
 
 for (int i = 0; i < n; i++) {
- if (gen(dist)) == 6) {
+ if (gen(dist) == 6) {
   // do something
  }
 }

@@ -5,13 +5,13 @@
 int main() {
     const char* myString = "Hello, World!";
 
-    for (const char c : lz::cString(myString)) {
+    for (const char c : lz::c_string(myString)) {
         std::cout << c;
     }
     // Output: Hello, World!
     std::cout << '\n';
     // Or::
-    for (const char c : lz::cString(myString, myString + 5)) {
+    for (const char c : lz::c_string(myString, myString + 5)) {
         std::cout << c;
     }
     // Creating the iterator this way, it becomes a random access iterator

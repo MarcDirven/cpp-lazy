@@ -3,41 +3,41 @@
 #ifndef LZ_ZIP_LONGEST_HPP
 #define LZ_ZIP_LONGEST_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/ZipLongestIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/zip_longest.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-class ZipLongest final
+class zip_longest_iterable final
     : public detail::basic_iterable<
-          detail::ZipLongestIterator<detail::is_ra<detail::common_type<IterCat<Iterators>...>>::value, Iterators...>> {
+        detail::zip_longest_iterator<detail::is_ra<detail::common_type<iter_cat<Iterators>...>>::value, Iterators...>> {
 
-    using IterCat = detail::common_type<IterCat<Iterators>...>;
+    using ic = detail::common_type<iter_cat<Iterators>...>;
 
     static_assert(sizeof...(Iterators) > 0, "Cannot create zip longest object with 0 iterators");
-
+    // TODO write std::forward_iterator_tags overload instead of enable_if
 public:
-    using iterator = detail::ZipLongestIterator<detail::is_ra<IterCat>::value, Iterators...>;
+    using iterator = detail::zip_longest_iterator<detail::is_ra<IterCat>::value, Iterators...>;
     using const_iterator = iterator;
 
     using value_type = typename iterator::value_type;
 
-    template<class I = IterCat>
-    LZ_CONSTEXPR_CXX_20 ZipLongest(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
-                                   detail::enable_if<!detail::is_ra<I>::value, int> = 0) :
+    template<class I = ic>
+    LZ_CONSTEXPR_CXX_20 zip_longest_iterable(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
+                                             detail::enable_if<!detail::is_ra<I>::value, int> = 0) :
         detail::basic_iterable<iterator>(iterator(begin, end), iterator(end, begin)) {
     }
 
-    template<class I = IterCat>
-    LZ_CONSTEXPR_CXX_20 ZipLongest(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
-                                   detail::enable_if<detail::is_ra<I>::value, int> = 0) :
+    template<class I = ic>
+    LZ_CONSTEXPR_CXX_20 zip_longest_iterable(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
+                                             detail::enable_if<detail::is_ra<I>::value, int> = 0) :
         detail::basic_iterable<iterator>(iterator(begin, begin, end), iterator(begin, end, end)) {
     }
 
-    constexpr ZipLongest() = default;
+    constexpr zip_longest_iterable() = default;
 };
 
 // Start of group
@@ -49,27 +49,7 @@ public:
 /**
  * @brief Zip iterator that zips multiple iterators.
  *
- * @details Zip iterator that zips multiple iterators, except the difference beteween zipLongest and zip is that zip longest stops
- * when the longest iterator is at its end. Other iterators that have been 'exhausted' will be filled with an empty optional
- * object, rather than a valid optional object. This is std::optional (if post C++ 17) or lz::detail::optional (if pre C++).
- * lz::detail::optional contains most of the basic funcitonality std::optional does. This iterator is a forward iterator if one of
- * the iterators passed is bidirectional or lower, random access otherwise.
- *
- * @note All values retrieved from the iterator are by value.
- * @param begin Beginning of the sequence
- * @param end Ending of the sequence
- * @return ZipLongest object that contains the iterator.
- */
-template<LZ_CONCEPT_ITERATOR... Iterators>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongest<Iterators...>
-zipLongestRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
-    return { std::move(begin), std::move(end) };
-}
-
-/**
- * @brief Zip iterator that zips multiple iterators.
- *
- * @details Zip iterator that zips multiple iterators, except the difference beteween zipLongest and zip is that zip longest stops
+ * @details Zip iterator that zips multiple iterators, except the difference beteween zip_longest and zip is that zip longest stops
  * when the longest iterator is at its end. Other iterators that have been 'exhausted' will be filled with an empty optional
  * object, rather than a valid optional object. This is std::optional (if post C++ 17) or lz::detail::optional (if pre C++).
  * lz::detail::optional contains most of the basic funcitonality std::optional does. This iterator is a forward iterator if one of
@@ -77,13 +57,13 @@ zipLongestRange(std::tuple<Iterators...> begin, std::tuple<Iterators...> end) {
  *
  * @note All values retrieved from the iterator are by value.
  * @param iterables The iterables objects
- * @return ZipLongest object that contains the iterator.
+ * @return zip_longest_iterable object that contains the iterator.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipLongest<iter<Iterables>...> zipLongest(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_longest_iterable<iter<Iterables>...> zip_longest(Iterables&&... iterables) {
     auto begin = std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...);
     auto end = std::make_tuple(detail::end(std::forward<Iterables>(iterables))...);
-    return lz::zipLongestRange(std::move(begin), std::move(end));
+    return {std::move(begin), std::move(end)};
 }
 
 // End of group

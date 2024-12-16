@@ -3,7 +3,7 @@
 #include <catch2/catch.hpp>
 #include <list>
 
-TEST_CASE("Repeat changing and creating elements", "[Repeat][Basic functionality]") {
+TEST_CASE("repeat_iterable changing and creating elements", "[repeat_iterable][Basic functionality]") {
     int toRepeat = 20;
     auto repeater = lz::repeat(toRepeat, 5);
 
@@ -22,7 +22,7 @@ TEST_CASE("Repeat changing and creating elements", "[Repeat][Basic functionality
     }
 }
 
-TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
+TEST_CASE("repeat_iterable binary operations", "[repeat_iterable][Binary ops]") {
     const int amount = 5;
     auto repeater = lz::repeat(20, amount);
     auto begin = repeater.begin();
@@ -41,7 +41,7 @@ TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
     }
 }
 
-TEST_CASE("Repeat to containers", "[Repeat][To container]") {
+TEST_CASE("repeat_iterable to containers", "[repeat_iterable][To container]") {
     constexpr auto times = 5;
     const int toRepeat = 20;
     auto repeater = lz::repeat(toRepeat, times);
@@ -54,7 +54,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To vector") {
-        std::vector<int> vec = repeater.toVector();
+        std::vector<int> vec = repeater.to_vector();
         for (int i : vec) {
             CHECK(i == toRepeat);
         }
@@ -70,7 +70,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = repeater.toMap([](const int i) { return std::make_pair(i, i); });
+        std::map<int, int> actual = repeater.to_map([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> expected;
 
         for (int i = 0; i < times; i++) {
@@ -81,7 +81,7 @@ TEST_CASE("Repeat to containers", "[Repeat][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = repeater.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
+        std::unordered_map<int, int> actual = repeater.to_unordered_map([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> expected;
 
         for (int i = 0; i < times; i++) {

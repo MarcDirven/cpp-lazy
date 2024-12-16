@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 #include <list>
 
-TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
+TEST_CASE("zip_iterable changing and creating elements", "[zip_iterable][Basic functionality]") {
     std::vector<int> a = { 1, 2, 3, 4 };
     std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
     std::array<short, 4> c = { 1, 2, 3, 4 };
@@ -48,20 +48,20 @@ TEST_CASE("Zip changing and creating elements", "[Zip][Basic functionality]") {
     SECTION("Should be by ref") {
         std::size_t i = 0;
         for (auto tup : lz::zip(a, b, c)) {
-            auto& aElement = std::get<0>(tup);
-            auto& bElement = std::get<1>(tup);
-            auto& cElement = std::get<2>(tup);
+            auto& a_element = std::get<0>(tup);
+            auto& b_element = std::get<1>(tup);
+            auto& c_element = std::get<2>(tup);
 
-            CHECK(&aElement == &a[i]);
-            CHECK(&bElement == &b[i]);
-            CHECK(&cElement == &c[i]);
+            CHECK(&a_element == &a[i]);
+            CHECK(&b_element == &b[i]);
+            CHECK(&c_element == &c[i]);
 
             ++i;
         }
     }
 }
 
-TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
+TEST_CASE("zip_iterable binary operations", "[zip_iterable][Binary ops]") {
     constexpr std::size_t size = 4;
     std::vector<int> a = { 1, 2, 3, 4 };
     std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
@@ -117,7 +117,7 @@ TEST_CASE("Zip binary operations", "[Zip][Binary ops]") {
     }
 }
 
-TEST_CASE("Zip to containers", "[Zip][To container]") {
+TEST_CASE("zip_iterable to containers", "[zip_iterable][To container]") {
     constexpr std::size_t size = 4;
     std::vector<int> a = { 1, 2, 3, 4 };
     std::vector<float> b = { 1.f, 2.f, 3.f, 4.f };
@@ -127,27 +127,27 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
         auto array = lz::zip(a, b, c).to<std::array<std::tuple<int, float, short>, size>>();
 
         for (std::size_t i = 0; i < array.size(); i++) {
-            auto& aElement = std::get<0>(array[i]);
-            auto& bElement = std::get<1>(array[i]);
-            auto& cElement = std::get<2>(array[i]);
+            auto& a_element = std::get<0>(array[i]);
+            auto& b_element = std::get<1>(array[i]);
+            auto& c_element = std::get<2>(array[i]);
 
-            CHECK(aElement == a[i]);
-            CHECK(bElement == b[i]);
-            CHECK(cElement == c[i]);
+            CHECK(a_element == a[i]);
+            CHECK(b_element == b[i]);
+            CHECK(c_element == c[i]);
         }
     }
 
     SECTION("To vector") {
-        auto vector = lz::zip(a, b, c).toVector();
+        auto vector = lz::zip(a, b, c).to_vector();
 
         for (std::size_t i = 0; i < vector.size(); i++) {
-            auto& aElement = std::get<0>(vector[i]);
-            auto& bElement = std::get<1>(vector[i]);
-            auto& cElement = std::get<2>(vector[i]);
+            auto& a_element = std::get<0>(vector[i]);
+            auto& b_element = std::get<1>(vector[i]);
+            auto& c_element = std::get<2>(vector[i]);
 
-            CHECK(aElement == a[i]);
-            CHECK(bElement == b[i]);
-            CHECK(cElement == c[i]);
+            CHECK(a_element == a[i]);
+            CHECK(b_element == b[i]);
+            CHECK(c_element == c[i]);
         }
     }
 
@@ -156,13 +156,13 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
         auto listIterator = list.begin();
 
         for (std::size_t i = 0; i < list.size(); i++) {
-            auto& aElement = std::get<0>(*listIterator);
-            auto& bElement = std::get<1>(*listIterator);
-            auto& cElement = std::get<2>(*listIterator);
+            auto& a_element = std::get<0>(*listIterator);
+            auto& b_element = std::get<1>(*listIterator);
+            auto& c_element = std::get<2>(*listIterator);
 
-            CHECK(aElement == a[i]);
-            CHECK(bElement == b[i]);
-            CHECK(cElement == c[i]);
+            CHECK(a_element == a[i]);
+            CHECK(b_element == b[i]);
+            CHECK(c_element == c[i]);
 
             ++listIterator;
         }
@@ -171,7 +171,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
         std::map<int, Tuple> actual =
-            lz::zip(a, b, c).toMap([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
+            lz::zip(a, b, c).to_map([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
         std::map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),
             std::make_pair(2, std::make_tuple(2, 2.f, static_cast<short>(2))),
@@ -185,7 +185,7 @@ TEST_CASE("Zip to containers", "[Zip][To container]") {
     SECTION("To map") {
         using Tuple = std::tuple<int, float, short>;
         std::unordered_map<int, Tuple> actual =
-            lz::zip(a, b, c).toUnorderedMap([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
+            lz::zip(a, b, c).to_unordered_map([](const Tuple& tup) { return std::make_pair(std::get<0>(tup), tup); });
 
         std::unordered_map<int, std::tuple<int, float, short>> expected = {
             std::make_pair(1, std::make_tuple(1, 1.f, static_cast<short>(1))),

@@ -13,28 +13,28 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 template<class IterTuple, class SentinelTuple>
 class cartesian_product_iterable final
     : public detail::basic_iterable<detail::cartesian_product_iterator<IterTuple, SentinelTuple>,
-                                    typename detail::cartesian_product_iterator<IterTuple, sentinel_tuple::sentinel>> {
+                                    typename detail::cartesian_product_iterator<IterTuple, SentinelTuple>::sentinel> {
 
-    using Sentinel = typename detail::cartesian_product_iterator < IterTuple, sentinel_tuple::sentinel;
+    using s = typename detail::cartesian_product_iterator<IterTuple, SentinelTuple>::sentinel;
 
     LZ_CONSTEXPR_CXX_20
-    cartesian_product_iterable(IterTuple begin, sentinel_tuple end, std::forward_iterator_tag /* unused */) :
-        detail::basic_iterable<iterator, Sentinel>(iterator(std::move(begin), std::move(begin), std::move(end))) {
+    cartesian_product_iterable(IterTuple begin, SentinelTuple end, std::forward_iterator_tag /* unused */) :
+        detail::basic_iterable<iterator, s>(iterator(std::move(begin), std::move(begin), std::move(end))) {
     }
 
     LZ_CONSTEXPR_CXX_20
-    cartesian_product_iterable(IterTuple begin, sentinel_tuple end, std::bidirectional_iterator_tag /* unused */) :
+    cartesian_product_iterable(IterTuple begin, SentinelTuple end, std::bidirectional_iterator_tag /* unused */) :
         detail::basic_iterable<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 
 public:
-    using iterator = detail::cartesian_product_iterator<IterTuple, sentinel_tuple>;
+    using iterator = detail::cartesian_product_iterator<IterTuple, SentinelTuple>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     constexpr cartesian_product_iterable() = default;
 
-    LZ_CONSTEXPR_CXX_20 cartesian_product_iterable(IterTuple begin, sentinel_tuple end) :
+    LZ_CONSTEXPR_CXX_20 cartesian_product_iterable(IterTuple begin, SentinelTuple end) :
         cartesian_product_iterable(std::move(begin), std::move(end), iter_cat<iterator>{}) {
     }
 };

@@ -12,33 +12,33 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 // TODO: make better implementation here? I.e. using iterator_tags
 
 template<class Iterator, class S>
-class chunks final : public detail::basic_iterable<detail::chunks_iterator<Iterator, S>, default_sentinel> {
+class chunks_iterable final : public detail::basic_iterable<detail::chunks_iterator<Iterator, S>, default_sentinel> {
 public:
     using iterator = detail::chunks_iterator<Iterator, S>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
-    chunks(Iterator begin, S end, const std::size_t chunk_size) :
+    chunks_iterable(Iterator begin, S end, const std::size_t chunk_size) :
         detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(begin), std::move(end), chunk_size)) {
     }
 
-    constexpr chunks() = default;
+    constexpr chunks_iterable() = default;
 };
 
 template<class Iterator>
-class chunks<Iterator, Iterator> final : public detail::basic_iterable<detail::chunks_iterator<Iterator, Iterator>> {
+class chunks_iterable<Iterator, Iterator> final : public detail::basic_iterable<detail::chunks_iterator<Iterator, Iterator>> {
 public:
     using iterator = detail::chunks_iterator<Iterator, Iterator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
     LZ_CONSTEXPR_CXX_20
-    chunks(Iterator begin, Iterator end, const std::size_t chunk_size) :
+    chunks_iterable(Iterator begin, Iterator end, const std::size_t chunk_size) :
         detail::basic_iterable<iterator>(iterator(begin, begin, end, chunk_size), iterator(end, begin, end, chunk_size)) {
     }
 
-    constexpr chunks() = default;
+    constexpr chunks_iterable() = default;
 };
 
 /**
@@ -54,7 +54,7 @@ public:
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chunks<iter<Iterable>, sentinel<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chunks_iterable<iter<Iterable>, sentinel<Iterable>>
 chunks(Iterable&& iterable, const std::size_t chunk_size) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), chunk_size };
 }

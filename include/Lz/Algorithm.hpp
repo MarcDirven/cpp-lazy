@@ -217,7 +217,7 @@ value_type_iterable<Iterable> find_or_default(Iterable&& iterable, T&& toFind, U
  */
 template<class Iterable, class UnaryPredicate, class U>
 value_type_iterable<Iterable> find_or_default_if(Iterable&& iterable, UnaryPredicate unary_predicate, U&& default_value) {
-    return detail::find_or_default_if(std::begin(iterable), std::end(iterable), std::move(binary_predicate),
+    return detail::find_or_default_if(std::begin(iterable), std::end(iterable), std::move(unary_predicate),
                                       std::forward<U>(default_value));
 }
 

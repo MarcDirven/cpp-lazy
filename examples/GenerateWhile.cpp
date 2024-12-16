@@ -12,6 +12,6 @@ int main() {
         // 0 = the parameter for the lambda
         0);
 
-    auto vec = generator.toVector();
+    auto vec = generator.to_vector();
     // vec = { 0, 1, 2, 3 }
 }

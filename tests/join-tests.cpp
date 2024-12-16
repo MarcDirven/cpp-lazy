@@ -5,7 +5,7 @@
 #include <sstream>
 
 TEST_CASE("Join with sentinels") {
-    auto cString = lz::cString("Hello, World!");
+    auto cString = lz::c_string("Hello, World!");
     auto join = lz::join(cString, ", ");
     CHECK(join.toString() == "H, e, l, l, o, ,,  , W, o, r, l, d, !");
     static_assert(!std::is_same<decltype(join.begin()), decltype(join.end())>::value, "Should be sentinel");
@@ -43,7 +43,7 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     }
 
     SECTION("Immediate to string") {
-        CHECK(lz::strJoin(v) == "12345");
+        CHECK(lz::str_join(v) == "12345");
     }
 }
 
@@ -151,7 +151,7 @@ TEST_CASE("Join binary operations", "[Join][Binary ops]") {
 
     SECTION("String join double format") {
         std::array<double, 4> vec = { 1.1, 2.2, 3.3, 4.4 };
-        auto doubles = lz::strJoin(vec, ", ", "{:.2f}");
+        auto doubles = lz::str_join(vec, ", ", "{:.2f}");
         CHECK(doubles == "1.10, 2.20, 3.30, 4.40");
     }
 }

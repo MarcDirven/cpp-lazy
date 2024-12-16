@@ -9,10 +9,10 @@ struct TestStruct {
 };
 
 TEST_CASE("Map with sentinels") {
-    auto cstr = lz::cString("Hello, World!");
+    auto cstr = lz::c_string("Hello, World!");
     auto map = lz::map(cstr, [](char c) { return std::toupper(c); });
     static_assert(!std::is_same<decltype(map.end()), decltype(map.begin())>::value, "Should be sentinels");
-    auto cstrExpected = lz::cString("HELLO, WORLD!");
+    auto cstrExpected = lz::c_string("HELLO, WORLD!");
     CHECK(lz::equal(map, cstrExpected));
 }
 
@@ -115,7 +115,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To vector") {
-        auto stringVector = map.toVector();
+        auto stringVector = map.to_vector();
 
         for (std::size_t i = 0; i < array.size(); i++) {
             CHECK(stringVector[i] == array[i].testFieldStr);
@@ -132,7 +132,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
     }
 
     SECTION("To map") {
-        std::map<std::string, std::string> actual = map.toMap([](const std::string& s) { return std::make_pair(s, s); });
+        std::map<std::string, std::string> actual = map.to_map([](const std::string& s) { return std::make_pair(s, s); });
 
         std::map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),
@@ -145,7 +145,7 @@ TEST_CASE("Map to containers", "[Map][To container]") {
 
     SECTION("To unordered map") {
         std::unordered_map<std::string, std::string> actual =
-            map.toUnorderedMap([](const std::string& s) { return std::make_pair(s, s); });
+            map.to_unordered_map([](const std::string& s) { return std::make_pair(s, s); });
 
         std::unordered_map<std::string, std::string> expected = {
             std::make_pair("FieldA", "FieldA"),

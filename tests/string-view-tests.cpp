@@ -31,7 +31,7 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
     }
 
     SECTION("Should convert to string") {
-        CHECK(view.toStdString() == str);
+        CHECK(view.to_std_string() == str);
     }
 
     SECTION("Use static_cast") {

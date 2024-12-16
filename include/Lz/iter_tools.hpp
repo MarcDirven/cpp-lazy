@@ -3,12 +3,12 @@
 #ifndef LZ_FUNCTION_TOOLS_HPP
 #define LZ_FUNCTION_TOOLS_HPP
 
-#include "Concatenate.hpp"
+#include "concatenate.hpp"
 #include "drop_while.hpp"
 #include "filter.hpp"
 #include "join.hpp"
 #include "map.hpp"
-#include "splitter.hpp"
+#include "split.hpp"
 #include "take.hpp"
 #include "take_while.hpp"
 #include "zip.hpp"
@@ -50,7 +50,7 @@ struct get_fn {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 /**
- * This value is returned when indexOf(If) does not find the value specified.
+ * This value is returned when index_of(_if) does not find the value specified.
  */
 constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::max)();
 
@@ -73,7 +73,7 @@ LZ_NODISCARD string_splitter<String, typename String::value_type> lines(const St
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
 template<class Strings>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<iter<Strings>, sentinel<Strings>> unlines(Strings&& strings) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter<Strings>, sentinel<Strings>> unlines(Strings&& strings) {
     return lz::join(strings, "\n");
 }
 
@@ -84,9 +84,9 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Join<iter<Strings>, sentinel<Strings>> unlines(
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<iter<Iterable>>> reverse(Iterable&& iterable) {
-    // ADL std::reverse
-    std::reverse_iterator<Iterator> rev_begin(detail::begin(std::forward<Iterable>(iterable)));
-    std::reverse_iterator<Iterator> rev_end(detail::end(std::forward<Iterable>(iterable)));
+    using iterator = iter<Iterable>;
+    std::reverse_iterator<iterator> rev_begin(detail::begin(std::forward<Iterable>(iterable)));
+    std::reverse_iterator<iterator> rev_end(detail::end(std::forward<Iterable>(iterable)));
     return { std::move(rev_begin), std::move(rev_end) };
 }
 
@@ -97,14 +97,14 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<it
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERATOR Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<iter<Iterable>, sentinel<Iterable>, detail::convert_fn<T>> as(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::convert_fn<T>> as(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::convert_fn<T>());
 }
 
 template<class Fn, class... Iterables>
-using ZipWith =
-    Map<decltype(detail::begin(std::forward<Zip<iter<Iterables>...>>(std::declval<Zip<iter<Iterables>...>>()))),
-        decltype(detail::end(std::forward<Zip<iter<Iterables>...>>(std::declval<Zip<iter<Iterables>...>>()))),
+using zip_with_iterable =
+    map_iterable<decltype(detail::begin(std::forward<zip_iterable<iter<Iterables>...>>(std::declval<zip_iterable<iter<Iterables>...>>()))),
+        decltype(detail::end(std::forward<zip_iterable<iter<Iterables>...>>(std::declval<zip_iterable<iter<Iterables>...>>()))),
         decltype(detail::make_expand_fn(std::move(std::declval<Fn>()), detail::make_index_sequence<sizeof...(Iterables)>()))>;
 
 /**
@@ -113,13 +113,13 @@ using ZipWith =
  * ...]]]])`
  * @param fn The function to apply to each elements in all containers.
  * @param iterables The iterables.
- * @return A Map<Zip> object that applies fn over each expanded tuple elements from [begin, end)
+ * @return A map_iterable<zip_iterable> object that applies fn over each expanded tuple elements from [begin, end)
  */
 template<class Fn, class... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipWith<Fn, Iterables...> zipWith(Fn fn, Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_with_iterable<Fn, Iterables...> zip_with(Fn fn, Iterables&&... iterables) {
     auto zipper = lz::zip(std::forward<Iterables>(iterables)...);
-    auto tupleExpanderFunc = detail::make_expand_fn(std::move(fn), detail::make_index_sequence<sizeof...(Iterables)>());
-    return lz::map(std::move(zipper), std::move(tupleExpanderFunc));
+    auto tuple_expander_func = detail::make_expand_fn(std::move(fn), detail::make_index_sequence<sizeof...(Iterables)>());
+    return lz::map(std::move(zipper), std::move(tuple_expander_func));
 }
 
 /**
@@ -128,7 +128,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 ZipWith<Fn, Iterables...> zipWith(Fn fn, Iterab
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<iter<Iterable>, iter<Iterable>> pairwise(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter<Iterable>, iter<Iterable>> pairwise(Iterable&& iterable) {
     LZ_ASSERT(lz::has_many(iterable), "length of the sequence must be greater than or equal to 2");
     auto begin = std::begin(iterable);
     auto end = std::end(iterable);
@@ -143,7 +143,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Zip<iter<Iterable>, iter<Iterable>> pairwise(It
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<iter<Iterable>, sentinel<Iterable>, detail::get_fn<1>> values(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::get_fn<1>> values(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::get_fn<1>());
 }
 
@@ -155,34 +155,34 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<iter<Iterable>, sentinel<Iterable>, detail:
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Map<iter<Iterable>, sentinel<Iterable>, detail::get_fn<0>> keys(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::get_fn<0>> keys(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::get_fn<0>());
 }
 
-template<class Iterable, class UnaryFilterFunc, class UnaryMapFunc>
-using FilterMap =
-    Map<decltype(lz::filter(std::forward<Iterable>(std::declval<Iterable>()), std::declval<UnaryFilterFunc>()).begin()),
-        decltype(lz::filter(std::forward<Iterable>(std::declval<Iterable>()), std::declval<UnaryFilterFunc>()).end()),
-        UnaryMapFunc>;
+template<class Iterable, class UnaryFiltePredicate, class UnaryMapOp>
+using filter_map_iterable =
+    map_iterable<decltype(lz::filter(std::forward<Iterable>(std::declval<Iterable>()), std::declval<UnaryFiltePredicate>()).begin()),
+        decltype(lz::filter(std::forward<Iterable>(std::declval<Iterable>()), std::declval<UnaryFiltePredicate>()).end()),
+        UnaryMapOp>;
 
 /**
  * Creates a map object with filter iterator that, if the filter function returns true, the map function is executed.
  * @param iterable The iterable to filter/map.
- * @param filterFunc The function that filters the elements. If this function returns `true`, its corresponding container
- * value is passed to the `mapFunc`.
- * @param mapFunc The function that returns the (new) type.
+ * @param filter_predicate The function that filters the elements. If this function returns `true`, its corresponding container
+ * value is passed to the `map_op`.
+ * @param map_op The function that returns the (new) type.
  * @return A map object that can be iterated over. The `value_type` of the this view object is equal to the return value of
- * `mapFunc`.
+ * `map_op`.
  */
-template<class Iterable, class UnaryFilterFunc, class UnaryMapFunc>
-FilterMap<Iterable, UnaryFilterFunc, UnaryMapFunc>
-filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) {
-    return lz::map(lz::filter(std::forward<Iterable>(iterable), std::move(filterFunc)), std::move(mapFunc));
+template<class Iterable, class UnaryFiltePredicate, class UnaryMapOp>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 filter_map_iterable<Iterable, UnaryMapOp, UnaryFiltePredicate>
+filter_map(Iterable&& iterable, UnaryFiltePredicate filter_predicate, UnaryMapOp map_op) {
+    return lz::map(lz::filter(std::forward<Iterable>(iterable), std::move(filter_predicate)), std::move(map_op));
 }
 
 // TODO: make typedef that works here for selector using std::tuple
 // template<class Iterable, class SelectorIterable>
-// using Selector = FilterMap<Zip<iter<Iterable>, sentinel<Iterable>, iter<SelectorIterable>>, detail::get_fn<1>,
+// using Selector = FilterMap<zip_iterable<iter<Iterable>, sentinel<Iterable>, iter<SelectorIterable>>, detail::get_fn<1>,
 // detail::get_fn<0>>;
 
 /**
@@ -192,12 +192,14 @@ filterMap(Iterable&& iterable, UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc)
  * @return A map object that can be iterated over with the excluded elements that `selectors` specify.
  */
 template<class Iterable, class SelectorIterable>
-auto select(Iterable&& iterable, SelectorIterable&& selectors)
-    -> decltype(filterMap(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto select(Iterable&& iterable, SelectorIterable&& selectors)
+    -> decltype(filter_map(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
                           detail::get_fn<0>())) {
-    return filterMap(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
-                     detail::get_fn<0>());
+    return filter_map(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
+                      detail::get_fn<0>());
 }
+
+// TODO trim_front and/or trim_back?
 
 /**
  * Trims the beginning and ending of a sequence, as long as `first` returns true for the trimming of the beginning and as long
@@ -208,11 +210,12 @@ auto select(Iterable&& iterable, SelectorIterable&& selectors)
  * @return An iterator view object.
  */
 template<class Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 
 detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
-    auto takenFirst = lz::drop_while(std::forward<Iterable>(iterable), std::move(first));
-    auto takenLast = lz::drop_while(lz::reverse(std::move(takenFirst)), std::move(last));
-    return lz::reverse(std::move(takenLast));
+    auto taken_first = lz::drop_while(std::forward<Iterable>(iterable), std::move(first));
+    auto taken_last = lz::drop_while(lz::reverse(std::move(taken_first)), std::move(last));
+    return lz::reverse(std::move(taken_last));
 }
 
 /**
@@ -221,12 +224,13 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
  * @return The string, with trimmed spaces/tabs/newlines at the front and end.
  */
 template<class String>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<std::string::const_iterator>>>
-trimString(String&& s) {
-    const auto isSpaceFn = [](const char c) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter<String>>>>
+trim_string(String&& s) {
+    const auto is_space_fn = [](const char c) {
         return static_cast<bool>(std::isspace(static_cast<unsigned char>(c)));
     };
-    return lz::trim(std::forward<String>(s), isSpaceFn, isSpaceFn);
+    return lz::trim(std::forward<String>(s), is_space_fn, is_space_fn);
 }
 
 } // End namespace lz

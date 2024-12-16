@@ -1,16 +1,16 @@
-#include <Lz/CString.hpp>
-#include <Lz/ChunkIf.hpp>
-#include <Lz/IterTools.hpp>
-#include <Lz/View.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/chunk_if.hpp>
+#include <Lz/iter_tools.hpp>
+#include <Lz/iterable.hpp>
 #include <catch2/catch.hpp>
 #include <iostream>
 #include <list>
 
 // TODO: write chunk if with sentinels
 
-TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionality]") {
+TEST_CASE("chunk_if changing and creating elements", "[chunk_if][Basic functionality]") {
     std::string s = "hello world; this is a message;;";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
     static_assert(!std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Must be sentinel");
 
     SECTION("Length should be correct") {
@@ -31,10 +31,10 @@ TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionali
     }
 }
 
-TEST_CASE("ChunkIf variations") {
+TEST_CASE("chunk_if variations") {
     SECTION("Ending and starting with delimiter") {
         std::string s = ";hello world;; this is a message;;; testing;;";
-        auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+        auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
         auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
         std::vector<std::string> expected = { "", "hello world", "", " this is a message", "", "", " testing", "", "" };
@@ -43,7 +43,7 @@ TEST_CASE("ChunkIf variations") {
 
     SECTION("Ending with delimiters") {
         std::string s = "hello world; this is a message;;";
-        auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+        auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
         auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
         std::vector<std::string> expected = { "hello world", " this is a message", "", "" };
@@ -52,7 +52,7 @@ TEST_CASE("ChunkIf variations") {
 
     SECTION("Ending with two one delimiter") {
         std::string s = "hello world; this is a message;";
-        auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+        auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
         auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
         std::vector<std::string> expected = { "hello world", " this is a message", "" };
@@ -61,7 +61,7 @@ TEST_CASE("ChunkIf variations") {
 
     SECTION("No delimiters") {
         std::string s = "hello world; this is a message";
-        auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+        auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
         auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
         std::vector<std::string> expected = { "hello world", " this is a message" };
@@ -69,9 +69,9 @@ TEST_CASE("ChunkIf variations") {
     }
 }
 
-TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
+TEST_CASE("chunk_if binary operations", "[chunk_if][Binary ops]") {
     std::string s = ";hello world;; this is a message;;; testing;;";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
     static_assert(!std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Must be sentinel");
     CHECK(chunked.begin()->toString().empty());
 
@@ -112,9 +112,9 @@ TEST_CASE("ChunkIf binary operations", "[ChunkIf][Binary ops]") {
     }
 }
 
-TEST_CASE("ChunkIf to containers", "[ChunkIf][To container]") {
+TEST_CASE("chunk_if to containers", "[chunk_if][To container]") {
     std::string s = "hello world; this is a message;;";
-    auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });
+    auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
     using Iterator = decltype(*chunked.begin());
 
     SECTION("To array") {

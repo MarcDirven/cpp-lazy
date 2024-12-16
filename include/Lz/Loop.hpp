@@ -3,22 +3,22 @@
 #ifndef LZ_LOOP_HPP
 #define LZ_LOOP_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/LoopIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/loop.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-    class Loop final : public detail::basic_iterable < detail::loop_iterator<Iterator, S>,
-    typename detail::loop_iterator<Iterator, S::sentinel> {
+class loop_iterable final : public detail::basic_iterable<detail::loop_iterator<Iterator, S>,
+                                                 typename detail::loop_iterator<Iterator, S::sentinel>> {
 
-    Loop(Iterator begin, S end, std::forward_iterator_tag) :
+    loop_iterable(Iterator begin, S end, std::forward_iterator_tag) :
         detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(begin), std::move(begin), std::move(end))) {
     }
 
-    Loop(Iterator begin, S end, std::bidirectional_iterator_tag) :
+    loop_iterable(Iterator begin, S end, std::bidirectional_iterator_tag) :
         detail::basic_iterable<iterator>(iterator(begin, begin, end), iterator(end, begin, end)) {
     }
 
@@ -27,10 +27,10 @@ public:
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    Loop(Iterator begin, S end) : Loop(std::move(begin), std::move(end), iter_cat<Iterator>{}) {
+    loop_iterable(Iterator begin, S end) : loop_iterable(std::move(begin), std::move(end), iter_cat<Iterator>{}) {
     }
 
-    Loop() = default;
+    loop_iterable() = default;
 };
 
 /**
@@ -45,7 +45,7 @@ public:
  * @return A loop iterator object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Loop<iter<Iterable>, sentinel < Iterable >> loop(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 loop_iterable<iter<Iterable>, sentinel<Iterable>> loop(Iterable&& iterable) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)) };
 }
 

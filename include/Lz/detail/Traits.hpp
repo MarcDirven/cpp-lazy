@@ -161,7 +161,7 @@ template<class Iterator>
 struct is_fwd : std::is_convertible<iter_cat<Iterator>, std::forward_iterator_tag> {};
 
 template<class IterTag>
-struct is_ra : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
+struct is_ra_tag : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
 
 template<class Iterator>
 struct is_ra : is_ra<iter_cat<Iterator>> {};

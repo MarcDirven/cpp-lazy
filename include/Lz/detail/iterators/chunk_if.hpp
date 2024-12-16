@@ -16,11 +16,11 @@ template<class Iterator, class S, class UnaryPredicate>
 class chunk_if_iterator : public iter_base<chunk_if_iterator<Iterator, S, UnaryPredicate>, basic_iterable<Iterator>,
                                            fake_ptr_proxy<basic_iterable<Iterator>>, diff_type<Iterator>,
                                            std::forward_iterator_tag, default_sentinel> {
-    using iter < raits = std::iterator_traits<Iterator>;
+    using iter_traits = std::iterator_traits<Iterator>;
 
 public:
     using value_type = basic_iterable<Iterator>;
-    using difference_type = typename iter < raits::difference_type;
+    using difference_type = typename iter_traits::difference_type;
     using reference = value_type;
     using pointer = fake_ptr_proxy<reference>;
 

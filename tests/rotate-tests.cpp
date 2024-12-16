@@ -4,14 +4,14 @@
 #include <catch2/catch.hpp>
 #include <list>
 
-TEST_CASE("Rotate with sentinels") {
-    auto cStr = lz::cString("Hello, World!");
+TEST_CASE("rotate_iterable with sentinels") {
+    auto cStr = lz::c_string("Hello, World!");
     auto rotated = lz::rotate(cStr, std::next(cStr.begin(), 7));
     static_assert(!std::is_same<decltype(rotated.begin()), decltype(rotated.end())>::value, "Should be sentinel");
     CHECK(rotated.toString() == "World!Hello, ");
 }
 
-TEST_CASE("Rotate basic functionality", "[Rotate][Basic functionality]") {
+TEST_CASE("rotate_iterable basic functionality", "[rotate_iterable][Basic functionality]") {
     std::array<int, 5> arr = { 1, 2, 3, 4, 5 };
     auto rotate = lz::rotate(arr, arr.begin() + 2);
 
@@ -31,7 +31,7 @@ TEST_CASE("Rotate basic functionality", "[Rotate][Basic functionality]") {
     }
 }
 
-TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
+TEST_CASE("rotate_iterable binary operations", "[rotate_iterable][Binary ops]") {
     std::array<int, 4> arr = { 1, 2, 3, 4 };
     auto rotate = lz::rotate(arr, arr.begin() + 3);
 
@@ -91,7 +91,7 @@ TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
     }
 }
 
-TEST_CASE("Rotate to containers", "[Rotate][To container]") {
+TEST_CASE("rotate_iterable to containers", "[rotate_iterable][To container]") {
     constexpr std::size_t size = 6;
     std::vector<int> vec = { 1, 2, 3, 4, 5, 6 };
     auto rotator = lz::rotate(vec, vec.begin() + 2);
@@ -101,7 +101,7 @@ TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     }
 
     SECTION("To vector") {
-        CHECK(rotator.toVector() == std::vector<int>{ 3, 4, 5, 6, 1, 2 });
+        CHECK(rotator.to_vector() == std::vector<int>{ 3, 4, 5, 6, 1, 2 });
     }
 
     SECTION("To other container using to<>()") {
@@ -109,12 +109,12 @@ TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     }
 
     SECTION("To map") {
-        auto map = rotator.toMap([](int i) { return std::make_pair(i, i); });
+        auto map = rotator.to_map([](int i) { return std::make_pair(i, i); });
         CHECK(map == std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 1, 1 }, { 2, 2 } });
     }
 
     SECTION("To unordered map") {
-        auto map = rotator.toUnorderedMap([](int i) { return std::make_pair(i, i); });
+        auto map = rotator.to_unordered_map([](int i) { return std::make_pair(i, i); });
         CHECK(map == std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 1, 1 }, { 2, 2 } });
     }
 }

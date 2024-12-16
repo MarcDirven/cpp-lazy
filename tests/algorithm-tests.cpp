@@ -1,5 +1,5 @@
-#include <Lz/Algorithm.hpp>
-#include <Lz/CString.hpp>
+#include <Lz/algorithm.hpp>
+#include <Lz/c_string.hpp>
 #include <catch2/catch.hpp>
 
 // TODO write all tests here, including sentinels

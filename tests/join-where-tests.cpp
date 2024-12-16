@@ -13,9 +13,9 @@ struct PaymentBill {
 };
 
 TEST_CASE("Join where with sentinels") {
-    auto cStr = lz::cString("To join on");
-    auto sortedSequence = lz::cString("Toxzzzz");
-    auto joined = lz::joinWhere(
+    auto cStr = lz::c_string("To join on");
+    auto sortedSequence = lz::c_string("Toxzzzz");
+    auto joined = lz::join_where(
         cStr, sortedSequence, [](char c) { return c; }, [](char c) { return c; },
         [](char c, char c2) { return std::make_tuple(c, c2); });
     static_assert(!std::is_same<decltype(joined.begin()), decltype(joined.end())>::value, "Should be sentinel");
@@ -25,11 +25,11 @@ TEST_CASE("Join where with sentinels") {
         std::make_tuple('o', 'o'),
         std::make_tuple('o', 'o'),
     };
-    auto vec = joined.toVector();
+    auto vec = joined.to_vector();
     CHECK(vec == expected);
 }
 
-TEST_CASE("Left join changing and creating elements", "[JoinWhere][Basic functionality]") {
+TEST_CASE("Left join changing and creating elements", "[join_where_iterable][Basic functionality]") {
     std::vector<Customer> customers{
         Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
     };
@@ -38,7 +38,7 @@ TEST_CASE("Left join changing and creating elements", "[JoinWhere][Basic functio
         PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
     };
 
-    auto joined = lz::joinWhere(
+    auto joined = lz::join_where(
         customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
         [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
 
@@ -53,7 +53,7 @@ TEST_CASE("Left join changing and creating elements", "[JoinWhere][Basic functio
     }
 }
 
-TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
+TEST_CASE("Left join binary operations", "[join_where_iterable][Binary ops]") {
     std::vector<Customer> customers{
         Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
     };
@@ -62,7 +62,7 @@ TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
         PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
     };
 
-    auto joined = lz::joinWhere(
+    auto joined = lz::join_where(
         customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
         [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
     auto it = joined.begin();
@@ -86,7 +86,7 @@ TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
     }
 }
 
-TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
+TEST_CASE("join_where_iterable to containers", "[join_where_iterable][To container]") {
     std::vector<Customer> customers{
         Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
     };
@@ -95,7 +95,7 @@ TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
         PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
     };
 
-    auto joined = lz::joinWhere(
+    auto joined = lz::join_where(
         customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
         [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
 
@@ -122,7 +122,7 @@ TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
                                                                     std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }),
                                                                     std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) };
 
-        auto vec = joined.toVector();
+        auto vec = joined.to_vector();
         CHECK(std::equal(vec.begin(), vec.end(), expected.begin(),
                          [](const std::tuple<Customer, PaymentBill>& a, const std::tuple<Customer, PaymentBill>& b) {
                              auto& aFst = std::get<0>(a);
@@ -161,7 +161,7 @@ TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
         };
 
         decltype(expected) actual =
-            joined.toMap([](const std::tuple<Customer, PaymentBill>& val) { return std::make_pair(std::get<1>(val).id, val); });
+            joined.to_map([](const std::tuple<Customer, PaymentBill>& val) { return std::make_pair(std::get<1>(val).id, val); });
 
         CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const Pair& a, const Pair& b) {
             return a.first == b.first && std::get<1>(a.second).id == std::get<1>(b.second).id &&
@@ -179,7 +179,7 @@ TEST_CASE("JoinWhere to containers", "[JoinWhere][To container]") {
             { 1, std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) }
         };
 
-        decltype(expected) actual = joined.toUnorderedMap(
+        decltype(expected) actual = joined.to_unordered_map(
             [](const std::tuple<Customer, PaymentBill>& val) { return std::make_pair(std::get<1>(val).id, val); });
 
         CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const Pair& a, const Pair& b) {

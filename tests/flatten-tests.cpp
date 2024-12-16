@@ -6,17 +6,17 @@
 #include <list>
 
 TEST_CASE("Flatten with sentinels") {
-    using CString = decltype(lz::cString(""));
+    using CString = decltype(lz::c_string(""));
 
-    std::forward_list<CString> array = { lz::cString("Hello"), lz::cString(", "), lz::cString("World"), lz::cString("!") };
+    std::forward_list<CString> array = { lz::c_string("Hello"), lz::c_string(", "), lz::c_string("World"), lz::c_string("!") };
     auto flattened = lz::flatten(array);
     auto str = flattened.to<std::string>();
     CHECK(str == "Hello, World!");
 
-    auto flattenOne = lz::flatten(lz::cString("hello, world"));
+    auto flattenOne = lz::flatten(lz::c_string("hello, world"));
     CHECK(flattenOne.to<std::string>() == "hello, world");
 
-    CString arr[] = { lz::cString("Hello"), lz::cString(", "), lz::cString("World"), lz::cString("!") };
+    CString arr[] = { lz::c_string("Hello"), lz::c_string(", "), lz::c_string("World"), lz::c_string("!") };
     auto flattenedArray = lz::flatten(arr);
     CHECK(flattenedArray.to<std::string>() == "Hello, World!");
 }
@@ -25,23 +25,23 @@ TEST_CASE("Should flatten", "[Flatten][Basic functionality]") {
     SECTION("Flatten 1D") {
         std::vector<int> vec = { 1, 2, 3, 4 };
         auto flattened = lz::flatten(vec);
-        CHECK(flattened.toVector() == std::vector<int>{ 1, 2, 3, 4 });
-        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{ 4, 3, 2, 1 });
+        CHECK(flattened.to_vector() == std::vector<int>{ 1, 2, 3, 4 });
+        CHECK(lz::reverse(flattened).to_vector() == std::vector<int>{ 4, 3, 2, 1 });
     }
 
     SECTION("Flatten 2D") {
         std::vector<std::list<int>> nested = { { 1, 2, 3 }, {}, { 1 }, { 4, 5, 6 }, {} };
         auto flattened = lz::flatten(nested);
-        CHECK(flattened.toVector() == std::vector<int>{ 1, 2, 3, 1, 4, 5, 6 });
-        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{ 6, 5, 4, 1, 3, 2, 1 });
+        CHECK(flattened.to_vector() == std::vector<int>{ 1, 2, 3, 1, 4, 5, 6 });
+        CHECK(lz::reverse(flattened).to_vector() == std::vector<int>{ 6, 5, 4, 1, 3, 2, 1 });
     }
 
     SECTION("Flatten 3D") {
         std::vector<std::vector<std::vector<int>>> vectors = { { { 1, 2, 3 }, {} }, { { 4, 5 }, { 6 } }, { { 7 }, {} } };
 
         auto flattened = lz::flatten(vectors);
-        CHECK(flattened.toVector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
-        CHECK(lz::reverse(flattened).toVector() == std::vector<int>{ 7, 6, 5, 4, 3, 2, 1 });
+        CHECK(flattened.to_vector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(lz::reverse(flattened).to_vector() == std::vector<int>{ 7, 6, 5, 4, 3, 2, 1 });
     }
 
     SECTION("Should be by ref") {
@@ -103,7 +103,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To vector") {
-        CHECK(flattened.toVector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(flattened.to_vector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To other container using to<>()") {
@@ -111,7 +111,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> actual = flattened.toMap([](const int i) { return std::make_pair(i, i); });
+        std::map<int, int> actual = flattened.to_map([](const int i) { return std::make_pair(i, i); });
 
         std::map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),
@@ -122,7 +122,7 @@ TEST_CASE("Flatten to container", "[Flatten][To container]") {
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> actual = flattened.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
+        std::unordered_map<int, int> actual = flattened.to_unordered_map([](const int i) { return std::make_pair(i, i); });
 
         std::unordered_map<int, int> expected = {
             std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3), std::make_pair(4, 4),

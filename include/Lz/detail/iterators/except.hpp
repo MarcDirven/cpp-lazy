@@ -16,12 +16,12 @@ class except_iterator
     : public iter_base<except_iterator<Iterator, S, IteratorToExcept, S2, BinaryOp>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
                        diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using iter_traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename iter_traits::value_type;
+    using difference_type = typename iter_traits::difference_type;
+    using reference = typename iter_traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
 private:

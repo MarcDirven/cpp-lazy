@@ -59,7 +59,7 @@ void CString(benchmark::State& state) {
     }
 
     for (auto _ : state) {
-        for (char c : lz::cString(str)) {
+        for (char c : lz::c_string(str)) {
             benchmark::DoNotOptimize(c);
         }
     }
@@ -281,7 +281,7 @@ void TakeWhile(benchmark::State& state) {
     std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).to<std::array<int, SizePolicy>>();
 
     for (auto _ : state) {
-        for (int taken : lz::takeWhile(array, [](const int i) noexcept { return i != SizePolicy - 1; })) {
+        for (int taken : lz::take_while(array, [](const int i) noexcept { return i != SizePolicy - 1; })) {
             benchmark::DoNotOptimize(taken);
         }
     }
@@ -292,7 +292,7 @@ void TakeEvery(benchmark::State& state) {
     std::array<int, SizePolicy * offset> array{};
 
     for (auto _ : state) {
-        for (int taken : lz::takeEvery(array, offset)) {
+        for (int taken : lz::take_every(array, offset)) {
             benchmark::DoNotOptimize(taken);
         }
     }
@@ -369,7 +369,7 @@ void ZipLongest4(benchmark::State& state) {
     std::array<int, SizePolicy - 3> arrayD{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zipLongest(arrayA, arrayB, arrayC, arrayD)) {
+        for (auto tuple : lz::zip_longest(arrayA, arrayB, arrayC, arrayD)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
@@ -381,7 +381,7 @@ void ZipLongest3(benchmark::State& state) {
     std::array<int, SizePolicy - 2> arrayC{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zipLongest(arrayA, arrayB, arrayC)) {
+        for (auto tuple : lz::zip_longest(arrayA, arrayB, arrayC)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
@@ -392,7 +392,7 @@ void ZipLongest2(benchmark::State& state) {
     std::array<int, SizePolicy - 1> arrayB{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zipLongest(arrayA, arrayB)) {
+        for (auto tuple : lz::zip_longest(arrayA, arrayB)) {
             benchmark::DoNotOptimize(tuple);
         }
     }

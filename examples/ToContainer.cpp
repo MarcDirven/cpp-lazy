@@ -18,7 +18,7 @@ int main() {
         4, 'a');
 
     // To vector:
-    auto vec = generator.toVector();
+    auto vec = generator.to_vector();
     for (char val : vec) {
         std::cout << val << '\n';
     }
@@ -54,7 +54,7 @@ int main() {
     std::cout << '\n';
 
     // To map
-    std::map<char, char> map = generator.toMap([](const char c) { return std::make_pair(static_cast<char>(c + 1), c); });
+    std::map<char, char> map = generator.to_map([](const char c) { return std::make_pair(static_cast<char>(c + 1), c); });
     for (std::pair<char, char> pair : map) {
         std::cout << pair.first << ' ' << pair.second << '\n';
     }

@@ -60,7 +60,7 @@ TEST_CASE("Exclusive scan to container", "[ExclusiveScan][To container]") {
 
     SECTION("To vector") {
         std::vector<int> expected = { 0, 2, 7, 13, 17, 104, 112, 157 };
-        auto actual = scanner.toVector();
+        auto actual = scanner.to_vector();
         CHECK(expected == actual);
     }
 
@@ -73,14 +73,14 @@ TEST_CASE("Exclusive scan to container", "[ExclusiveScan][To container]") {
     SECTION("To map") {
         std::map<int, int> expected = { { 0, 0 },   { 4, 2 },     { 14, 7 },    { 26, 13 },
                                         { 34, 17 }, { 208, 104 }, { 224, 112 }, { 314, 157 } };
-        auto actual = scanner.toMap([](int i) { return std::make_pair(i + i, i); });
+        auto actual = scanner.to_map([](int i) { return std::make_pair(i + i, i); });
         CHECK(expected == actual);
     }
 
     SECTION("To unordered map") {
         std::unordered_map<int, int> expected = { { 0, 0 },   { 4, 2 },     { 14, 7 },    { 26, 13 },
                                                   { 34, 17 }, { 208, 104 }, { 224, 112 }, { 314, 157 } };
-        auto actual = scanner.toUnorderedMap([](int i) { return std::make_pair(i + i, i); });
+        auto actual = scanner.to_unordered_map([](int i) { return std::make_pair(i + i, i); });
         CHECK(expected == actual);
     }
 }

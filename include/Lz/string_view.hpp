@@ -22,24 +22,24 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 #if defined(LZ_HAS_STRING_VIEW)
 template<class C>
-using BasicStringView = std::basic_string_view<C>;
+using basic_string_view = std::basic_string_view<C>;
 
 using string_view = std::string_view;
 #elif defined(LZ_STANDALONE)
 template<class CharT>
-class BasicStringView {
+class basic_string_view {
 public:
     static constexpr std::size_t npos = static_cast<std::size_t>(-1);
 
-    BasicStringView() = default;
+    basic_string_view() = default;
 
-    constexpr BasicStringView(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
+    constexpr basic_string_view(const CharT* data, std::size_t size) noexcept : _data(data), _size(size) {
     }
 
-    LZ_CONSTEXPR_CXX_17 BasicStringView(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
+    LZ_CONSTEXPR_CXX_17 basic_string_view(const CharT* data) noexcept : _data(data), _size(std::char_traits<CharT>::length(data)) {
     }
 
-    constexpr BasicStringView(const CharT* begin, const CharT* end) noexcept :
+    constexpr basic_string_view(const CharT* begin, const CharT* end) noexcept :
         _data(begin),
         _size(static_cast<std::size_t>(end - begin)) {
     }
@@ -68,11 +68,11 @@ public:
         return _data[index];
     }
 
-    constexpr BasicStringView substr(const std::size_t pos, const std::size_t count) const noexcept {
+    constexpr basic_string_view substr(const std::size_t pos, const std::size_t count) const noexcept {
         return { _data + pos, count };
     }
 
-    constexpr BasicStringView substr(const std::size_t pos) const noexcept {
+    constexpr basic_string_view substr(const std::size_t pos) const noexcept {
         return { _data + pos, _size - pos };
     }
 
@@ -97,24 +97,24 @@ public:
         _size -= n;
     }
 
-    LZ_CONSTEXPR_CXX_17 bool contains(const BasicStringView str) const noexcept {
+    LZ_CONSTEXPR_CXX_17 bool contains(const basic_string_view str) const noexcept {
         return find(str) != npos;
     }
 
-    void swap(BasicStringView& other) noexcept {
+    void swap(basic_string_view& other) noexcept {
         std::swap(_data, other._data);
         std::swap(_size, other._size);
     }
 
-    std::basic_string<CharT> toStdString() const {
+    std::basic_string<CharT> to_std_string() const {
         return { _data, _size };
     }
 
     explicit operator std::basic_string<CharT>() const {
-        return toStdString();
+        return to_std_string();
     }
 
-    LZ_CONSTEXPR_CXX_17 std::size_t find(const BasicStringView str, std::size_t pos = 0) const noexcept {
+    LZ_CONSTEXPR_CXX_17 std::size_t find(const basic_string_view str, std::size_t pos = 0) const noexcept {
         if (pos > _size) {
             return npos;
         }
@@ -136,174 +136,174 @@ private:
 
 // Equality operator
 template<class CharT>
-inline bool operator==(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator==(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return lhs.size() == rhs.size() && std::char_traits<CharT>::compare(lhs.data(), rhs.data(), lhs.size()) == 0;
 }
 
 template<class CharT>
-inline bool operator==(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
-    return lhs == BasicStringView<CharT>(rhs.c_str(), rhs.size());
+inline bool operator==(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return lhs == basic_string_view<CharT>(rhs.c_str(), rhs.size());
 }
 
 template<class CharT>
-inline bool operator==(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
-    return BasicStringView<CharT>(lhs.c_str(), lhs.size()) == rhs;
+inline bool operator==(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
+    return basic_string_view<CharT>(lhs.c_str(), lhs.size()) == rhs;
 }
 
 template<class CharT>
-inline bool operator==(const BasicStringView<CharT>& lhs, const CharT* rhs) {
-    return lhs == BasicStringView<CharT>(rhs);
+inline bool operator==(const basic_string_view<CharT>& lhs, const CharT* rhs) {
+    return lhs == basic_string_view<CharT>(rhs);
 }
 
 template<class CharT>
-inline bool operator==(const CharT* lhs, const BasicStringView<CharT>& rhs) {
-    return BasicStringView<CharT>(lhs) == rhs;
+inline bool operator==(const CharT* lhs, const basic_string_view<CharT>& rhs) {
+    return basic_string_view<CharT>(lhs) == rhs;
 }
 
 // Inequality operator
 template<class CharT>
-inline bool operator!=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator!=(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs == rhs);
 }
 
 template<class CharT>
-inline bool operator!=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+inline bool operator!=(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
     return !(lhs == rhs);
 }
 
 template<class CharT>
-inline bool operator!=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator!=(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs == rhs);
 }
 
 template<class CharT>
-inline bool operator!=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
+inline bool operator!=(const basic_string_view<CharT>& lhs, const CharT* rhs) {
     return !(lhs == rhs);
 }
 
 template<class CharT>
-inline bool operator!=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator!=(const CharT* lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs == rhs);
 }
 
 // Less than operator
 template<class CharT>
-inline bool operator<(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator<(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     const auto cmp = std::char_traits<CharT>::compare(lhs.data(), rhs.data(), std::min(lhs.size(), rhs.size()));
     return cmp < 0 || (cmp == 0 && lhs.size() < rhs.size());
 }
 
 template<class CharT>
-inline bool operator<(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
-    return lhs < BasicStringView<CharT>(rhs.c_str(), rhs.size());
+inline bool operator<(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+    return lhs < basic_string_view<CharT>(rhs.c_str(), rhs.size());
 }
 
 template<class CharT>
-inline bool operator<(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
-    return BasicStringView<CharT>(lhs.c_str(), lhs.size()) < rhs;
+inline bool operator<(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
+    return basic_string_view<CharT>(lhs.c_str(), lhs.size()) < rhs;
 }
 
 template<class CharT>
-inline bool operator<(const BasicStringView<CharT>& lhs, const CharT* rhs) {
-    return lhs < BasicStringView<CharT>(rhs);
+inline bool operator<(const basic_string_view<CharT>& lhs, const CharT* rhs) {
+    return lhs < basic_string_view<CharT>(rhs);
 }
 
 template<class CharT>
-inline bool operator<(const CharT* lhs, const BasicStringView<CharT>& rhs) {
-    return BasicStringView<CharT>(lhs) < rhs;
+inline bool operator<(const CharT* lhs, const basic_string_view<CharT>& rhs) {
+    return basic_string_view<CharT>(lhs) < rhs;
 }
 
 // Greater than operator
 template<class CharT>
-inline bool operator>(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return rhs < lhs;
 }
 
 template<class CharT>
-inline bool operator>(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+inline bool operator>(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
     return rhs < lhs;
 }
 
 template<class CharT>
-inline bool operator>(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return rhs < lhs;
 }
 
 template<class CharT>
-inline bool operator>(const BasicStringView<CharT>& lhs, const CharT* rhs) {
-    return BasicStringView<CharT>(rhs) < lhs;
+inline bool operator>(const basic_string_view<CharT>& lhs, const CharT* rhs) {
+    return basic_string_view<CharT>(rhs) < lhs;
 }
 
 template<class CharT>
-inline bool operator>(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>(const CharT* lhs, const basic_string_view<CharT>& rhs) {
     return rhs < lhs;
 }
 
 // Less than or equal operator
 template<class CharT>
-inline bool operator<=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator<=(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(rhs < lhs);
 }
 
 template<class CharT>
-inline bool operator<=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+inline bool operator<=(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
     return !(rhs < lhs);
 }
 
 template<class CharT>
-inline bool operator<=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator<=(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(rhs < lhs);
 }
 
 template<class CharT>
-inline bool operator<=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
-    return !(BasicStringView<CharT>(rhs) < lhs);
+inline bool operator<=(const basic_string_view<CharT>& lhs, const CharT* rhs) {
+    return !(basic_string_view<CharT>(rhs) < lhs);
 }
 
 template<class CharT>
-inline bool operator<=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator<=(const CharT* lhs, const basic_string_view<CharT>& rhs) {
     return !(rhs < lhs);
 }
 
 // Greater than or equal operator
 template<class CharT>
-inline bool operator>=(const BasicStringView<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>=(const basic_string_view<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs < rhs);
 }
 
 template<class CharT>
-inline bool operator>=(const BasicStringView<CharT>& lhs, const std::basic_string<CharT>& rhs) {
+inline bool operator>=(const basic_string_view<CharT>& lhs, const std::basic_string<CharT>& rhs) {
     return !(lhs < rhs);
 }
 
 template<class CharT>
-inline bool operator>=(const std::basic_string<CharT>& lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>=(const std::basic_string<CharT>& lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs < rhs);
 }
 
 template<class CharT>
-inline bool operator>=(const BasicStringView<CharT>& lhs, const CharT* rhs) {
-    return !(lhs < BasicStringView<CharT>(rhs));
+inline bool operator>=(const basic_string_view<CharT>& lhs, const CharT* rhs) {
+    return !(lhs < basic_string_view<CharT>(rhs));
 }
 
 template<class CharT>
-inline bool operator>=(const CharT* lhs, const BasicStringView<CharT>& rhs) {
+inline bool operator>=(const CharT* lhs, const basic_string_view<CharT>& rhs) {
     return !(lhs < rhs);
 }
 
 template<class CharT>
-constexpr std::size_t BasicStringView<CharT>::npos;
+constexpr std::size_t basic_string_view<CharT>::npos;
 
-using string_view = BasicStringView<char>;
+using string_view = basic_string_view<char>;
 
 template<typename CharT>
-std::ostream& operator<<(std::ostream& os, const lz::BasicStringView<CharT> view) {
+std::ostream& operator<<(std::ostream& os, const lz::basic_string_view<CharT> view) {
     return os.write(view.data(), static_cast<std::streamsize>(view.size()));
 }
 #else
 
 template<class C>
-using BasicStringView = fmt::basic_string_view<C>;
+using basic_string_view = fmt::basic_string_view<C>;
 
 using string_view = fmt::string_view;
 #endif

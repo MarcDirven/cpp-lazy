@@ -11,7 +11,7 @@
 
 namespace lz {
 namespace detail {
-template<class Reference, class iter_cat, class DiffType>
+template<class Reference, class IterCat, class DiffType>
 struct iterator_base;
 
 template<class Reference, class DiffType>

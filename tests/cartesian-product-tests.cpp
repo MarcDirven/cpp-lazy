@@ -1,6 +1,6 @@
-#include "Lz/Algorithm.hpp"
-#include "Lz/CString.hpp"
-#include "Lz/CartesianProduct.hpp"
+#include "Lz/algorithm.hpp"
+#include "Lz/c_string.hpp"
+#include "Lz/cartesian_product.hpp"
 
 #include <catch2/catch.hpp>
 #include <list>
@@ -8,8 +8,8 @@
 TEST_CASE("Is sentinel") {
     const char* str = "Hello,";
     const char* str2 = " World!";
-    auto cstr1 = lz::cString(str);
-    auto cstr2 = lz::cString(str2);
+    auto cstr1 = lz::c_string(str);
+    auto cstr2 = lz::c_string(str2);
     auto cart = lz::cartesian(cstr1, cstr2);
 
     SECTION("Should be sentinel") {
@@ -150,7 +150,7 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
     }
 
     SECTION("To vector") {
-        std::vector<std::tuple<int, char>> result = cartesian.toVector();
+        std::vector<std::tuple<int, char>> result = cartesian.to_vector();
         std::vector<std::tuple<int, char>> expected = {
             std::make_tuple(1, 'a'), std::make_tuple(1, 'b'), std::make_tuple(1, 'c'),
 
@@ -175,7 +175,7 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
 
     SECTION("To map") {
         std::map<int, std::tuple<int, char>> result =
-            cartesian.toMap([](const typename decltype(cartesian)::iterator::value_type& v) {
+            cartesian.to_map([](const typename decltype(cartesian)::iterator::value_type& v) {
                 return std::make_pair(std::get<0>(v) + std::get<1>(v), v);
             });
         decltype(result) expected = {
@@ -190,7 +190,7 @@ TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") 
 
     SECTION("To unordered map") {
         std::unordered_map<int, std::tuple<int, char>> result =
-            cartesian.toUnorderedMap([](const typename decltype(cartesian)::iterator::value_type& v) {
+            cartesian.to_unordered_map([](const typename decltype(cartesian)::iterator::value_type& v) {
                 return std::make_pair(std::get<0>(v) + std::get<1>(v), v);
             });
         decltype(result) expected = {

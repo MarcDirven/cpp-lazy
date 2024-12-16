@@ -35,10 +35,10 @@ template<class T, class Reference = T&, class IterCat = std::forward_iterator_ta
 class any_iterable final : public detail::basic_iterable<detail::iterator_wrapper<T, Reference, IterCat, DiffType>> {
 private:
     using it = detail::iterator_wrapper<T, Reference, IterCat, DiffType>;
-    using base = detail::basic_iterable<It>;
+    using base = detail::basic_iterable<it>;
 
     template<class Iterable>
-    using any_iter_impl = detail::any_iterator_impl<decltype(detail::begin(std::forward<View>(std::declval<Iterable>()))), T,
+    using any_iter_impl = detail::any_iterator_impl<decltype(detail::begin(std::forward<Iterable>(std::declval<Iterable>()))), T,
                                                     Reference, IterCat, DiffType>;
 
 public:
@@ -51,8 +51,8 @@ public:
      */
     template<class Iterable>
     any_iterable(Iterable&& iterable) :
-        base(it(std::make_shared<any_iter_impl<Iterable>>(detail::begin(std::forward<Iterable>(view)))),
-             it(std::make_shared<any_iter_impl<Iterable>>(detail::end(std::forward<Iterable>(view))))) {
+        base(it(std::make_shared<any_iter_impl<Iterable>>(detail::begin(std::forward<Iterable>(iterable)))),
+             it(std::make_shared<any_iter_impl<Iterable>>(detail::end(std::forward<Iterable>(iterable))))) {
     }
 };
 } // namespace lz

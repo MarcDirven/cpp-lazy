@@ -38,7 +38,7 @@ public:
  * `false`/something that is convertible to `false`, it doesn't). The type that is returned by `object::second` can be any type.
  * Example:
  * ```cpp
- * auto vector = lz::generateWhile([](int& i) { return std::make_pair(i == 4, i++); }, 0).toVector();
+ * auto vector = lz::generateWhile([](int& i) { return std::make_pair(i == 4, i++); }, 0).to_vector();
  * // vector yields: { 0, 1, 2, 3 }
  * ```
  * @param generatorFunc The function to execute any amount of times as long as it returns a pair of `{true/boolean like value,

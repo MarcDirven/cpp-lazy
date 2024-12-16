@@ -3,35 +3,35 @@
 #ifndef LZ_ROTATE_HPP
 #define LZ_ROTATE_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/RotateIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/rotate.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-    class Rotate final : public detail::basic_iterable < detail::rotate_iterator<Iterator, S>,
-    typename detail::rotate_iterator<Iterator, S::sentinel> {
+    class rotate_iterable final : public detail::basic_iterable<detail::rotate_iterator<Iterator, S>,
+                                                                typename detail::rotate_iterator<Iterator, S::sentinel>> {
 
 public:
     using iterator = detail::rotate_iterator<Iterator, S>;
     using const_iterator = iterator;
 
-    constexpr Rotate() = default;
+    constexpr rotate_iterable() = default;
 
 private:
-    Rotate(Iterator begin, S end, Iterator start, std::bidirectional_iterator_tag) :
+    rotate_iterable(Iterator begin, S end, Iterator start, std::bidirectional_iterator_tag) :
         detail::basic_iterable<iterator>(iterator(begin, end, start, false), iterator(begin, end, start, true)) {
     }
 
-    Rotate(Iterator begin, S end, Iterator start, std::forward_iterator_tag) :
+    rotate_iterable(Iterator begin, S end, Iterator start, std::forward_iterator_tag) :
         detail::basic_iterable<iterator, S>(iterator(std::move(begin), std::move(end), start, false), start) {
     }
 
 public:
-    Rotate(Iterator begin, S end, Iterator start) :
-        Rotate(std::move(begin), std::move(end), std::move(start), IterCat<Iterator>{}) {
+    rotate_iterable(Iterator begin, S end, Iterator start) :
+        rotate_iterable(std::move(begin), std::move(end), std::move(start), IterCat<Iterator>{}) {
     }
 };
 
@@ -43,10 +43,10 @@ public:
  * @param start The start of the range to start the rotation (essentialy begin + some value)
  * @param begin The beginning of the range (container.begin())
  * @param end The ending of the range (container.end())
- * @return Rotate object, which is a range of [start, start)
+ * @return rotate_iterable object, which is a range of [start, start)
  */
 template<LZ_CONCEPT_ITERATOR Iterator, class Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Rotate<Iterator, sentinel<Iterable>> rotate(Iterable&& iterable, Iterator start) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 rotate_iterable<Iterator, sentinel<Iterable>> rotate(Iterable&& iterable, Iterator start) {
     static_assert(std::is_same<Iterator, decltype(std::begin(iterable))>::value, "Iterators must be the same type");
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), std::move(start) };
 }

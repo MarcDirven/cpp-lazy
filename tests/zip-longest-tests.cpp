@@ -2,13 +2,13 @@
 #include <catch2/catch.hpp>
 #include <list>
 
-TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic functionality]") {
+TEST_CASE("zip_longest_iterable changing and creating elements", "[zip_longest_iterable][Basic functionality]") {
     std::vector<int> v = { 1, 2, 3, 4, 5, 6, 7 };
     std::list<char> v2 = { 'a', 'b', 'c' };
     std::vector<char> v3 = { 'a', 'b', 'c', 'd' };
 
-    auto fwd = lz::zipLongest(v, v2, v3);
-    auto ra = lz::zipLongest(v, v3);
+    auto fwd = lz::zip_longest(v, v2, v3);
+    auto ra = lz::zip_longest(v, v3);
     static_assert(lz::detail::IsForward<decltype(fwd.begin())>::value, "");
     static_assert(lz::detail::IsRandomAccess<decltype(ra.begin())>::value, "");
 
@@ -68,12 +68,12 @@ TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic funct
     }
 }
 
-TEST_CASE("ZipLongest binary operations", "[ZipLongest][Binary ops]") {
+TEST_CASE("zip_longest_iterable binary operations", "[zip_longest_iterable][Binary ops]") {
     std::vector<int> a = { 1, 2, 3, 4 };
     std::vector<float> b = { 1.f, 2.f, 3.f, 4.f, 5.f };
     std::array<short, 2> c = { 1, 2 };
 
-    auto zipper = lz::zipLongest(a, b, c);
+    auto zipper = lz::zip_longest(a, b, c);
     auto begin = zipper.begin();
 
     CHECK(*std::get<0>(*begin) == 1);

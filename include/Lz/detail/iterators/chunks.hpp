@@ -18,13 +18,13 @@ class chunks_iterator
     : public iter_base<chunks_iterator<Iterator, S>, basic_iterable<Iterator>, fake_ptr_proxy<basic_iterable<Iterator>>,
                        diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using iter_traits = std::iterator_traits<Iterator>;
 
 public:
     using value_type = basic_iterable<Iterator>;
     using reference = value_type;
     using pointer = fake_ptr_proxy<value_type>;
-    using difference_type = typename iter < raits::difference_type;
+    using difference_type = typename iter_traits::difference_type;
 
 private:
     Iterator _sub_range_begin{};
@@ -79,14 +79,14 @@ class chunks_iterator<Iterator, Iterator /* Bidirectional or higher */>
     : public iter_base<chunks_iterator<Iterator, Iterator>, basic_iterable<Iterator>, fake_ptr_proxy<basic_iterable<Iterator>>,
                        diff_type<Iterator>, iter_cat<Iterator>> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using iter_traits = std::iterator_traits<Iterator>;
 
 public:
-    using iterator_category = typename iter < raits::iterator_category;
+    using iterator_category = typename iter_traits::iterator_category;
     using value_type = basic_iterable<Iterator>;
     using reference = value_type;
     using pointer = fake_ptr_proxy<value_type>;
-    using difference_type = typename iter < raits::difference_type;
+    using difference_type = typename iter_traits::difference_type;
 
 private:
     Iterator _begin{};

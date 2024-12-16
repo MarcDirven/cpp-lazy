@@ -3,21 +3,21 @@
 #ifndef LZ_RANDOM_HPP
 #define LZ_RANDOM_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/RandomIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/random.hpp"
 
 #include <random>
 
 namespace lz {
 namespace detail {
 template<std::size_t N>
-class SeedSequence {
+class seed_sequence {
 public:
     using result_type = std::seed_seq::result_type;
 
 private:
-    using SeedArray = std::array<result_type, N>;
-    SeedArray _seed{};
+    using seed_array = std::array<result_type, N>;
+    seed_array _seed{};
 
     template<class Iter>
     LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
@@ -30,24 +30,24 @@ private:
     }
 
 public:
-    constexpr SeedSequence() = default;
+    constexpr seed_sequence() = default;
 
-    explicit SeedSequence(std::random_device& rd) {
+    explicit seed_sequence(std::random_device& rd) {
         std::generate(_seed.begin(), _seed.end(), [&rd]() { return static_cast<result_type>(rd()); });
     }
 
     template<class T>
-    LZ_CONSTEXPR_CXX_20 SeedSequence(std::initializer_list<T> values) {
+    LZ_CONSTEXPR_CXX_20 seed_sequence(std::initializer_list<T> values) {
         create(values.begin(), values.end());
     }
 
     template<class Iter>
-    LZ_CONSTEXPR_CXX_20 SeedSequence(Iter first, Iter last) {
+    LZ_CONSTEXPR_CXX_20 seed_sequence(Iter first, Iter last) {
         create(first, last);
     }
 
-    SeedSequence(const SeedSequence&) = delete;
-    SeedSequence& operator=(const SeedSequence&) = delete;
+    seed_sequence(const seed_sequence&) = delete;
+    seed_sequence& operator=(const seed_sequence&) = delete;
 
     template<class Iter>
     LZ_CONSTEXPR_CXX_20 void generate(Iter begin, Iter end) const {
@@ -55,7 +55,7 @@ public:
             return;
         }
 
-        using Itervalue_type_t = value_type<Iter>;
+        using iter_value_type = value_type<Iter>;
 
         std::fill(begin, end, 0x8b'8b8'b8b);
         const auto n = static_cast<std::size_t>(end - begin);
@@ -65,7 +65,7 @@ public:
         const std::size_t p = (n - t) / 2;
         const std::size_t q = p + t;
 
-        Itervalue_type_t mask = static_cast<Itervalue_type_t>(1) << 31;
+        auto mask = static_cast<iter_value_type>(1) << 31;
         mask <<= 1;
         mask -= 1;
 
@@ -112,9 +112,9 @@ public:
     }
 };
 
-inline std::mt19937 createMtEngine() {
+inline std::mt19937 create_mt_engine() {
     std::random_device rd;
-    SeedSequence<8> seedSeq(rd);
+    seed_sequence<8> seedSeq(rd);
     return std::mt19937(seedSeq);
 }
 } // namespace detail
@@ -122,18 +122,18 @@ inline std::mt19937 createMtEngine() {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
-class Random final
+class random_iterable final
     : public detail::basic_iterable<detail::random_iterator<Arithmetic, Distribution, Generator>, default_sentinel> {
 public:
     using iterator = detail::random_iterator<Arithmetic, Distribution, Generator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount) :
+    random_iterable(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount) :
         detail::basic_iterable<iterator, default_sentinel>(iterator(distribution, generator, amount)) {
     }
 
-    Random() = default;
+    random_iterable() = default;
 
     /**
      * Creates a new random number, not taking into account its size. This is for pure convenience. Example:
@@ -179,7 +179,7 @@ public:
  * @return A random view object that generates a sequence of `Generator::result_type`
  */
 template<class Generator, class Distribution>
-LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
+LZ_NODISCARD random_iterable<typename Distribution::result_type, Distribution, Generator>
 random(const Distribution& distribution, Generator& generator,
        const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     return { distribution, generator, static_cast<std::ptrdiff_t>(amount) };
@@ -204,7 +204,7 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
 #ifndef LZ_HAS_CONCEPTS
     static_assert(std::is_arithmetic_v<Arithmetic>, "min/max type should be arithmetic");
 #endif // LZ_HAS_CONCEPTS
-    static std::mt19937 gen = detail::createMtEngine();
+    static std::mt19937 gen = detail::create_mt_engine();
     if constexpr (std::is_integral_v<Arithmetic>) {
         std::uniform_int_distribution<Arithmetic> dist(min, max);
         return random(dist, gen, amount);
@@ -231,9 +231,9 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
  */
 template<class Integral>
 LZ_NODISCARD
-    detail::enable_if<std::is_integral<Integral>::value, Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
+    detail::enable_if<std::is_integral<Integral>::value, random_iterable<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
     random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    static std::mt19937 gen = detail::createMtEngine();
+    static std::mt19937 gen = detail::create_mt_engine();
     std::uniform_int_distribution<Integral> dist(min, max);
     return random(dist, gen, amount);
 }
@@ -253,9 +253,9 @@ LZ_NODISCARD
  */
 template<class Floating>
 LZ_NODISCARD detail::enable_if<std::is_floating_point<Floating>::value,
-                               Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
+                               random_iterable<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
 random(const Floating min, const Floating max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    static std::mt19937 gen = detail::createMtEngine();
+    static std::mt19937 gen = detail::create_mt_engine();
     std::uniform_real_distribution<Floating> dist(min, max);
     return random(dist, gen, amount);
 }

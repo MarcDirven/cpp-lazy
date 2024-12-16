@@ -3,8 +3,8 @@
 #ifndef LZ_RANGE_HPP
 #define LZ_RANGE_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/RangeIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/range.hpp"
 
 namespace lz {
 
@@ -18,12 +18,8 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using value_type = typename iterator::value_type;
 
-private:
-    using Base = detail::basic_iterable<iterator>;
-
-public:
     constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :
-        Base(iterator(start, step), iterator(end, step)) {
+        detail::basic_iterable<iterator>(iterator(start, step), iterator(end, step)) {
     }
 
     constexpr Range() = default;

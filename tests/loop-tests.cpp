@@ -2,8 +2,8 @@
 #include <Lz/Loop.hpp>
 #include <catch2/catch.hpp>
 
-TEST_CASE("Loop tests with sentinels") {
-    auto cstr = lz::cString("Hello");
+TEST_CASE("loop_iterable tests with sentinels") {
+    auto cstr = lz::c_string("Hello");
     auto looper = lz::loop(cstr);
     static_assert(!std::is_same<decltype(looper.begin()), decltype(looper.end())>::value, "Should be sentinel");
     CHECK(*looper.begin() == 'H');
@@ -19,7 +19,7 @@ TEST_CASE("Loop tests with sentinels") {
     }
 }
 
-TEST_CASE("Basic functionality loop", "[Loop][Basic functionality]") {
+TEST_CASE("Basic functionality loop", "[loop_iterable][Basic functionality]") {
     std::vector<int> vec = { 1, 2, 3, 4 };
     auto looper = lz::loop(vec);
     static_assert(std::is_same<decltype(looper.begin()), decltype(looper.end())>::value, "Should not be sentinel");

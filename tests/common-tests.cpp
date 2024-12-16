@@ -1,10 +1,10 @@
-#include <Lz/CString.hpp>
-#include <Lz/Common.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/common.hpp>
 #include <catch2/catch.hpp>
 
 TEST_CASE("Basic CommonView test") {
     const char* s = "hello, world!";
-    auto cstr = lz::cString(s);
+    auto cstr = lz::c_string(s);
     auto common = lz::common(cstr);
     CHECK(std::find(common.begin(), common.end(), 'h') == common.begin());
     CHECK(std::equal(common.begin(), common.end(), cstr.begin()));
@@ -12,7 +12,7 @@ TEST_CASE("Basic CommonView test") {
 
 TEST_CASE("CommonView binary operations", "[CommonView][Binary ops]") {
     const char* a = "hello ";
-    auto cStringView = lz::cString(a);
+    auto cStringView = lz::c_string(a);
     auto common = lz::common(cStringView);
 
     auto begin = common.begin();
@@ -31,7 +31,7 @@ TEST_CASE("CommonView binary operations", "[CommonView][Binary ops]") {
 
 TEST_CASE("CommonView to containers", "[CommonView][To container]") {
     const char* a = "hello ";
-    auto cStringView = lz::cString(a);
+    auto cStringView = lz::c_string(a);
     auto common = lz::common(cStringView);
 
     SECTION("To array") {
@@ -39,7 +39,7 @@ TEST_CASE("CommonView to containers", "[CommonView][To container]") {
     }
 
     SECTION("To vector") {
-        CHECK(common.toVector() == std::vector<char>{ 'h', 'e', 'l', 'l', 'o', ' ' });
+        CHECK(common.to_vector() == std::vector<char>{ 'h', 'e', 'l', 'l', 'o', ' ' });
     }
 
     SECTION("To other container using to<>()") {
@@ -47,12 +47,12 @@ TEST_CASE("CommonView to containers", "[CommonView][To container]") {
     }
 
     SECTION("To map") {
-        CHECK(common.toMap([](char c) { return std::make_pair(c, c); }) ==
+        CHECK(common.to_map([](char c) { return std::make_pair(c, c); }) ==
               std::map<char, char>{ { 'h', 'h' }, { 'e', 'e' }, { 'l', 'l' }, { 'o', 'o' }, { ' ', ' ' } });
     }
 
     SECTION("To unordered map") {
-        CHECK(common.toUnorderedMap([](char c) { return std::make_pair(c, c); }) ==
+        CHECK(common.to_unordered_map([](char c) { return std::make_pair(c, c); }) ==
               std::unordered_map<char, char>{ { 'h', 'h' }, { 'e', 'e' }, { 'l', 'l' }, { 'o', 'o' }, { ' ', ' ' } });
     }
 }

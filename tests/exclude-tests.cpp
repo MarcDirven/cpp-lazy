@@ -104,9 +104,9 @@ TEST_CASE("Exclude to containers", "[Exclude][To container]") {
     }
 
     SECTION("To vector") {
-        CHECK(excluded1.toVector() == std::vector<int>{ 1, 2, 3, 6, 7, 8, 9, 10 });
-        CHECK(excluded2.toVector() == std::vector<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
-        CHECK(excluded3.toVector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
+        CHECK(excluded1.to_vector() == std::vector<int>{ 1, 2, 3, 6, 7, 8, 9, 10 });
+        CHECK(excluded2.to_vector() == std::vector<int>{ 3, 4, 5, 6, 7, 8, 9, 10 });
+        CHECK(excluded3.to_vector() == std::vector<int>{ 1, 2, 3, 4, 5, 6, 7 });
     }
 
     SECTION("To other container using to<>()") {
@@ -116,20 +116,20 @@ TEST_CASE("Exclude to containers", "[Exclude][To container]") {
     }
 
     SECTION("To map") {
-        CHECK(excluded1.toMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded1.to_map([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded2.to_map([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded3.to_map([](int i) { return std::make_pair(i, i); }) ==
               std::map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 
     SECTION("To unordered map") {
-        CHECK(excluded1.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded1.to_unordered_map([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded2.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded2.to_unordered_map([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 }, { 9, 9 }, { 10, 10 } });
-        CHECK(excluded3.toUnorderedMap([](int i) { return std::make_pair(i, i); }) ==
+        CHECK(excluded3.to_unordered_map([](int i) { return std::make_pair(i, i); }) ==
               std::unordered_map<int, int>{ { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 } });
     }
 }

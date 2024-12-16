@@ -5,11 +5,11 @@
 
 TEST_CASE("Filter with sentinels") {
     const char* str = "Hello, World!";
-    auto cStr = lz::cString(str);
+    auto cStr = lz::c_string(str);
     auto filter = lz::filter(cStr, [](char c) { return c != 'o'; });
     static_assert(!std::is_same<decltype(filter.begin()), decltype(filter.end())>::value, "Must be sentinel");
     std::vector<char> expected = { 'H', 'e', 'l', 'l', ',', ' ', 'W', 'r', 'l', 'd', '!' };
-    CHECK(filter.toVector() == expected);
+    CHECK(filter.to_vector() == expected);
 }
 
 TEST_CASE("Filter filters and is by reference", "[Filter][Basic functionality]") {
@@ -96,7 +96,7 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     }
 
     SECTION("To vector") {
-        auto filteredVec = lz::filter(array, [](int i) { return i != 3; }).toVector();
+        auto filteredVec = lz::filter(array, [](int i) { return i != 3; }).to_vector();
 
         CHECK(filteredVec.size() == 2);
         CHECK(filteredVec[0] == array[0]);
@@ -117,14 +117,14 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
 
     SECTION("To map") {
         auto filtered = lz::filter(array, [](const int i) { return i != 3; });
-        std::map<int, int> actual = filtered.toMap([](const int i) { return std::make_pair(i, i); });
+        std::map<int, int> actual = filtered.to_map([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(expected == actual);
     }
 
     SECTION("To unordered map") {
         auto filtered = lz::filter(array, [](const int i) { return i != 3; });
-        std::unordered_map<int, int> actual = filtered.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
+        std::unordered_map<int, int> actual = filtered.to_unordered_map([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2) };
         CHECK(expected == actual);
     }

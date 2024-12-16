@@ -10,14 +10,10 @@ namespace lz {
 namespace detail {
 
 template<class C, class Tag>
-class c_string_iterator;
-
-template<class C, class Tag>
-using c_string_sentinel_sel = SentinelSelector<Tag, c_string_iterator<C, Tag>>;
-
-template<class C, class Tag>
 class c_string_iterator
-    : public iter_base<c_string_iterator<C, Tag>, const C&, const C*, std::ptrdiff_t, Tag, c_string_sentinel_sel<C, Tag>> {
+    : public iter_base<c_string_iterator<C, Tag>, const C&, const C*, std::ptrdiff_t, Tag, 
+                       sentinel_selector<Tag, c_string_iterator<C, Tag>>> {
+
     const C* _it{ nullptr };
 
 public:

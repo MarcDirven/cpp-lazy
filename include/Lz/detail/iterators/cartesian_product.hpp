@@ -17,61 +17,61 @@ struct ic {}; // iter category
 struct dt {}; // diff type
 
 template<class IterTuple, class Tag>
-    struct iter < uple_type;
+struct iter_tuple_type;
 
 template<class... Iterators>
-    struct iter < uple_type<std::tuple<Iterators...>, vt> {
+struct iter_tuple_type<std::tuple<Iterators...>, vt> {
     using type = std::tuple<value_type<Iterators>...>;
 };
 
 template<class... Iterators>
-    struct iter < uple_type<std::tuple<Iterators...>, rt> {
+struct iter_tuple_type<std::tuple<Iterators...>, rt> {
     using type = std::tuple<ref<Iterators>...>;
 };
 
 template<class... Iterators>
-    struct iter < uple_type<std::tuple<Iterators...>, ic> {
+struct iter_tuple_type<std::tuple<Iterators...>, ic> {
     using type = common_type<iter_cat<Iterators>...>;
 };
 
 template<class... Iterators>
-    struct iter < uple_type<std::tuple<Iterators...>, dt> {
+struct iter_tuple_type<std::tuple<Iterators...>, dt> {
     using type = common_type<diff_type<Iterators>...>;
 };
 
 template<class IterTuple>
-using value_type_t = typename iter < uple_type<IterTuple, vt>::type;
+using value_type_iter_tuple = typename iter_tuple_type<IterTuple, vt>::type;
 
 template<class IterTuple>
-    using ref_type_iter < uple = typename iter < uple_type<IterTuple, rt>::type;
+using ref_type_iter_tuple = typename iter_tuple_type<IterTuple, rt>::type;
 
 template<class IterTuple>
-    using iter_cat_iter < uple = typename iter < uple_type<IterTuple, ic>::type;
+using iter_cat_iter_tuple = typename iter_tuple_type<IterTuple, ic>::type;
 
 template<class IterTuple>
-    using diff_type_iter < uple = typename iter < uple_type<IterTuple, dt>::type;
+using diff_type_iter_tuple = typename iter_tuple_type<IterTuple, dt>::type;
 
 template<class IterTuple, class SentinelTuple>
 class cartesian_product_iterator;
 
 template<class IterTuple, class SentinelTuple>
 using default_sentinel_selector =
-    sentinel_selector < iter_cat_iter<uple<IterTuple>, cartesian_product_iterator<IterTuple, SentinelTuple>>;
+    sentinel_selector<iter_cat_iter_tuple<IterTuple>, cartesian_product_iterator<IterTuple, SentinelTuple>>;
 
 // Edited version of https://github.com/mirandaconrado/product-iterator
 template<class IterTuple, class SentinelTuple>
-    class cartesian_product_iterator : public iter_base < cartesian_product_iterator<IterTuple, SentinelTuple>,
-    ref_type_iter < uple<IterTuple>, fake_ptr_proxy < ref_type_iter<uple<IterTuple>>, diff_type_iter < uple<IterTuple>,
-    iter_cat_iter<uple<IterTuple>, default_sentinel_selector<IterTuple, SentinelTuple>> {
+class cartesian_product_iterator : public iter_base<cartesian_product_iterator<IterTuple, SentinelTuple>,
+    ref_type_iter_tuple<IterTuple>, fake_ptr_proxy<ref_type_iter_tuple<IterTuple>>, diff_type_iter_tuple<IterTuple>,
+    iter_cat_iter_tuple<IterTuple>, default_sentinel_selector<IterTuple, SentinelTuple>> {
 
     static constexpr std::size_t tup_size = std::tuple_size<IterTuple>::value;
     static_assert(tup_size > 1, "The size of the iterators must be greater than 1");
 
 public:
-    using value_type = value_type_tIterTupleT<IterTuple>;
-    using reference = ref_type_iter < uple<IterTuple>;
+    using value_type = value_type_iter_tuple<IterTuple>;
+    using reference = ref_type_iter_tuple<IterTuple>;
     using pointer = fake_ptr_proxy<reference>;
-    using difference_type = diff_type_iter < uple<IterTuple>;
+    using difference_type = diff_type_iter_tuple<IterTuple>;
 
 private:
     IterTuple _begin{};
