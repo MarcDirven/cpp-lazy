@@ -7,7 +7,7 @@ TEST_CASE("Generate while changing and creating elements", "[Generate while][Bas
     static_cast<void>(compileTest1);
     const auto compileTest2 = lz::generateWhile([](const int&) { return std::make_pair(false, false); }, 0);
     static_cast<void>(compileTest2);
-
+    static_assert(!std::is_same<decltype(compileTest1.begin()), decltype(compileTest1.end())>::value, "Should be sentinel");
     auto generatorWithReference = lz::generateWhile([](int& i) -> std::pair<bool, int&> { return { i == 4, i }; }, 0);
     static_assert(std::is_same<decltype(*generatorWithReference.begin()), int&>::value,
                   "int& and decltype(*generator.begin()) are not the same");
@@ -51,7 +51,9 @@ TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
         CHECK(begin == generator.end());
         begin = generator.begin();
         CHECK(*begin == 0);
-        begin = generator.end();
+        while (begin != generator.end()) {
+            ++begin;
+        }
         CHECK(begin == generator.end());
     }
 }

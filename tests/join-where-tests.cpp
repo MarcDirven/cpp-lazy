@@ -1,3 +1,4 @@
+#include <Lz/CString.hpp>
 #include <Lz/JoinWhere.hpp>
 #include <catch2/catch.hpp>
 #include <list>
@@ -10,6 +11,23 @@ struct PaymentBill {
     int customerId;
     int id;
 };
+
+TEST_CASE("Join where with sentinels") {
+    auto cStr = lz::cString("To join on");
+    auto sortedSequence = lz::cString("Toxzzzz");
+    auto joined = lz::joinWhere(
+        cStr, sortedSequence, [](char c) { return c; }, [](char c) { return c; },
+        [](char c, char c2) { return std::make_tuple(c, c2); });
+    static_assert(!std::is_same<decltype(joined.begin()), decltype(joined.end())>::value, "Should be sentinel");
+    std::vector<std::tuple<char, char>> expected = {
+        std::make_tuple('T', 'T'),
+        std::make_tuple('o', 'o'),
+        std::make_tuple('o', 'o'),
+        std::make_tuple('o', 'o'),
+    };
+    auto vec = joined.toVector();
+    CHECK(vec == expected);
+}
 
 TEST_CASE("Left join changing and creating elements", "[JoinWhere][Basic functionality]") {
     std::vector<Customer> customers{
@@ -50,7 +68,7 @@ TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
     auto it = joined.begin();
 
     SECTION("Operator++") {
-        CHECK(std::distance(joined.begin(), joined.end()) == 4);
+        CHECK(lz::distance(joined.begin(), joined.end()) == 4);
         ++it;
         Customer customer = std::get<0>(*it);
         PaymentBill paymentBill = std::get<1>(*it);
@@ -61,7 +79,9 @@ TEST_CASE("Left join binary operations", "[JoinWhere][Binary ops]") {
 
     SECTION("Operator== & operator!=") {
         CHECK(it != joined.end());
-        it = joined.end();
+        while (it != joined.end()) {
+            ++it;
+        }
         CHECK(it == joined.end());
     }
 }

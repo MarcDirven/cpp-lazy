@@ -3,7 +3,7 @@
 #ifndef LZ_OPTIONAL_HPP
 #define LZ_OPTIONAL_HPP
 
-#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/compiler_checks.hpp"
 
 #include <type_traits>
 
@@ -15,51 +15,51 @@ namespace lz {
 namespace detail {
 #ifdef __cpp_lib_optional
 template<class T>
-using Optional = std::optional<T>;
+using optional = std::optional<T>;
 #else
 template<class T>
-class Optional {
+class optional {
     static_assert(!std::is_array<T>::value && std::is_object<T>::value, "T may not be an array and must be an object");
 
     union {
         typename std::remove_const<T>::type _value;
         std::uint8_t _dummy{};
     };
-    bool _hasValue{ false };
+    bool _has_value{ false };
 
     template<class U>
     void construct(U&& obj) noexcept(noexcept(::new(static_cast<void*>(std::addressof(_value))) T(std::forward<U>(obj)))) {
         ::new (static_cast<void*>(std::addressof(_value))) T(std::forward<U>(obj));
-        _hasValue = true;
+        _has_value = true;
     }
 
 public:
-    constexpr Optional() noexcept {
+    constexpr optional() noexcept {
     }
 
     template<class U = T>
-    constexpr Optional(U&& value) : _value(std::forward<U>(value)), _hasValue(true) {
+    constexpr optional(U&& value) : _value(std::forward<U>(value)), _has_value(true) {
     }
 
-    LZ_CONSTEXPR_CXX_14 Optional(Optional<T>&& right) noexcept {
+    LZ_CONSTEXPR_CXX_14 optional(optional<T>&& right) noexcept {
         if (right) {
             construct(std::move(right.value()));
         }
     }
 
-    ~Optional() {
+    ~optional() {
         if LZ_CONSTEXPR_IF (std::is_trivially_destructible<T>::value) {
             return;
         }
-        if (_hasValue) {
+        if (_has_value) {
             _value.~T();
         }
     }
 
     template<class U = T>
-    LZ_CONSTEXPR_CXX_14 Optional&
+    LZ_CONSTEXPR_CXX_14 optional&
     operator=(U&& value) noexcept {
-        if (_hasValue) {
+        if (_has_value) {
             _value = std::forward<U>(value);
         }
         else {
@@ -69,18 +69,18 @@ public:
     }
 
     constexpr explicit operator bool() const noexcept {
-        return _hasValue;
+        return _has_value;
     }
 
     LZ_CONSTEXPR_CXX_14 const T& value() const {
-        if (_hasValue) {
+        if (_has_value) {
             return _value;
         }
         throw std::runtime_error("Cannot get uninitialized optional");
     }
 
     LZ_CONSTEXPR_CXX_14 T& value() {
-        if (_hasValue) {
+        if (_has_value) {
             return _value;
         }
         throw std::runtime_error("Cannot get uninitialized optional");

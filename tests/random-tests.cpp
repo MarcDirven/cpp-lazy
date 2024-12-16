@@ -28,7 +28,8 @@ TEST_CASE("Random with custom distro's and custom engine") {
     std::mt19937_64 gen(rd());
     std::poisson_distribution<> d(500000);
     auto r = lz::random(d, gen, 3);
-    CHECK(std::distance(r.begin(), r.end()) == 3);
+    static_assert(!std::is_same<decltype(r.begin()), decltype(r.end())>::value, "Should not be the same");
+    CHECK(lz::distance(r.begin(), r.end()) == 3);
 
     const auto currentRand = r.nextRandom();
     auto nextRand = r.nextRandom();
@@ -45,51 +46,15 @@ TEST_CASE("Random binary operations", "[Random][Binary ops]") {
 
     SECTION("Operator++") {
         ++it;
-        CHECK(std::distance(it, random.end()) == 4);
-    }
-
-    SECTION("Operator--") {
-        ++it;
-        CHECK(std::distance(it, random.end()) == 4);
-        --it;
-        CHECK(std::distance(it, random.end()) == 5);
+        CHECK(lz::distance(it, random.end()) == 4);
     }
 
     SECTION("Operator== & Operator!=") {
         CHECK(it != random.end());
-        it = random.end();
-        CHECK(it == random.end());
-    }
-
-    SECTION("Operator+(int), tests += as well") {
-        std::ptrdiff_t offset = 1;
-        CHECK(std::distance(it + offset, random.end()) == size - offset);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        ++it;
-        CHECK(std::distance(it - 1, random.end()) == size);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK(random.end() - it == size);
-        CHECK(std::distance(it, random.end()) == size);
-    }
-
-    SECTION("Operator[]()") {
-        double prev = *it;
-        double cur = it[1];
-        while (cur == prev) {
-            cur = it[1];
+        while (it != random.end()) {
+            ++it;
         }
-        CHECK(cur != prev);
-    }
-
-    SECTION("Operator<, '<, <=, >, >='") {
-        CHECK(it < random.end());
-        CHECK(it + size + 1 > random.end());
-        CHECK(it + size <= random.end());
-        CHECK(it + size >= random.end());
+        CHECK(it == random.end());
     }
 }
 
@@ -99,7 +64,7 @@ TEST_CASE("Random to containers", "[Random][To container]") {
 
     SECTION("To array") {
         CHECK(range.to<std::array<double, size>>().size() == size);
-        CHECK(std::all_of(range.begin(), range.end(), [](double val) { return val >= 0. && val <= 1.; }));
+        CHECK(lz::allOf(range, [](double val) { return val >= 0. && val <= 1.; }));
     }
 
     SECTION("To vector") {

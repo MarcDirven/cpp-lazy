@@ -3,30 +3,30 @@
 #ifndef LZ_EXCEPT_HPP
 #define LZ_EXCEPT_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/ExceptIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/except.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_ITERATOR IteratorToExcept, class SentinelToExcept, class Comparer>
-class Except final
-    : public detail::BasicIterable<detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>,
-                                       DefaultSentinel> {
+template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_ITERATOR IteratorToExcept, class S2, class BinaryPredicate>
+class except_iterable final
+    : public detail::basic_iterable<detail::except_iterator<Iterator, S, IteratorToExcept, S2, BinaryPredicate>,
+                                    default_sentinel> {
 
 public:
-    using iterator = detail::ExceptIterator<Iterator, S, IteratorToExcept, SentinelToExcept, Comparer>;
+    using iterator = detail::except_iterator<Iterator, S, IteratorToExcept, S2, BinaryPredicate>;
 
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    Except(Iterator begin, S end, IteratorToExcept toExceptBegin, SentinelToExcept toExceptEnd, Comparer comparer) :
-        detail::BasicIterable<iterator, DefaultSentinel>(
-            iterator(std::move(begin), end, std::move(toExceptBegin), toExceptEnd, comparer)) {
+    except_iterable(Iterator begin, S end, IteratorToExcept to_except_begin, S2 to_except_end, BinaryPredicate binary_predicate) :
+        detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(begin), std::move(end), std::move(to_except_begin),
+                                                                    std::move(to_except_end), std::move(binary_predicate))) {
     }
 
-    constexpr Except() = default;
+    constexpr except_iterable() = default;
 };
 
 /**
@@ -35,21 +35,21 @@ public:
  */
 
 /**
- * @brief Skips elements in @p iterable that is contained by @p toExcept. @p toExcept must be sorted manually before creating this
- * view.
- * @attention @p toExcept must be sorted manually before creating this view.
+ * @brief Skips elements in @p iterable that is contained by @p to_except. @p to_except must be sorted manually before creating
+ * this view.
+ * @attention @p to_except must be sorted manually before creating this view.
  * @param iterable Sequence to iterate over.
- * @param toExcept Sequence that contains items that must be skipped in `iterable`.
- * @param comparer Comparer for binary search (operator < is default) in IterableToExcept
- * @return An Except view object.
+ * @param to_except Sequence that contains items that must be skipped in `iterable`.
+ * @param binary_predicate Comparer for binary search (operator < is default) in IterableToExcept
+ * @return An except_iterable view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterable, class IterableToExcept,
-         class Comparer = MAKE_BIN_OP(std::less, ValueType<IterT<Iterable>>)>
-Except<IterT<Iterable>, SentinelT<Iterable>, IterT<IterableToExcept>, SentinelT<IterableToExcept>, Comparer>
-except(Iterable&& iterable, IterableToExcept&& toExcept, Comparer comparer = {}) {
+         class BinaryPredicate = MAKE_BIN_OP(std::less, value_type < iter<Iterable >>)>
+except_iterable<iter<Iterable>, sentinel<Iterable>, iter<IterableToExcept>, sentinel<IterableToExcept>, BinaryPredicate>
+except(Iterable&& iterable, IterableToExcept&& to_except, BinaryPredicate binary_predicate = {}) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
-             detail::begin(std::forward<IterableToExcept>(toExcept)), detail::end(std::forward<IterableToExcept>(toExcept)),
-             std::move(comparer) };
+             detail::begin(std::forward<IterableToExcept>(to_except)), detail::end(std::forward<IterableToExcept>(to_except)),
+             std::move(binary_predicate) };
 }
 
 // End of group

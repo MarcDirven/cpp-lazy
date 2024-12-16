@@ -1,11 +1,11 @@
-#include <Lz/CString.hpp>
-#include <Lz/Concatenate.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/concatenate.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Concatenate with sentinels") {
     const char* str = "hello, world!";
-    auto cstr = lz::cString(str);
+    auto cstr = lz::c_string(str);
     std::vector<char> vec = { 'h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '!' };
     auto concat = lz::concat(cstr, vec);
     static_assert(std::is_same<lz::DefaultSentinel, decltype(concat.end())>::value, "Sentinel type should be DefaultSentinel");
@@ -19,6 +19,7 @@ TEST_CASE("Concat changing and creating elements", "[Concat][Basic functionality
     std::string b = "world";
 
     auto concat = lz::concat(a, b);
+    static_assert(std::is_same<decltype(concat.begin()), decltype(concat.end())>::value, "Should not be sentinel");
 
     SECTION("Should be by reference") {
         *concat.begin() = 'd';
@@ -116,7 +117,7 @@ TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
     }
 
     SECTION("To vector") {
-        CHECK(concat.toVector() == std::vector<int>{ 1, 2, 3, 4, 5, 6 });
+        CHECK(concat.to_vector() == std::vector<int>{ 1, 2, 3, 4, 5, 6 });
     }
 
     SECTION("To other container using to<>()") {
@@ -124,14 +125,14 @@ TEST_CASE("Concatenate to containers", "[Concatenate][To container]") {
     }
 
     SECTION("To map") {
-        std::map<int, int> map = concat.toMap([](const int i) { return std::make_pair(i, i); });
+        std::map<int, int> map = concat.to_map([](const int i) { return std::make_pair(i, i); });
         std::map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3),
                                         std::make_pair(4, 4), std::make_pair(5, 5), std::make_pair(6, 6) };
         CHECK(map == expected);
     }
 
     SECTION("To unordered map") {
-        std::unordered_map<int, int> map = concat.toUnorderedMap([](const int i) { return std::make_pair(i, i); });
+        std::unordered_map<int, int> map = concat.to_unordered_map([](const int i) { return std::make_pair(i, i); });
         std::unordered_map<int, int> expected = { std::make_pair(1, 1), std::make_pair(2, 2), std::make_pair(3, 3),
                                                   std::make_pair(4, 4), std::make_pair(5, 5), std::make_pair(6, 6) };
         CHECK(map == expected);

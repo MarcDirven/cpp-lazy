@@ -3,29 +3,28 @@
 #ifndef LZ_COMMON_HPP
 #define LZ_COMMON_HPP
 
-#include "Lz/detail/BasicIterable.hpp"
-#include "Lz/detail/CompilerChecks.hpp"
-#include "Lz/detail/iterators/CommonIterator.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/compiler_checks.hpp"
+#include "Lz/detail/iterators/common.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class CommonView : public detail::BasicIterable<detail::CommonIterator<Iterator, S>> {
-    using Base = detail::BasicIterable<detail::CommonIterator<Iterator, S>>;
-
+class common_iterable : public detail::basic_iterable<detail::common_iterator<Iterator, S>> {
 public:
-    using iterator = detail::CommonIterator<Iterator, S>;
+    using iterator = detail::common_iterator<Iterator, S>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
     using reference = typename iterator::reference;
     using pointer = typename iterator::pointer;
     using difference_type = typename iterator::difference_type;
 
-    CommonView() = default;
+    common_iterable() = default;
 
-    LZ_CONSTEXPR_CXX_20 CommonView(Iterator begin, S end) : Base(iterator(std::move(begin)), iterator(std::move(end))) {
+    LZ_CONSTEXPR_CXX_20 common_iterable(Iterator begin, S end) :
+        detail::basic_iterable<detail::common_iterator<Iterator, S>>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 };
 
@@ -42,8 +41,8 @@ public:
  * @return A common view object. Can be used in <algorithm> functions.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 CommonView<IterT<Iterable>, SentinelT<Iterable>> common(Iterable&& iterable) {
-    static_assert(detail::HasActualSentinel<Iterable>::value, "Iterable must have a sentinel type");
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 common_iterable<iter<Iterable>, sentinel<Iterable>> common(Iterable&& iterable) {
+    static_assert(detail::actual_sentinel<Iterable>::value, "Iterable must have a sentinel type");
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)) };
 }
 

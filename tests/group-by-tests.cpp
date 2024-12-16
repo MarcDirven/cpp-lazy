@@ -2,6 +2,8 @@
 #include <catch2/catch.hpp>
 #include <list>
 
+// TODO: write groupby tests for sentinel
+
 TEST_CASE("GroupBy changing and creating elements", "[GroupBy][Basic functionality]") {
     std::vector<std::string> vec = { "hello", "hellp", "i'm", "done" };
 
@@ -46,7 +48,10 @@ TEST_CASE("GroupBy binary operations", "[GroupBy][Binary ops]") {
     SECTION("Operator== & operator!=") {
         auto it = grouper.begin();
         CHECK(it != grouper.end());
-        it = grouper.end();
+        while (it != grouper.end()) {
+            ++it;
+        }
+
         CHECK(it == grouper.end());
     }
 }

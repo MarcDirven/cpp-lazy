@@ -3,6 +3,8 @@
 #include <catch2/catch.hpp>
 #include <list>
 
+// TODO: write Exclude tests for sentinel
+
 TEST_CASE("Exclude changing and creating elements", "[Exclude][Basic functionality]") {
     std::array<int, 10> arr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     auto excluded1 = lz::exclude(arr, 3, 5);

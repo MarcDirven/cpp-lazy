@@ -4,6 +4,7 @@
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
     auto compileTest = lz::generate([]() { return 0; });
+    static_assert(!std::is_same<decltype(compileTest.begin()), decltype(compileTest.end())>::value, "Should be sentinel");
     static_cast<void>(compileTest);
 
     constexpr std::size_t amount = 4;

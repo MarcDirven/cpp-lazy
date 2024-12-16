@@ -11,15 +11,15 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic>
-class Range final : public detail::BasicIterable<detail::RangeIterator<Arithmetic>> {
+class Range final : public detail::basic_iterable<detail::range_iterator<Arithmetic>> {
 public:
-    using iterator = detail::RangeIterator<Arithmetic>;
+    using iterator = detail::range_iterator<Arithmetic>;
     using const_iterator = iterator;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using value_type = typename iterator::value_type;
 
 private:
-    using Base = detail::BasicIterable<iterator>;
+    using Base = detail::basic_iterable<iterator>;
 
 public:
     constexpr Range(const Arithmetic start, const Arithmetic end, const Arithmetic step) noexcept :

@@ -10,6 +10,7 @@
 #include "Lz/ChunkIf.hpp"
 #include "Lz/Chunks.hpp"
 #include "Lz/Concatenate.hpp"
+#include "Lz/Drop.hpp"
 #include "Lz/Enumerate.hpp"
 #include "Lz/Except.hpp"
 #include "Lz/Exclude.hpp"
@@ -30,6 +31,7 @@
 #include "Lz/RegexSplit.hpp"
 #include "Lz/Repeat.hpp"
 #include "Lz/Rotate.hpp"
+#include "Lz/Slice.hpp"
 #include "Lz/Splitter.hpp"
 #include "Lz/Take.hpp"
 #include "Lz/TakeEvery.hpp"
@@ -68,7 +70,7 @@ class IterView;
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_20 IterView<IterT<Iterable>, SentinelT<Iterable>> chain(Iterable&& iterable) {
+LZ_CONSTEXPR_CXX_20 IterView<iter<Iterable>, sentinel < Iterable >> chain(Iterable&& iterable) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)) };
 }
 
@@ -78,13 +80,13 @@ LZ_CONSTEXPR_CXX_20 IterView<IterT<Iterable>, SentinelT<Iterable>> chain(Iterabl
  */
 
 template<class Iterator, class S = Iterator>
-class IterView final : public detail::BasicIterable<Iterator, S> {
-    using Base = detail::BasicIterable<Iterator, S>;
+class IterView final : public detail::basic_iterable<Iterator, S> {
+    using Base = detail::basic_iterable<Iterator, S>;
     using Traits = std::iterator_traits<Iterator>;
 
 public:
-    using detail::BasicIterable<Iterator, S>::begin;
-    using detail::BasicIterable<Iterator, S>::end;
+    using detail::basic_iterable<Iterator, S>::begin;
+    using detail::basic_iterable<Iterator, S>::end;
 
     using iterator = Iterator;
     using const_iterator = iterator;
@@ -99,32 +101,32 @@ public:
     LZ_CONSTEXPR_CXX_20 IterView() = default;
 
     template<class BinaryPredicate>
-    void forEachWhile(BinaryPredicate&& predicate) {
-        lz::forEachWhile(*this, std::forward<BinaryPredicate>(predicate));
+    void for_each_while(BinaryPredicate&& predicate) {
+        lz::for_each_while(*this, std::forward<BinaryPredicate>(predicate));
     }
 
-    //! See Concatenate.hpp for documentation.
+    //! See concatenate_iterable.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ConcatenateIterator<Iterator, IterT<Iterables>...>>
-    concat(Iterables&&... iterables) const {
+        LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView < detail::concatenate_iterator<Iterator, iter<Iterables>... >>
+        concat(Iterables&&... iterables) const {
         return chain(lz::concat(*this, std::forward<Iterables>(iterables)...));
     }
 
-    //! See Enumerate.hpp for documentation.
+    //! See enumerate.hpp for documentation.
     template<LZ_CONCEPT_ARITHMETIC Arithmetic = int>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::EnumerateIterator<Iterator, S, Arithmetic>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::enumerate_iterator<Iterator, S, Arithmetic>>
     enumerate(const Arithmetic begin = 0) const {
         return chain(lz::enumerate(*this, begin));
     }
 
     //! See Join.hpp for documentation.
-    LZ_NODISCARD IterView<detail::JoinIterator<Iterator>> join(std::string delimiter) const {
+    LZ_NODISCARD IterView<detail::join_iterator<Iterator, S>> join(std::string delimiter) const {
         return chain(lz::join(*this, std::move(delimiter)));
     }
 
     //! See Map.hpp for documentation
     template<class UnaryFunction>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::MapIterator<Iterator, UnaryFunction>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::map_iterator<Iterator, S, UnaryFunction>>
     map(UnaryFunction unaryFunction) const {
         return chain(lz::map(*this, std::move(unaryFunction)));
     }
@@ -138,7 +140,8 @@ public:
 
     //! See Take.hpp for documentation. Internally uses lz::take to take the amounts
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto take(const difference_type amount) const
-        -> IterView<detail::TakeNIterator<Iterator, S>, typename detail::TakeNIterator<Iterator, S>::Sentinel> {
+        -> IterView < detail::take_n_iterator<Iterator>,
+        typename detail::take_n_iterator<Iterator::sentinel> {
         return chain(lz::take(*this, amount));
     }
 
@@ -149,25 +152,32 @@ public:
 
     //! Slices the iterator [from, to). Internally uses std::next and lz::take to create a slice.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto slice(const difference_type from, const difference_type to) const
-        -> IterView<detail::TakeNIterator<Iterator, S>, typename detail::TakeNIterator<Iterator, S>::Sentinel> {
+        -> IterView < detail::take_n_iterator<Iterator>,
+        typename detail::take_n_iterator<Iterator::sentinel> {
         return chain(lz::slice(*this, from, to));
     }
 
-    //! See Take.hpp for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::TakeEveryIterator<Iterator, detail::IsBidirectional<Iterator>::value>>
-    takeEvery(const difference_type offset, const difference_type start = 0) const {
+    //! See TakeEvery.hpp for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::take_every_iterator<Iterator, S>>
+    takeEvery(const difference_type offset, const Iterator start) const {
         return chain(lz::takeEvery(*this, offset, start));
     }
 
-    //! See Chunks.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ChunksIterator<Iterator, S>> chunks(const std::size_t chunkSize) const {
+    //! See TakeEvery.hpp for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::take_every_iterator<Iterator, S>>
+    takeEvery(const difference_type offset) const {
+        return chain(lz::takeEvery(*this, offset));
+    }
+
+    //! See chunks.hpp for documentation
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::chunks_iterator<Iterator, S>> chunks(const std::size_t chunkSize) const {
         return chain(lz::chunks(*this, chunkSize));
     }
 
     //! See Zip.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ZipIterator<Iterator, IterT<Iterables>>...>
-    zip(Iterables&&... iterables) const {
+        LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::zip_iterator<Iterator, iter<Iterables>>... >
+        zip(Iterables&&... iterables) const {
         return chain(lz::zip(*this, std::forward<Iterables>(iterables)...));
     }
 
@@ -180,7 +190,7 @@ public:
 
     //! See IterTools.hpp `as` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::MapIterator<Iterator, detail::ConvertFn<T>>> as() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::map_iterator<Iterator, S, detail::ConvertFn<T>>> as() const {
         return chain(lz::as<T>(*this));
     }
 
@@ -190,115 +200,115 @@ public:
     }
 
     //! See IterTools.hpp `reverse` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::ZipIterator<Iterator, Iterator>> pairwise() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::zip_iterator<Iterator, Iterator>> pairwise() const {
         return chain(lz::pairwise(*this));
     }
 
     // clang-format off
 
-    //! See CartesianProduct.hpp for documentation
+    //! See cartesian_product_iterable.hpp for documentation
     template<class... Iterables>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<detail::CartesianProductIterator<
-        std::tuple<Iterator, IterT<Iterables>...>,
-        std::tuple<S, SentinelT<Iterables>...>>
+    LZ_CONSTEXPR_CXX_20 IterView<detail::cartesian_product_iterator<
+        std::tuple<Iterator, iter<Iterables>...>,
+        std::tuple<S, sentinel<Iterables>...>>
     >
-    cartesian(Iterables&&... iterables) const {
-        return chain(lz::cartesian(*this, std::forward<Iterables>(iterables)...));
+    cartesian_product(Iterables&&... iterables) const {
+        return chain(lz::cartesian_product(*this, std::forward<Iterables>(iterables)...));
     }
 
     // clang-format on
 
     //! See Flatten.hpp for documentation
-    template<int N = lz::detail::CountDims<std::iterator_traits<Iterator>>::value - 1>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::FlattenIterator<Iterator, S, N>> flatten() const {
+    template<int N = lz::detail::count_dims<std::iterator_traits<Iterator>>::value - 1>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::flatten_iterator<Iterator, S, N>> flatten() const {
         return chain(lz::flatten(*this));
     }
 
     //! See Loop.hpp for documentation
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::LoopIterator<Iterator>> loop() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::loop_iterator<Iterator, S>> loop() const {
         return chain(lz::loop(*this));
     }
 
     //! See Exclude.hpp for documentation.
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto exclude(const difference_type from, const difference_type to) const
-        -> decltype(chain(std::declval<Exclude<Iterator, S>>())) {
+        -> decltype(chain(std::declval<exclude_iterable<Iterator, S>>())) {
         return chain(lz::exclude(*this, from, to));
     }
 
     // clang-format off
     //! See InclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, ValueType<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, value_type<iterator>)>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<detail::InclusiveScanIterator<Iterator, detail::Decay<T>, detail::Decay<BinaryOp>>>
-    iScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
-        return chain(lz::iScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
+    LZ_CONSTEXPR_CXX_20 IterView<detail::inclusive_scan_iterator<Iterator, S, detail::decay<T>, detail::decay<BinaryOp>>>
+    inclusive_scan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
+        return chain(lz::inclusive_scan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
     }
 
     //! See ExclusiveScan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, ValueType<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, value_type<iterator>)>
     LZ_NODISCARD
-    LZ_CONSTEXPR_CXX_20 IterView<detail::ExclusiveScanIterator<Iterator, S, detail::Decay<T>, detail::Decay<BinaryOp>>>
+    LZ_CONSTEXPR_CXX_20 IterView<detail::exclusive_scan_iterator<Iterator, S, detail::decay<T>, detail::decay<BinaryOp>>>
     eScan(T&& init = {}, BinaryOp&& binaryOp = {}) const {
         return chain(lz::eScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binaryOp)));
     }
     // clang-format on
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::RotateIterator<Iterator>> rotate(iterator start) const {
-        return chain(lz::rotate(std::move(start), this->begin(), this->end()));
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 IterView<detail::rotate_iterator<Iterator, S>> rotate(iterator start) const {
+        return chain(lz::rotate(*this, std::move(start)));
     }
 
-    //! See Algorithm.hpp `hasOne` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasOne() const {
-        return lz::hasOne(*this);
+    //! See Algorithm.hpp `has_one` for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool has_one() const {
+        return lz::has_one(*this);
     }
 
-    //! See Algorithm.hpp `hasMany` for documentation.
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool hasMany() const {
-        return lz::hasMany(*this);
+    //! See Algorithm.hpp `has_many` for documentation.
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool has_many() const {
+        return lz::has_many(*this);
     }
 
-    //! See Algorithm.hpp `frontOr` for documentation.
+    //! See Algorithm.hpp `front_or` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type frontOr(const T& defaultValue) const {
-        return lz::frontOr(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type front_or(const T& defaultValue) const {
+        return lz::front_or(*this, defaultValue);
     }
 
-    //! See Algorithm.hpp `backOr` for documentation.
+    //! See Algorithm.hpp `back_or` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type backOr(const T& defaultValue) const {
-        return lz::backOr(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type back_or(const T& defaultValue) const {
+        return lz::back_or(*this, defaultValue);
     }
 
     //! See Filter.hpp for documentation
     template<class UnaryPredicate>
-    IterView<detail::FilterIterator<Iterator, S, UnaryPredicate>> filter(UnaryPredicate predicate) const {
+    IterView<detail::filter_iterator<Iterator, S, UnaryPredicate>> filter(UnaryPredicate predicate) const {
         return chain(lz::filter(*this, std::move(predicate)));
     }
 
-    //! See Except.hpp for documentation
+    //! See except_iterable.hpp for documentation
     template<class IterableToExcept, class Compare = std::less<value_type>>
-    IterView<detail::ExceptIterator<Iterator, S, IterT<IterableToExcept>, SentinelT<IterableToExcept>, Compare>>
-    except(IterableToExcept&& toExcept, Compare compare = {}) const {
+        IterView < detail::except_iterator<Iterator, S, iter<IterableToExcept>,
+        sentinel<IterableToExcept>, Compare >> except(IterableToExcept&& toExcept, Compare compare = {}) const {
         return chain(lz::except(*this, toExcept, std::move(compare)));
     }
 
-    //! See Unique.hpp for documentation
+    //! See unique.hpp for documentation
     template<class Compare = std::less<value_type>>
-    IterView<detail::UniqueIterator<Iterator, Compare>> unique(Compare compare = {}) const {
-        return chain(lz::unique(*this, std::move(compare)));
+    IterView<detail::unique_iterator<Iterator, S, Compare>> unique(Compare compare = {}) const {
+        return chain(lz::unique_iterable(*this, std::move(compare)));
     }
 
-    //! See ChunkIf.hpp for documentation
+    //! See chunk_if_iterable.hpp for documentation
     template<class UnaryPredicate>
-    IterView<detail::ChunkIfIterator<Iterator, S, UnaryPredicate>> chunkIf(UnaryPredicate predicate) const {
-        return chain(lz::chunkIf(*this, std::move(predicate)));
+    IterView<detail::chunk_if_iterator<Iterator, S, UnaryPredicate>> chunk_if(UnaryPredicate predicate) const {
+        return chain(lz::chunk_if(*this, std::move(predicate)));
     }
 
     //! See IterTools.hpp `filterMap` for documentation
     template<class UnaryMapFunc, class UnaryFilterFunc>
-    IterView<detail::MapIterator<detail::FilterIterator<Iterator, S, UnaryFilterFunc>, UnaryMapFunc>>
-    filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) const {
+    auto filterMap(UnaryFilterFunc filterFunc, UnaryMapFunc mapFunc) const
+        -> decltype(chain(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc)))) {
         return chain(lz::filterMap(*this, std::move(filterFunc), std::move(mapFunc)));
     }
 
@@ -310,22 +320,25 @@ public:
     }
 
     //! See JoinWhere.hpp for documentation
+    // clang-format off
     template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-    LZ_CONSTEXPR_CXX_20 IterView<detail::JoinWhereIterator<Iterator, IterT<IterableB>, SelectorA, SelectorB, ResultSelector>>
-    joinWhere(IterableB&& iterableB, SelectorA a, SelectorB b, ResultSelector resultSelector) const {
-        return chain(lz::joinWhere(*this, iterableB, std::move(a), std::move(b), std::move(resultSelector)));
+    LZ_CONSTEXPR_CXX_20
+    IterView<detail::join_where_iterator<Iterator, S, iter<IterableB>, sentinel<IterableB>, SelectorA, SelectorB, ResultSelector>>
+    joinWhere(IterableB&& iterableB, SelectorA selectorA, SelectorB selectorB, ResultSelector resultSelector) const {
+        return chain(lz::joinWhere(*this, iterableB, std::move(selectorA), std::move(selectorB), std::move(resultSelector)));
     }
+    // clang-format on
 
     //! See Take.hpp for documentation
     template<class UnaryPredicate>
-    IterView<Iterator> dropWhile(UnaryPredicate predicate) const {
-        return chain(lz::dropWhile(*this, std::move(predicate)));
+    IterView<Iterator> drop_while(UnaryPredicate predicate) const {
+        return chain(lz::drop_while(*this, std::move(predicate)));
     }
 
     //! See GroupBy.hpp for documentation
     template<class Comparer = std::equal_to<value_type>>
-    IterView<detail::GroupByIterator<Iterator, Comparer>> groupBy(Comparer comparer = {}) const {
-        return chain(lz::groupBy(*this, std::move(comparer)));
+    IterView<detail::group_by_iterator<Iterator, S, Comparer>> group_by(Comparer comparer = {}) const {
+        return chain(lz::group_by(*this, std::move(comparer)));
     }
 
     //! See IterTools.hpp `trim` for documentation
@@ -335,16 +348,16 @@ public:
         return chain(lz::trim(*this, std::move(first), std::move(last)));
     }
 
-    //! See Algorithm.hpp `findFirstOrDefault` for documentation
+    //! See Algorithm.hpp `find_or_default` for documentation
     template<class T, class U>
-    value_type findFirstOrDefault(T&& toFind, U&& defaultValue) const {
-        return lz::findFirstOrDefault(*this, toFind, defaultValue);
+    value_type find_or_default(T&& toFind, U&& defaultValue) const {
+        return lz::find_or_default(*this, toFind, defaultValue);
     }
 
-    //! See Algorithm.hpp `findFirstOrDefaultIf` for documentation
+    //! See Algorithm.hpp `find_or_default_if` for documentation
     template<class UnaryPredicate, class U>
-    value_type findFirstOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
-        return lz::findFirstOrDefaultIf(*this, std::move(predicate), defaultValue);
+    value_type find_or_default_if(UnaryPredicate predicate, U&& defaultValue) const {
+        return lz::find_or_default_if(*this, std::move(predicate), defaultValue);
     }
 
     // //! See Algorithm.hpp `findLastOrDefault` for documentation
@@ -377,10 +390,10 @@ public:
     //     return lz::contains(*this, value);
     // }
 
-    // //! See Algorithm.hpp `containsIf` for documentation
+    // //! See Algorithm.hpp `contains_if` for documentation
     // template<class UnaryPredicate>
-    // bool containsIf(UnaryPredicate predicate) const {
-    //     return lz::containsIf(*this, std::move(predicate));
+    // bool contains_if(UnaryPredicate predicate) const {
+    //     return lz::contains_if(*this, std::move(predicate));
     // }
 
     /**
@@ -423,8 +436,8 @@ public:
      * @param func A function to apply over each element. Must have the following signature: `void func(value_type)`
      */
     template<class UnaryFunc>
-    IterView<Iterator>& forEach(UnaryFunc func) {
-        lz::forEach(Base::begin(), Base::end(), std::move(func));
+    IterView<Iterator>& for_each(UnaryFunc func) {
+        lz::for_each(Base::begin(), Base::end(), std::move(func));
         return *this;
     }
 
@@ -468,10 +481,10 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The max element.
      */
-    template<class Compare = MAKE_BIN_OP(std::less, value_type)>
-    reference max(Compare cmp = {}) const {
+    template<class BinaryOp = MAKE_BIN_OP(std::less, value_type)>
+    reference max(BinaryOp cmp = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
-        return *lz::maxElement(Base::begin(), Base::end(), std::move(cmp));
+        return *lz::max_element(Base::begin(), Base::end(), std::move(cmp));
     }
 
     /**
@@ -479,10 +492,10 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The min element.
      */
-    template<class Compare = MAKE_BIN_OP(std::less, value_type)>
-    reference min(Compare cmp = {}) const {
+    template<class BinaryOp = MAKE_BIN_OP(std::less, value_type)>
+    reference min(BinaryOp cmp = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
-        return *lz::minElement(Base::begin(), Base::end(), std::move(cmp));
+        return *lz::min_element(Base::begin(), Base::end(), std::move(cmp));
     }
 
     //! See Algorithm.hpp for documentation

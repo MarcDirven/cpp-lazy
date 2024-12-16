@@ -1,3 +1,4 @@
+#include <Lz/CString.hpp>
 #include <Lz/Map.hpp>
 #include <catch2/catch.hpp>
 #include <list>
@@ -7,12 +8,21 @@ struct TestStruct {
     int testFieldInt;
 };
 
+TEST_CASE("Map with sentinels") {
+    auto cstr = lz::cString("Hello, World!");
+    auto map = lz::map(cstr, [](char c) { return std::toupper(c); });
+    static_assert(!std::is_same<decltype(map.end()), decltype(map.begin())>::value, "Should be sentinels");
+    auto cstrExpected = lz::cString("HELLO, WORLD!");
+    CHECK(lz::equal(map, cstrExpected));
+}
+
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
 
     SECTION("Should map out element") {
         auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+        static_assert(std::is_same<decltype(map.end()), decltype(map.begin())>::value, "Should not be sentinels");
         static_assert(std::is_same<decltype(*map.begin()), std::string>::value, "Types to not match (decltype(*map.begin()) and std::string)");
 
         auto it = map.begin();

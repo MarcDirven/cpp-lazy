@@ -1,4 +1,6 @@
 #include <Lz/CString.hpp>
+#include <Lz/Drop.hpp>
+#include <Lz/Slice.hpp>
 #include <Lz/Take.hpp>
 #include <catch2/catch.hpp>
 #include <list>
@@ -8,9 +10,8 @@ TEST_CASE("Take with sentinels") {
     auto cString = lz::cString(str);
     auto take = lz::take(cString, 5);
     static_assert(!std::is_same<decltype(take.begin()), decltype(take.end())>::value, "Should be sentinel");
-    static_assert(std::is_same<decltype(take.end()), lz::TakeNSentinel<typename decltype(take.begin())::difference_type>>::value,
-                  "Should be sentinel");
-    CHECK(take.toVector() == std::vector<char>({ 'H', 'e', 'l', 'l', 'o' }));
+    auto expected = lz::cString("Hello");
+    REQUIRE(lz::equal(take, expected));
 }
 
 TEST_CASE("Take changing and creating elements", "[Take][Basic functionality]") {

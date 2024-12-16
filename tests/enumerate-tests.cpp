@@ -21,6 +21,7 @@ TEST_CASE("Enumerate changing and creating elements", "[Enumerate][Basic functio
 
     SECTION("Enumerate should create pair with {idx, elm}") {
         auto enumerate = lz::enumerate(array);
+        static_assert(std::is_same<decltype(enumerate.begin()), decltype(enumerate.end())>::value, "Should not be sentinel");
         auto element = *enumerate.begin();
 
         CHECK(element.first == 0);  // Idx

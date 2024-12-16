@@ -1,12 +1,21 @@
+#include <Lz/CString.hpp>
 #include <Lz/Join.hpp>
 #include <Lz/Map.hpp>
 #include <catch2/catch.hpp>
 #include <sstream>
 
+TEST_CASE("Join with sentinels") {
+    auto cString = lz::cString("Hello, World!");
+    auto join = lz::join(cString, ", ");
+    CHECK(join.toString() == "H, e, l, l, o, ,,  , W, o, r, l, d, !");
+    static_assert(!std::is_same<decltype(join.begin()), decltype(join.end())>::value, "Should be sentinel");
+}
+
 TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     std::vector<int> v = { 1, 2, 3, 4, 5 };
     std::vector<std::string> s = { "h", "e", "l", "l", "o" };
     auto joinInt = lz::join(v, ", ");
+    static_assert(std::is_same<decltype(joinInt.begin()), decltype(joinInt.end())>::value, "Should not be sentinel");
     auto joinStr = lz::join(s, ", ");
 
     CHECK(joinInt.toString() == "1, 2, 3, 4, 5");

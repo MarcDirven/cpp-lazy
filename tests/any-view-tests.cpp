@@ -4,6 +4,8 @@
 #include <iostream>
 #include <list>
 
+// TODO write any view tests for sentinels
+
 TEST_CASE("Creating a basic any view from std::vector, random access iterator") {
     std::vector<int> vec = { 1, 2, 3, 4, 5 };
     lz::AnyView<int, int&, std::random_access_iterator_tag> view = vec;

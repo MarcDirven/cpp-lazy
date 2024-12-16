@@ -11,14 +11,14 @@ namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class T>
-class Repeat final : public detail::BasicIterable<detail::RepeatIterator<T>> {
+class Repeat final : public detail::basic_iterable<detail::repeat_iterator<T>, default_sentinel> {
 public:
-    using iterator = detail::RepeatIterator<T>;
+    using iterator = detail::repeat_iterator<T>;
     using const_iterator = iterator;
     using value_type = T;
 
     constexpr Repeat(T toRepeat, const std::size_t amount) :
-        detail::BasicIterable<iterator>(iterator(toRepeat, 0, amount), iterator(toRepeat, amount, amount)) {
+        detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(toRepeat), amount)) {
     }
 
     constexpr Repeat() = default;
@@ -38,7 +38,7 @@ public:
  * @return A repeat object, containing the random access iterator.
  */
 template<class T>
-LZ_NODISCARD constexpr Repeat<detail::Decay<T>>
+LZ_NODISCARD constexpr Repeat<detail::decay<T>>
 repeat(T&& toRepeat, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     return { std::forward<T>(toRepeat), amount };
 }

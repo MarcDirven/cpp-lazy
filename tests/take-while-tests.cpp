@@ -1,6 +1,16 @@
+#include <Lz/CString.hpp>
+#include <Lz/DropWhile.hpp>
 #include <Lz/TakeWhile.hpp>
 #include <catch2/catch.hpp>
 #include <list>
+
+TEST_CASE("Take while with sentinels") {
+    auto cstr = lz::cString("Hello, World!");
+    auto takeWhile = lz::takeWhile(cstr, [](char c) { return c != 'W'; });
+    static_assert(!std::is_same<decltype(takeWhile.begin()), decltype(takeWhile.end())>::value, "Should be sentinel");
+    auto cStrExpected = lz::cString("Hello, ");
+    CHECK(lz::equal(takeWhile, cStrExpected));
+}
 
 TEST_CASE("TakeWhile takes elements and is by reference", "[TakeWhile][Basic functionality]") {
     constexpr size_t size = 10;
@@ -57,6 +67,18 @@ TEST_CASE("TakeWhile binary operations", "[TakeWhile][Binary ops]") {
         auto it = takeWhile.begin();
         it = takeWhile.end();
         REQUIRE(it == takeWhile.end());
+    }
+
+    SECTION("Operator--") {
+        auto end = takeWhile.end();
+        --end;
+        REQUIRE(*end == 4);
+        --end;
+        REQUIRE(*end == 3);
+        --end;
+        REQUIRE(*end == 2);
+        --end;
+        REQUIRE(*end == 1);
     }
 }
 

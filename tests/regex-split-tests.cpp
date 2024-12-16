@@ -52,12 +52,14 @@ TEST_CASE("RegexSplit binary operations", "[RegexSplit][Binary ops]") {
 
     SECTION("Operator++") {
         ++begin;
-        CHECK(std::distance(begin, splitter.end()) == 4);
+        CHECK(lz::distance(begin, splitter.end()) == 4);
     }
 
     SECTION("Operator== & Operator!=") {
         CHECK(begin != splitter.end());
-        begin = splitter.end();
+        while (begin != splitter.end()) {
+            ++begin;
+        }
         CHECK(begin == splitter.end());
     }
 }

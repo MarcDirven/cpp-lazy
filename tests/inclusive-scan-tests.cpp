@@ -1,10 +1,20 @@
+#include <Lz/Generate.hpp>
 #include <Lz/InclusiveScan.hpp>
-
 #include <catch2/catch.hpp>
-
 #include <iostream>
-#include <numeric>
 #include <list>
+#include <numeric>
+
+TEST_CASE("Inclusive scan with sentinels") {
+    auto generator = lz::generate([](int i) { return i; }, 10, 1);
+    auto scan = lz::iScan(generator);
+    static_assert(!std::is_same<decltype(scan.begin()), decltype(scan.end())>::value, "Should be sentinel");
+    auto begin = scan.begin();
+    for (int i = 1; i < 10; ++i) {
+        CHECK(*begin == i);
+        ++begin;
+    }
+}
 
 TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basic functionality]") {
     int arr[32]{};
@@ -19,7 +29,7 @@ TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basi
         ++begin;
     }
 
-    REQUIRE(std::distance(scan.begin(), scan.end()) == std::distance(std::begin(arr), std::end(arr)));
+    REQUIRE(lz::distance(scan.begin(), scan.end()) == std::distance(std::begin(arr), std::end(arr)));
 
     constexpr static int expected[] = { 0,   1,   3,   6,   10,  15,  21,  28,  36,  45,  55,  66,  78,  91,  105, 120,
                                         136, 153, 171, 190, 210, 231, 253, 276, 300, 325, 351, 378, 406, 435, 465, 496 };
@@ -42,7 +52,9 @@ TEST_CASE("Inclusive scan splitter binary operations", "[InclusiveScan][Binary o
     SECTION("Operator== & operator!=") {
         CHECK(scan.begin() != scan.end());
         auto begin = scan.begin();
-        begin = scan.end();
+        while (begin != scan.end()) {
+            ++begin;
+        }
         CHECK(begin == scan.end());
         begin = scan.begin();
         ++begin;

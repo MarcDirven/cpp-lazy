@@ -1,7 +1,16 @@
+#include <Lz/CString.hpp>
 #include <Lz/TakeEvery.hpp>
 #include <array>
 #include <catch2/catch.hpp>
 #include <list>
+
+TEST_CASE("TakeEvery with sentinels") {
+    auto cstr = lz::cString("Hello");
+    auto takeEvery = lz::takeEvery(cstr, 2);
+    static_assert(!std::is_same<decltype(takeEvery.begin()), decltype(takeEvery.end())>::value, "Should be sentinel");
+    auto expected = lz::cString("Hlo");
+    CHECK(lz::equal(takeEvery, expected));
+}
 
 TEST_CASE("TakeEvery changing and creating elements", "[TakeEvery][Basic functionality]") {
     constexpr std::size_t size = 4;
@@ -23,7 +32,7 @@ TEST_CASE("TakeEvery changing and creating elements", "[TakeEvery][Basic functio
     }
 
     SECTION("TakeEvery should select every amount-th with skip first") {
-        takeEvery = lz::takeEvery(array, 2, 1);
+        takeEvery = lz::takeEvery(array, 2, array.begin() + 1);
         iterator = takeEvery.begin();
 
         CHECK(*iterator == 2);

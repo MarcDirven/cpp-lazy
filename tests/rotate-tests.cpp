@@ -1,12 +1,19 @@
-#include "Lz/IterTools.hpp"
-#include "Lz/Rotate.hpp"
-
+#include <Lz/CString.hpp>
+#include <Lz/IterTools.hpp>
+#include <Lz/Rotate.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
+TEST_CASE("Rotate with sentinels") {
+    auto cStr = lz::cString("Hello, World!");
+    auto rotated = lz::rotate(cStr, std::next(cStr.begin(), 7));
+    static_assert(!std::is_same<decltype(rotated.begin()), decltype(rotated.end())>::value, "Should be sentinel");
+    CHECK(rotated.toString() == "World!Hello, ");
+}
+
 TEST_CASE("Rotate basic functionality", "[Rotate][Basic functionality]") {
     std::array<int, 5> arr = { 1, 2, 3, 4, 5 };
-    auto rotate = lz::rotate(arr.begin() + 2, arr.begin(), arr.end());
+    auto rotate = lz::rotate(arr, arr.begin() + 2);
 
     SECTION("Should be correct length") {
         auto beg = rotate.begin();
@@ -19,14 +26,14 @@ TEST_CASE("Rotate basic functionality", "[Rotate][Basic functionality]") {
 
     SECTION("With bidirectional iterator") {
         std::list<int> lst = { 1, 2, 3, 4, 5, 6 };
-        auto rotator = lz::rotate(std::next(lst.begin(), 2), lst.begin(), lst.end());
+        auto rotator = lz::rotate(lst, std::next(lst.begin(), 2));
         CHECK(std::distance(rotator.begin(), rotator.end()) == static_cast<std::ptrdiff_t>(lst.size()));
     }
 }
 
 TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
     std::array<int, 4> arr = { 1, 2, 3, 4 };
-    auto rotate = lz::rotate(arr.begin() + 3, arr.begin(), arr.end());
+    auto rotate = lz::rotate(arr, arr.begin() + 3);
 
     auto begin = rotate.begin();
     auto end = rotate.end();
@@ -56,7 +63,7 @@ TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
 
     SECTION("Various ++ and -- operators with begin and end") {
         std::array<int, 5> container = { 1, 2, 3, 4, 5 };
-        auto rotator = lz::rotate(container.begin() + 3, container.begin(), container.end());
+        auto rotator = lz::rotate(container, container.begin() + 3);
 
         auto unEvenBegin = rotator.begin();
         auto unEvenEnd = rotator.end();
@@ -87,7 +94,7 @@ TEST_CASE("Rotate binary operations", "[Rotate][Binary ops]") {
 TEST_CASE("Rotate to containers", "[Rotate][To container]") {
     constexpr std::size_t size = 6;
     std::vector<int> vec = { 1, 2, 3, 4, 5, 6 };
-    auto rotator = lz::rotate(vec.begin() + 2, vec.begin(), vec.end());
+    auto rotator = lz::rotate(vec, vec.begin() + 2);
 
     SECTION("To array") {
         CHECK(rotator.to<std::array<int, size>>() == std::array<int, size>{ 3, 4, 5, 6, 1, 2 });

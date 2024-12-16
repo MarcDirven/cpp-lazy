@@ -3,153 +3,171 @@
 #ifndef LZ_LZ_TOOLS_HPP
 #define LZ_LZ_TOOLS_HPP
 
-#include "Lz/detail/CompilerChecks.hpp"
+#include "Lz/detail/compiler_checks.hpp"
 
+#include <array> // tuple_element
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
-#include <array> // tuple_element
 
 namespace lz {
-struct DefaultSentinel;
+struct default_sentinel;
 
 namespace detail {
 
 template<class>
-struct AlwaysFalse : std::false_type {};
+struct always_false : std::false_type {};
 
 #ifdef LZ_HAS_CXX_11
 
 #define MAKE_OPERATOR(OP, VALUE_TYPE) OP<VALUE_TYPE>
 
 template<std::size_t...>
-struct IndexSequence {};
+struct index_sequence {};
 
 template<std::size_t N, std::size_t... Rest>
-struct IndexSequenceHelper : public IndexSequenceHelper<N - 1, N - 1, Rest...> {};
+struct index_sequence_helper : public index_sequence_helper<N - 1, N - 1, Rest...> {};
 
 template<std::size_t... Next>
-struct IndexSequenceHelper<0, Next...> {
-    using Type = IndexSequence<Next...>;
+struct index_sequence_helper<0, Next...> {
+    using type = index_sequence<Next...>;
 };
 
 template<std::size_t N>
-using MakeIndexSequence = typename IndexSequenceHelper<N>::Type;
+using make_index_sequence = typename index_sequence_helper<N>::type;
 
 template<class T>
-using Decay = typename std::decay<T>::type;
+using decay = typename std::decay<T>::type;
 
 template<std::size_t I, class T>
-using TupleElement = typename std::tuple_element<I, T>::type;
+using tuple_element = typename std::tuple_element<I, T>::type;
 
 #define MAKE_BIN_OP(OP, VALUE_TYPE) OP<VALUE_TYPE>
 #else // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
-using IndexSequence = std::index_sequence<N...>;
+using index_sequence = std::index_sequence<N...>;
 
 template<std::size_t N>
-using MakeIndexSequence = std::make_index_sequence<N>;
+using make_index_sequence = std::make_index_sequence<N>;
 
 template<class T>
-using Decay = std::decay_t<T>;
+using decay = std::decay_t<T>;
 
 template<std::size_t I, class T>
-using TupleElement = std::tuple_element_t<I, T>;
+using tuple_element = std::tuple_element_t<I, T>;
 
 #define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
 
 #endif // LZ_HAS_CXX_11
 
+template<class Iterable>
+constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin());
+
+template<class Iterable>
+constexpr auto end(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin());
+
+template<class T, size_t N>
+constexpr T* begin(T (&array)[N]) noexcept;
+
+template<class T, size_t N>
+constexpr T* end(T (&array)[N]) noexcept;
+
+template<class T, size_t N>
+constexpr const T* begin(const T (&array)[N]) noexcept;
+
+template<class T, size_t N>
+constexpr const T* end(const T (&array)[N]) noexcept;
+
 } // namespace detail
 
 template<class Iterable>
-using IterT = decltype(std::begin(std::forward<Iterable>(std::declval<Iterable>())));
+using iter = decltype(detail::begin(std::forward<Iterable>(std::declval<Iterable>())));
 
 template<class S>
-using SentinelT = decltype(std::end(std::forward<S>(std::declval<S>())));
+using sentinel = decltype(detail::end(std::forward<S>(std::declval<S>())));
 
 template<class Iterator>
-using ValueType = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::value_type;
+using value_type = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::value_type;
 
 template<class Iterator>
-
-using RefType = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::reference;
-template<class Iterator>
-using PointerType = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::pointer;
+using ref = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::reference;
 
 template<class Iterator>
-using DiffType = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::difference_type;
+using pointer_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::pointer;
 
 template<class Iterator>
-using IterCat = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::iterator_category;
+using diff_type = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::difference_type;
+
+template<class Iterator>
+using iter_cat = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::iterator_category;
 
 template<class Iterable>
-using ValueTypeIterable = typename std::iterator_traits<IterT<Iterable>>::value_type;
+using value_type_iterable = typename std::iterator_traits<iter<Iterable>>::value_type;
 
 template<class Iterable>
-using DiffTypeIterable = typename std::iterator_traits<IterT<Iterable>>::difference_type;
+using diff_iterable = typename std::iterator_traits<iter<Iterable>>::difference_type;
 
 namespace detail {
 
 template<class Function, class... Args>
-using FunctionReturnType = decltype(std::declval<Function>()(std::declval<Args>()...));
+using func_ret_type = decltype(std::declval<Function>()(std::declval<Args>()...));
 
 template<class... Ts>
-using CommonType = typename std::common_type<Ts...>::type;
+using common_type = typename std::common_type<Ts...>::type;
 
 template<bool B>
-struct EnableIfImpl {};
+struct enable_if_impl {};
 
 template<>
-struct EnableIfImpl<true> {
+struct enable_if_impl<true> {
     template<class T>
     using type = T;
 };
 
 template<bool B, class T = void>
-using EnableIf = typename EnableIfImpl<B>::template type<T>;
+using enable_if = typename enable_if_impl<B>::template type<T>;
 
 template<bool B>
-struct ConditionalImpl;
+struct conditional_impl;
 
 template<>
-struct ConditionalImpl<true> {
+struct conditional_impl<true> {
     template<class IfTrue, class /* IfFalse */>
     using type = IfTrue;
 };
 
 template<>
-struct ConditionalImpl<false> {
+struct conditional_impl<false> {
     template<class /* IfTrue */, class IfFalse>
     using type = IfFalse;
 };
 
 template<bool B, class IfTrue, class IfFalse>
-using Conditional = typename ConditionalImpl<B>::template type<IfTrue, IfFalse>;
+using conditional = typename conditional_impl<B>::template type<IfTrue, IfFalse>;
 
 template<class T, class U, class... Vs>
-struct IsAllSame : std::bool_constant<std::is_same<T, U>::value && IsAllSame<U, Vs...>::value> {};
+struct is_all_same : std::bool_constant<std::is_same<T, U>::value && is_all_same<U, Vs...>::value> {};
 
 template<class T, class U>
-struct IsAllSame<T, U> : std::is_same<T, U> {};
+struct is_all_same<T, U> : std::is_same<T, U> {};
 
 template<class IterTag>
-struct IsBidirectionalTag : std::is_convertible<IterTag, std::bidirectional_iterator_tag> {};
+struct is_bidi_tag : std::is_convertible<IterTag, std::bidirectional_iterator_tag> {};
 
 template<class Iterator>
-struct IsBidirectional : IsBidirectionalTag<IterCat<Iterator>> {};
+struct is_bidi : is_bidi_tag<iter_cat<Iterator>> {};
 
 template<class Iterator>
-struct IsForward : std::is_convertible<IterCat<Iterator>, std::forward_iterator_tag> {};
+struct is_fwd : std::is_convertible<iter_cat<Iterator>, std::forward_iterator_tag> {};
 
 template<class IterTag>
-struct IsRandomAccessTag : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
+struct is_ra : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
 
 template<class Iterator>
-struct IsRandomAccess : IsRandomAccessTag<IterCat<Iterator>> {};
+struct is_ra : is_ra<iter_cat<Iterator>> {};
 
 template<class Iterable>
-struct HasActualSentinel : std::bool_constant<!std::is_same<IterT<Iterable>, SentinelT<Iterable>>::value> {};
+struct actual_sentinel : std::bool_constant<!std::is_same<iter<Iterable>, sentinel<Iterable>>::value> {};
 
 } // namespace detail
 
@@ -160,8 +178,8 @@ struct HasActualSentinel : std::bool_constant<!std::is_same<IterT<Iterable>, Sen
  * @tparam Iterator The iterator type to select if @p Tag is not a `std::forward_iterator_tag`.
  * @tparam S The sentinel type to select if @p Tag is a `std::forward_iterator_tag`.
  */
-template<class Tag, class Iterator, class S = DefaultSentinel>
-using SentinelSelector = detail::Conditional<std::is_same<Tag, std::forward_iterator_tag>::value, S, Iterator>;
+template<class Tag, class Iterator, class S = default_sentinel>
+using sentinel_selector = detail::conditional<std::is_same<Tag, std::forward_iterator_tag>::value, S, Iterator>;
 
 /**
  * @brief Is @p TagFrom convertible to @p TagTo? If so, return @p TagFrom, otherwise return @p ToDecay.
@@ -171,7 +189,7 @@ using SentinelSelector = detail::Conditional<std::is_same<Tag, std::forward_iter
  * @tparam ToDecay The type to decay to if @p TagFrom is not convertible to @p TagTo.
  */
 template<class TagFrom, class TagTo, class ToDecay>
-using IterCatDecay = detail::Conditional<std::is_convertible<TagFrom, TagTo>::value, TagFrom, ToDecay>;
+using iter_cat_decay = detail::conditional<std::is_convertible<TagFrom, TagTo>::value, TagFrom, ToDecay>;
 } // namespace lz
 
 #endif // LZ_LZ_TOOLS_HPP

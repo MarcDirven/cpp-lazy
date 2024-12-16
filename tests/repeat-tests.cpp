@@ -29,46 +29,15 @@ TEST_CASE("Repeat binary operations", "[Repeat][Binary ops]") {
 
     SECTION("Operator++") {
         ++begin;
-        CHECK(std::distance(begin, repeater.end()) == amount - 1);
-    }
-
-    SECTION("Operator--") {
-        ++begin;
-        --begin;
-        CHECK(std::distance(begin, repeater.end()) == amount);
+        CHECK(lz::distance(begin, repeater.end()) == amount - 1);
     }
 
     SECTION("Operator== & Operator!=") {
         CHECK(begin != repeater.end());
-        begin = repeater.end();
+        while (begin != repeater.end()) {
+            ++begin;
+        }
         CHECK(begin == repeater.end());
-    }
-
-    SECTION("Operator+(int), tests += as well") {
-        const int toAdd = 2;
-        begin += toAdd;
-        CHECK(std::distance(begin, repeater.end()) == amount - toAdd);
-    }
-
-    SECTION("Operator-(int), tests -= as well") {
-        ++begin;
-        begin -= 1;
-        CHECK(std::distance(begin, repeater.end()) == amount);
-    }
-
-    SECTION("Operator-(Iterator)") {
-        CHECK((repeater.end() - begin) == 5);
-    }
-
-    SECTION("Operator[]()") {
-        CHECK(begin[0] == 20);
-    }
-
-    SECTION("Operator<, <, <=, >, >=") {
-        CHECK(begin < repeater.end());
-        CHECK(begin + amount + 1 > repeater.end());
-        CHECK(begin + amount <= repeater.end());
-        CHECK(begin + amount >= repeater.end());
     }
 }
 

@@ -5,6 +5,7 @@
 #include <list>
 #include <numeric>
 
+// TODO: write exclusivescan tests for sentinel
 
 TEST_CASE("ExclusiveScan basic functionality", "[ExclusiveScan][Basic functionality]") {
     int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6 };

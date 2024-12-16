@@ -19,21 +19,22 @@ TEST_CASE("Chunks changing and creating elements", "[Chunks][Basic functionality
     }
 }
 
-TEST_CASE("Chunks with forward iterator only") {
+TEST_CASE("Chunks with sentinels") {
     const char* str = "Hello, world!";
-    auto strView = lz::cString(str);
+    auto strView = lz::c_string(str);
     auto chunked = lz::chunks(strView, 3);
     static_assert(!std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Must be sentinel");
     CHECK(lz::distance(chunked.begin(), chunked.end()) == 5);
 
     using View = typename decltype(chunked.begin())::value_type;
-    CHECK(chunked.transformAs<std::vector<std::string>>([](View view) { return view.toString(); }) ==
+    CHECK(chunked.transform_as<std::vector<std::string>>([](View view) { return view.to_string(); }) ==
           std::vector<std::string>{ "Hel", "lo,", " wo", "rld", "!" });
 }
 
 TEST_CASE("Chunks binary operations", "[Chunks][Binary ops]") {
     std::vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto chunked = lz::chunks(v, 3);
+    static_assert(std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Should not be sentinel");
     auto it = chunked.begin();
 
     SECTION("Operator++") {
@@ -155,10 +156,10 @@ TEST_CASE("Chunks binary operations", "[Chunks][Binary ops]") {
 TEST_CASE("Chunks to containers", "[Chunk][To container]") {
     std::vector<int> v = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto chunked = lz::chunks(v, 3);
-    using ValueType = decltype(chunked.begin())::value_type;
+    using value_type_t = decltype(chunked.begin())::value_type;
     SECTION("To array") {
         std::array<std::array<int, 3>, 3> arrays{};
-        chunked.transformTo(arrays.begin(), [](ValueType chunk) { return chunk.template to<std::array<int, 3>>(); });
+        chunked.transform_to(arrays.begin(), [](value_type_t chunk) { return chunk.template to<std::array<int, 3>>(); });
 
         std::array<std::array<int, 3>, 3> expected = { std::array<int, 3>{ 1, 2, 3 }, std::array<int, 3>{ 4, 5, 6 },
                                                        std::array<int, 3>{ 7, 8 } };
@@ -168,7 +169,7 @@ TEST_CASE("Chunks to containers", "[Chunk][To container]") {
 
     SECTION("To vector") {
         std::vector<std::vector<int>> vectors{};
-        chunked.transformTo(std::back_inserter(vectors), [](ValueType chunk) { return chunk.toVector(); });
+        chunked.transform_to(std::back_inserter(vectors), [](value_type_t chunk) { return chunk.to_vector(); });
 
         std::vector<std::vector<int>> expected = { std::vector<int>{ 1, 2, 3 }, std::vector<int>{ 4, 5, 6 },
                                                    std::vector<int>{ 7, 8 } };
@@ -178,8 +179,8 @@ TEST_CASE("Chunks to containers", "[Chunk][To container]") {
 
     SECTION("To other container using to<>()") {
         std::list<std::list<int>> lists{};
-        chunked.transformTo(std::inserter(lists, lists.begin()),
-                            [](ValueType chunk) { return chunk.template to<std::list<int>>(); });
+        chunked.transform_to(std::inserter(lists, lists.begin()),
+                            [](value_type_t chunk) { return chunk.template to<std::list<int>>(); });
 
         std::list<std::list<int>> expected = { std::list<int>{ 1, 2, 3 }, std::list<int>{ 4, 5, 6 }, std::list<int>{ 7, 8 } };
 

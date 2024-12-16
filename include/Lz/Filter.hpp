@@ -3,39 +3,39 @@
 #ifndef LZ_FILTER_HPP
 #define LZ_FILTER_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/FilterIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/filter.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S, class UnaryPredicate>
-class Filter final : public detail::BasicIterable<detail::FilterIterator<Iterator, S, UnaryPredicate>,
-                                                      typename detail::FilterIterator<Iterator, S, UnaryPredicate>::Sentinel> {
+class filter_iterable final
+    : public detail::basic_iterable<detail::filter_iterator<Iterator, S, UnaryPredicate>,
+                                    typename detail::filter_iterator<Iterator, S, UnaryPredicate::sentinel>> {
 public:
-    using iterator = detail::FilterIterator<Iterator, S, UnaryPredicate>;
+    using iterator = detail::filter_iterator<Iterator, S, UnaryPredicate>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
 private:
-    using Sentinel = typename detail::FilterIterator<Iterator, S, UnaryPredicate>::Sentinel;
+    using Sentinel = typename detail::FilterIterator<Iterator, S, UnaryPredicate>::sentinel;
 
-    Filter(Iterator begin, S end, UnaryPredicate function, std::forward_iterator_tag /* unused */) :
-        detail::BasicIterable<iterator, DefaultSentinel>(iterator(begin, begin, end, function)) {
+    filter_iterable(Iterator begin, S end, UnaryPredicate function, std::forward_iterator_tag /* unused */) :
+        detail::basic_iterable<iterator, default_sentinel>(iterator(begin, begin, end, function)) {
     }
 
-    Filter(Iterator begin, Iterator end, UnaryPredicate function, std::bidirectional_iterator_tag /* unused */) :
-        detail::BasicIterable<iterator, iterator>(iterator(begin, begin, end, function),
-                                                      iterator(end, begin, end, function)) {
+    filter_iterable(Iterator begin, Iterator end, UnaryPredicate function, std::bidirectional_iterator_tag /* unused */) :
+        detail::basic_iterable<iterator, iterator>(iterator(begin, begin, end, function), iterator(end, begin, end, function)) {
     }
 
 public:
-    Filter(Iterator begin, S end, UnaryPredicate function) :
-        Filter(std::move(begin), std::move(end), std::move(function), IterCat<Iterator>{}) {
+    filter_iterable(Iterator begin, S end, UnaryPredicate function) :
+        filter_iterable(std::move(begin), std::move(end), std::move(function), iter_cat<Iterator>{}) {
     }
 
-    constexpr Filter() = default;
+    constexpr filter_iterable() = default;
 };
 
 /**
@@ -53,7 +53,7 @@ public:
  * over using `for (auto... lz::filter(...))`.
  */
 template<class Iterable, class UnaryPredicate>
-Filter<IterT<Iterable>, SentinelT<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
+filter_iterable<iter<Iterable>, sentinel<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::move(predicate) };
 }

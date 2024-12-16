@@ -21,11 +21,11 @@ private:
 
     template<class Iter>
     LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
-        using ValueType = ValueType<Iter>;
-        std::transform(begin, end, _seed.begin(), [](const ValueType val) { return static_cast<result_type>(val); });
+        using value_type = value_type<Iter>;
+        std::transform(begin, end, _seed.begin(), [](const value_type val) { return static_cast<result_type>(val); });
     }
 
-    result_type T(const result_type x) const { // NOLINT
+    result_type T(const result_type x) const {
         return x ^ (x >> 27u);
     }
 
@@ -55,9 +55,9 @@ public:
             return;
         }
 
-        using IterValueType = ValueType<Iter>;
+        using Itervalue_type_t = value_type<Iter>;
 
-        std::fill(begin, end, 0x8b8b8b8b);
+        std::fill(begin, end, 0x8b'8b8'b8b);
         const auto n = static_cast<std::size_t>(end - begin);
         constexpr auto s = N;
         const std::size_t m = std::max(s + 1, n);
@@ -65,14 +65,14 @@ public:
         const std::size_t p = (n - t) / 2;
         const std::size_t q = p + t;
 
-        IterValueType mask = static_cast<IterValueType>(1) << 31;
+        Itervalue_type_t mask = static_cast<Itervalue_type_t>(1) << 31;
         mask <<= 1;
         mask -= 1;
 
         for (std::size_t k = 0; k < m - 1; k++) {
             const std::size_t kModN = k % n;
             const std::size_t kPlusPModN = (k + p) % n;
-            const result_type r1 = 1664525 * T(begin[kModN] ^ begin[kPlusPModN] ^ begin[(k - 1) % n]);
+            const result_type r1 = 1'664'525 * T(begin[kModN] ^ begin[kPlusPModN] ^ begin[(k - 1) % n]);
 
             result_type r2;
             if (k == 0) {
@@ -93,7 +93,7 @@ public:
         for (std::size_t k = m; k < m + n - 1; k++) {
             const std::size_t kModN = k % n;
             const std::size_t kPlusPModN = (k + p) % n;
-            const result_type r3 = 1566083941 * T(begin[kModN] + begin[kPlusPModN] + begin[(k - 1) % n]);
+            const result_type r3 = 1'566'083'941 * T(begin[kModN] + begin[kPlusPModN] + begin[(k - 1) % n]);
             const auto r4 = static_cast<result_type>((r3 - kModN) & mask);
 
             begin[kPlusPModN] ^= (r3 & mask);
@@ -122,15 +122,15 @@ inline std::mt19937 createMtEngine() {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ARITHMETIC Arithmetic, class Distribution, class Generator>
-class Random final : public detail::BasicIterable<detail::RandomIterator<Arithmetic, Distribution, Generator>> {
+class Random final
+    : public detail::basic_iterable<detail::random_iterator<Arithmetic, Distribution, Generator>, default_sentinel> {
 public:
-    using iterator = detail::RandomIterator<Arithmetic, Distribution, Generator>;
+    using iterator = detail::random_iterator<Arithmetic, Distribution, Generator>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount, const bool isWhileTrueLoop) :
-        detail::BasicIterable<iterator>(iterator(distribution, generator, 0, isWhileTrueLoop),
-                                            iterator(distribution, generator, amount, isWhileTrueLoop)) {
+    Random(const Distribution& distribution, Generator& generator, const std::ptrdiff_t amount) :
+        detail::basic_iterable<iterator, default_sentinel>(iterator(distribution, generator, amount)) {
     }
 
     Random() = default;
@@ -182,7 +182,7 @@ template<class Generator, class Distribution>
 LZ_NODISCARD Random<typename Distribution::result_type, Distribution, Generator>
 random(const Distribution& distribution, Generator& generator,
        const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
-    return { distribution, generator, static_cast<std::ptrdiff_t>(amount), amount == (std::numeric_limits<std::size_t>::max)() };
+    return { distribution, generator, static_cast<std::ptrdiff_t>(amount) };
 }
 
 #ifdef __cpp_if_constexpr
@@ -231,7 +231,7 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
  */
 template<class Integral>
 LZ_NODISCARD
-    detail::EnableIf<std::is_integral<Integral>::value, Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
+    detail::enable_if<std::is_integral<Integral>::value, Random<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
     random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     static std::mt19937 gen = detail::createMtEngine();
     std::uniform_int_distribution<Integral> dist(min, max);
@@ -252,8 +252,8 @@ LZ_NODISCARD
  * @return A random view object that generates a sequence of random floating point values.
  */
 template<class Floating>
-LZ_NODISCARD detail::EnableIf<std::is_floating_point<Floating>::value,
-                              Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
+LZ_NODISCARD detail::enable_if<std::is_floating_point<Floating>::value,
+                               Random<Floating, std::uniform_real_distribution<Floating>, std::mt19937>>
 random(const Floating min, const Floating max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     static std::mt19937 gen = detail::createMtEngine();
     std::uniform_real_distribution<Floating> dist(min, max);

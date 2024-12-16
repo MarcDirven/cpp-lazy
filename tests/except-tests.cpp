@@ -45,8 +45,8 @@ TEST_CASE("Except excepts elements and is by reference", "[Except][Basic functio
     }
 
     SECTION("Excepted with >") {
-        std::sort(toExcept.begin(), toExcept.end(), std::greater<int>());      // NOLINT
-        auto exceptGreater = lz::except(array, toExcept, std::greater<int>()); // NOLINT
+        std::sort(toExcept.begin(), toExcept.end(), std::greater<int>());
+        auto exceptGreater = lz::except(array, toExcept, std::greater<int>());
         CHECK(exceptGreater.to<std::array<int, 3>>() == std::array<int, 3>{ 1, 2, 4 });
     }
 }

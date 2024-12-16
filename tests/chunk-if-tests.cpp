@@ -6,6 +6,8 @@
 #include <iostream>
 #include <list>
 
+// TODO: write chunk if with sentinels
+
 TEST_CASE("ChunkIf changing and creating elements", "[ChunkIf][Basic functionality]") {
     std::string s = "hello world; this is a message;;";
     auto chunked = lz::chunkIf(s, [](const char c) { return c == ';'; });

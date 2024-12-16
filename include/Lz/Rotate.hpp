@@ -10,16 +10,28 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
-template<class Iterator>
-class Rotate final : public detail::BasicIterable<detail::RotateIterator<Iterator>> {
+template<class Iterator, class S>
+    class Rotate final : public detail::basic_iterable < detail::rotate_iterator<Iterator, S>,
+    typename detail::rotate_iterator<Iterator, S::sentinel> {
+
 public:
-    using iterator = detail::RotateIterator<Iterator>;
+    using iterator = detail::rotate_iterator<Iterator, S>;
     using const_iterator = iterator;
 
     constexpr Rotate() = default;
 
-    Rotate(Iterator start, Iterator begin, Iterator end) :
-        detail::BasicIterable<iterator>(iterator(start, begin, end, false), iterator(start, begin, end, true)) {
+private:
+    Rotate(Iterator begin, S end, Iterator start, std::bidirectional_iterator_tag) :
+        detail::basic_iterable<iterator>(iterator(begin, end, start, false), iterator(begin, end, start, true)) {
+    }
+
+    Rotate(Iterator begin, S end, Iterator start, std::forward_iterator_tag) :
+        detail::basic_iterable<iterator, S>(iterator(std::move(begin), std::move(end), start, false), start) {
+    }
+
+public:
+    Rotate(Iterator begin, S end, Iterator start) :
+        Rotate(std::move(begin), std::move(end), std::move(start), IterCat<Iterator>{}) {
     }
 };
 
@@ -33,15 +45,14 @@ public:
  * @param end The ending of the range (container.end())
  * @return Rotate object, which is a range of [start, start)
  */
-template<LZ_CONCEPT_ITERATOR Iterator>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Rotate<Iterator> rotate(Iterator start, Iterator begin, Iterator end) {
-    return { std::move(start), std::move(begin), std::move(end) };
+template<LZ_CONCEPT_ITERATOR Iterator, class Iterable>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Rotate<Iterator, sentinel<Iterable>> rotate(Iterable&& iterable, Iterator start) {
+    static_assert(std::is_same<Iterator, decltype(std::begin(iterable))>::value, "Iterators must be the same type");
+    return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), std::move(start) };
 }
 
 LZ_MODULE_EXPORT_SCOPE_END
 
 } // namespace lz
-
-
 
 #endif // LZ_ROTATE_HPP

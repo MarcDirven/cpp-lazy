@@ -3,24 +3,24 @@
 #ifndef LZ_EXCLUDE_HPP
 #define LZ_EXCLUDE_HPP
 
-#include "detail/BasicIterable.hpp"
-#include "detail/iterators/ExcludeIterator.hpp"
+#include "detail/basic_iterable.hpp"
+#include "detail/iterators/exclude.hpp"
 
 namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<class Iterator, class S>
-class Exclude final : public detail::BasicIterable<detail::ExcludeIterator<Iterator, S>, S> {
+class exclude_iterable final : public detail::basic_iterable<detail::exclude_iterator<Iterator, S>, S> {
 public:
-    using iterator = detail::ExcludeIterator<Iterator, S>;
+    using iterator = detail::exclude_iterator<Iterator, S>;
     using const_iterator = iterator;
 
-    constexpr Exclude() = default;
+    constexpr exclude_iterable() = default;
 
     LZ_CONSTEXPR_CXX_20
-    Exclude(Iterator begin, S end, const DiffType<Iterator> from, const DiffType<Iterator> to) :
-        detail::BasicIterable<iterator, S>(iterator(begin, end, from, to), std::move(end)) {
+    exclude_iterable(Iterator begin, S end, const diff_type<Iterator> from, const diff_type<Iterator> to) :
+        detail::basic_iterable<iterator, S>(iterator(begin, end, from, to), std::move(end)) {
     }
 };
 
@@ -34,11 +34,11 @@ public:
  * @param iterable The iterable sequence.
  * @param from Index to start excluding elements from.
  * @param to Index to stop at, note that its underlying element at this index is included.
- * @return An Exclude iterator view object.
+ * @return An exclude_iterable iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Exclude<IterT<Iterable>, SentinelT<Iterable>>
-exclude(Iterable&& iterable, const DiffType<IterT<Iterable>> from, const DiffType<IterT<Iterable>> to) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 exclude_iterable<iter<Iterable>, sentinel<Iterable>>
+exclude(Iterable&& iterable, const diff_type<iter<Iterable>> from, const diff_type<iter<Iterable>> to) {
     LZ_ASSERT(from <= to, "from must be less than or equal to `to`");
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), from, to };
 }
