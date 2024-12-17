@@ -14,12 +14,12 @@ class func_container {
     mutable Func _func;
     bool _is_constructed{ false };
 
-    constexpr explicit func_container(std::false_type /*isDefaultConstructible*/) {
+    constexpr explicit func_container(std::false_type /* is_default_constructible */) {
         static_assert(always_false<Func>::value, "Please use std::function instead of a lambda in this case, because "
                                                  "lambda's are not default constructible pre C++20");
     }
 
-    constexpr explicit func_container(std::true_type /*isDefaultConstructible*/) : _func(), _is_constructed(true) {
+    constexpr explicit func_container(std::true_type /* is_default_constructible */) : _func(), _is_constructed(true) {
     }
 
     template<class F>

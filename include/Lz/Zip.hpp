@@ -54,13 +54,13 @@ public:
  * `for (auto tuple :  lz::zip(...))`.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter<Iterables>...> zip(Iterables&&... iterables) {
-    static_assert(sizeof...(Iterators) > 0, "Cannot create zip object with 0 iterators");
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter_t<Iterables>...> zip(Iterables&&... iterables) {
+    static_assert(sizeof...(Iterables) > 0, "Cannot create zip object with 0 iterators");
     auto begin = std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...);
     auto end = std::make_tuple(detail::end(std::forward<Iterables>(iterables))...);
-    using CommonIterTag = detail::common_type<IterCat<Iterators>...>;
-    if LZ_CONSTEXPR_IF (detail::is_ra<CommonIterTag>::value) {
-        end = detail::create_end_smallest_iterator(begin, std::move(end), detail::make_index_sequence<sizeof...(Iterators)>());
+    using common_tag = detail::common_type<iter_cat_t<iter_t<Iterables>>...>;
+    if LZ_CONSTEXPR_IF (detail::is_ra_tag<common_tag>::value) {
+        end = detail::create_end_smallest_iterator(begin, std::move(end), detail::make_index_sequence<sizeof...(Iterables)>());
     }
     return { std::move(begin), std::move(end) };
 }

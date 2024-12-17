@@ -21,7 +21,7 @@ private:
 
     template<class Iter>
     LZ_CONSTEXPR_CXX_20 void create(Iter begin, Iter end) {
-        using value_type = value_type<Iter>;
+        using value_type = val_t<Iter>;
         std::transform(begin, end, _seed.begin(), [](const value_type val) { return static_cast<result_type>(val); });
     }
 
@@ -55,7 +55,7 @@ public:
             return;
         }
 
-        using iter_value_type = value_type<Iter>;
+        using iter_value_type = val_t<Iter>;
 
         std::fill(begin, end, 0x8b'8b8'b8b);
         const auto n = static_cast<std::size_t>(end - begin);
@@ -70,41 +70,41 @@ public:
         mask -= 1;
 
         for (std::size_t k = 0; k < m - 1; k++) {
-            const std::size_t kModN = k % n;
-            const std::size_t kPlusPModN = (k + p) % n;
-            const result_type r1 = 1'664'525 * T(begin[kModN] ^ begin[kPlusPModN] ^ begin[(k - 1) % n]);
+            const std::size_t k_mod_n = k % n;
+            const std::size_t k_plus_mod_n = (k + p) % n;
+            const result_type r1 = 1'664'525 * T(begin[k_mod_n] ^ begin[k_plus_mod_n] ^ begin[(k - 1) % n]);
 
             result_type r2;
             if (k == 0) {
                 r2 = static_cast<result_type>((r1 + s) & mask);
             }
             else if (k <= s) {
-                r2 = static_cast<result_type>((r1 + kModN + _seed[k - 1]) & mask);
+                r2 = static_cast<result_type>((r1 + k_mod_n + _seed[k - 1]) & mask);
             }
             else {
-                r2 = static_cast<result_type>((r1 + kModN) & mask);
+                r2 = static_cast<result_type>((r1 + k_mod_n) & mask);
             }
 
-            begin[kPlusPModN] += (r1 & mask);
+            begin[k_plus_mod_n] += (r1 & mask);
             begin[(k + q) % n] += (r2 & mask);
-            begin[kModN] = r2;
+            begin[k_mod_n] = r2;
         }
 
         for (std::size_t k = m; k < m + n - 1; k++) {
-            const std::size_t kModN = k % n;
-            const std::size_t kPlusPModN = (k + p) % n;
-            const result_type r3 = 1'566'083'941 * T(begin[kModN] + begin[kPlusPModN] + begin[(k - 1) % n]);
-            const auto r4 = static_cast<result_type>((r3 - kModN) & mask);
+            const std::size_t k_mod_n = k % n;
+            const std::size_t k_plus_mod_n = (k + p) % n;
+            const result_type r3 = 1'566'083'941 * T(begin[k_mod_n] + begin[k_plus_mod_n] + begin[(k - 1) % n]);
+            const auto r4 = static_cast<result_type>((r3 - k_mod_n) & mask);
 
-            begin[kPlusPModN] ^= (r3 & mask);
+            begin[k_plus_mod_n] ^= (r3 & mask);
             begin[(k + q) % n] ^= (r4 & mask);
-            begin[kModN] = r4;
+            begin[k_mod_n] = r4;
         }
     }
 
     template<class Iter>
-    LZ_CONSTEXPR_CXX_20 void param(Iter outputIterator) const {
-        std::copy(_seed.begin(), _seed.end(), outputIterator);
+    LZ_CONSTEXPR_CXX_20 void param(Iter output_iter) const {
+        std::copy(_seed.begin(), _seed.end(), output_iter);
     }
 
     static constexpr std::size_t size() {
@@ -114,8 +114,8 @@ public:
 
 inline std::mt19937 create_mt_engine() {
     std::random_device rd;
-    seed_sequence<8> seedSeq(rd);
-    return std::mt19937(seedSeq);
+    seed_sequence<8> seed_seq(rd);
+    return std::mt19937(seed_seq);
 }
 } // namespace detail
 
@@ -140,12 +140,12 @@ public:
      * ```cpp
      * auto rand = lz::random(0, 5);
      * for (int i = 0; i < 50_000; i++) {
-     *     int myRandom = rand.nextRandom();
+     *     int my_random = rand.next_random();
      * }
      * ```
      * @return A new random `value_type` between [min, max].
      */
-    LZ_NODISCARD value_type nextRandom() const {
+    LZ_NODISCARD value_type next_random() const {
         return *this->begin();
     }
 
@@ -153,7 +153,7 @@ public:
      * Gets the minimum random value.
      * @return The min value
      */
-    LZ_NODISCARD value_type minRandom() const {
+    LZ_NODISCARD value_type min_random() const {
         return (this->begin().min)();
     }
 
@@ -161,7 +161,7 @@ public:
      * Gets the maximum random value.
      * @return The max value
      */
-    LZ_NODISCARD value_type maxRandom() const {
+    LZ_NODISCARD value_type max_random() const {
         return (this->begin().max)();
     }
 };
@@ -230,9 +230,9 @@ random(const Arithmetic min, const Arithmetic max, const std::size_t amount = (s
  * @return A random view object that generates a sequence of random numbers
  */
 template<class Integral>
-LZ_NODISCARD
-    detail::enable_if<std::is_integral<Integral>::value, random_iterable<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
-    random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
+LZ_NODISCARD detail::enable_if<std::is_integral<Integral>::value,
+                               random_iterable<Integral, std::uniform_int_distribution<Integral>, std::mt19937>>
+random(const Integral min, const Integral max, const std::size_t amount = (std::numeric_limits<std::size_t>::max)()) {
     static std::mt19937 gen = detail::create_mt_engine();
     std::uniform_int_distribution<Integral> dist(min, max);
     return random(dist, gen, amount);

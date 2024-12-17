@@ -6,7 +6,7 @@
 #include "Lz/detail/compiler_checks.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
 #include "Lz/detail/traits.hpp"
-#include "Lz/iter_Base.hpp"
+#include "Lz/iter_base.hpp"
 
 #if defined(LZ_STANDALONE)
 #ifdef LZ_HAS_FORMAT
@@ -45,18 +45,18 @@ template<class Iterator, class S>
 class join_iterator
     : public iter_base<
           join_iterator<Iterator, S>,
-          conditional<std::is_same<std::string, value_type<Iterator>>::value, ref<Iterator>, std::string>,
-          fake_ptr_proxy<conditional<std::is_same<std::string, value_type<Iterator>>::value, ref<Iterator>, std::string>>,
-          diff_type<Iterator>, iter_cat<Iterator>, sentinel_selector<iter_cat<Iterator>, join_iterator<Iterator, S>, S>> {
+          conditional<std::is_same<std::string, val_t<Iterator>>::value, ref_t<Iterator>, std::string>,
+          fake_ptr_proxy<conditional<std::is_same<std::string, val_t<Iterator>>::value, ref_t<Iterator>, std::string>>,
+          diff_type<Iterator>, iter_cat_t<Iterator>, sentinel_selector<iter_cat_t<Iterator>, join_iterator<Iterator, S>, S>> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
-    using ContainerType = typename iter < raits::value_type;
+    using iter_traits = std::iterator_traits<Iterator>;
+    using ContainerType = typename iter_traits::value_type;
 
 public:
     using value_type = std::string;
-    using iterator_category = typename iter < raits::iterator_category;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = conditional < std::is_same<std::string, ContainerType>::value, typename iter<raits::reference, std::string>;
+    using iterator_category = typename iter_traits::iterator_category;
+    using difference_type = typename iter_traits::difference_type;
+    using reference = conditional<std::is_same<std::string, ContainerType>::value, typename iter_traits::reference, std::string>;
     using pointer = fake_ptr_proxy<reference>;
 
 private:
@@ -117,18 +117,18 @@ private:
 public:
 #if defined(LZ_HAS_FORMAT) || !defined(LZ_STANDALONE)
     LZ_CONSTEXPR_CXX_20
-    join_iterator(Iterator iterator, std::string delimiter, std::string fmt, const bool is_iter < urn) :
+    join_iterator(Iterator iterator, std::string delimiter, std::string fmt, const bool is_iter_turn) :
         _delimiter(std::move(delimiter)),
         _fmt(std::move(fmt)),
         _iterator(std::move(iterator)),
-        _is_iterator_turn(is_iter < urn) {
+        _is_iterator_turn(is_iter_turn) {
     }
 #else
     LZ_CONSTEXPR_CXX_20
-    join_iterator(Iterator iterator, std::string delimiter, const bool is_iter < urn) :
+    join_iterator(Iterator iterator, std::string delimiter, const bool is_iter_turn) :
         _delimiter(std::move(delimiter)),
         _iterator(std::move(iterator)),
-        _is_iterator_turn(is_iter < urn) {
+        _is_iterator_turn(is_iter_turn) {
     }
 #endif // has format
 

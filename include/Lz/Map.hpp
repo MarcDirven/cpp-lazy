@@ -12,7 +12,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR Iterator, class S, class Function>
 class map_iterable final : public detail::basic_iterable<detail::map_iterator<Iterator, S, Function>,
-                                                         typename detail::map_iterator<Iterator, S, Function::sentinel>> {
+                                                         typename detail::map_iterator<Iterator, S, Function>::sentinel> {
 
 public:
     using iterator = detail::map_iterator<Iterator, S, Function>;
@@ -30,7 +30,7 @@ private:
 
 public:
     LZ_CONSTEXPR_CXX_20 map_iterable(Iterator begin, S end, Function function) :
-        map_iterable(std::move(begin), std::move(end), std::move(function), IterCat<Iterator>{}) {
+        map_iterable(std::move(begin), std::move(end), std::move(function), iter_cat_t<Iterator>{}) {
     }
 
     constexpr map_iterable() = default;
@@ -52,7 +52,7 @@ public:
  * `for (auto... lz::map(...))`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class Function>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::decay<Function>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter_t<Iterable>, sentinel_t<Iterable>, detail::decay<Function>>
 map(Iterable&& iterable, Function&& function) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::forward<Function>(function) };

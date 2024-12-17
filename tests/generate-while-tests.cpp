@@ -1,20 +1,20 @@
-#include <Lz/GenerateWhile.hpp>
+#include <Lz/generate_while.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Generate while changing and creating elements", "[Generate while][Basic functionality]") {
-    const auto compileTest1 = lz::generateWhile([](bool) { return std::make_pair(false, false); }, false);
-    static_cast<void>(compileTest1);
-    const auto compileTest2 = lz::generateWhile([](const int&) { return std::make_pair(false, false); }, 0);
-    static_cast<void>(compileTest2);
-    static_assert(!std::is_same<decltype(compileTest1.begin()), decltype(compileTest1.end())>::value, "Should be sentinel");
-    auto generatorWithReference = lz::generateWhile([](int& i) -> std::pair<bool, int&> { return { i == 4, i }; }, 0);
-    static_assert(std::is_same<decltype(*generatorWithReference.begin()), int&>::value,
+    const auto compile_test1 = lz::generate_while([](bool) { return std::make_pair(false, false); }, false);
+    static_cast<void>(compile_test1);
+    const auto compile_test2 = lz::generate_while([](const int&) { return std::make_pair(false, false); }, 0);
+    static_cast<void>(compile_test2);
+    static_assert(!std::is_same<decltype(compile_test1.begin()), decltype(compile_test1.end())>::value, "Should be sentinel");
+    auto gen_with_ref = lz::generate_while([](int& i) -> std::pair<bool, int&> { return { i == 4, i }; }, 0);
+    static_assert(std::is_same<decltype(*gen_with_ref.begin()), int&>::value,
                   "int& and decltype(*generator.begin()) are not the same");
                   
 
     SECTION("Should be 0, 1, 2, 3") {
-        auto generator = lz::generateWhile(
+        auto generator = lz::generate_while(
             [](int& i) {
                 auto copy = i++;
                 return std::make_pair(copy != 4, copy);
@@ -27,7 +27,7 @@ TEST_CASE("Generate while changing and creating elements", "[Generate while][Bas
 }
 
 TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
-    auto generator = lz::generateWhile(
+    auto generator = lz::generate_while(
         [](int& i) {
             auto copy = i++;
             return std::make_pair(copy != 4, copy);
@@ -59,7 +59,7 @@ TEST_CASE("Generate while binary operations", "[Generate while][Binary ops]") {
 }
 
 TEST_CASE("Generate while to containers", "[GenerateWhile][To container]") {
-    auto generator = lz::generateWhile(
+    auto generator = lz::generate_while(
         [](int& f) {
             auto copy = f++;
             return std::pair<int, int>{ copy < 4, copy };

@@ -14,14 +14,14 @@ namespace lz {
 namespace detail {
 template<class Iterator, class S, class UnaryPredicate>
 class take_while_iterator
-    : public iter_base<take_while_iterator<Iterator, S, UnaryPredicate>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
+    : public iter_base<take_while_iterator<Iterator, S, UnaryPredicate>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
                        diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
 
     common_iterator<Iterator, S> _iterator{};
     S _end{};
     func_container<UnaryPredicate> _unary_predicate{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
     void incremented_check() {
         if (_iterator != _end && !_unary_predicate(*_iterator)) {
@@ -31,17 +31,17 @@ class take_while_iterator
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
     constexpr take_while_iterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 take_while_iterator(Iterator iterator, S end, UnaryPredicate unaryPredicate) :
+    LZ_CONSTEXPR_CXX_14 take_while_iterator(Iterator iterator, S end, UnaryPredicate unary_predicate) :
         _iterator(std::move(iterator)),
         _end(std::move(end)),
-        _unary_predicate(std::move(unaryPredicate)) {
+        _unary_predicate(std::move(unary_predicate)) {
         incremented_check();
     }
 
@@ -69,7 +69,7 @@ public:
 
 template<class Iterator, class UnaryPredicate>
 class take_while_iterator<Iterator, Iterator, UnaryPredicate>
-    : public iter_base<take_while_iterator<Iterator, Iterator, UnaryPredicate>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
+    : public iter_base<take_while_iterator<Iterator, Iterator, UnaryPredicate>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
                        diff_type<Iterator>, std::bidirectional_iterator_tag> {
 
     Iterator _begin{};
@@ -77,7 +77,7 @@ class take_while_iterator<Iterator, Iterator, UnaryPredicate>
     Iterator _end{};
     func_container<UnaryPredicate> _unary_predicate{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
     void incremented_check() {
         if (_iterator != _end && !_unary_predicate(*_iterator)) {
@@ -87,18 +87,18 @@ class take_while_iterator<Iterator, Iterator, UnaryPredicate>
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
     constexpr take_while_iterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 take_while_iterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate unaryPredicate) :
+    LZ_CONSTEXPR_CXX_14 take_while_iterator(Iterator iterator, Iterator begin, Iterator end, UnaryPredicate unary_predicate) :
         _begin(std::move(begin)),
         _iterator(std::move(iterator)),
         _end(std::move(end)),
-        _unary_predicate(std::move(unaryPredicate)) {
+        _unary_predicate(std::move(unary_predicate)) {
         if (iterator == begin) {
             incremented_check();
         }

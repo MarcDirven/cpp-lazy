@@ -11,15 +11,15 @@ namespace lz {
 namespace detail {
 // TODO can we make bidirectional?
 template<class Iterator, class S>
-class exclude_iterator : public iter_base<exclude_iterator<Iterator, S>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
+class exclude_iterator : public iter_base<exclude_iterator<Iterator, S>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
                                           diff_type<Iterator>, std::forward_iterator_tag, S> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
 private:

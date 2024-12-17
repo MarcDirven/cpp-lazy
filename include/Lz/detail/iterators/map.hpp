@@ -3,28 +3,28 @@
 #ifndef LZ_MAP_ITERATOR_HPP
 #define LZ_MAP_ITERATOR_HPP
 
-#include "Lz/IterBase.hpp"
-#include "Lz/detail/CompilerChecks.hpp"
-#include "Lz/detail/FakePointerProxy.hpp"
-#include "Lz/detail/FunctionContainer.hpp"
+#include "Lz/detail/compiler_checks.hpp"
+#include "Lz/detail/fake_ptr_proxy.hpp"
+#include "Lz/detail/func_container.hpp"
+#include "Lz/iter_base.hpp"
 
 namespace lz {
 namespace detail {
 template<class Iterator, class S, class Function>
 class map_iterator
     : public iter_base<map_iterator<Iterator, S, Function>, func_container_ret_type<Function, Iterator>,
-                       fake_ptr_proxy<func_container_ret_type<Function, Iterator>>, diff_t<Iterator>, IterCat<Iterator>,
-                       sentinel_selector<IterCat<Iterator>, map_iterator<Iterator, S, Function>, S>> {
+                       fake_ptr_proxy<func_container_ret_type<Function, Iterator>>, diff_type<Iterator>, iter_cat_t<Iterator>,
+                       sentinel_selector<iter_cat_t<Iterator>, map_iterator<Iterator, S, Function>, S>> {
     Iterator _iterator{};
     func_container<Function> _function{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
     using reference = decltype(_function(*_iterator));
     using value_type = decay<reference>;
-    using iterator_category = typename iter < raits::iterator_category;
-    using difference_type = typename iter < raits::difference_type;
+    using iterator_category = typename traits::iterator_category;
+    using difference_type = typename traits::difference_type;
     using pointer = fake_ptr_proxy<reference>;
 
     LZ_CONSTEXPR_CXX_20 map_iterator(Iterator iterator, Function function) :

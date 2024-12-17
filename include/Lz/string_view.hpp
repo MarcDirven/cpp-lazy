@@ -130,8 +130,8 @@ public:
     }
 
 private:
-    const CharT* _data{ nullptr };
-    std::size_t _size{};
+    const CharT* _data;
+    std::size_t _size;
 };
 
 // Equality operator

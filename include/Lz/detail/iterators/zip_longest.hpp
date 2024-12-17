@@ -15,13 +15,13 @@ class zip_longest_iterator;
 
 template<class... Iterators>
 class zip_longest_iterator<false /*is random access*/, Iterators...>
-    : public iter_base<zip_longest_iterator<false, Iterators...>, std::tuple<optional<value_type<Iterators>>...>,
-                       fake_ptr_proxy<std::tuple<optional<value_type<Iterators>>...>>, common_type<diff_type<Iterators>...>,
+    : public iter_base<zip_longest_iterator<false, Iterators...>, std::tuple<optional<val_t<Iterators>>...>,
+                       fake_ptr_proxy<std::tuple<optional<val_t<Iterators>>...>>, common_type<diff_type<Iterators>...>,
                        std::forward_iterator_tag> {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = std::tuple<optional<value_type_t<Iterators>>...>;
-    using difference_type = common_type<diff_t<Iterators>...>;
+    using value_type = std::tuple<optional<val_t<Iterators>>...>;
+    using difference_type = common_type<diff_type<Iterators>...>;
     using reference = value_type;
     using pointer = fake_ptr_proxy<value_type>;
 
@@ -31,8 +31,8 @@ private:
     std::tuple<Iterators...> _end{};
 
     template<class I>
-    LZ_CONSTEXPR_CXX_20 optional<value_type_t<I>> deref_one(const I& iterator, const I& end) const {
-        return iterator == end ? optional<value_type_t<I>>{} : optional<value_type_t<I>>(*iterator);
+    LZ_CONSTEXPR_CXX_20 optional<val_t<I>> deref_one(const I& iterator, const I& end) const {
+        return iterator == end ? optional<val_t<I>>{} : optional<val_t<I>>(*iterator);
     }
 
     template<class I>
@@ -95,13 +95,13 @@ public:
 
 template<class... Iterators>
 class zip_longest_iterator<true /*is random access*/, Iterators...>
-    : public iter_base<zip_longest_iterator<true, Iterators...>, std::tuple<optional<value_type<Iterators>>...>,
-                       fake_ptr_proxy<std::tuple<optional<value_type<Iterators>>...>>, common_type<diff_type<Iterators>...>,
+    : public iter_base<zip_longest_iterator<true, Iterators...>, std::tuple<optional<val_t<Iterators>>...>,
+                       fake_ptr_proxy<std::tuple<optional<val_t<Iterators>>...>>, common_type<diff_type<Iterators>...>,
                        std::random_access_iterator_tag> {
 public:
-    using iterator_category = common_type<IterCat<Iterators>...>;
-    using value_type = std::tuple<optional<value_type_t<Iterators>>...>;
-    using difference_type = common_type<diff_t<Iterators>...>;
+    using iterator_category = common_type<iter_cat_t<Iterators>...>;
+    using value_type = std::tuple<optional<val_t<Iterators>>...>;
+    using difference_type = common_type<diff_type<Iterators>...>;
     using reference = value_type;
     using pointer = fake_ptr_proxy<value_type>;
 
@@ -112,8 +112,8 @@ private:
     std::tuple<Iterators...> _end{};
 
     template<class I>
-    LZ_CONSTEXPR_CXX_20 optional<value_type_t<I>> deref_one(const I& iterator, const I& end) const {
-        return iterator == end ? optional<value_type_t<I>>{} : optional<value_type_t<I>>(*iterator);
+    LZ_CONSTEXPR_CXX_20 optional<val_t<I>> deref_one(const I& iterator, const I& end) const {
+        return iterator == end ? optional<val_t<I>>{} : optional<val_t<I>>(*iterator);
     }
 
     template<class I>
@@ -143,17 +143,17 @@ private:
     }
 
     template<class I>
-    LZ_CONSTEXPR_CXX_20 void decrement_one(I& iterator, const difference_type longest, const difference_type thisIteratorLength) {
-        if (thisIteratorLength == longest) {
+    LZ_CONSTEXPR_CXX_20 void decrement_one(I& iterator, const difference_type longest, const difference_type this_iter_length) {
+        if (this_iter_length == longest) {
             --iterator;
         }
     }
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 void decrement(index_sequence<I...>) {
-        const difference_type allSizes[] = { static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(_begin))... };
-        const auto longest = *std::max_element(std::begin(allSizes), std::end(allSizes));
-        decompose((decrement_one(std::get<I>(_iterators), longest, allSizes[I]), 0)...);
+        const difference_type all_sizes[] = { static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(_begin))... };
+        const auto longest = *std::max_element(std::begin(all_sizes), std::end(all_sizes));
+        decompose((decrement_one(std::get<I>(_iterators), longest, all_sizes[I]), 0)...);
     }
 
     template<class I>
@@ -174,19 +174,19 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 difference_type minus(const zip_longest_iterator& other, index_sequence<I...>) const {
-        const difference_type allSizes[] = { static_cast<difference_type>(std::get<I>(_iterators) -
+        const difference_type all_sizes[] = { static_cast<difference_type>(std::get<I>(_iterators) -
                                                                           std::get<I>(other._iterators))... };
-        return *std::max_element(std::begin(allSizes), std::end(allSizes));
+        return *std::max_element(std::begin(all_sizes), std::end(all_sizes));
     }
 
     template<class I>
     LZ_CONSTEXPR_CXX_20 void
-    min_is_one(I& iterator, const difference_type thisIteratorLength, const difference_type longest, const difference_type offset) {
-        if (thisIteratorLength == longest) {
+    min_is_one(I& iterator, const difference_type this_iter_length, const difference_type longest, const difference_type offset) {
+        if (this_iter_length == longest) {
             iterator -= offset;
             return;
         }
-        const auto surplus = thisIteratorLength + offset;
+        const auto surplus = this_iter_length + offset;
         if (surplus > longest) {
             iterator -= (surplus - longest);
         }
@@ -194,9 +194,9 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 void min_is(index_sequence<I...>, const difference_type offset) {
-        const difference_type allSizes[] = { static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(_begin))... };
-        const auto longest = *std::max_element(std::begin(allSizes), std::end(allSizes));
-        decompose((min_is_one(std::get<I>(_iterators), allSizes[I], longest, offset), 0)...);
+        const difference_type all_sizes[] = { static_cast<difference_type>(std::get<I>(_iterators) - std::get<I>(_begin))... };
+        const auto longest = *std::max_element(std::begin(all_sizes), std::end(all_sizes));
+        decompose((min_is_one(std::get<I>(_iterators), all_sizes[I], longest, offset), 0)...);
     }
 
     template<std::size_t... I>
@@ -208,9 +208,9 @@ private:
 
     template<std::size_t... I>
     LZ_CONSTEXPR_CXX_20 bool lt(const zip_longest_iterator& other, index_sequence<I...>) const {
-        const difference_type allSizes[] = { static_cast<difference_type>(std::get<I>(_iterators) -
+        const difference_type all_sizes[] = { static_cast<difference_type>(std::get<I>(_iterators) -
                                                                           std::get<I>(other._iterators))... };
-        return *std::min_element(std::begin(allSizes), std::end(allSizes)) < 0;
+        return *std::min_element(std::begin(all_sizes), std::end(all_sizes)) < 0;
     }
 
 public:

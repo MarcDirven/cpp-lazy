@@ -37,8 +37,8 @@ public:
  * @return An exclude_iterable iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 exclude_iterable<iter<Iterable>, sentinel<Iterable>>
-exclude(Iterable&& iterable, const diff_type<iter<Iterable>> from, const diff_type<iter<Iterable>> to) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 exclude_iterable<iter_t<Iterable>, sentinel_t<Iterable>>
+exclude(Iterable&& iterable, const diff_type<iter_t<Iterable>> from, const diff_type<iter_t<Iterable>> to) {
     LZ_ASSERT(from <= to, "from must be less than or equal to `to`");
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), from, to };
 }

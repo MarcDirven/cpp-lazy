@@ -1,4 +1,4 @@
-#include <Lz/Zip.hpp>
+#include <Lz/zip.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -153,18 +153,18 @@ TEST_CASE("zip_iterable to containers", "[zip_iterable][To container]") {
 
     SECTION("To other container using to<>()") {
         auto list = lz::zip(a, b, c).to<std::list<std::tuple<int, float, short>>>();
-        auto listIterator = list.begin();
+        auto list_iter = list.begin();
 
         for (std::size_t i = 0; i < list.size(); i++) {
-            auto& a_element = std::get<0>(*listIterator);
-            auto& b_element = std::get<1>(*listIterator);
-            auto& c_element = std::get<2>(*listIterator);
+            auto& a_element = std::get<0>(*list_iter);
+            auto& b_element = std::get<1>(*list_iter);
+            auto& c_element = std::get<2>(*list_iter);
 
             CHECK(a_element == a[i]);
             CHECK(b_element == b[i]);
             CHECK(c_element == c[i]);
 
-            ++listIterator;
+            ++list_iter;
         }
     }
 

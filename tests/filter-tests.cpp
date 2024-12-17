@@ -1,12 +1,12 @@
-#include <Lz/CString.hpp>
-#include <Lz/Filter.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/filter.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Filter with sentinels") {
     const char* str = "Hello, World!";
-    auto cStr = lz::c_string(str);
-    auto filter = lz::filter(cStr, [](char c) { return c != 'o'; });
+    auto c_str = lz::c_string(str);
+    auto filter = lz::filter(c_str, [](char c) { return c != 'o'; });
     static_assert(!std::is_same<decltype(filter.begin()), decltype(filter.end())>::value, "Must be sentinel");
     std::vector<char> expected = { 'H', 'e', 'l', 'l', ',', ' ', 'W', 'r', 'l', 'd', '!' };
     CHECK(filter.to_vector() == expected);
@@ -67,18 +67,18 @@ TEST_CASE("Filter binary operations", "[Filter][Binary ops]") {
     }
 
     SECTION("Operator--") {
-        auto revIter = filter.end();
-        CHECK(revIter != filter.begin());
-        --revIter;
-        CHECK(*revIter == array[1]);
-        CHECK(revIter != filter.begin());
-        ++revIter;
-        CHECK(revIter == filter.end());
-        --revIter;
-        CHECK(*revIter == array[1]);
-        --revIter;
-        CHECK(*revIter == array[0]);
-        CHECK(revIter == filter.begin());
+        auto rev_it = filter.end();
+        CHECK(rev_it != filter.begin());
+        --rev_it;
+        CHECK(*rev_it == array[1]);
+        CHECK(rev_it != filter.begin());
+        ++rev_it;
+        CHECK(rev_it == filter.end());
+        --rev_it;
+        CHECK(*rev_it == array[1]);
+        --rev_it;
+        CHECK(*rev_it == array[0]);
+        CHECK(rev_it == filter.begin());
     }
 }
 
@@ -88,28 +88,28 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     std::array<int, size> array{ 1, 2, 3 };
 
     SECTION("To array") {
-        constexpr std::size_t filterSize = 2;
-        auto filtered = lz::filter(array, [](int i) { return i != 3; }).to<std::array<int, filterSize>>();
+        constexpr std::size_t filter_size = 2;
+        auto filtered = lz::filter(array, [](int i) { return i != 3; }).to<std::array<int, filter_size>>();
 
         CHECK(filtered[0] == array[0]);
         CHECK(filtered[1] == array[1]);
     }
 
     SECTION("To vector") {
-        auto filteredVec = lz::filter(array, [](int i) { return i != 3; }).to_vector();
+        auto filtered_vec = lz::filter(array, [](int i) { return i != 3; }).to_vector();
 
-        CHECK(filteredVec.size() == 2);
-        CHECK(filteredVec[0] == array[0]);
-        CHECK(filteredVec[1] == array[1]);
+        CHECK(filtered_vec.size() == 2);
+        CHECK(filtered_vec[0] == array[0]);
+        CHECK(filtered_vec[1] == array[1]);
     }
 
     SECTION("To other container using to<>()") {
-        auto filteredList = lz::filter(array, [](int i) { return i != 3; }).to<std::list<int>>();
+        auto filtered_list = lz::filter(array, [](int i) { return i != 3; }).to<std::list<int>>();
 
-        CHECK(filteredList.size() == 2);
+        CHECK(filtered_list.size() == 2);
         auto counter = array.begin();
 
-        for (int element : filteredList) {
+        for (int element : filtered_list) {
             CHECK(element == *counter);
             ++counter;
         }
@@ -132,9 +132,9 @@ TEST_CASE("Filter to container", "[Filter][To container]") {
     SECTION("To reverse container") {
         auto filtered = lz::filter(array, [](int i) { return i != 3; });
 
-        auto itRev = std::make_reverse_iterator(filtered.end());
-        auto endRev = std::make_reverse_iterator(filtered.begin());
-        std::vector<int> reversed(itRev, endRev);
+        auto it_rev = std::make_reverse_iterator(filtered.end());
+        auto end_rev = std::make_reverse_iterator(filtered.begin());
+        std::vector<int> reversed(it_rev, end_rev);
         std::vector<int> expected = { 2, 1 };
         CHECK(reversed == expected);
     }

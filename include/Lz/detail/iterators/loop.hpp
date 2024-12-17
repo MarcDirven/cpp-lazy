@@ -12,21 +12,21 @@ namespace lz {
 namespace detail {
 template<class Iterator, class S>
 class loop_iterator
-    : public iter_base<loop_iterator<Iterator, S>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>, diff_type<Iterator>,
-                       iter_cat<Iterator>, sentinel_selector<iter_cat<Iterator>, loop_iterator<Iterator, S>>> {
+    : public iter_base<loop_iterator<Iterator, S>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>, diff_type<Iterator>,
+                       iter_cat_t<Iterator>, sentinel_selector<iter_cat_t<Iterator>, loop_iterator<Iterator, S>>> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
     Iterator _begin{};
     Iterator _iterator{};
     S _end{};
 
 public:
-    using reference = typename iter < raits::reference;
-    using value_type = typename iter < raits::value_type;
+    using reference = typename traits::reference;
+    using value_type = typename traits::value_type;
     using pointer = fake_ptr_proxy<reference>;
-    using difference_type = typename iter < raits::difference_type;
-    using iterator_category = typename iter < raits::iterator_category;
+    using difference_type = typename traits::difference_type;
+    using iterator_category = typename traits::iterator_category;
 
     LZ_CONSTEXPR_CXX_20 loop_iterator(Iterator iterator, Iterator begin, S end) :
         _begin(std::move(begin)),

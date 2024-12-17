@@ -1,4 +1,4 @@
-#include <Lz/ZipLongest.hpp>
+#include <Lz/zip_longest.hpp>
 #include <iostream>
 #include <list>
 #include <vector>
@@ -10,7 +10,7 @@ int main() {
 
     // Iterator is forward, since v2 is bidirectional (it decays to forward if one of the iterators is bidirectional or lower,
     // otherwise its random access)
-    for (auto&& tup : lz::zipLongest(v1, v2, v3)) { // Elements are accessed by value
+    for (auto&& tup : lz::zip_longest(v1, v2, v3)) { // Elements are accessed by value
         auto&& first = std::get<0>(tup);
         auto&& second = std::get<1>(tup);
         auto&& third = std::get<2>(tup);

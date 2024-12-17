@@ -1,11 +1,11 @@
-#include <Lz/Generate.hpp>
+#include <Lz/generate.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Generate changing and creating elements", "[Generate][Basic functionality]") {
-    auto compileTest = lz::generate([]() { return 0; });
-    static_assert(!std::is_same<decltype(compileTest.begin()), decltype(compileTest.end())>::value, "Should be sentinel");
-    static_cast<void>(compileTest);
+    auto compile_test = lz::generate([]() { return 0; });
+    static_assert(!std::is_same<decltype(compile_test.begin()), decltype(compile_test.end())>::value, "Should be sentinel");
+    static_cast<void>(compile_test);
 
     constexpr std::size_t amount = 4;
     std::size_t counter = 0;

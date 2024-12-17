@@ -4,23 +4,23 @@
 #include <iostream>
 #include <list>
 
-// TODO write any view tests for sentinels
+// TODO write any iterable tests for sentinels
 
-TEST_CASE("Creating a basic any view from std::vector, random access iterator") {
+TEST_CASE("Creating a basic any iterable from std::vector, random access iterator") {
     std::vector<int> vec = { 1, 2, 3, 4, 5 };
-    lz::AnyView<int, int&, std::random_access_iterator_tag> view = vec;
+    lz::any_iterable<int, int&, std::random_access_iterator_tag> view = vec;
     auto begin = view.begin();
-    auto anotherBegin = view.begin();
+    auto another_begin = view.begin();
     auto end = view.end();
-    CHECK(begin == anotherBegin);
-    ++anotherBegin;
-    CHECK(begin != anotherBegin);
-    CHECK(begin < anotherBegin);
-    CHECK(anotherBegin > begin);
+    CHECK(begin == another_begin);
+    ++another_begin;
+    CHECK(begin != another_begin);
+    CHECK(begin < another_begin);
+    CHECK(another_begin > begin);
 
-    --anotherBegin;
-    CHECK(begin <= anotherBegin);
-    CHECK(anotherBegin >= begin);
+    --another_begin;
+    CHECK(begin <= another_begin);
+    CHECK(another_begin >= begin);
 
     CHECK(*begin == 1);
     --end;
@@ -41,15 +41,15 @@ TEST_CASE("Creating a basic any view from std::vector, random access iterator") 
     CHECK(*begin == 1);
 }
 
-TEST_CASE("Creating a basic any view from std::list, forward iterator") {
+TEST_CASE("Creating a basic any iterable from std::list, forward iterator") {
     std::list<int> lst = { 1, 2, 3, 4, 5 };
-    lz::AnyView<int, int&> view = lst;
+    lz::any_iterable<int, int&> view = lst;
     auto begin = view.begin();
-    auto anotherBegin = view.begin();
+    auto another_begin = view.begin();
     auto end = view.end();
-    CHECK(begin == anotherBegin);
-    ++anotherBegin;
-    CHECK(begin != anotherBegin);
+    CHECK(begin == another_begin);
+    ++another_begin;
+    CHECK(begin != another_begin);
 
     CHECK(*begin == 1);
     auto last = std::next(begin, 4);
@@ -59,15 +59,15 @@ TEST_CASE("Creating a basic any view from std::list, forward iterator") {
     CHECK(static_cast<std::size_t>(std::distance(begin, last)) == lst.size());
 }
 
-TEST_CASE("Creating a basic any view from std::list, bidirectional iterator") {
+TEST_CASE("Creating a basic any iterable from std::list, bidirectional iterator") {
     std::list<int> lst = { 1, 2, 3, 4, 5 };
-    lz::AnyView<int, int&, std::bidirectional_iterator_tag> view = lst;
+    lz::any_iterable<int, int&, std::bidirectional_iterator_tag> view = lst;
     auto begin = view.begin();
-    auto anotherBegin = view.begin();
+    auto another_begin = view.begin();
     auto end = view.end();
-    CHECK(begin == anotherBegin);
-    ++anotherBegin;
-    CHECK(begin != anotherBegin);
+    CHECK(begin == another_begin);
+    ++another_begin;
+    CHECK(begin != another_begin);
 
     CHECK(*begin == 1);
     --end;
@@ -77,10 +77,10 @@ TEST_CASE("Creating a basic any view from std::list, bidirectional iterator") {
     CHECK(static_cast<std::size_t>(std::distance(begin, end)) == lst.size());
 }
 
-TEST_CASE("Creating a complex AnyView, std::forward_iterator_tag") {
+TEST_CASE("Creating a complex any iterable, std::forward_iterator_tag") {
     std::vector<int> vec = { 1, 2, 3, 4, 5, 6 };
     using Pair = std::pair<int, int&>;
-    lz::AnyView<Pair, Pair> view = lz::chain(vec).as<int&>().enumerate().take(static_cast<std::ptrdiff_t>(vec.size()));
+    lz::any_iterable<Pair, Pair> view = lz::chain(vec).as<int&>().enumerate().take(static_cast<std::ptrdiff_t>(vec.size()));
     CHECK(vec.size() == static_cast<std::size_t>(view.distance()));
     std::pair<int, int&> pair = *view.begin();
     CHECK(pair.first == 0);

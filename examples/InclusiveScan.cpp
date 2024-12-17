@@ -5,7 +5,7 @@
 int main() {
     int array[] = {3, 5, 2, 3, 4, 2, 3};
     // start the scan from arr[0] (3), with init 0
-    auto scan = lz::iScan(array);
+    auto scan = lz::inclusive_scan(array);
 
     for (const int& i : scan) {
         fmt::print("{} ", i);

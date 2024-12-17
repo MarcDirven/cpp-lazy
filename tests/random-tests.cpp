@@ -1,4 +1,4 @@
-#include <Lz/Random.hpp>
+#include <Lz/random.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -6,20 +6,20 @@ TEST_CASE("random_iterable should be random", "[random_iterable][Basic functiona
     constexpr std::size_t size = 5;
 
     SECTION("random_iterable doubles") {
-        const auto randomArray = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
+        const auto random_array = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
         auto randomArray2 = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
-        while (randomArray == randomArray2) {
+        while (random_array == randomArray2) {
             randomArray2 = lz::random<long double>(0., 1., size).to<std::array<double, size>>();
         }
-        REQUIRE(randomArray != randomArray2);
+        REQUIRE(random_array != randomArray2);
     }
 
     SECTION("random_iterable ints") {
-        const auto randomArray =
+        const auto random_array =
             lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).to<std::array<int, size>>();
         const auto randomArray2 =
             lz::random((std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)(), size).to<std::array<int, size>>();
-        REQUIRE(randomArray != randomArray2);
+        REQUIRE(random_array != randomArray2);
     }
 }
 
@@ -31,12 +31,12 @@ TEST_CASE("random_iterable with custom distro's and custom engine") {
     static_assert(!std::is_same<decltype(r.begin()), decltype(r.end())>::value, "Should not be the same");
     CHECK(lz::distance(r.begin(), r.end()) == 3);
 
-    const auto currentRand = r.nextRandom();
-    auto nextRand = r.nextRandom();
-    while (currentRand == nextRand) {
-        nextRand = r.nextRandom();
+    const auto current_rand = r.next_random();
+    auto next_rand = r.next_random();
+    while (current_rand == next_rand) {
+        next_rand = r.next_random();
     }
-    REQUIRE(currentRand != nextRand);
+    REQUIRE(current_rand != next_rand);
 }
 
 TEST_CASE("random_iterable binary operations", "[random_iterable][Binary ops]") {
@@ -64,7 +64,7 @@ TEST_CASE("random_iterable to containers", "[random_iterable][To container]") {
 
     SECTION("To array") {
         CHECK(range.to<std::array<double, size>>().size() == size);
-        CHECK(lz::allOf(range, [](double val) { return val >= 0. && val <= 1.; }));
+        CHECK(lz::all_of(range, [](double val) { return val >= 0. && val <= 1.; }));
     }
 
     SECTION("To vector") {

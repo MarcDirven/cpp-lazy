@@ -1,11 +1,11 @@
-#include <Lz/ExclusiveScan.hpp>
+#include <Lz/exclusive_scan.hpp>
 
 #include <iostream>
 
 int main() {
     int array[] = {3, 5, 2, 3, 4, 2, 3};
     // start the scan from 0
-    auto scan = lz::eScan(array, 0);
+    auto scan = lz::exclusive_scan(array, 0);
 
     for (const int& i : scan) {
         fmt::print("{} ", i);

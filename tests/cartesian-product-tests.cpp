@@ -10,7 +10,7 @@ TEST_CASE("Is sentinel") {
     const char* str2 = " World!";
     auto cstr1 = lz::c_string(str);
     auto cstr2 = lz::c_string(str2);
-    auto cart = lz::cartesian(cstr1, cstr2);
+    auto cart = lz::cartesian_product(cstr1, cstr2);
 
     SECTION("Should be sentinel") {
         static_assert(!std::is_same<decltype(cart.begin()), decltype(cart.end())>::value, "Should not be the same");
@@ -28,18 +28,18 @@ TEST_CASE("Is sentinel") {
 TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct][Basic functionality]") {
     std::vector<int> vec = { 1, 2, 3 };
     std::vector<char> chars = { 'a', 'b', 'c' };
-    auto cartesian = lz::cartesian(vec, chars);
+    auto cartesian = lz::cartesian_product(vec, chars);
 
     SECTION("Should not be sentinel") {
         static_assert(std::is_same<decltype(cartesian.begin()), decltype(cartesian.end())>::value, "Should be the same");
     }
 
     SECTION("Should be by reference") {
-        auto& elmVec = std::get<0>(*cartesian.begin());
-        auto& elmChars = std::get<1>(*cartesian.begin());
+        auto& elm_vec = std::get<0>(*cartesian.begin());
+        auto& elm_chars = std::get<1>(*cartesian.begin());
 
-        CHECK(&elmVec == &vec[0]);
-        CHECK(&elmChars == &chars[0]);
+        CHECK(&elm_vec == &vec[0]);
+        CHECK(&elm_chars == &chars[0]);
     }
 
     SECTION("Should make combinations") {
@@ -55,7 +55,7 @@ TEST_CASE("Cartesian product changing and creating elements", "[CartesianProduct
 TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]") {
     std::vector<int> vec = { 1, 2, 3 };
     std::vector<char> chars = { 'a', 'b', 'c' };
-    auto cartesian = lz::cartesian(vec, chars);
+    auto cartesian = lz::cartesian_product(vec, chars);
 
     SECTION("Operator++") {
         auto begin = cartesian.begin();
@@ -66,9 +66,9 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
     }
 
     SECTION("Operator--") {
-        std::vector<int> tmpVec = { 1, 2, 3 };
-        std::vector<char> tmpChars = { 'a', 'b', 'c' };
-        auto cart = lz::cartesian(tmpVec, tmpChars);
+        std::vector<int> tmp_vec = { 1, 2, 3 };
+        std::vector<char> tmp_chars = { 'a', 'b', 'c' };
+        auto cart = lz::cartesian_product(tmp_vec, tmp_chars);
         auto end = cart.end();
 
         --end;
@@ -134,7 +134,7 @@ TEST_CASE("Cartesian product binary operations", "[CartesianProduct][Binary ops]
 TEST_CASE("CartesianProduct to containers", "[CartesianProduct][To container]") {
     std::vector<int> vec = { 1, 2, 3 };
     std::vector<char> chars = { 'a', 'b', 'c' };
-    auto cartesian = lz::cartesian(vec, chars);
+    auto cartesian = lz::cartesian_product(vec, chars);
 
     SECTION("To array") {
         constexpr std::size_t size = 9;

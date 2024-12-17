@@ -10,15 +10,18 @@
 namespace lz {
 namespace detail {
 template<class RegexTokenIter>
-using regex_split_value_type = BasicStringView<typename RegexTokenIter::regex_type::value_type>;
+using regex_split_value_type = basic_string_view<typename RegexTokenIter::regex_type::value_type>;
+
+template<class RegexTokenIter>
+using regex_split_val = typename val_t<RegexTokenIter>::string_type::value_type;
 
 template<class RegexTokenIter>
 class regex_split_iterator
-    : public iter_base<regex_split_iterator<RegexTokenIter>, regex_split_value_type<RegexTokenIter>,
-                       fake_ptr_proxy<regex_split_value_type<RegexTokenIter>>, typename RegexTokenIter::difference_type,
+    : public iter_base<regex_split_iterator<RegexTokenIter>, basic_string_view<regex_split_val<RegexTokenIter>>,
+                       fake_ptr_proxy<basic_string_view<regex_split_val<RegexTokenIter>>>, diff_type<RegexTokenIter>,
                        std::forward_iterator_tag, default_sentinel> {
 public:
-    using value_type = regex_split_value_type<RegexTokenIter>;
+    using value_type = basic_string_view<regex_split_val<RegexTokenIter>>;
     using difference_type = typename RegexTokenIter::difference_type;
     using pointer = fake_ptr_proxy<value_type>;
     using reference = value_type;

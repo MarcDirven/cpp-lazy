@@ -1,13 +1,13 @@
-#include <Lz/CString.hpp>
-#include <Lz/Enumerate.hpp>
-#include <Lz/Take.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/enumerate.hpp>
+#include <Lz/take.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Enumerate with sentinels") {
     const char* str = "Hello";
-    auto cString = lz::c_string(str);
-    auto enumerated = lz::enumerate(cString);
+    auto c_string = lz::c_string(str);
+    auto enumerated = lz::enumerate(c_string);
     static_assert(!std::is_same<decltype(enumerated.begin()), decltype(enumerated.end())>::value,
                   "Begin and end should not be the same type");
     auto taken = lz::take(enumerated, 3);
@@ -107,32 +107,32 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     std::vector<int> vec = { 1, 2, 3 };
 
     SECTION("To array") {
-        auto actualArray = lz::enumerate(array).to<std::array<std::pair<int, int>, size>>();
-        auto expectedPair = std::make_pair(0, 1);
+        auto actual_array = lz::enumerate(array).to<std::array<std::pair<int, int>, size>>();
+        auto expceted_pair = std::make_pair(0, 1);
 
-        for (auto actualPair : actualArray) {
-            CHECK(actualPair == expectedPair);
-            expectedPair = std::make_pair(++expectedPair.first, ++expectedPair.second);
+        for (auto actual_pair : actual_array) {
+            CHECK(actual_pair == expceted_pair);
+            expceted_pair = std::make_pair(++expceted_pair.first, ++expceted_pair.second);
         }
     }
 
     SECTION("To vector") {
-        std::vector<std::pair<int, int>> actualArray = lz::enumerate(vec).to_vector();
-        auto expectedPair = std::make_pair(0, 1);
+        std::vector<std::pair<int, int>> actual_array = lz::enumerate(vec).to_vector();
+        auto expceted_pair = std::make_pair(0, 1);
 
-        for (const auto& actualPair : actualArray) {
-            CHECK(actualPair == expectedPair);
-            expectedPair = std::make_pair(++expectedPair.first, ++expectedPair.second);
+        for (const auto& actual_pair : actual_array) {
+            CHECK(actual_pair == expceted_pair);
+            expceted_pair = std::make_pair(++expceted_pair.first, ++expceted_pair.second);
         }
     }
 
     SECTION("To other container using to<>()") {
-        auto actualList = lz::enumerate(vec).to<std::list<std::pair<int, int>>>();
-        auto expectedPair = std::make_pair(0, 1);
+        auto actual_list = lz::enumerate(vec).to<std::list<std::pair<int, int>>>();
+        auto expceted_pair = std::make_pair(0, 1);
 
-        for (const auto& actualPair : actualList) {
-            CHECK(actualPair == expectedPair);
-            expectedPair = std::make_pair(++expectedPair.first, ++expectedPair.second);
+        for (const auto& actual_pair : actual_list) {
+            CHECK(actual_pair == expceted_pair);
+            expceted_pair = std::make_pair(++expceted_pair.first, ++expceted_pair.second);
         }
     }
 
@@ -165,8 +165,8 @@ TEST_CASE("Enumerate to containers", "[Enumerate][To container]") {
     }
 
     SECTION("Bidirectional to container") {
-        std::list<int> toEnumerate = { 1, 2, 3 };
-        auto enumerated = lz::enumerate(toEnumerate);
+        std::list<int> to_enumerate = { 1, 2, 3 };
+        auto enumerated = lz::enumerate(to_enumerate);
         std::array<std::pair<int, int>, 3> expected = { std::make_pair(0, 1), std::make_pair(1, 2), std::make_pair(2, 3) };
         CHECK(lz::equal(enumerated, expected));
     }

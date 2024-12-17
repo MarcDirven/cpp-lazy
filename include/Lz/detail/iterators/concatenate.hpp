@@ -12,52 +12,51 @@
 namespace lz {
 namespace detail {
 #ifndef __cpp_if_constexpr
-template<class Tuple, class sentinel_tuple, std::size_t I, class = void>
+template<class Tuple, class SentinelTuple, std::size_t I, class = void>
 struct plus_plus {
-    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const sentinel_tuple& end) const {
+    LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const SentinelTuple& end) const {
         if (std::get<I>(iterators) != std::get<I>(end)) {
             ++std::get<I>(iterators);
         }
         else {
-            plus_plus<Tuple, sentinel_tuple, I + 1>()(iterators, end);
+            plus_plus<Tuple, SentinelTuple, I + 1>()(iterators, end);
         }
     }
 };
 
-template<class Tuple, class sentinel_tuple, std::size_t I>
-struct plus_plus<Tuple, sentinel_tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value>> {
-    LZ_CONSTEXPR_CXX_20 void operator()(const Tuple& /*iterators*/, const sentinel_tuple& /*end*/) const {
+template<class Tuple, class SentinelTuple, std::size_t I>
+struct plus_plus<Tuple, SentinelTuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value>> {
+    LZ_CONSTEXPR_CXX_20 void operator()(const Tuple& /*iterators*/, const SentinelTuple& /*end*/) const {
     }
 };
 
-template<class Tuple, class sentinel_tuple, std::size_t I, class = void>
-struct not_equal {
-    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const sentinel_tuple& end) const noexcept {
-        const bool has_value = std::get<I>(iterators) != std::get<I>(end);
-        return has_value ? has_value : not_equal<Tuple, sentinel_tuple, I + 1>()(iterators, end);
+template<class Tuple, class SentinelTuple, std::size_t I, class = void>
+struct equal_to {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const SentinelTuple& end) const noexcept {
+        const auto has_value = std::get<I>(iterators) == std::get<I>(end);
+        return has_value ? equal_to<Tuple, SentinelTuple, I + 1>()(iterators, end) : has_value;
     }
 };
 
-template<class Tuple, class sentinel_tuple, std::size_t I>
-struct not_equal<Tuple, sentinel_tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const sentinel_tuple& end) const noexcept {
-        return std::get<I>(iterators) != std::get<I>(end);
+template<class Tuple, class SentinelTuple, std::size_t I>
+struct equal_to<Tuple, SentinelTuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1>> {
+    LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const SentinelTuple& end) const noexcept {
+        return std::get<I>(iterators) == std::get<I>(end);
     }
 };
 
-template<class Tuple, class sentinel_tuple, std::size_t I, class = void>
+template<class Tuple, class SentinelTuple, std::size_t I, class = void>
 struct deref {
-    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const sentinel_tuple& end) const
+    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const SentinelTuple& end) const
         -> decltype(*std::get<I>(iterators)) {
         return std::get<I>(iterators) != std::get<I>(end) ? *std::get<I>(iterators)
-                                                          : deref<Tuple, sentinel_tuple, I + 1>()(iterators, end);
+                                                          : deref<Tuple, SentinelTuple, I + 1>()(iterators, end);
     }
 };
 
-template<class Tuple, class sentinel_tuple, std::size_t I>
-struct deref<Tuple, sentinel_tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1>> {
-    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const sentinel_tuple&) const
-        -> decltype(*std::get<I>(iterators)) {
+template<class Tuple, class SentinelTuple, std::size_t I>
+struct deref<SentinelTuple, I, enable_if<I == std::tuple_size<Tuple>::value - 1>> {
+    LZ_CONSTEXPR_CXX_20 auto operator()(const Tuple& iterators, const SentinelTuple&) const -> decltype(*std::get<I>(iterators)) {
         return *std::get<I>(iterators);
     }
 };
@@ -83,22 +82,21 @@ struct minus_minus<Tuple, 0> {
 };
 
 template<class Tuple, std::size_t I>
-struct min_is {
+struct min_is_n {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-        using TupElem = tuple_element<I, Tuple>;
-        const TupElem current = std::get<I>(iterators);
-        const TupElem current_begin = std::get<I>(begin);
+        const auto& current = std::get<I>(iterators);
+        const auto& current_begin = std::get<I>(begin);
         // Current is begin, move on to next iterator
         if (current == current_begin) {
-            min_is<Tuple, I - 1>()(iterators, begin, end, offset);
+            min_is_n<Tuple, I - 1>()(iterators, begin, end, offset);
         }
         else {
             const auto dist = std::get<I>(end) - current;
             if (dist <= offset) {
                 std::get<I>(iterators) = std::get<I>(begin);
-                min_is<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
+                min_is_n<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
             }
             else {
                 std::get<I>(iterators) -= offset;
@@ -108,37 +106,35 @@ struct min_is {
 };
 
 template<class Tuple>
-struct min_is<Tuple, 0> {
+struct min_is_n<Tuple, 0> {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& /* begin */, const Tuple& /*end*/, const DifferenceType offset) const {
-        using TupElem = tuple_element<0, Tuple>;
-        TupElem& current = std::get<0>(iterators);
+        auto& current = std::get<0>(iterators);
         current -= offset;
     }
 };
 
 template<class Tuple, std::size_t I, class = void>
-struct plus_is {
+struct plus_is_n {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
-        using TupElem = tuple_element<I, Tuple>;
-        TupElem& currentIterator = std::get<I>(iterators);
-        const TupElem current_end = std::get<I>(end);
-        const auto dist = current_end - currentIterator;
+        auto& current_it = std::get<I>(iterators);
+        const auto& current_end = std::get<I>(end);
+        const auto dist = current_end - current_it;
         if (dist > offset) {
-            currentIterator += offset;
+            current_it += offset;
         }
         else {
             // Moves to end
-            currentIterator += dist;
-            plus_is<Tuple, I + 1>()(iterators, end, offset - dist);
+            current_it += dist;
+            plus_is_n<Tuple, I + 1>()(iterators, end, offset - dist);
         }
     }
 };
 
 template<class Tuple, std::size_t I>
-struct plus_is<Tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1>> {
+struct plus_is_n<Tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1>> {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_14 void operator()(Tuple& /*iterators*/, const Tuple& /*end*/, const DifferenceType /*offset*/) const {
     }
@@ -147,7 +143,7 @@ struct plus_is<Tuple, I, enable_if<I == std::tuple_size<decay<Tuple>>::value - 1
 template<class Tuple, class SentinelTuple, std::size_t I>
 struct plus_plus {
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const SentinelTuple& end) const {
-        if constexpr (I == std::tuple_size_v<decay<Tuple>>) {
+        if constexpr (I == std::tuple_size_v<Tuple>) {
             static_cast<void>(iterators);
             static_cast<void>(end);
             return;
@@ -164,14 +160,14 @@ struct plus_plus {
 };
 
 template<class Tuple, class SentinelTuple, std::size_t I>
-struct not_equal {
+struct equal_to {
     LZ_CONSTEXPR_CXX_20 bool operator()(const Tuple& iterators, const SentinelTuple& end) const {
-        if constexpr (I == std::tuple_size_v<decay<Tuple>> - 1) {
-            return std::get<I>(iterators) != std::get<I>(end);
+        if constexpr (I == std::tuple_size_v<Tuple> - 1) {
+            return std::get<I>(iterators) == std::get<I>(end);
         }
         else {
-            const bool iterHasValue = std::get<I>(iterators) != std::get<I>(end);
-            return iterHasValue ? iterHasValue : not_equal<Tuple, SentinelTuple, I + 1>()(iterators, end);
+            const auto it_has_value = std::get<I>(iterators) == std::get<I>(end);
+            return it_has_value ? equal_to<Tuple, SentinelTuple, I + 1>()(iterators, end) : it_has_value;
         }
     }
 };
@@ -212,30 +208,28 @@ struct minus_minus {
 };
 
 template<class Tuple, std::size_t I>
-struct min_is {
+struct min_is_n {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void
     operator()(Tuple& iterators, const Tuple& begin, const Tuple& end, const DifferenceType offset) const {
-        using TupElem = tuple_element<I, Tuple>;
-
         if constexpr (I == 0) {
             static_cast<void>(begin);
             static_cast<void>(end);
-            TupElem& current = std::get<0>(iterators);
+            auto& current = std::get<0>(iterators);
             current -= offset;
         }
         else {
-            const TupElem current_begin = std::get<I>(begin);
-            const TupElem current = std::get<I>(iterators);
+            const auto& current_begin = std::get<I>(begin);
+            const auto& current = std::get<I>(iterators);
             // Current is begin, move on to next iterator
             if (current == current_begin) {
-                min_is<Tuple, I - 1>()(iterators, begin, end, offset);
+                min_is_n<Tuple, I - 1>()(iterators, begin, end, offset);
             }
             else {
                 const auto dist = std::get<I>(end) - current;
                 if (dist <= offset) {
                     std::get<I>(iterators) = std::get<I>(begin);
-                    min_is<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
+                    min_is_n<Tuple, I - 1>()(iterators, begin, end, dist == 0 ? DifferenceType{ 1 } : offset - dist);
                 }
                 else {
                     std::get<I>(iterators) -= offset;
@@ -246,7 +240,7 @@ struct min_is {
 };
 
 template<class Tuple, std::size_t I>
-struct plus_is {
+struct plus_is_n {
     template<class DifferenceType>
     LZ_CONSTEXPR_CXX_20 void operator()(Tuple& iterators, const Tuple& end, const DifferenceType offset) const {
         if constexpr (I == std::tuple_size_v<decay<Tuple>> - 1) {
@@ -256,17 +250,16 @@ struct plus_is {
             return;
         }
         else {
-            using TupElem = tuple_element<I, Tuple>;
-            TupElem& current_it = std::get<I>(iterators);
-            const TupElem current_end = std::get<I>(end);
-            const auto dist = current_end - currentIterator;
+            auto& current_it = std::get<I>(iterators);
+            const auto& current_end = std::get<I>(end);
+            const auto dist = current_end - current_it;
             if (dist > offset) {
                 current_it += offset;
             }
             else {
                 // Moves to end
                 current_it += dist;
-                plus_is<Tuple, I + 1>()(iterators, end, offset - dist);
+                plus_is_n<Tuple, I + 1>()(iterators, end, offset - dist);
             }
         }
     }
@@ -274,14 +267,14 @@ struct plus_is {
 #endif // __cpp_if_constexpr
 
 template<class Tuple>
-using first_it = tuple_element<0, Tuple>;
+using first_it = tup_element<0, Tuple>;
 
 template<typename Tuple>
 struct iter_cat_tuple_helper;
 
 template<typename... Iterators>
 struct iter_cat_tuple_helper<std::tuple<Iterators...>> {
-    using type = common_type<iter_cat<Iterators>...>;
+    using type = common_type<iter_cat_t<Iterators>...>;
 };
 
 template<typename Tuple>
@@ -300,8 +293,8 @@ using diff_type_tuple = typename diff_type_tuple_helper<Tuple>::type;
 
 template<class IterTuple, class SentinelTuple>
 class concatenate_iterator
-    : public iter_base<concatenate_iterator<IterTuple, SentinelTuple>, ref<first_it<IterTuple>>,
-                       fake_ptr_proxy<ref<first_it<IterTuple>>>, diff_type_tuple<IterTuple>, iter_cat_tuple<IterTuple>,
+    : public iter_base<concatenate_iterator<IterTuple, SentinelTuple>, ref_t<first_it<IterTuple>>,
+                       fake_ptr_proxy<ref_t<first_it<IterTuple>>>, diff_type_tuple<IterTuple>, iter_cat_tuple<IterTuple>,
                        sentinel_selector<iter_cat_tuple<IterTuple>, concatenate_iterator<IterTuple, SentinelTuple>>> {
 
     IterTuple _iterators{};
@@ -351,10 +344,10 @@ public:
 
     LZ_CONSTEXPR_CXX_20 void plus_is(const difference_type offset) {
         if (offset < 0) {
-            min_is<IterTuple, std::tuple_size<IterTuple>::value - 1>()(_iterators, _begin, _end, -offset);
+            min_is_n<IterTuple, std::tuple_size<IterTuple>::value - 1>()(_iterators, _begin, _end, -offset);
         }
         else {
-            plus_is<IterTuple, 0>()(_iterators, _end, offset);
+            plus_is_n<IterTuple, 0>()(_iterators, _end, offset);
         }
     }
 
@@ -363,11 +356,11 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const concatenate_iterator& b) const {
-        return !not_equal<IterTuple, SentinelTuple, 0>()(_iterators, b._iterators);
+        return equal_to<IterTuple, SentinelTuple, 0>()(_iterators, b._iterators);
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(default_sentinel) const {
-        return !not_equal<IterTuple, SentinelTuple, 0>()(_iterators, _end);
+        return equal_to<IterTuple, SentinelTuple, 0>()(_iterators, _end);
     }
 };
 

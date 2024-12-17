@@ -1,22 +1,22 @@
-#include <Lz/CString.hpp>
-#include <Lz/JoinWhere.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/join_where.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
-struct Customer {
+struct customer {
     int id;
 };
 
-struct PaymentBill {
-    int customerId;
+struct payment_bill {
+    int customer_id;
     int id;
 };
 
 TEST_CASE("Join where with sentinels") {
-    auto cStr = lz::c_string("To join on");
-    auto sortedSequence = lz::c_string("Toxzzzz");
+    auto c_str = lz::c_string("To join on");
+    auto sorted_seq = lz::c_string("Toxzzzz");
     auto joined = lz::join_where(
-        cStr, sortedSequence, [](char c) { return c; }, [](char c) { return c; },
+        c_str, sorted_seq, [](char c) { return c; }, [](char c) { return c; },
         [](char c, char c2) { return std::make_tuple(c, c2); });
     static_assert(!std::is_same<decltype(joined.begin()), decltype(joined.end())>::value, "Should be sentinel");
     std::vector<std::tuple<char, char>> expected = {
@@ -30,51 +30,51 @@ TEST_CASE("Join where with sentinels") {
 }
 
 TEST_CASE("Left join changing and creating elements", "[join_where_iterable][Basic functionality]") {
-    std::vector<Customer> customers{
-        Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
+    std::vector<customer> customers{
+        customer{ 25 }, customer{ 1 }, customer{ 39 }, customer{ 103 }, customer{ 99 },
     };
-    std::vector<PaymentBill> paymentBills{
-        PaymentBill{ 25, 0 }, PaymentBill{ 25, 2 },    PaymentBill{ 25, 3 },
-        PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
+    std::vector<payment_bill> payment_bills{
+        payment_bill{ 25, 0 }, payment_bill{ 25, 2 },    payment_bill{ 25, 3 },
+        payment_bill{ 99, 1 }, payment_bill{ 2523, 52 }, payment_bill{ 2523, 53 },
     };
 
     auto joined = lz::join_where(
-        customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
-        [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+        customers, payment_bills, [](const customer& p) { return p.id; }, [](const payment_bill& c) { return c.customer_id; },
+        [](const customer& p, const payment_bill& c) { return std::make_tuple(p, c); });
 
     SECTION("Should initialized with first match") {
-        std::tuple<Customer, PaymentBill> match = *joined.begin();
-        Customer& customer = std::get<0>(match);
-        PaymentBill& paymentBill = std::get<1>(match);
+        std::tuple<customer, payment_bill> match = *joined.begin();
+        customer& customer = std::get<0>(match);
+        payment_bill& payment_bill = std::get<1>(match);
 
-        CHECK(customer.id == paymentBill.customerId);
+        CHECK(customer.id == payment_bill.customer_id);
         CHECK(customer.id == 25);
-        CHECK(paymentBill.id == 0);
+        CHECK(payment_bill.id == 0);
     }
 }
 
 TEST_CASE("Left join binary operations", "[join_where_iterable][Binary ops]") {
-    std::vector<Customer> customers{
-        Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
+    std::vector<customer> customers{
+        customer{ 25 }, customer{ 1 }, customer{ 39 }, customer{ 103 }, customer{ 99 },
     };
-    std::vector<PaymentBill> paymentBills{
-        PaymentBill{ 25, 0 }, PaymentBill{ 25, 2 },    PaymentBill{ 25, 3 },
-        PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
+    std::vector<payment_bill> payment_bills{
+        payment_bill{ 25, 0 }, payment_bill{ 25, 2 },    payment_bill{ 25, 3 },
+        payment_bill{ 99, 1 }, payment_bill{ 2523, 52 }, payment_bill{ 2523, 53 },
     };
 
     auto joined = lz::join_where(
-        customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
-        [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+        customers, payment_bills, [](const customer& p) { return p.id; }, [](const payment_bill& c) { return c.customer_id; },
+        [](const customer& p, const payment_bill& c) { return std::make_tuple(p, c); });
     auto it = joined.begin();
 
     SECTION("Operator++") {
         CHECK(lz::distance(joined.begin(), joined.end()) == 4);
         ++it;
-        Customer customer = std::get<0>(*it);
-        PaymentBill paymentBill = std::get<1>(*it);
+        customer customer = std::get<0>(*it);
+        payment_bill payment_bill = std::get<1>(*it);
         CHECK(customer.id == 25);
-        CHECK(paymentBill.customerId == 25);
-        CHECK(paymentBill.id == 2);
+        CHECK(payment_bill.customer_id == 25);
+        CHECK(payment_bill.id == 2);
     }
 
     SECTION("Operator== & operator!=") {
@@ -87,104 +87,104 @@ TEST_CASE("Left join binary operations", "[join_where_iterable][Binary ops]") {
 }
 
 TEST_CASE("join_where_iterable to containers", "[join_where_iterable][To container]") {
-    std::vector<Customer> customers{
-        Customer{ 25 }, Customer{ 1 }, Customer{ 39 }, Customer{ 103 }, Customer{ 99 },
+    std::vector<customer> customers{
+        customer{ 25 }, customer{ 1 }, customer{ 39 }, customer{ 103 }, customer{ 99 },
     };
-    std::vector<PaymentBill> paymentBills{
-        PaymentBill{ 25, 0 }, PaymentBill{ 25, 2 },    PaymentBill{ 25, 3 },
-        PaymentBill{ 99, 1 }, PaymentBill{ 2523, 52 }, PaymentBill{ 2523, 53 },
+    std::vector<payment_bill> payment_bills{
+        payment_bill{ 25, 0 }, payment_bill{ 25, 2 },    payment_bill{ 25, 3 },
+        payment_bill{ 99, 1 }, payment_bill{ 2523, 52 }, payment_bill{ 2523, 53 },
     };
 
     auto joined = lz::join_where(
-        customers, paymentBills, [](const Customer& p) { return p.id; }, [](const PaymentBill& c) { return c.customerId; },
-        [](const Customer& p, const PaymentBill& c) { return std::make_tuple(p, c); });
+        customers, payment_bills, [](const customer& p) { return p.id; }, [](const payment_bill& c) { return c.customer_id; },
+        [](const customer& p, const payment_bill& c) { return std::make_tuple(p, c); });
 
     SECTION("To array") {
-        std::array<std::tuple<Customer, PaymentBill>, 4> expected = { std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 0 }),
-                                                                      std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 2 }),
-                                                                      std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }),
-                                                                      std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) };
+        std::array<std::tuple<customer, payment_bill>, 4> expected = { std::make_tuple(customer{ 25 }, payment_bill{ 25, 0 }),
+                                                                       std::make_tuple(customer{ 25 }, payment_bill{ 25, 2 }),
+                                                                       std::make_tuple(customer{ 25 }, payment_bill{ 25, 3 }),
+                                                                       std::make_tuple(customer{ 99 }, payment_bill{ 99, 1 }) };
 
-        auto array = joined.to<std::array<std::tuple<Customer, PaymentBill>, 4>>();
+        auto array = joined.to<std::array<std::tuple<customer, payment_bill>, 4>>();
         CHECK(std::equal(array.begin(), array.end(), expected.begin(),
-                         [](const std::tuple<Customer, PaymentBill>& a, const std::tuple<Customer, PaymentBill>& b) {
-                             auto& aFst = std::get<0>(a);
-                             auto& aSnd = std::get<1>(a);
-                             auto& bFst = std::get<0>(b);
-                             auto& bSnd = std::get<1>(b);
-                             return aFst.id == bFst.id && aSnd.id == bSnd.id && aSnd.customerId == bSnd.customerId;
+                         [](const std::tuple<customer, payment_bill>& a, const std::tuple<customer, payment_bill>& b) {
+                             auto& a_fst = std::get<0>(a);
+                             auto& a_snd = std::get<1>(a);
+                             auto& b_fst = std::get<0>(b);
+                             auto& b_snd = std::get<1>(b);
+                             return a_fst.id == b_fst.id && a_snd.id == b_snd.id && a_snd.customer_id == b_snd.customer_id;
                          }));
     }
 
     SECTION("To vector") {
-        std::vector<std::tuple<Customer, PaymentBill>> expected = { std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 0 }),
-                                                                    std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 2 }),
-                                                                    std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }),
-                                                                    std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) };
+        std::vector<std::tuple<customer, payment_bill>> expected = { std::make_tuple(customer{ 25 }, payment_bill{ 25, 0 }),
+                                                                     std::make_tuple(customer{ 25 }, payment_bill{ 25, 2 }),
+                                                                     std::make_tuple(customer{ 25 }, payment_bill{ 25, 3 }),
+                                                                     std::make_tuple(customer{ 99 }, payment_bill{ 99, 1 }) };
 
         auto vec = joined.to_vector();
         CHECK(std::equal(vec.begin(), vec.end(), expected.begin(),
-                         [](const std::tuple<Customer, PaymentBill>& a, const std::tuple<Customer, PaymentBill>& b) {
-                             auto& aFst = std::get<0>(a);
-                             auto& aSnd = std::get<1>(a);
-                             auto& bFst = std::get<0>(b);
-                             auto& bSnd = std::get<1>(b);
-                             return aFst.id == bFst.id && aSnd.id == bSnd.id && aSnd.customerId == bSnd.customerId;
+                         [](const std::tuple<customer, payment_bill>& a, const std::tuple<customer, payment_bill>& b) {
+                             auto& a_fst = std::get<0>(a);
+                             auto& a_snd = std::get<1>(a);
+                             auto& b_fst = std::get<0>(b);
+                             auto& b_snd = std::get<1>(b);
+                             return a_fst.id == b_fst.id && a_snd.id == b_snd.id && a_snd.customer_id == b_snd.customer_id;
                          }));
     }
 
     SECTION("To other container using to<>()") {
-        std::list<std::tuple<Customer, PaymentBill>> expected = { std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 0 }),
-                                                                  std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 2 }),
-                                                                  std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }),
-                                                                  std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) };
+        std::list<std::tuple<customer, payment_bill>> expected = { std::make_tuple(customer{ 25 }, payment_bill{ 25, 0 }),
+                                                                   std::make_tuple(customer{ 25 }, payment_bill{ 25, 2 }),
+                                                                   std::make_tuple(customer{ 25 }, payment_bill{ 25, 3 }),
+                                                                   std::make_tuple(customer{ 99 }, payment_bill{ 99, 1 }) };
 
-        auto list = joined.to<std::list<std::tuple<Customer, PaymentBill>>>();
+        auto list = joined.to<std::list<std::tuple<customer, payment_bill>>>();
         CHECK(std::equal(list.begin(), list.end(), expected.begin(),
-                         [](const std::tuple<Customer, PaymentBill>& a, const std::tuple<Customer, PaymentBill>& b) {
-                             auto& aFst = std::get<0>(a);
-                             auto& aSnd = std::get<1>(a);
-                             auto& bFst = std::get<0>(b);
-                             auto& bSnd = std::get<1>(b);
-                             return aFst.id == bFst.id && aSnd.id == bSnd.id && aSnd.customerId == bSnd.customerId;
+                         [](const std::tuple<customer, payment_bill>& a, const std::tuple<customer, payment_bill>& b) {
+                             auto& a_fst = std::get<0>(a);
+                             auto& a_snd = std::get<1>(a);
+                             auto& b_fst = std::get<0>(b);
+                             auto& b_snd = std::get<1>(b);
+                             return a_fst.id == b_fst.id && a_snd.id == b_snd.id && a_snd.customer_id == b_snd.customer_id;
                          }));
     }
 
     SECTION("To map") {
-        using Pair = std::pair<int, std::tuple<Customer, PaymentBill>>;
+        using pair = std::pair<int, std::tuple<customer, payment_bill>>;
 
-        std::map<int, std::tuple<Customer, PaymentBill>> expected = {
-            { 0, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 0 }) },
-            { 2, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 2 }) },
-            { 3, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }) },
-            { 1, std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) }
+        std::map<int, std::tuple<customer, payment_bill>> expected = {
+            { 0, std::make_tuple(customer{ 25 }, payment_bill{ 25, 0 }) },
+            { 2, std::make_tuple(customer{ 25 }, payment_bill{ 25, 2 }) },
+            { 3, std::make_tuple(customer{ 25 }, payment_bill{ 25, 3 }) },
+            { 1, std::make_tuple(customer{ 99 }, payment_bill{ 99, 1 }) }
         };
 
         decltype(expected) actual =
-            joined.to_map([](const std::tuple<Customer, PaymentBill>& val) { return std::make_pair(std::get<1>(val).id, val); });
+            joined.to_map([](const std::tuple<customer, payment_bill>& val) { return std::make_pair(std::get<1>(val).id, val); });
 
-        CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const Pair& a, const Pair& b) {
+        CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const pair& a, const pair& b) {
             return a.first == b.first && std::get<1>(a.second).id == std::get<1>(b.second).id &&
-                   std::get<1>(a.second).customerId == std::get<1>(b.second).customerId;
+                   std::get<1>(a.second).customer_id == std::get<1>(b.second).customer_id;
         }));
     }
 
     SECTION("To unordered map") {
-        using Pair = std::pair<int, std::tuple<Customer, PaymentBill>>;
+        using pair = std::pair<int, std::tuple<customer, payment_bill>>;
 
-        std::unordered_map<int, std::tuple<Customer, PaymentBill>> expected = {
-            { 0, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 0 }) },
-            { 2, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 2 }) },
-            { 3, std::make_tuple(Customer{ 25 }, PaymentBill{ 25, 3 }) },
-            { 1, std::make_tuple(Customer{ 99 }, PaymentBill{ 99, 1 }) }
+        std::unordered_map<int, std::tuple<customer, payment_bill>> expected = {
+            { 0, std::make_tuple(customer{ 25 }, payment_bill{ 25, 0 }) },
+            { 2, std::make_tuple(customer{ 25 }, payment_bill{ 25, 2 }) },
+            { 3, std::make_tuple(customer{ 25 }, payment_bill{ 25, 3 }) },
+            { 1, std::make_tuple(customer{ 99 }, payment_bill{ 99, 1 }) }
         };
 
         decltype(expected) actual = joined.to_unordered_map(
-            [](const std::tuple<Customer, PaymentBill>& val) { return std::make_pair(std::get<1>(val).id, val); });
+            [](const std::tuple<customer, payment_bill>& val) { return std::make_pair(std::get<1>(val).id, val); });
 
-        CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const Pair& a, const Pair& b) {
+        CHECK(std::equal(expected.begin(), expected.end(), actual.begin(), [](const pair& a, const pair& b) {
             return a.first == b.first && std::get<1>(a.second).id == std::get<1>(b.second).id &&
-                   std::get<1>(a.second).customerId == std::get<1>(b.second).customerId;
+                   std::get<1>(a.second).customer_id == std::get<1>(b.second).customer_id;
         }));
     }
 }

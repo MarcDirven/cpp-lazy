@@ -1,4 +1,4 @@
-#include <Lz/ZipLongest.hpp>
+#include <Lz/zip_longest.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -9,8 +9,8 @@ TEST_CASE("zip_longest_iterable changing and creating elements", "[zip_longest_i
 
     auto fwd = lz::zip_longest(v, v2, v3);
     auto ra = lz::zip_longest(v, v3);
-    static_assert(lz::detail::IsForward<decltype(fwd.begin())>::value, "");
-    static_assert(lz::detail::IsRandomAccess<decltype(ra.begin())>::value, "");
+    static_assert(lz::detail::is_fwd<decltype(fwd.begin())>::value, "");
+    static_assert(lz::detail::is_ra<decltype(ra.begin())>::value, "");
 
     SECTION("Unequal lengths") {
         CHECK(std::distance(fwd.begin(), fwd.end()) == 7);

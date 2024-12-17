@@ -15,15 +15,14 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 template<class C, class Tag>
 class c_string_iterable final
     : public detail::basic_iterable<detail::c_string_iterator<C, Tag>, typename detail::c_string_iterator<C, Tag>::sentinel> {
-
-    using sentinel = typename detail::c_string_iterator<C, Tag>::sentinel;
+    using s = typename detail::c_string_iterator<C, Tag>::sentinel;
 
 public:
     using iterator = detail::c_string_iterator<C, Tag>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
-    constexpr c_string_iterable(const C* begin) noexcept : detail::basic_iterable<iterator, sentinel>(iterator(begin)) {
+    constexpr c_string_iterable(const C* begin) noexcept : detail::basic_iterable<iterator, default_sentinel>(iterator(begin)) {
     }
 
     constexpr c_string_iterable(const C* begin, const C* end) noexcept :
@@ -32,18 +31,16 @@ public:
 
     constexpr c_string_iterable() = default;
 
-    template<class S = sentinel>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::enable_if<!std::is_same<detail::c_string_iterator<C, S>, S>::value, std::size_t>
-    size() const noexcept {
+    template<class S = s>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::enable_if<!std::is_same<iterator, S>::value, std::size_t> size() const noexcept {
         std::size_t s = 0;
         for (auto i = this->begin(); i != this->end(); ++i, ++s) {
         }
         return s;
     }
 
-    template<class S = sentinel>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::enable_if<std::is_same<detail::c_string_iterator<C, S>, S>::value, std::size_t>
-    size() const noexcept {
+    template<class S = s>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_17 detail::enable_if<std::is_same<iterator, S>::value, std::size_t> size() const noexcept {
         return static_cast<std::size_t>(this->_end - this->_begin);
     }
 

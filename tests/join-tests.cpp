@@ -1,45 +1,46 @@
-#include <Lz/CString.hpp>
-#include <Lz/Join.hpp>
-#include <Lz/Map.hpp>
+#include <Lz/join.hpp>
+#include <Lz/map.hpp>
+#include <Lz/c_string.hpp>
 #include <catch2/catch.hpp>
 #include <sstream>
 
+
 TEST_CASE("Join with sentinels") {
-    auto cString = lz::c_string("Hello, World!");
-    auto join = lz::join(cString, ", ");
-    CHECK(join.toString() == "H, e, l, l, o, ,,  , W, o, r, l, d, !");
+    auto c_string = lz::c_string("Hello, World!");
+    auto join = lz::join(c_string, ", ");
+    CHECK(join.to_string() == "H, e, l, l, o, ,,  , W, o, r, l, d, !");
     static_assert(!std::is_same<decltype(join.begin()), decltype(join.end())>::value, "Should be sentinel");
 }
 
 TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
     std::vector<int> v = { 1, 2, 3, 4, 5 };
     std::vector<std::string> s = { "h", "e", "l", "l", "o" };
-    auto joinInt = lz::join(v, ", ");
-    static_assert(std::is_same<decltype(joinInt.begin()), decltype(joinInt.end())>::value, "Should not be sentinel");
-    auto joinStr = lz::join(s, ", ");
+    auto join_int = lz::join(v, ", ");
+    static_assert(std::is_same<decltype(join_int.begin()), decltype(join_int.end())>::value, "Should not be sentinel");
+    auto join_str = lz::join(s, ", ");
 
-    CHECK(joinInt.toString() == "1, 2, 3, 4, 5");
-    CHECK(joinStr.toString() == "h, e, l, l, o");
+    CHECK(join_int.to_string() == "1, 2, 3, 4, 5");
+    CHECK(join_str.to_string() == "h, e, l, l, o");
 
     SECTION("String streams") {
         std::ostringstream ss;
-        ss << joinInt;
+        ss << join_int;
         CHECK(ss.str() == "1, 2, 3, 4, 5");
     }
 
     SECTION("Should convert to string") {
-        CHECK(*joinInt.begin() == "1");
-        CHECK(*joinStr.begin() == "h");
+        CHECK(*join_int.begin() == "1");
+        CHECK(*join_str.begin() == "h");
     }
 
     SECTION("Type checking") {
-        static_assert(std::is_same<decltype(*joinStr.begin()), std::string&>::value, "String container should be std::string&");
-        static_assert(std::is_same<decltype(*joinInt.begin()), std::string>::value, "Int container should be std::string");
+        static_assert(std::is_same<decltype(*join_str.begin()), std::string&>::value, "String container should be std::string&");
+        static_assert(std::is_same<decltype(*join_int.begin()), std::string>::value, "Int container should be std::string");
     }
 
     SECTION("Should be correct size") {
-        CHECK(std::distance(joinInt.begin(), joinInt.end()) == 9);
-        CHECK(std::distance(joinStr.begin(), joinStr.end()) == 9);
+        CHECK(std::distance(join_int.begin(), join_int.end()) == 9);
+        CHECK(std::distance(join_str.begin(), join_str.end()) == 9);
     }
 
     SECTION("Immediate to string") {
@@ -50,103 +51,103 @@ TEST_CASE("Join should convert to string", "[Join][Basic functionality]") {
 TEST_CASE("Join binary operations", "[Join][Binary ops]") {
     std::vector<int> v = { 1, 2, 3, 4, 5 };
     std::vector<std::string> s = { "h", "e", "l", "l", "o" };
-    auto joinInt = lz::join(v, ", ");
-    auto joinStr = lz::join(s, ", ");
+    auto join_int = lz::join(v, ", ");
+    auto join_str = lz::join(s, ", ");
 
-    auto joinIntIter = joinInt.begin();
-    auto joinStrIter = joinStr.begin();
+    auto join_int_iter = join_int.begin();
+    auto join_str_iter = join_str.begin();
 
-    CHECK(*joinIntIter == "1");
-    CHECK(*joinStrIter == "h");
+    CHECK(*join_int_iter == "1");
+    CHECK(*join_str_iter == "h");
 
     SECTION("Operator++") {
-        ++joinIntIter;
-        CHECK(*joinIntIter == ", ");
+        ++join_int_iter;
+        CHECK(*join_int_iter == ", ");
 
-        ++joinStrIter;
-        CHECK(*joinStrIter == ", ");
+        ++join_str_iter;
+        CHECK(*join_str_iter == ", ");
     }
 
     SECTION("Operator--") {
-        ++joinIntIter, ++joinStrIter;
+        ++join_int_iter, ++join_str_iter;
 
-        CHECK(*--joinIntIter == "1");
-        auto joinIntEnd = joinInt.end();
-        CHECK(*--joinIntEnd == "5");
-        CHECK(*--joinIntEnd == ", ");
+        CHECK(*--join_int_iter == "1");
+        auto join_int_end = join_int.end();
+        CHECK(*--join_int_end == "5");
+        CHECK(*--join_int_end == ", ");
 
-        --joinStrIter;
-        CHECK(*joinStrIter == "h");
+        --join_str_iter;
+        CHECK(*join_str_iter == "h");
     }
 
     SECTION("Operator== & operator!=") {
-        CHECK(joinIntIter != joinInt.end());
-        CHECK(joinStrIter != joinStr.end());
+        CHECK(join_int_iter != join_int.end());
+        CHECK(join_str_iter != join_str.end());
 
-        joinIntIter = joinInt.end();
-        joinStrIter = joinStr.end();
+        join_int_iter = join_int.end();
+        join_str_iter = join_str.end();
 
-        CHECK(joinIntIter == joinInt.end());
-        CHECK(joinStrIter == joinStr.end());
+        CHECK(join_int_iter == join_int.end());
+        CHECK(join_str_iter == join_str.end());
     }
 
     SECTION("Operator+(int) offset, tests += as well") {
-        CHECK(*(joinIntIter + 2) == "2");
-        CHECK(*(joinStrIter + 2) == "e");
+        CHECK(*(join_int_iter + 2) == "2");
+        CHECK(*(join_str_iter + 2) == "e");
 
-        CHECK(*(joinIntIter + 3) == ", ");
-        CHECK(*(joinStrIter + 3) == ", ");
+        CHECK(*(join_int_iter + 3) == ", ");
+        CHECK(*(join_str_iter + 3) == ", ");
     }
 
     SECTION("Operator-(int) offset, tests -= as well") {
-        joinIntIter = joinInt.end();
-        joinStrIter = joinStr.end();
+        join_int_iter = join_int.end();
+        join_str_iter = join_str.end();
 
-        CHECK(*(joinIntIter - 1) == "5");
-        CHECK(*(joinStrIter - 1) == "o");
+        CHECK(*(join_int_iter - 1) == "5");
+        CHECK(*(join_str_iter - 1) == "o");
 
-        CHECK(*(joinIntIter - 2) == ", ");
-        CHECK(*(joinStrIter - 2) == ", ");
+        CHECK(*(join_int_iter - 2) == ", ");
+        CHECK(*(join_str_iter - 2) == ", ");
 
-        joinIntIter = joinInt.begin();
-        CHECK(*(joinIntIter - -3) == ", ");
-        CHECK(*(joinIntIter - -2) == "2");
+        join_int_iter = join_int.begin();
+        CHECK(*(join_int_iter - -3) == ", ");
+        CHECK(*(join_int_iter - -2) == "2");
 
-        joinIntIter = joinInt.end();
-        CHECK(*(joinIntIter + -3) == "4");
-        CHECK(*(joinIntIter + -4) == ", ");
+        join_int_iter = join_int.end();
+        CHECK(*(join_int_iter + -3) == "4");
+        CHECK(*(join_int_iter + -4) == ", ");
     }
 
     SECTION("Operator-(Iterator)") {
-        CHECK(std::distance(joinIntIter, joinInt.end()) == 9);
-        CHECK(std::distance(joinStrIter, joinStr.end()) == 9);
+        CHECK(std::distance(join_int_iter, join_int.end()) == 9);
+        CHECK(std::distance(join_str_iter, join_str.end()) == 9);
 
-        CHECK(joinInt.end() - joinIntIter == 9);
-        CHECK(joinStr.end() - joinStrIter == 9);
+        CHECK(join_int.end() - join_int_iter == 9);
+        CHECK(join_str.end() - join_str_iter == 9);
     }
 
     SECTION("Operator[]()") {
-        CHECK(joinIntIter[2] == "2");
-        CHECK(joinIntIter[1] == ", ");
+        CHECK(join_int_iter[2] == "2");
+        CHECK(join_int_iter[1] == ", ");
 
-        CHECK(joinStrIter[2] == "e");
-        CHECK(joinStrIter[3] == ", ");
+        CHECK(join_str_iter[2] == "e");
+        CHECK(join_str_iter[3] == ", ");
     }
 
     SECTION("Operator<, <, <=, >, >=") {
-        auto joinIntDistance = std::distance(joinIntIter, joinInt.end());
-        auto joinIntEnd = joinInt.end();
-        CHECK(joinIntIter < joinIntEnd);
-        CHECK(joinIntIter + joinIntDistance - 1 > joinIntEnd - joinIntDistance);
-        CHECK(joinIntIter + joinIntDistance - 1 <= joinIntEnd);
-        CHECK(joinIntIter + joinIntDistance - 1 >= joinIntEnd - 1);
+        auto join_int_dist = std::distance(join_int_iter, join_int.end());
+        auto join_int_end = join_int.end();
+        CHECK(join_int_iter < join_int_end);
+        CHECK(join_int_iter + join_int_dist - 1 > join_int_end - join_int_dist);
+        CHECK(join_int_iter + join_int_dist - 1 <= join_int_end);
+        CHECK(join_int_iter + join_int_dist - 1 >= join_int_end - 1);
 
-        auto joinStrDistance = std::distance(joinStrIter, joinStr.end());
-        auto joinStrEnd = joinStr.end();
-        CHECK(joinStrIter < joinStrEnd);
-        CHECK(joinStrIter + joinStrDistance - 1 > joinStrEnd - joinStrDistance);
-        CHECK(joinStrIter + joinStrDistance - 1 <= joinStrEnd);
-        CHECK(joinStrIter + joinStrDistance - 1 >= joinStrEnd - 1);
+        auto join_str_dist = std::distance(join_str_iter, join_str.end());
+        auto join_str_end = join_str.end();
+        CHECK(join_str_iter < join_str_end);
+        CHECK(join_str_iter + join_str_dist - 1 > join_str_end - join_str_dist);
+        CHECK(join_str_iter + join_str_dist - 1 <= join_str_end);
+        CHECK(join_str_iter + join_str_dist - 1 >= join_str_end - 1);
     }
 
     SECTION("String join double format") {

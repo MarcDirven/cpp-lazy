@@ -4,25 +4,25 @@
 #include <utility>
 
 namespace {
-constexpr std::size_t SizePolicy = 32;
+constexpr std::size_t size_policy = 32;
 
 void CartesianProduct(benchmark::State& state) {
-    std::array<int, SizePolicy / 8> a{};
-    std::array<char, SizePolicy / 4> b{};
+    std::array<int, size_policy / 8> a{};
+    std::array<char, size_policy / 4> b{};
 
     for (auto _ : state) {
-        for (auto&& tup : lz::cartesian(a, b)) {
+        for (auto&& tup : lz::cartesian_product(a, b)) {
             benchmark::DoNotOptimize(tup);
         }
     }
 }
 
 void ChunkIf(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
-    constexpr static auto half = static_cast<int>(SizePolicy / 2);
+    std::array<int, size_policy> a = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
+    constexpr static auto half = static_cast<int>(size_policy / 2);
 
     for (auto _ : state) {
-        for (auto&& x : lz::chunkIf(a, [](int i) noexcept { return i == half; })) {
+        for (auto&& x : lz::chunk_if(a, [](int i) noexcept { return i == half; })) {
             for (int y : x) {
                 benchmark::DoNotOptimize(y);
             }
@@ -31,7 +31,7 @@ void ChunkIf(benchmark::State& state) {
 }
 
 void Chunks(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> a = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
     for (auto _ : state) {
         for (auto&& chunk : lz::chunks(a, 8)) {
             for (int x : chunk) {
@@ -42,8 +42,8 @@ void Chunks(benchmark::State& state) {
 }
 
 void Concatenate(benchmark::State& state) {
-    std::string a(SizePolicy / 2, '0');
-    std::string b(SizePolicy / 2, '1');
+    std::string a(size_policy / 2, '0');
+    std::string b(size_policy / 2, '1');
 
     for (auto _ : state) {
         for (char c : lz::concat(a, b)) {
@@ -54,8 +54,8 @@ void Concatenate(benchmark::State& state) {
 
 void CString(benchmark::State& state) {
     constexpr const char* str = "this is a 32 char long stringggg";
-    if (std::strlen(str) != SizePolicy) {
-        throw std::runtime_error(fmt::format("String is not {} characters long", SizePolicy));
+    if (std::strlen(str) != size_policy) {
+        throw std::runtime_error(fmt::format("String is not {} characters long", size_policy));
     }
 
     for (auto _ : state) {
@@ -66,7 +66,7 @@ void CString(benchmark::State& state) {
 }
 
 void Enumerate(benchmark::State& state) {
-    std::array<int, SizePolicy> arr{};
+    std::array<int, size_policy> arr{};
 
     for (auto _ : state) {
         for (auto pair : lz::enumerate(arr)) {
@@ -76,19 +76,19 @@ void Enumerate(benchmark::State& state) {
 }
 
 void Except(benchmark::State& state) {
-    std::array<int, SizePolicy> largeArr = lz::range(static_cast<int>(SizePolicy)).to<std::array<int, SizePolicy>>();
-    std::array<int, SizePolicy / 2> toLargeExcept =
-        lz::range(static_cast<int>(SizePolicy) / 2).to<std::array<int, SizePolicy / 2>>();
+    std::array<int, size_policy> large_arr = lz::range(static_cast<int>(size_policy)).to<std::array<int, size_policy>>();
+    std::array<int, size_policy / 2> large_arr_except =
+        lz::range(static_cast<int>(size_policy) / 2).to<std::array<int, size_policy / 2>>();
 
     for (auto _ : state) {
-        for (auto excepted : lz::except(largeArr, toLargeExcept)) {
+        for (auto excepted : lz::except(large_arr, large_arr_except)) {
             benchmark::DoNotOptimize(excepted);
         }
     }
 }
 
 void Exclude(benchmark::State& state) {
-    std::array<int, SizePolicy> a = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> a = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
         for (int i : lz::exclude(a, 5, 10)) {
@@ -98,17 +98,17 @@ void Exclude(benchmark::State& state) {
 }
 
 void ExclusiveScan(benchmark::State& state) {
-    auto array = lz::range(SizePolicy).to<std::array<int, SizePolicy>>();
+    auto array = lz::range(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
-        for (std::size_t i : lz::eScan(array, static_cast<std::size_t>(0))) {
+        for (std::size_t i : lz::exclusive_scan(array, static_cast<std::size_t>(0))) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
 void Filter(benchmark::State& state) {
-    std::array<int, SizePolicy> arr{};
+    std::array<int, size_policy> arr{};
 
     for (auto _ : state) {
         for (int filtered : lz::filter(arr, [](const int i) noexcept { return i == 0; })) {
@@ -118,7 +118,7 @@ void Filter(benchmark::State& state) {
 }
 
 void Flatten(benchmark::State& state) {
-    std::array<std::array<int, SizePolicy / 4>, SizePolicy / 8> arr{};
+    std::array<std::array<int, size_policy / 4>, size_policy / 8> arr{};
     for (auto _ : state) {
         for (auto&& val : lz::flatten(arr)) {
             benchmark::DoNotOptimize(val);
@@ -130,7 +130,7 @@ void Generate(benchmark::State& state) {
     size_t cnt = 0;
 
     for (auto _ : state) {
-        for (auto i : lz::generate([&cnt]() noexcept { return cnt++; }, SizePolicy)) {
+        for (auto i : lz::generate([&cnt]() noexcept { return cnt++; }, size_policy)) {
             benchmark::DoNotOptimize(i);
         }
     }
@@ -138,10 +138,10 @@ void Generate(benchmark::State& state) {
 
 void GenerateWhile(benchmark::State& state) {
     for (auto _ : state) {
-        for (auto i : lz::generateWhile(
+        for (auto i : lz::generate_while(
                  [](std::size_t& cnt) -> std::pair<bool, std::size_t> {
-                     const auto oldValue = cnt++;
-                     return { oldValue < SizePolicy, cnt };
+                     const auto old_value = cnt++;
+                     return { old_value < size_policy, cnt };
                  },
                  static_cast<std::size_t>(0))) {
             benchmark::DoNotOptimize(i);
@@ -150,10 +150,10 @@ void GenerateWhile(benchmark::State& state) {
 }
 
 void GroupBy(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> arr = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
-        for (auto &&group : lz::groupBy(arr, [](int a, int b) noexcept { return a == b; })) {
+        for (auto&& group : lz::group_by(arr, [](int a, int b) noexcept { return a == b; })) {
             benchmark::DoNotOptimize(group.first);
             for (auto&& pair : group.second) {
                 benchmark::DoNotOptimize(pair);
@@ -163,20 +163,20 @@ void GroupBy(benchmark::State& state) {
 }
 
 void InclusiveScan(benchmark::State& state) {
-    auto array = lz::range(SizePolicy).to<std::array<int, SizePolicy>>();
-    auto t = lz::iScan(array);
+    auto array = lz::range(size_policy).to<std::array<int, size_policy>>();
+    auto t = lz::exclusive_scan(array);
     auto d = std::distance(t.begin(), t.end());
     (void)d;
 
     for (auto _ : state) {
-        for (auto i : lz::iScan(array)) {
+        for (auto i : lz::exclusive_scan(array)) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
 void JoinInt(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> arr = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
         for (std::string s : lz::join(arr, ",")) {
@@ -186,7 +186,7 @@ void JoinInt(benchmark::State& state) {
 }
 
 void JoinString(benchmark::State& state) {
-    std::array<std::string, SizePolicy> arr = lz::repeat(std::string("hello"), SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<std::string, size_policy> arr = lz::repeat(std::string("hello"), size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
         for (std::string& s : lz::join(arr, ",")) {
@@ -197,15 +197,15 @@ void JoinString(benchmark::State& state) {
 
 void JoinWhere(benchmark::State& state) {
     std::vector<int> arr = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-    std::vector<int> toJoin = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    std::vector<int> to_join = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
 
-    auto randomIndex = lz::random<std::size_t>(0, toJoin.size() - 1);
-    toJoin[randomIndex.nextRandom()] = arr[randomIndex.nextRandom()]; // Create a value where both values are equal
-    std::sort(toJoin.begin(), toJoin.end());
+    auto random_index = lz::random<std::size_t>(0, to_join.size() - 1);
+    to_join[random_index.next_random()] = arr[random_index.next_random()]; // Create a value where both values are equal
+    std::sort(to_join.begin(), to_join.end());
 
     for (auto _ : state) {
-        for (std::tuple<int, int> val : lz::joinWhere(
-                 arr, toJoin, [](int i) noexcept { return i; }, [](int i) noexcept { return i; },
+        for (std::tuple<int, int> val : lz::join_where(
+                 arr, to_join, [](int i) noexcept { return i; }, [](int i) noexcept { return i; },
                  [](int a, int b) noexcept { return std::make_tuple(a, b); })) {
             benchmark::DoNotOptimize(val);
         }
@@ -213,7 +213,7 @@ void JoinWhere(benchmark::State& state) {
 }
 
 void Map(benchmark::State& state) {
-    std::array<int, SizePolicy> arr{};
+    std::array<int, size_policy> arr{};
 
     for (auto _ : state) {
         for (int mapped : lz::map(arr, [](const int i) noexcept { return i == 0 ? 10 : 5; })) {
@@ -224,7 +224,7 @@ void Map(benchmark::State& state) {
 
 void Random(benchmark::State& state) {
     for (auto _ : state) {
-        for (int i : lz::random(0, 32, SizePolicy)) {
+        for (int i : lz::random(0, 32, size_policy)) {
             benchmark::DoNotOptimize(i);
         }
     }
@@ -232,18 +232,18 @@ void Random(benchmark::State& state) {
 
 void Range(benchmark::State& state) {
     for (auto _ : state) {
-        for (int i : lz::range<int>(SizePolicy)) {
+        for (int i : lz::range<int>(size_policy)) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
 void RegexSplit(benchmark::State& state) {
-    std::string toSplit = "hello hello hello hello hello he";
+    std::string to_split = "hello hello hello hello hello he";
     std::regex r(" ");
 
     for (auto _ : state) {
-        for (lz::StringView substring : lz::regexSplit(toSplit, r)) {
+        for (lz::string_view substring : lz::regex_split(to_split, r)) {
             benchmark::DoNotOptimize(substring);
         }
     }
@@ -251,14 +251,14 @@ void RegexSplit(benchmark::State& state) {
 
 void Repeat(benchmark::State& state) {
     for (auto _ : state) {
-        for (int r : lz::repeat(0, SizePolicy)) {
+        for (int r : lz::repeat(0, size_policy)) {
             benchmark::DoNotOptimize(r);
         }
     }
 }
 
 void Rotate(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> arr = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
         for (int i : lz::rotate(arr.begin() + 5, arr.begin(), arr.end())) {
@@ -268,20 +268,20 @@ void Rotate(benchmark::State& state) {
 }
 
 void StringSplitter(benchmark::State& state) {
-    std::string toSplit = "hello hello hello hello hello he";
+    std::string to_split = "hello hello hello hello hello he";
 
     for (auto _ : state) {
-        for (lz::StringView substring : lz::split(toSplit, ' ')) {
+        for (lz::StringView substring : lz::split(to_split, ' ')) {
             benchmark::DoNotOptimize(substring);
         }
     }
 }
 
 void TakeWhile(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::range(static_cast<int>(SizePolicy)).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> array = lz::range(static_cast<int>(size_policy)).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
-        for (int taken : lz::take_while(array, [](const int i) noexcept { return i != SizePolicy - 1; })) {
+        for (int taken : lz::take_while(array, [](const int i) noexcept { return i != size_policy - 1; })) {
             benchmark::DoNotOptimize(taken);
         }
     }
@@ -289,7 +289,7 @@ void TakeWhile(benchmark::State& state) {
 
 void TakeEvery(benchmark::State& state) {
     constexpr size_t offset = 2;
-    std::array<int, SizePolicy * offset> array{};
+    std::array<int, size_policy * offset> array{};
 
     for (auto _ : state) {
         for (int taken : lz::take_every(array, offset)) {
@@ -299,25 +299,25 @@ void TakeEvery(benchmark::State& state) {
 }
 
 void DropWhile(benchmark::State& state) {
-    std::array<int, SizePolicy> array = lz::generate(
+    std::array<int, size_policy> array = lz::generate(
                                             [](int& cnt) {
-                                                if (cnt++ == SizePolicy / 2) {
+                                                if (cnt++ == size_policy / 2) {
                                                     return *lz::random(2, 1024, 1).begin();
                                                 }
                                                 return 1;
                                             },
-                                            SizePolicy, 0)
-                                            .to<std::array<int, SizePolicy>>();
+                                            size_policy, 0)
+                                            .to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
-        for (int i : lz::dropWhile(array, [](const int i) noexcept { return i == 1; })) {
+        for (int i : lz::drop_while(array, [](const int i) noexcept { return i == 1; })) {
             benchmark::DoNotOptimize(i);
         }
     }
 }
 
 void Unique(benchmark::State& state) {
-    std::array<int, SizePolicy> arr = lz::range<int>(SizePolicy).to<std::array<int, SizePolicy>>();
+    std::array<int, size_policy> arr = lz::range<int>(size_policy).to<std::array<int, size_policy>>();
 
     for (auto _ : state) {
         for (char c : lz::unique(arr)) {
@@ -327,72 +327,72 @@ void Unique(benchmark::State& state) {
 }
 
 void Zip4(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
-    std::array<int, SizePolicy> arrayC{};
-    std::array<int, SizePolicy> arrayD{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy> arr_b{};
+    std::array<int, size_policy> arr_c{};
+    std::array<int, size_policy> arr_d{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip(arrayA, arrayB, arrayC, arrayD)) {
+        for (auto tuple : lz::zip(arr_a, arr_b, arr_c, arr_d)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
 void Zip3(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
-    std::array<int, SizePolicy> arrayC{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy> arr_b{};
+    std::array<int, size_policy> arr_c{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip(arrayA, arrayB, arrayC)) {
+        for (auto tuple : lz::zip(arr_a, arr_b, arr_c)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
 void Zip2(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy> arrayB{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy> arr_b{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip(arrayA, arrayB)) {
+        for (auto tuple : lz::zip(arr_a, arr_b)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
 void ZipLongest4(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy - 1> arrayB{};
-    std::array<int, SizePolicy - 2> arrayC{};
-    std::array<int, SizePolicy - 3> arrayD{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy - 1> arr_b{};
+    std::array<int, size_policy - 2> arr_c{};
+    std::array<int, size_policy - 3> arr_d{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip_longest(arrayA, arrayB, arrayC, arrayD)) {
+        for (auto tuple : lz::zip_longest(arr_a, arr_b, arr_c, arr_d)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
 void ZipLongest3(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy - 1> arrayB{};
-    std::array<int, SizePolicy - 2> arrayC{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy - 1> arr_b{};
+    std::array<int, size_policy - 2> arr_c{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip_longest(arrayA, arrayB, arrayC)) {
+        for (auto tuple : lz::zip_longest(arr_a, arr_b, arr_c)) {
             benchmark::DoNotOptimize(tuple);
         }
     }
 }
 
 void ZipLongest2(benchmark::State& state) {
-    std::array<int, SizePolicy> arrayA{};
-    std::array<int, SizePolicy - 1> arrayB{};
+    std::array<int, size_policy> arr_a{};
+    std::array<int, size_policy - 1> arr_b{};
 
     for (auto _ : state) {
-        for (auto tuple : lz::zip_longest(arrayA, arrayB)) {
+        for (auto tuple : lz::zip_longest(arr_a, arr_b)) {
             benchmark::DoNotOptimize(tuple);
         }
     }

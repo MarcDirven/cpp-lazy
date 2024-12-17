@@ -17,10 +17,10 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  * @return A view containing the iterable sliced from `from` to `to`.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 take_iterable<iter<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 take_iterable<iter_t<Iterable>>
 slice(Iterable&& iterable, const diff_iterable_t<Iterable> from, const diff_iterable_t<Iterable> to) {
     auto next = std::next(detail::begin(std::forward<Iterable>(iterable)), from);
-    return take_iterable<iter<Iterable>>(std::move(next), to - from);
+    return take_iterable<iter_t<Iterable>>(std::move(next), to - from);
 }
 
 LZ_MODULE_EXPORT_SCOPE_END

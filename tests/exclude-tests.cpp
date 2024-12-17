@@ -1,4 +1,4 @@
-#include "Lz/Exclude.hpp"
+#include "Lz/exclude.hpp"
 
 #include <catch2/catch.hpp>
 #include <list>
@@ -13,10 +13,10 @@ TEST_CASE("Exclude changing and creating elements", "[Exclude][Basic functionali
     static_assert(!std::is_same<decltype(excluded1.end()), decltype(excluded1.begin())>::value, "Must be sentinel");
 
     SECTION("Should Exclude out element") {
-        constexpr auto signedSize = static_cast<std::ptrdiff_t>(arr.size() - 2);
-        CHECK(lz::distance(excluded1.begin(), excluded1.end()) == signedSize);
-        CHECK(lz::distance(excluded2.begin(), excluded2.end()) == signedSize);
-        CHECK(lz::distance(excluded3.begin(), excluded3.end()) == signedSize);
+        constexpr auto signed_size = static_cast<std::ptrdiff_t>(arr.size() - 2);
+        CHECK(lz::distance(excluded1.begin(), excluded1.end()) == signed_size);
+        CHECK(lz::distance(excluded2.begin(), excluded2.end()) == signed_size);
+        CHECK(lz::distance(excluded3.begin(), excluded3.end()) == signed_size);
     }
 
     SECTION("Should be by reference") {

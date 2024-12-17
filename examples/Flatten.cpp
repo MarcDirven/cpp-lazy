@@ -1,4 +1,4 @@
-#include <Lz/Flatten.hpp>
+#include <Lz/flatten.hpp>
 #include <list>
 
 int main() {

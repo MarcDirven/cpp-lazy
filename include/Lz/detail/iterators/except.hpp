@@ -11,10 +11,10 @@
 
 namespace lz {
 namespace detail {
-template<class Iterator, class S, class IteratorToExcept, class S2, class BinaryOp>
+template<class Iterator, class S, class IteratorToExcept, class S2, class BinaryPredicate>
 class except_iterator
-    : public iter_base<except_iterator<Iterator, S, IteratorToExcept, S2, BinaryOp>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
-                       diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
+    : public iter_base<except_iterator<Iterator, S, IteratorToExcept, S2, BinaryPredicate>, ref_t<Iterator>,
+                       fake_ptr_proxy<ref_t<Iterator>>, diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
 
     using iter_traits = std::iterator_traits<Iterator>;
 
@@ -29,45 +29,45 @@ private:
     IteratorToExcept _to_except_begin{};
     S2 _to_except_end{};
     S _end{};
-    mutable func_container<BinaryOp> _compare{};
+    mutable func_container<BinaryPredicate> _predicate{};
 
     template<class T = Iterator>
     LZ_CONSTEXPR_CXX_20 enable_if<std::is_same<T, S>::value && std::is_same<IteratorToExcept, S2>::value> find_next() {
         _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
-            return !std::binary_search(_to_except_begin, _to_except_end, value, _compare);
+            return !std::binary_search(_to_except_begin, _to_except_end, value, _predicate);
         });
     }
 
     template<class T = Iterator>
     LZ_CONSTEXPR_CXX_20 enable_if<!std::is_same<T, S>::value && std::is_same<IteratorToExcept, S2>::value> find_next() {
         _iterator = detail::find_if(std::move(_iterator), _end, [this](const value_type& value) {
-            return !std::binary_search(_to_except_begin, _to_except_end, value, _compare);
+            return !std::binary_search(_to_except_begin, _to_except_end, value, _predicate);
         });
     }
 
     template<class T = Iterator>
     LZ_CONSTEXPR_CXX_20 enable_if<std::is_same<T, S>::value && !std::is_same<IteratorToExcept, S2>::value> find_next() {
         _iterator = std::find_if(std::move(_iterator), _end, [this](const value_type& value) {
-            return !detail::binary_search(_to_except_begin, _to_except_end, value, _compare);
+            return !detail::binary_search(_to_except_begin, _to_except_end, value, _predicate);
         });
     }
 
     template<class T = Iterator>
     LZ_CONSTEXPR_CXX_20 enable_if<!std::is_same<T, S>::value && !std::is_same<IteratorToExcept, S2>::value> find_next() {
         _iterator = detail::find_if(std::move(_iterator), _end, [this](const value_type& value) {
-            return !detail::binary_search(_to_except_begin, _to_except_end, value, _compare);
+            return !detail::binary_search(_to_except_begin, _to_except_end, value, _predicate);
         });
     }
 
 public:
     constexpr except_iterator() = default;
 
-    except_iterator(Iterator begin, S end, IteratorToExcept toExceptBegin, S2 toExceptEnd, BinaryOp compare) :
+    except_iterator(Iterator begin, S end, IteratorToExcept except_begin, S2 except_end, BinaryPredicate compare) :
         _iterator(std::move(begin)),
-        _to_except_begin(std::move(toExceptBegin)),
-        _to_except_end(std::move(toExceptEnd)),
+        _to_except_begin(std::move(except_begin)),
+        _to_except_end(std::move(except_end)),
         _end(std::move(end)),
-        _compare(std::move(compare)) {
+        _predicate(std::move(compare)) {
         if (_to_except_begin == _to_except_end) {
             return;
         }

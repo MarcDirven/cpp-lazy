@@ -1,4 +1,4 @@
-#include <Lz/Splitter.hpp>
+#include <Lz/split.hpp>
 #include <iostream>
 
 // For fmt string_view
@@ -10,10 +10,10 @@ std::ostream& operator<<(std::ostream& s, fmt::string_view v) {
 }
 
 int main() {
-    std::string toSplit = "Hello world ";
+    std::string to_split = "Hello world ";
     std::string delim = " ";
-    // Alternative: lz::split(toSplit, ' ') (using a char is faster, so use it whenever possible)
-    const auto splitter = lz::split(toSplit, std::move(delim));
+    // Alternative: lz::split(to_split, ' ') (using a char is faster, so use it whenever possible)
+    const auto splitter = lz::split(to_split, std::move(delim));
     std::cout << splitter << '\n';
     // Output: Hello world
     for (lz::StringView substring : splitter) {

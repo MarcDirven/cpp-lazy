@@ -28,8 +28,8 @@ TEST_CASE("Unique changing and creating elements", "[Unique][Basic functionality
 
     SECTION("Should be unique too, using >") {
         std::array<int, size> expected = { 3, 2, 1 };
-        auto uniqueGreater = lz::unique_iterable(expected, std::greater<int>());
-        CHECK(expected == uniqueGreater.to<std::array<int, size>>());
+        auto unique_greater = lz::unique(expected, std::greater<int>());
+        CHECK(expected == unique_greater.to<std::array<int, size>>());
         CHECK(std::is_sorted(expected.begin(), expected.end(), std::greater<int>()));
     }
 }
@@ -78,21 +78,21 @@ TEST_CASE("Unique to container", "[Unique][To container]") {
     auto unique = lz::unique(arr);
 
     SECTION("To array") {
-        auto uniqueArray = unique.to<std::array<int, size>>();
+        auto unique_array = unique.to<std::array<int, size>>();
         std::array<int, size> expected = { 1, 2, 3 };
-        CHECK(uniqueArray == expected);
+        CHECK(unique_array == expected);
     }
 
     SECTION("To vector") {
-        auto uniqueVec = unique.to_vector();
+        auto unique_vec = unique.to_vector();
         std::vector<int> expected = { 1, 2, 3 };
-        CHECK(uniqueVec == expected);
+        CHECK(unique_vec == expected);
     }
 
     SECTION("To other container using to<>()") {
-        auto uniqueList = unique.to<std::list<int>>();
+        auto unique_list = unique.to<std::list<int>>();
         std::list<int> expected = { 1, 2, 3 };
-        CHECK(uniqueList == expected);
+        CHECK(unique_list == expected);
     }
 
     SECTION("To map") {

@@ -18,7 +18,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
  * @return A Take iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<iter<Iterable>, sentinel<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<iter_t<Iterable>, sentinel_t<Iterable>>
 drop_while(Iterable&& iterable, UnaryPredicate predicate) {
     auto begin = lz::find_if_not(iterable, std::move(predicate));
     return { std::move(begin), detail::end(std::forward<Iterable>(iterable)) };

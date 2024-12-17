@@ -50,19 +50,19 @@ public:
         return *this;
     }
 
-    typename std::add_const<reference>::type operator*() const {
+    reference dereference() const {
         return _ptr->dereference();
     }
 
-    pointer operator->() const {
+    pointer arrow() const {
         return _ptr->arrow();
     }
 
-    iterator_wrapper& increment() {
+    void increment() {
         _ptr->increment();
     }
 
-    iterator_wrapper& decrement() {
+    void decrement() {
         _ptr->decrement();
     }
 
@@ -71,7 +71,7 @@ public:
     }
 
     void plus_is(const DiffType n) {
-        _ptr->plusIs(n);
+        _ptr->plus_is(n);
     }
 
     DiffType difference(const iterator_wrapper& other) const {

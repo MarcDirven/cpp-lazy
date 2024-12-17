@@ -59,7 +59,7 @@ class chain_iterable;
  * @return An iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_CONSTEXPR_CXX_20 chain_iterable<iter<Iterable>, sentinel<Iterable>> chain(Iterable&& iterable) {
+LZ_CONSTEXPR_CXX_20 chain_iterable<iter_t<Iterable>, sentinel_t<Iterable>> chain(Iterable&& iterable) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)) };
 }
 
@@ -97,7 +97,7 @@ public:
 
     //! See concatenate.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::concatenate_iterator<Iterator, iter<Iterables>...>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::concatenate_iterator<Iterator, iter_t<Iterables>...>>
     concat(Iterables&&... iterables) const {
         return chain(lz::concat(*this, std::forward<Iterables>(iterables)...));
     }
@@ -118,7 +118,7 @@ public:
     template<class UnaryOp>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::map_iterator<Iterator, S, UnaryOp>>
     map(UnaryOp unary_op) const {
-        return chain(lz::map(*this, std::move(v)));
+        return chain(lz::map(*this, std::move(unary_op)));
     }
 
     //! See take_while.hpp for documentation.
@@ -130,7 +130,7 @@ public:
 
     //! See take.hpp for documentation. Internally uses lz::take to take the amounts
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto take(const difference_type amount) const
-    -> chain_iterable<detail::take_n_iterator<Iterator>, typename detail::take_n_iterator<Iterator::sentinel> {
+        -> chain_iterable<detail::take_iterator<Iterator>, typename detail::take_iterator<Iterator>::sentinel> {
         return chain(lz::take(*this, amount));
     }
 
@@ -141,7 +141,7 @@ public:
 
     //! See slice.hpp for documentation
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto slice(const difference_type from, const difference_type to) const
-    -> chain_iterable<detail::take_n_iterator<Iterator>, typename detail::take_n_iterator<Iterator::sentinel> {
+        -> chain_iterable<detail::take_iterator<Iterator>, typename detail::take_iterator<Iterator>::sentinel> {
         return chain(lz::slice(*this, from, to));
     }
 
@@ -165,7 +165,7 @@ public:
 
     //! See zip.hpp for documentation.
     template<LZ_CONCEPT_ITERABLE... Iterables>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::zip_iterator<Iterator, iter<Iterables>>... >
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::zip_iterator<Iterator, iter_t<Iterables>>...>
     zip(Iterables&&... iterables) const {
         return chain(lz::zip(*this, std::forward<Iterables>(iterables)...));
     }
@@ -179,7 +179,7 @@ public:
 
     //! See iter_tool.hpp `as` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::map_iterator<Iterator, S, detail::ConvertFn<T>>> as() const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::map_iterator<Iterator, S, detail::convert_fn<T>>> as() const {
         return chain(lz::as<T>(*this));
     }
 
@@ -199,7 +199,7 @@ public:
     template<class... Iterables>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
     chain_iterable<detail::cartesian_product_iterator<
-        std::tuple<Iterator, iter<Iterables>...>, std::tuple<S, sentinel<Iterables>...>>>
+        std::tuple<Iterator, iter_t<Iterables>...>, std::tuple<S, sentinel_t<Iterables>...>>>
     cartesian_product(Iterables&&... iterables) const {
         return chain(lz::cartesian_product(*this, std::forward<Iterables>(iterables)...));
     }
@@ -227,7 +227,7 @@ public:
 
     // clang-format off
     //! See inclusive_scan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, value_type<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_PRED(std::plus, val_t<iterator>)>
     LZ_NODISCARD
     LZ_CONSTEXPR_CXX_20 chain_iterable<detail::inclusive_scan_iterator<Iterator, S, detail::decay<T>, detail::decay<BinaryOp>>>
     inclusive_scan(T&& init = {}, BinaryOp&& binary_op = {}) const {
@@ -235,11 +235,11 @@ public:
     }
 
     //! See exclusive_scan.hpp for documentation.
-    template<class T = value_type, class BinaryOp = MAKE_BIN_OP(std::plus, value_type<iterator>)>
+    template<class T = value_type, class BinaryOp = MAKE_BIN_PRED(std::plus, val_t<iterator>)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
     chain_iterable<detail::exclusive_scan_iterator<Iterator, S, detail::decay<T>, detail::decay<BinaryOp>>>
-    eScan(T&& init = {}, BinaryOp&& binary_op = {}) const {
-        return chain(lz::eScan(*this, std::forward<T>(init), std::forward<BinaryOp>(binary_op)));
+    exclusive_scan(T&& init = {}, BinaryOp&& binary_op = {}) const {
+        return chain(lz::exclusive_scan(*this, std::forward<T>(init), std::forward<BinaryOp>(binary_op)));
     }
     // clang-format on
 
@@ -259,14 +259,14 @@ public:
 
     //! See algorithm.hpp `front_or` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type front_or(const T& defaultValue) const {
-        return lz::front_or(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type front_or(const T& detault_value) const {
+        return lz::front_or(*this, detault_value);
     }
 
     //! See algorithm.hpp `back_or` for documentation.
     template<class T>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type back_or(const T& defaultValue) const {
-        return lz::back_or(*this, defaultValue);
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 value_type back_or(const T& detault_value) const {
+        return lz::back_or(*this, detault_value);
     }
 
     //! See filter.hpp for documentation
@@ -277,15 +277,16 @@ public:
     }
 
     //! See except.hpp for documentation
-    template<class IterableToExcept, class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::except_iterator<Iterator, S, iter<IterableToExcept>, sentinel<IterableToExcept>, BinaryPredicate>>
-    except(IterableToExcept&& toExcept, BinaryPredicate binary_predicate = {}) const {
-        return chain(lz::except(*this, toExcept, std::move(binary_predicate)));
+    template<class IterableToExcept, class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<
+        detail::except_iterator<Iterator, S, iter_t<IterableToExcept>, sentinel_t<IterableToExcept>, BinaryPredicate>>
+    except(IterableToExcept&& to_except, BinaryPredicate binary_predicate = {}) const {
+        return chain(lz::except(*this, to_except, std::move(binary_predicate)));
     }
 
     //! See unique.hpp for documentation
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::unique_iterator<Iterator, S, BinaryPredicate>> 
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::unique_iterator<Iterator, S, BinaryPredicate>>
     unique(BinaryPredicate binary_predicate = {}) const {
         return chain(lz::unique_iterable(*this, std::move(binary_predicate)));
     }
@@ -315,7 +316,7 @@ public:
     // clang-format off
     template<class IterableB, class SelectorA, class SelectorB, class ResultSelector>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    chain_iterable<detail::join_where_iterator<Iterator, S, iter<IterableB>, sentinel<IterableB>, SelectorA, SelectorB, ResultSelector>>
+    chain_iterable<detail::join_where_iterator<Iterator, S, iter_t<IterableB>, sentinel_t<IterableB>, SelectorA, SelectorB, ResultSelector>>
     join_where(IterableB&& iterable_b, SelectorA selector_a, SelectorB selector_b, ResultSelector result_selector) const {
         return chain(lz::join_where(*this, iterable_b, std::move(selector_a), std::move(selector_b), std::move(result_selector)));
     }
@@ -328,7 +329,7 @@ public:
     }
 
     //! See group_by.hpp for documentation
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chain_iterable<detail::group_by_iterator<Iterator, S, BinaryPredicate>>
     group_by(BinaryPredicate binary_predicate = {}) const {
         return chain(lz::group_by(*this, std::move(binary_predicate)));
@@ -339,6 +340,30 @@ public:
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto trim(UnaryPredicateFirst first, UnaryPredicateLast last) const
         -> decltype(chain(lz::trim(*this, std::move(first), std::move(last)))) {
         return chain(lz::trim(*this, std::move(first), std::move(last)));
+    }
+
+    //! See algorithm.hpp `find` for documentation
+    template<class T>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Iterator find(T&& to_find) const {
+        return lz::find(*this, to_find);
+    }
+
+    //! See algorithm.hpp `find_if` for documentation
+    template<class UnaryPredicate>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Iterator find_if(UnaryPredicate unary_predicate) const {
+        return lz::find_if(*this, std::move(unary_predicate));
+    }
+
+    //! See algorithm.hpp `find_last` for documentation
+    template<class T>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Iterator find_last(T&& to_find) const {
+        return lz::find_last(*this, to_find);
+    }
+
+    //! See algorithm.hpp `find_if_if` for documentation
+    template<class UnaryPredicate>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 Iterator find_last_if(UnaryPredicate unary_predicate) const {
+        return lz::find_last_if(*this, std::move(unary_predicate));
     }
 
     //! See algorithm.hpp `find_or_default` for documentation
@@ -353,41 +378,35 @@ public:
         return lz::find_or_default_if(*this, std::move(unary_predicate), default_value);
     }
 
-    // //! See Algorithm.hpp `findLastOrDefault` for documentation
-    // template<class T, class U>
-    // value_type findLastOrDefault(T&& toFind, U&& defaultValue) const {
-    //     return lz::findLastOrDefault(*this, toFind, defaultValue);
-    // }
+    //! See algorithm.hpp `find_last_or_default` for documentation
+    template<class T, class U>
+    value_type find_last_or_default(T&& toFind, U&& defaultValue) const {
+        return lz::find_last_or_default(*this, std::forward<T>(toFind), std::forward<U>(defaultValue));
+    }
 
-    // //! See Algorithm.hpp `findLastOrDefaultIf` for documentation
-    // template<class UnaryPredicate, class U>
-    // value_type findLastOrDefaultIf(UnaryPredicate predicate, U&& defaultValue) const {
-    //     return lz::findLastOrDefaultIf(*this, std::move(predicate), defaultValue);
-    // }
+    //! See algorithm.hpp `find_last_or_default_if` for documentation
+    template<class UnaryPredicate, class U>
+    value_type find_last_or_default_if(UnaryPredicate predicate, U&& defaultValue) const {
+        return lz::find_last_or_default_if(*this, std::move(predicate), std::forward<U>(defaultValue));
+    }
 
-    // //! See Algorithm.hpp `indexOf` for documentation
-    // template<class T>
-    // std::size_t indexOf(const T& value) const {
-    //     return lz::indexOf(*this, value);
-    // }
+    //! See algorithm.hpp `index_of` for documentation
+    template<class T>
+    std::size_t index_of(const T& value) const {
+        return lz::index_of(*this, value);
+    }
 
-    // //! See Algorithm.hpp `indexOfIf` for documentation
-    // template<class UnaryPredicate>
-    // std::size_t indexOfIf(UnaryPredicate predicate) const {
-    //     return lz::indexOfIf(*this, std::move(predicate));
-    // }
+    //! See algorithm.hpp `index_of_if` for documentation
+    template<class UnaryPredicate>
+    std::size_t index_of_if(UnaryPredicate predicate) const {
+        return lz::index_of_if(*this, std::move(predicate));
+    }
 
-    // //! See Algorithm.hpp `contains` for documentation
-    // template<class T>
-    // bool contains(const T& value) const {
-    //     return lz::contains(*this, value);
-    // }
-
-    // //! See Algorithm.hpp `contains_if` for documentation
-    // template<class UnaryPredicate>
-    // bool contains_if(UnaryPredicate predicate) const {
-    //     return lz::contains_if(*this, std::move(predicate));
-    // }
+    //! See algorithm.hpp `contains` for documentation
+    template<class T>
+    bool contains(const T& value) const {
+        return lz::contains(*this, value);
+    }
 
     /**
      * Checks if two views/iterables are equal.
@@ -395,34 +414,22 @@ public:
      * @param binary_predicate The comparer, default is `operator==`
      * @return
      */
-    template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_type)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool equal(const Iterable& other, BinaryPredicate binary_predicate = {}) const {
         return lz::equal(*this, other, std::move(binary_predicate));
     }
 
-    // /**
-    //  * Checks if this starts with an other iterable.
-    //  * @param iterable The other iterable to compare with
-    //  * @param compare The comparer (operator== is default)
-    //  * @param execution The execution policy.
-    //  * @return True if this starts with `iterable`, false otherwise.
-    //  */
-    // template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
-    // bool startsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
-    //     return lz::startsWith(*this, iterable, std::move(compare));
-    // }
+    //! See algorithm.hpp `starts_with` for documentation
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_type)>
+    bool starts_with(const Iterable& iterable, BinaryPredicate compare = {}) const {
+        return lz::startsWith(*this, iterable, std::move(compare));
+    }
 
-    // /**
-    //  * Checks if this ends with an other iterable.
-    //  * @param iterable The other iterable to compare with
-    //  * @param compare The comparer (operator== is default)
-    //  * @param execution The execution policy.
-    //  * @return True if this ends with `iterable`, false otherwise.
-    //  */
-    // template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type)>
-    // bool endsWith(const Iterable& iterable, BinaryPredicate compare = {}) const {
-    //     return lz::endsWith(*this, iterable, std::move(compare));
-    // }
+    //! See algorithm.hpp `ends_with` for documentation
+    template<class Iterable, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_type)>
+    bool ends_with(const Iterable& iterable, BinaryPredicate compare = {}) const {
+        return lz::ends_with(*this, iterable, std::move(compare));
+    }
 
     /**
      * Iterates over the sequence generated so far.
@@ -472,7 +479,7 @@ public:
      * @param binary_predicate The comparer. operator< is assumed by default.
      * @return The max element.
      */
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference max(BinaryPredicate binary_predicate = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get max element");
         return *lz::max_element(*this, std::move(binary_predicate));
@@ -483,14 +490,14 @@ public:
      * @param cmp The comparer. operator< is assumed by default.
      * @return The min element.
      */
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference min(BinaryPredicate binary_predicate = {}) const {
         LZ_ASSERT(!lz::empty(*this), "sequence cannot be empty in order to get min element");
         return *lz::min_element(*this, std::move(binary_predicate));
     }
 
     //! See Algorithm.hpp for documentation
-    template<class BinaryPredicate = MAKE_BIN_OP(std::plus, value_type)>
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::plus, value_type)>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 double mean(BinaryPredicate binary_predicate = {}) const {
         return lz::mean(*this, std::move(binary_predicate));
     }
@@ -550,7 +557,7 @@ public:
      * @param binary_predicate The comparer to sort the sequence with.
      * @return A reference to this.
      */
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
     LZ_CONSTEXPR_CXX_20 chain_iterable<Iterator, S>& sort(BinaryPredicate binary_predicate = {}) {
         // Use std sort, it needs to be random access iterator anyway
         std::sort(Base::begin(), Base::end(), std::move(binary_predicate));
@@ -562,8 +569,8 @@ public:
      * @param binary_predicate The comparer to check if the sequence is sorted.
      * @return True if the sequence is sorted given by the `predicate` false otherwise.
      */
-    template<class BinaryPredicate = MAKE_BIN_OP(std::less, value_type)>
-    bool is_sorted(BinaryCompare binary_predicate = {}) const {
+    template<class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type)>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool is_sorted(BinaryPredicate binary_predicate = {}) const {
         return lz::is_sorted(*this, std::move(binary_predicate));
     }
 };

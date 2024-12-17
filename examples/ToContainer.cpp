@@ -64,15 +64,15 @@ int main() {
     // d c
     // e d
 
-    std::vector<char> copyToVec;
-    generator.copyTo(std::back_inserter(copyToVec));
-    // copyToVec = {a, b, c, d }
+    std::vector<char> copy_to_vec;
+    generator.copy_to(std::back_inserter(copy_to_vec));
+    // copy_to_vec = {a, b, c, d }
 
-    std::vector<int> transformToVec;
-    generator.transformTo(std::back_inserter(transformToVec), [](const char i) { return i + 1; });
-    // transformToVec = {b, c, d, e}
+    std::vector<int> transform_to_vec;
+    generator.transform_to(std::back_inserter(transform_to_vec), [](const char i) { return i + 1; });
+    // transform_to_vec = {b, c, d, e}
 
-    auto out = generator.transformAs<std::vector<char>>([](char c) -> char { return c + 1; });
+    auto out = generator.transform_as<std::vector<char>>([](char c) -> char { return c + 1; });
     for (char val : out) {
         std::cout << val << '\n';
     }

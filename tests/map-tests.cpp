@@ -1,19 +1,20 @@
-#include <Lz/CString.hpp>
-#include <Lz/Map.hpp>
+#include <Lz/map.hpp>
+#include <Lz/c_string.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
+
 struct TestStruct {
-    std::string testFieldStr;
-    int testFieldInt;
+    std::string test_field_str;
+    int test_field_int;
 };
 
 TEST_CASE("Map with sentinels") {
     auto cstr = lz::c_string("Hello, World!");
     auto map = lz::map(cstr, [](char c) { return std::toupper(c); });
     static_assert(!std::is_same<decltype(map.end()), decltype(map.begin())>::value, "Should be sentinels");
-    auto cstrExpected = lz::c_string("HELLO, WORLD!");
-    CHECK(lz::equal(map, cstrExpected));
+    auto c_str_expected = lz::c_string("HELLO, WORLD!");
+    CHECK(lz::equal(map, c_str_expected));
 }
 
 TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
@@ -21,7 +22,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
 
     SECTION("Should map out element") {
-        auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+        auto map = lz::map(array, [](const TestStruct& t) { return t.test_field_str; });
         static_assert(std::is_same<decltype(map.end()), decltype(map.begin())>::value, "Should not be sentinels");
         static_assert(std::is_same<decltype(*map.begin()), std::string>::value, "Types to not match (decltype(*map.begin()) and std::string)");
 
@@ -35,7 +36,7 @@ TEST_CASE("Map changing and creating elements", "[Map][Basic functionality]") {
         std::size_t count = 0;
         std::function<std::string&(TestStruct&)> f = [&count, &array](TestStruct& t) -> std::string& {
             CHECK(&t == &array[count++]);
-            return t.testFieldStr;
+            return t.test_field_str;
         };
         auto map = lz::map(array, std::move(f));
 
@@ -50,20 +51,20 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
 
     std::function<std::string(TestStruct)> f = [](const TestStruct& t) {
-        return t.testFieldStr;
+        return t.test_field_str;
     };
     auto map = lz::map(array, std::move(f));
     auto it = map.begin();
 
     SECTION("Operator++") {
         ++it;
-        CHECK(*it == array[1].testFieldStr);
+        CHECK(*it == array[1].test_field_str);
     }
 
     SECTION("Operator--") {
         ++it;
         --it;
-        CHECK(*it == array[0].testFieldStr);
+        CHECK(*it == array[0].test_field_str);
     }
 
     SECTION("Operator== & operator!=") {
@@ -73,12 +74,12 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
     }
 
     SECTION("Operator+(int) offset, tests += as well") {
-        CHECK(*(it + 1) == array[1].testFieldStr);
+        CHECK(*(it + 1) == array[1].test_field_str);
     }
 
     SECTION("Operator-(int) offset, tests -= as well") {
         ++it;
-        CHECK(*(it - 1) == array[0].testFieldStr);
+        CHECK(*(it - 1) == array[0].test_field_str);
     }
 
     SECTION("Operator-(Iterator)") {
@@ -104,30 +105,30 @@ TEST_CASE("Map binary operations", "[Map][Binary ops]") {
 TEST_CASE("Map to containers", "[Map][To container]") {
     constexpr std::size_t size = 3;
     std::array<TestStruct, size> array = { TestStruct{ "FieldA", 1 }, TestStruct{ "FieldB", 2 }, TestStruct{ "FieldC", 3 } };
-    auto map = lz::map(array, [](const TestStruct& t) { return t.testFieldStr; });
+    auto map = lz::map(array, [](const TestStruct& t) { return t.test_field_str; });
 
     SECTION("To array") {
-        auto stringArray = map.to<std::array<std::string, size>>();
+        auto str_array = map.to<std::array<std::string, size>>();
 
         for (std::size_t i = 0; i < array.size(); i++) {
-            CHECK(stringArray[i] == array[i].testFieldStr);
+            CHECK(str_array[i] == array[i].test_field_str);
         }
     }
 
     SECTION("To vector") {
-        auto stringVector = map.to_vector();
+        auto str_vec = map.to_vector();
 
         for (std::size_t i = 0; i < array.size(); i++) {
-            CHECK(stringVector[i] == array[i].testFieldStr);
+            CHECK(str_vec[i] == array[i].test_field_str);
         }
     }
 
     SECTION("To other container using to<>()") {
-        auto stringList = map.to<std::list<std::string>>();
-        auto listIterator = stringList.begin();
+        auto str_list = map.to<std::list<std::string>>();
+        auto list_iter = str_list.begin();
 
-        for (std::size_t i = 0; i < array.size(); i++, ++listIterator) {
-            CHECK(*listIterator == array[i].testFieldStr);
+        for (std::size_t i = 0; i < array.size(); i++, ++list_iter) {
+            CHECK(*list_iter == array[i].test_field_str);
         }
     }
 

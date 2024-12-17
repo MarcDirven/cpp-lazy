@@ -17,14 +17,11 @@ public:
     using iterator = detail::common_iterator<Iterator, S>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
-    using reference = typename iterator::reference;
-    using pointer = typename iterator::pointer;
-    using difference_type = typename iterator::difference_type;
 
     common_iterable() = default;
 
     LZ_CONSTEXPR_CXX_20 common_iterable(Iterator begin, S end) :
-        detail::basic_iterable<detail::common_iterator<Iterator, S>>(iterator(std::move(begin)), iterator(std::move(end))) {
+        detail::basic_iterable<iterator>(iterator(std::move(begin)), iterator(std::move(end))) {
     }
 };
 
@@ -41,8 +38,8 @@ public:
  * @return A common view object. Can be used in <algorithm> functions.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 common_iterable<iter<Iterable>, sentinel<Iterable>> common(Iterable&& iterable) {
-    static_assert(detail::actual_sentinel<Iterable>::value, "Iterable must have a sentinel type");
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 common_iterable<iter_t<Iterable>, sentinel_t<Iterable>> common(Iterable&& iterable) {
+    static_assert(!std::is_same<iter_t<Iterable>, sentinel_t<Iterable>>::value, "Iterator and Sentinel must be different types");
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)) };
 }
 

@@ -8,32 +8,33 @@
 
 namespace lz {
 
+namespace detail {
+template<class... Iterators>
+using zip_l_iter = zip_longest_iterator<is_ra_tag<common_type<iter_cat_t<Iterators>...>>::value, Iterators...>;
+}
+
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
 template<LZ_CONCEPT_ITERATOR... Iterators>
-class zip_longest_iterable final
-    : public detail::basic_iterable<
-        detail::zip_longest_iterator<detail::is_ra<detail::common_type<iter_cat<Iterators>...>>::value, Iterators...>> {
-
-    using ic = detail::common_type<iter_cat<Iterators>...>;
+class zip_longest_iterable final : public detail::basic_iterable<detail::zip_l_iter<Iterators...>> {
 
     static_assert(sizeof...(Iterators) > 0, "Cannot create zip longest object with 0 iterators");
     // TODO write std::forward_iterator_tags overload instead of enable_if
 public:
-    using iterator = detail::zip_longest_iterator<detail::is_ra<IterCat>::value, Iterators...>;
+    using iterator = detail::zip_l_iter<Iterators...>;
     using const_iterator = iterator;
 
     using value_type = typename iterator::value_type;
 
-    template<class I = ic>
+    template<class I = typename iterator::iterator_category>
     LZ_CONSTEXPR_CXX_20 zip_longest_iterable(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
-                                             detail::enable_if<!detail::is_ra<I>::value, int> = 0) :
+                                             detail::enable_if<!detail::is_ra_tag<I>::value, int> = 0) :
         detail::basic_iterable<iterator>(iterator(begin, end), iterator(end, begin)) {
     }
 
-    template<class I = ic>
+    template<class I = typename iterator::iterator_category>
     LZ_CONSTEXPR_CXX_20 zip_longest_iterable(std::tuple<Iterators...> begin, std::tuple<Iterators...> end,
-                                             detail::enable_if<detail::is_ra<I>::value, int> = 0) :
+                                             detail::enable_if<detail::is_ra_tag<I>::value, int> = 0) :
         detail::basic_iterable<iterator>(iterator(begin, begin, end), iterator(begin, end, end)) {
     }
 
@@ -60,7 +61,7 @@ public:
  * @return zip_longest_iterable object that contains the iterator.
  */
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_longest_iterable<iter<Iterables>...> zip_longest(Iterables&&... iterables) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_longest_iterable<iter_t<Iterables>...> zip_longest(Iterables&&... iterables) {
     auto begin = std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...);
     auto end = std::make_tuple(detail::end(std::forward<Iterables>(iterables))...);
     return {std::move(begin), std::move(end)};

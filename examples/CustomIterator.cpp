@@ -116,8 +116,8 @@ public:
         return _iter == other._iter;
     }
 
-    // Added plusIs function
-    void plusIs(difference_type n) {
+    // Added plus_is function
+    void plus_is(difference_type n) {
         _iter += static_cast<int>(n);
     }
 
@@ -156,7 +156,7 @@ int main() {
     std::cout << '\n';
 
     std::cout << "Custom random access iterator example, going forward with step 2.\n";
-    auto itStart = view3.begin();
-    std::cout << "*itStart = " << *itStart << '\n';
-    std::cout << "*(itStart + 2) = " << *(itStart + 2) << '\n';
+    auto it_start = view3.begin();
+    std::cout << "*it_start = " << *it_start << '\n';
+    std::cout << "*(it_start + 2) = " << *(it_start + 2) << '\n';
 }

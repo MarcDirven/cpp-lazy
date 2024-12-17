@@ -8,7 +8,7 @@ TEST_CASE("Concatenate with sentinels") {
     auto cstr = lz::c_string(str);
     std::vector<char> vec = { 'h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '!' };
     auto concat = lz::concat(cstr, vec);
-    static_assert(std::is_same<lz::DefaultSentinel, decltype(concat.end())>::value, "Sentinel type should be DefaultSentinel");
+    static_assert(std::is_same<lz::default_sentinel, decltype(concat.end())>::value, "Sentinel type should be default_sentinel");
     std::vector<char> expected = { 'h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '!',
                                    'h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '!' };
     CHECK(lz::equal(concat, expected));

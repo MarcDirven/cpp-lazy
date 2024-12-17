@@ -54,7 +54,7 @@ public:
  * @return A Chunk iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chunks_iterable<iter<Iterable>, sentinel<Iterable>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 chunks_iterable<iter_t<Iterable>, sentinel_t<Iterable>>
 chunks(Iterable&& iterable, const std::size_t chunk_size) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), chunk_size };
 }

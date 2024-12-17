@@ -1,6 +1,6 @@
-#include <Lz/CString.hpp>
-#include <Lz/Chunks.hpp>
-#include <Lz/View.hpp>
+#include <Lz/c_string.hpp>
+#include <Lz/chunks.hpp>
+#include <Lz/iterable.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
@@ -21,8 +21,8 @@ TEST_CASE("Chunks changing and creating elements", "[Chunks][Basic functionality
 
 TEST_CASE("Chunks with sentinels") {
     const char* str = "Hello, world!";
-    auto strView = lz::c_string(str);
-    auto chunked = lz::chunks(strView, 3);
+    auto str_view = lz::c_string(str);
+    auto chunked = lz::chunks(str_view, 3);
     static_assert(!std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Must be sentinel");
     CHECK(lz::distance(chunked.begin(), chunked.end()) == 5);
 

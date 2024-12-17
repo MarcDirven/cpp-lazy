@@ -1,14 +1,14 @@
-#include <Lz/detail/CompilerChecks.hpp>
+#include <Lz/detail/compiler_checks.hpp>
 
 #if !defined(LZ_HAS_STRING_VIEW)
 
-#include <Lz/StringView.hpp>
+#include <Lz/string_view.hpp>
 
 #include <catch2/catch.hpp>
 
 TEST_CASE("String view basic functionality", "[String view][Basic functionality]") {
     const std::string str = "Hello world";
-    lz::StringView view(str.data(), str.size());
+    lz::string_view view(str.data(), str.size());
 
     SECTION("Should have correct size") {
         CHECK(view.size() == str.size());
@@ -39,10 +39,10 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
     }
 
     SECTION("Prefix and suffix removal") {
-        view = lz::StringView("Hello world");
+        view = lz::string_view("Hello world");
         view.remove_prefix(6);
         CHECK(view == "world");
-        view = lz::StringView("Hello world");
+        view = lz::string_view("Hello world");
         view.remove_suffix(5);
         CHECK(view == "Hello ");
     }
@@ -54,7 +54,7 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
     SECTION("Find") {
         CHECK(view.find("world") == 6);
         CHECK(view.find("Hello") == 0);
-        CHECK(view.find("zzz") == lz::StringView::npos);
+        CHECK(view.find("zzz") == lz::string_view::npos);
     }
 
     SECTION("Operator==") {
@@ -62,7 +62,7 @@ TEST_CASE("String view basic functionality", "[String view][Basic functionality]
     }
 
     SECTION("Operator!=") {
-        view = lz::StringView("Hello");
+        view = lz::string_view("Hello");
         CHECK(view != "Hello world!");
     }
 

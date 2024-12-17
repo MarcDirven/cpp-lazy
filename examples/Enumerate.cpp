@@ -4,9 +4,9 @@
 
 
 int main() {
-    std::vector<int> toEnumerate = {1, 2, 3, 4, 5};
+    std::vector<int> to_enumerate = {1, 2, 3, 4, 5};
 
-    for (std::pair<int, int> pair : lz::enumerate(toEnumerate)) {
+    for (std::pair<int, int> pair : lz::enumerate(to_enumerate)) {
         std::cout << pair.first << ' ' << pair.second << '\n';
     }
     // yields:

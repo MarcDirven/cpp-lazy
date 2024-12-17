@@ -12,16 +12,16 @@
 namespace lz {
 namespace detail {
 template<class... Iterators>
-class zip_iterator
-    : public iter_base<zip_iterator<Iterators...>, std::tuple<ref<Iterators>...>, std::tuple<fake_ptr_proxy<ref<Iterators>>...>,
-                       common_type<diff_type<Iterators>...>, common_type<iter_cat<Iterators>...>> {
+class zip_iterator : public iter_base<zip_iterator<Iterators...>, std::tuple<ref_t<Iterators>...>,
+                                      std::tuple<fake_ptr_proxy<ref_t<Iterators>>...>, common_type<diff_type<Iterators>...>,
+                                      common_type<iter_cat_t<Iterators>...>> {
 
 public:
-    using iterator_category = common_type<iter_cat<Iterators>...>;
-    using value_type = std::tuple<value_type<Iterators>...>;
+    using iterator_category = common_type<iter_cat_t<Iterators>...>;
+    using value_type = std::tuple<val_t<Iterators>...>;
     using difference_type = common_type<diff_type<Iterators>...>;
-    using reference = std::tuple<ref<Iterators>...>;
-    using pointer = std::tuple<fake_ptr_proxy<ref<Iterators>>...>;
+    using reference = std::tuple<ref_t<Iterators>...>;
+    using pointer = std::tuple<fake_ptr_proxy<ref_t<Iterators>>...>;
 
 private:
     using make_idx_sequence_for_this = make_index_sequence<sizeof...(Iterators)>;

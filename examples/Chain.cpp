@@ -8,7 +8,7 @@ int main() {
     // the example below doesn't do anything special in particular, but should give an example on how to use chaining
 
     // clang-format off
-    const auto isAllInt = lz::chain(arr)
+    const auto is_all_int = lz::chain(arr)
         // take all elements
         .take(std::distance(std::begin(arr), std::end(arr)))
         // drop the first 0 elements
@@ -21,5 +21,5 @@ int main() {
         .all([](int i) { return std::is_same<decltype(i), int>::value; });
     // clang-format on
 
-    fmt::print("{}\n", isAllInt); // prints true
+    fmt::print("{}\n", is_all_int); // prints true
 }

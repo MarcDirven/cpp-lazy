@@ -12,7 +12,7 @@
 namespace lz {
 namespace detail {
 template<class GeneratorFunc, class... Args>
-using generate_while_ref = TupleElement<1, tuple_invoker<GeneratorFunc, Args...>>;
+using generate_while_ref = tup_element<1, tuple_invoker_ret<GeneratorFunc, Args...>>;
 
 template<class GeneratorFunc, class... Args>
 class generate_while_iterator
@@ -20,24 +20,24 @@ class generate_while_iterator
                        fake_ptr_proxy<generate_while_ref<GeneratorFunc, Args...>>, std::ptrdiff_t, std::forward_iterator_tag,
                        default_sentinel> {
 
-    std::tuple<Args...> _args{};
+    std::tuple<Args...> _args;
 
-    using fn_return_type = tuple_invoker<GeneratorFunc, Args...>;
-    tuple_invoker<GeneratorFunc, Args...> _tuple_invoker{};
+    using fn_return_type = tuple_invoker_ret<GeneratorFunc, Args...>;
+    tuple_invoker<GeneratorFunc, Args...> _tuple_invoker;
     fn_return_type _last_returned;
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using reference = TupleElement<1, fn_return_type>;
-    using value_type = Decay<reference>;
+    using reference = tup_element<1, fn_return_type>;
+    using value_type = decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = fake_ptr_proxy<reference>;
 
     constexpr generate_while_iterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 generate_while_iterator(GeneratorFunc generatorFunc, std::tuple<Args...> args) :
+    LZ_CONSTEXPR_CXX_14 generate_while_iterator(GeneratorFunc generator_func, std::tuple<Args...> args) :
         _args(std::move(args)),
-        _tuple_invoker(make_expand_fn(std::move(generatorFunc), make_index_sequence<sizeof...(Args)>())),
+        _tuple_invoker(make_expand_fn(std::move(generator_func), make_index_sequence<sizeof...(Args)>())),
         _last_returned(_tuple_invoker(_args)) {
     }
 

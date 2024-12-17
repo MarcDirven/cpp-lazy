@@ -13,14 +13,14 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 template<LZ_CONCEPT_ITERATOR Iterator, class S, class UnaryPredicate>
 class filter_iterable final
     : public detail::basic_iterable<detail::filter_iterator<Iterator, S, UnaryPredicate>,
-                                    typename detail::filter_iterator<Iterator, S, UnaryPredicate::sentinel>> {
+                                    typename detail::filter_iterator<Iterator, S, UnaryPredicate>::sentinel> {
 public:
     using iterator = detail::filter_iterator<Iterator, S, UnaryPredicate>;
     using const_iterator = iterator;
     using value_type = typename iterator::value_type;
 
 private:
-    using Sentinel = typename detail::FilterIterator<Iterator, S, UnaryPredicate>::sentinel;
+    using Sentinel = typename detail::filter_iterator<Iterator, S, UnaryPredicate>::sentinel;
 
     filter_iterable(Iterator begin, S end, UnaryPredicate function, std::forward_iterator_tag /* unused */) :
         detail::basic_iterable<iterator, default_sentinel>(iterator(begin, begin, end, function)) {
@@ -32,7 +32,7 @@ private:
 
 public:
     filter_iterable(Iterator begin, S end, UnaryPredicate function) :
-        filter_iterable(std::move(begin), std::move(end), std::move(function), iter_cat<Iterator>{}) {
+        filter_iterable(std::move(begin), std::move(end), std::move(function), iter_cat_t<Iterator>{}) {
     }
 
     constexpr filter_iterable() = default;
@@ -53,7 +53,7 @@ public:
  * over using `for (auto... lz::filter(...))`.
  */
 template<class Iterable, class UnaryPredicate>
-filter_iterable<iter<Iterable>, sentinel<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
+filter_iterable<iter_t<Iterable>, sentinel_t<Iterable>, UnaryPredicate> filter(Iterable&& iterable, UnaryPredicate predicate) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::move(predicate) };
 }

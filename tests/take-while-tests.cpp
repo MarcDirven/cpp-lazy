@@ -1,15 +1,16 @@
-#include <Lz/CString.hpp>
-#include <Lz/DropWhile.hpp>
+#include <Lz/drop_while.hpp>
+#include <Lz/c_string.hpp>
 #include <Lz/take_while.hpp>
 #include <catch2/catch.hpp>
 #include <list>
+
 
 TEST_CASE("Take while with sentinels") {
     auto cstr = lz::c_string("Hello, World!");
     auto take_while = lz::take_while(cstr, [](char c) { return c != 'W'; });
     static_assert(!std::is_same<decltype(take_while.begin()), decltype(take_while.end())>::value, "Should be sentinel");
-    auto cStrExpected = lz::c_string("Hello, ");
-    CHECK(lz::equal(take_while, cStrExpected));
+    auto c_str_expected = lz::c_string("Hello, ");
+    CHECK(lz::equal(take_while, c_str_expected));
 }
 
 TEST_CASE("take_while_iterable takes elements and is by reference", "[take_while_iterable][Basic functionality]") {
@@ -35,14 +36,14 @@ TEST_CASE("Drop while takes elements and is by reference", "[take_while_iterable
     std::array<int, size> array{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
     SECTION("Should drop elements") {
-        auto dropWhile = lz::dropWhile(array, [](int element) { return element < 5; });
-        auto it = dropWhile.begin();
-        CHECK(std::distance(it, dropWhile.end()) == 6);
+        auto drop_while = lz::drop_while(array, [](int element) { return element < 5; });
+        auto it = drop_while.begin();
+        CHECK(std::distance(it, drop_while.end()) == 6);
     }
 
     SECTION("Should be by reference") {
-        auto dropWhile = lz::dropWhile(array, [](int element) { return element < 5; });
-        auto it = dropWhile.begin();
+        auto drop_while = lz::drop_while(array, [](int element) { return element < 5; });
+        auto it = drop_while.begin();
         *it = 50;
         CHECK(array[4] == 50);
         CHECK(array[4] != 6);

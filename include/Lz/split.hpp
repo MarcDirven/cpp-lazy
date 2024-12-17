@@ -49,14 +49,14 @@ public:
  */
 
 template<class Iterable, class CharT>
-using string_splitter = split_iterable<iter<Iterable>, sentinel<Iterable>,
+using string_splitter = split_iterable<iter_t<Iterable>, sentinel_t<Iterable>,
                                        detail::c_string_iterator<CharT, std::forward_iterator_tag>, default_sentinel>;
 
 template<class Iterable, class Iterable2>
-using regular_splitter = split_iterable<iter<Iterable>, sentinel<Iterable>, iter<Iterable2>, sentinel<Iterable2>>;
+using regular_splitter = split_iterable<iter_t<Iterable>, sentinel_t<Iterable>, iter_t<Iterable2>, sentinel_t<Iterable2>>;
 
 template<class Iterable, class Iterable2>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 regular_splitter<iter<Iterable>, iter<Iterable2>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 regular_splitter<iter_t<Iterable>, iter_t<Iterable2>>
 split(Iterable&& iterable, Iterable2&& delimiter) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              detail::begin(std::forward<Iterable>(delimiter)), detail::end(std::forward<Iterable>(delimiter)) };
@@ -71,7 +71,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 string_splitter<Iterable, CharT> split(Iterable
 
 template<class Iterator, class S>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 string_view to_string_view(const basic_iterable<Iterator, S>& view) {
-    return detail::to_string_view(view, iter_cat<Iterator>{});
+    return detail::to_string_view(view, iter_cat_t<Iterator>{});
 }
 
 // End of group

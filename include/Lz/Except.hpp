@@ -44,8 +44,8 @@ public:
  * @return An except_iterable view object.
  */
 template<LZ_CONCEPT_ITERATOR Iterable, class IterableToExcept,
-         class BinaryPredicate = MAKE_BIN_OP(std::less, value_type < iter<Iterable >>)>
-except_iterable<iter<Iterable>, sentinel<Iterable>, iter<IterableToExcept>, sentinel<IterableToExcept>, BinaryPredicate>
+         class BinaryPredicate = MAKE_BIN_PRED(std::less, value_type<iter_t<Iterable>>)>
+except_iterable<iter_t<Iterable>, sentinel_t<Iterable>, iter_t<IterableToExcept>, sentinel_t<IterableToExcept>, BinaryPredicate>
 except(Iterable&& iterable, IterableToExcept&& to_except, BinaryPredicate binary_predicate = {}) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              detail::begin(std::forward<IterableToExcept>(to_except)), detail::end(std::forward<IterableToExcept>(to_except)),
@@ -60,6 +60,5 @@ except(Iterable&& iterable, IterableToExcept&& to_except, BinaryPredicate binary
 LZ_MODULE_EXPORT_SCOPE_END
 
 } // end namespace lz
-
 
 #endif // end LZ_EXCEPT_HPP

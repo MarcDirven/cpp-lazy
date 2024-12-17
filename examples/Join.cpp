@@ -12,12 +12,12 @@ int main() {
 		// Process s...
 	}
     const std::vector<int> ints = {1, 2, 3};
-    const auto intJoin = lz::join(ints, ", ");
-    std::cout << intJoin << '\n';
+    const auto int_join = lz::join(ints, ", ");
+    std::cout << int_join << '\n';
     // Output: 1, 2, 3
     
     // if the container type is not std::string, a std::string by value is returned
-	for (std::string i : intJoin) {
+	for (std::string i : int_join) {
 		// Process i...
 	}
 }

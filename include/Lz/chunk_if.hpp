@@ -36,7 +36,7 @@ public:
  * @return A chunk if iterator view object.
  */
 template<LZ_CONCEPT_ITERABLE Iterable, class UnaryPredicate>
-chunk_if_iterable<iter<Iterable>, sentinel<Iterable>, UnaryPredicate>
+chunk_if_iterable<iter_t<Iterable>, sentinel_t<Iterable>, UnaryPredicate>
 chunk_if(Iterable&& iterable, UnaryPredicate unary_predicate) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::move(unary_predicate) };

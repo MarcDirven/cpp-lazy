@@ -111,22 +111,22 @@ protected:
     S _end{};
 
 public:
-    using value_type = value_type<It>;
+    using value_type = val_t<It>;
     using iterator = It;
-    using reference = ref<It>;
+    using reference = ref_t<It>;
     using const_reference = typename std::add_const<reference>::type;
     using const_iterator = iterator;
 
 private:
     template<class PairFunc>
-    using KeyType = decay<decltype(std::get<0>(std::declval<func_ret_type<PairFunc, ref<It>>>()))>;
+    using key_type = decay<decltype(std::get<0>(std::declval<func_ret_type<PairFunc, reference>>()))>;
 
     template<class PairFunc>
-    using value_type_tMap = decay<decltype(std::get<1>(std::declval<func_ret_type<PairFunc, ref<It>>>()))>;
+    using value_type_map = decay<decltype(std::get<1>(std::declval<func_ret_type<PairFunc, reference>>()))>;
 
 #ifdef __cpp_if_constexpr
     template<class T>
-    auto inserter_for(T&& container) {
+    auto inserter_for(T&& container) const {
         using C = decay<T>;
 
         if constexpr (is_array<C>::value) {
@@ -204,7 +204,8 @@ public:
      * must be specified along with its value type: `view.to<std::vector<int>>()`. One could also use `view.to<std::vector>()`.
      * See the other `to` function overload for documentation.
      * @tparam Container The container along with its value type.
-     * @example `lzView.to<std::vector<int>>(100); // This will create a vec of size 100 with containing the contents of lzView`
+     * @example `iterable.to<std::vector<int>>(100); // This will create a vec of size 100 with containing the contents of
+     * iterable`
      * @param args Additional container args. Must be compatible with the constructor of `Container`
      * @return The container.
      */
@@ -216,29 +217,29 @@ public:
     }
 
     /**
-     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`)
-     * @param outputIterator The output to fill into. Essentially the same as:
-     * `lz::copy(lzView.begin(), lzView.end(), myContainer.begin());`
+     * Fills destination output iterator `output_iter` with current contents of [`begin()`, `end()`)
+     * @param output_iter The output to fill into. Essentially the same as:
+     * `lz::copy(iterable, container.begin());`
      */
     template<class OutputIterator>
-    void copy_to(OutputIterator outputIterator) const {
-        lz::copy(*this, outputIterator);
+    void copy_to(OutputIterator output_iter) const {
+        lz::copy(*this, output_iter);
     }
 
     /**
-     * Fills destination output iterator `outputIterator` with current contents of [`begin()`, `end()`), using `transformFunc`.
-     * @param outputIterator The output to fill into.
-     * @param transformFunc The transform function. Must be a callable object that has a parameter of the current value type.
-     * Essentially the same as: `std::transform(lzView.begin(), lzView.end(), myContainer.begin(), [](T value) { ... });`
+     * Fills destination output iterator `output_iter` with current contents of [`begin()`, `end()`), using `transform_func`.
+     * @param output_iter The output to fill into.
+     * @param transform_func The transform function. Must be a callable object that has a parameter of the current value type.
+     * Essentially the same as: `std::transform(iterable, container.begin(), [](T value) { ... });`
      */
     template<class OutputIterator, class TransformFunc>
-    void transform_to(OutputIterator outputIterator, TransformFunc&& transformFunc) const {
-        lz::transform(*this, outputIterator, std::forward<TransformFunc>(transformFunc));
+    void transform_to(OutputIterator output_iter, TransformFunc&& transform_func) const {
+        lz::transform(*this, output_iter, std::forward<TransformFunc>(transform_func));
     }
 
     /**
      * @brief Transforms the current iterator to a container of type `Container`. The container is filled with the result of the
-     * function `f`. i.e. `view.transformAs<std::vector<int>>([](int i) { return i * 2; });` will return a vector with all
+     * function `f`. i.e. `view.transform_as<std::vector<int>>([](int i) { return i * 2; });` will return a vector with all
      * elements doubled.
      * @tparam Container The container to transform into
      * @param f The transform function
@@ -265,40 +266,41 @@ public:
     }
 
     /**
-     * @brief Creates a new map from the current sequence. The map is filled with the result of the function `pairFunc`.
-     * @p pairFunc must return a `std::pair` like object where the first element is the key and the second element is the value.
+     * @brief Creates a new map from the current sequence. The map is filled with the result of the function `pair_func`.
+     * @p pair_func must return a `std::pair` like object where the first element is the key and the second element is the value.
      *
-     * @param pairFunc The function to transform the sequence to a map.
+     * @param pair_func The function to transform the sequence to a map.
      * @param allocator The allocator to use for the map.
      * @param cmp The compare function to use for the map.
      * @return A new `std::map` with the sequence.
      */
-    template<class PairFunc, class BinaryOp = std::less<KeyType<PairFunc>>,
-             class Allocator = std::allocator<std::pair<const KeyType<PairFunc>, value_type_tMap<PairFunc>>>>
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<KeyType<PairFunc>, value_type_tMap<PairFunc>, BinaryOp, Allocator>
-    to_map(PairFunc pairFunc, const Allocator& allocator = {}, const BinaryOp& cmp = {}) const {
-        using map = std::map<KeyType<PairFunc>, value_type_tMap<PairFunc>, BinaryOp, Allocator>;
-        return transform_as<map>(std::move(pairFunc), cmp, allocator);
+    template<class PairFunc, class BinaryPredicate = std::less<key_type<PairFunc>>,
+             class Allocator = std::allocator<std::pair<const key_type<PairFunc>, value_type_map<PairFunc>>>>
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 std::map<key_type<PairFunc>, value_type_map<PairFunc>, BinaryPredicate, Allocator>
+    to_map(PairFunc pair_func, const Allocator& allocator = {}, const BinaryPredicate& cmp = {}) const {
+        using map = std::map<key_type<PairFunc>, value_type_map<PairFunc>, BinaryPredicate, Allocator>;
+        return transform_as<map>(std::move(pair_func), cmp, allocator);
     }
 
     /**
-     * @brief Creates a new unordered map from the current sequence. The map is filled with the result of the function `pairFunc`.
-     * @p pairFunc must return a `std::pair` like object where the first element is the key and the second element is the value.
+     * @brief Creates a new unordered map from the current sequence. The map is filled with the result of the function
+     * `pair_func`.
+     * @p pair_func must return a `std::pair` like object where the first element is the key and the second element is the value.
      *
-     * @param pairFunc The function to transform the sequence to a unordered_map.
+     * @param pair_func The function to transform the sequence to a unordered_map.
      * @param allocator The allocator to use for the unordered_map.
      * @param cmp The compare function to use for the unordered_map.
      * @return A new `std::unordered_map` with the sequence.
      */
     // clang-format off
-    template<class PairFunc, class Hasher = std::hash<KeyType<PairFunc>>, class KeyEquality = std::equal_to<KeyType<PairFunc>>,
-             class Allocator = std::allocator<std::pair<const KeyType<PairFunc>, value_type_tMap<PairFunc>>>>
+    template<class PairFunc, class Hasher = std::hash<key_type<PairFunc>>, class KeyEquality = std::equal_to<key_type<PairFunc>>,
+             class Allocator = std::allocator<std::pair<const key_type<PairFunc>, value_type_map<PairFunc>>>>
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-    std::unordered_map<KeyType<PairFunc>, value_type_tMap<PairFunc>, Hasher, KeyEquality, Allocator>
-    to_unordered_map(PairFunc pairFunc, const Allocator& alloc = {}, const KeyEquality& cmp = {}, const Hasher& h = {}) const {
-        using unordered_map = std::unordered_map<KeyType<PairFunc>, value_type_tMap<PairFunc>, Hasher, KeyEquality, Allocator>;
+    std::unordered_map<key_type<PairFunc>, value_type_map<PairFunc>, Hasher, KeyEquality, Allocator>
+    to_unordered_map(PairFunc pair_func, const Allocator& alloc = {}, const KeyEquality& cmp = {}, const Hasher& h = {}) const {
+        using unordered_map = std::unordered_map<key_type<PairFunc>, value_type_map<PairFunc>, Hasher, KeyEquality, Allocator>;
         return transform_as<unordered_map>(
-                std::move(pairFunc), static_cast<std::size_t>(detail::size_hint(_begin, _end)), h, cmp, alloc);
+                std::move(pair_func), static_cast<std::size_t>(size_hint(_begin, _end)), h, cmp, alloc);
     }
     // clang-format on
 
@@ -383,9 +385,9 @@ public:
 template<class Iterable>
 struct std::formatter<Iterable,
                       lz::detail::enable_if< // Enable if Iterable is base of BasicIterable
-                          std::is_base_of<lz::detail::BasicIterable<lz::iter<Iterable>>, Iterable>::value, char>>
+                          std::is_base_of<lz::detail::BasicIterable<lz::iter_t<Iterable>>, Iterable>::value, char>>
     : std::formatter<std::string> {
-    using InnerIter = lz::detail::BasicIterable<lz::iter<Iterable>>;
+    using InnerIter = lz::detail::BasicIterable<lz::iter_t<Iterable>>;
 
     template<class FormatCtx>
     auto format(const InnerIter& it, FormatCtx& ctx) const -> decltype(ctx.out()) {
@@ -395,7 +397,7 @@ struct std::formatter<Iterable,
 #elif !defined(LZ_STANDALONE) && !defined(LZ_HAS_FORMAT)
 template<class Iterable>
 struct fmt::formatter<
-    Iterable, lz::detail::enable_if<std::is_base_of<lz::detail::basic_iterable<lz::iter<Iterable>>, Iterable>::value, char>>
+    Iterable, lz::detail::enable_if<std::is_base_of<lz::detail::basic_iterable<lz::iter_t<Iterable>>, Iterable>::value, char>>
     : fmt::ostream_formatter {};
 #endif
 

@@ -17,8 +17,8 @@ public:
     using const_iterator = iterator;
     using value_type = T;
 
-    constexpr repeat_iterable(T toRepeat, const std::size_t amount) :
-        detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(toRepeat), amount)) {
+    constexpr repeat_iterable(T to_repeat, const std::size_t amount) :
+        detail::basic_iterable<iterator, default_sentinel>(iterator(std::move(to_repeat), amount)) {
     }
 
     constexpr repeat_iterable() = default;
@@ -34,7 +34,7 @@ public:
  * @brief Returns @p `to_repeat`, @p `amount` of times. If amount is left empty, it never stops and is interpreted as a
  * `while-true` loop.
  * @param to_repeat The value to repeat `amount` times.
- * @param amount The amount of times to repeat the loop, returning `toRepeat`.
+ * @param amount The amount of times to repeat the loop, returning `to_repeat`.
  * @return A repeat object, containing the random access iterator.
  */
 template<class T>

@@ -52,7 +52,8 @@ public:
  * @return A join where iterator view object, which can be used to iterate over.
  */
 template<class IterableA, class IterableB, class SelectorA, class SelectorB, class ResultSelector>
-join_where_iterable<iter<IterableA>, sentinel<IterableA>, iter<IterableB>, sentinel<IterableB>, SelectorA, SelectorB, ResultSelector>
+join_where_iterable<iter_t<IterableA>, sentinel_t<IterableA>, iter_t<IterableB>, sentinel_t<IterableB>, SelectorA, SelectorB,
+                    ResultSelector>
 join_where(IterableA&& iterable_a, IterableB&& iterable_b, SelectorA a, SelectorB b, ResultSelector result_selector) {
     return { detail::begin(std::forward<IterableA>(iterable_a)),
              detail::end(std::forward<IterableA>(iterable_a)),

@@ -17,16 +17,16 @@ class filter_iterator;
 
 template<class Iterator, class S, class UnaryPredicate>
 class filter_iterator
-    : public iter_base<filter_iterator<Iterator, S, UnaryPredicate>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
-                       diff_type<Iterator>, common_type<std::bidirectional_iterator_tag, iter_cat<Iterator>>,
-                       sentinel_selector<iter_cat<Iterator>, filter_iterator<Iterator, S, UnaryPredicate>>> {
+    : public iter_base<filter_iterator<Iterator, S, UnaryPredicate>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
+                       diff_type<Iterator>, common_type<std::bidirectional_iterator_tag, iter_cat_t<Iterator>>,
+                       sentinel_selector<iter_cat_t<Iterator>, filter_iterator<Iterator, S, UnaryPredicate>>> {
 
     using traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter::value_type;
-    using difference_type = typename iter::difference_type;
-    using reference = typename iter::reference;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
     template<class I = Iterator>

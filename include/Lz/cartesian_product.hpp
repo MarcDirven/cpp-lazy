@@ -35,7 +35,7 @@ public:
     constexpr cartesian_product_iterable() = default;
 
     LZ_CONSTEXPR_CXX_20 cartesian_product_iterable(IterTuple begin, SentinelTuple end) :
-        cartesian_product_iterable(std::move(begin), std::move(end), iter_cat<iterator>{}) {
+        cartesian_product_iterable(std::move(begin), std::move(end), iter_cat_t<iterator>{}) {
     }
 };
 
@@ -49,12 +49,16 @@ public:
  * @param iterables The iterables to make all of the possible combinations with.
  * @return A cartesian_product product view object.
  */
+// clang-format off
 template<LZ_CONCEPT_ITERABLE... Iterables>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 cartesian_product_iterable<std::tuple<iter<Iterables>...>, std::tuple<sentinel<Iterables>...>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20
+cartesian_product_iterable<std::tuple<iter_t<Iterables>...>, std::tuple<sentinel_t<Iterables>...>>
 cartesian_product(Iterables&&... iterables) {
     return { std::make_tuple(detail::begin(std::forward<Iterables>(iterables))...),
              std::make_tuple(detail::end(std::forward<Iterables>(iterables))...) };
 }
+
+// clang-format on
 
 // End of group
 /**

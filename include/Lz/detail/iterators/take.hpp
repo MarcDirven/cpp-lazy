@@ -9,16 +9,16 @@
 namespace lz {
 namespace detail {
 template<class Iterator>
-class take_n_iterator
-    : public iter_base<take_n_iterator<Iterator>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>, diff_t<Iterator>,
-                       iter_cat<Iterator>, sentinel_selector<IterCat<Iterator>, take_n_iterator<Iterator>>> {
+class take_iterator
+    : public iter_base<take_iterator<Iterator>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>, diff_type<Iterator>,
+                       iter_cat_t<Iterator>, sentinel_selector<iter_cat_t<Iterator>, take_iterator<Iterator>>> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
 private:
@@ -26,9 +26,9 @@ private:
     difference_type _n{};
 
 public:
-    constexpr take_n_iterator() = default;
+    constexpr take_iterator() = default;
 
-    constexpr take_n_iterator(Iterator iterator, const difference_type start) noexcept : _iterator(iterator), _n(start) {
+    constexpr take_iterator(Iterator iterator, const difference_type start) noexcept : _iterator(iterator), _n(start) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
@@ -54,12 +54,12 @@ public:
         _n -= offset;
     }
 
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const take_n_iterator& b) const {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const take_iterator& b) const {
         return _iterator - b._iterator;
     }
 
     // TODO: create empty and 1 element tests for all iterators
-    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const take_n_iterator& b) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const take_iterator& b) const noexcept {
         return _n == b._n && _iterator == b._iterator;
     }
 

@@ -10,20 +10,20 @@
 
 namespace lz {
 namespace detail {
+// TODO make rotate_iterator random access if possible
 template<class Iterator, class S>
-class rotate_iterator
-    : public iter_base<
-          rotate_iterator<Iterator, S>, ref<Iterator>, pointer_t<Iterator>, diff_type<Iterator>,
-          common_type<std::bidirectional_iterator_tag, iter_cat<Iterator>>,
-          sentinel_selector<common_type<std::bidirectional_iterator_tag, iter_cat<Iterator>>, rotate_iterator<Iterator, S>, S>> {
+class rotate_iterator : public iter_base<rotate_iterator<Iterator, S>, ref_t<Iterator>, ptr_t<Iterator>, diff_type<Iterator>,
+                                         common_type<std::bidirectional_iterator_tag, iter_cat_t<Iterator>>,
+                                         sentinel_selector<common_type<std::bidirectional_iterator_tag, iter_cat_t<Iterator>>,
+                                                           rotate_iterator<Iterator, S>, Iterator>> {
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using reference = typename iter < raits::reference;
-    using value_type = typename iter < raits::value_type;
-    using pointer = typename iter < raits::pointer;
-    using difference_type = typename iter < raits::difference_type;
+    using reference = typename traits::reference;
+    using value_type = typename traits::value_type;
+    using pointer = typename traits::pointer;
+    using difference_type = typename traits::difference_type;
 
 private:
     Iterator _iterator{};
@@ -34,11 +34,11 @@ private:
 public:
     constexpr rotate_iterator() = default;
 
-    LZ_CONSTEXPR_CXX_20 rotate_iterator(Iterator begin, S end, Iterator start, const bool fullRotation) :
+    LZ_CONSTEXPR_CXX_20 rotate_iterator(Iterator begin, S end, Iterator start, const bool full_rotation) :
         _iterator(std::move(start)),
         _begin(std::move(begin)),
         _end(std::move(end)),
-        _full_rotation(fullRotation) {
+        _full_rotation(full_rotation) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 reference dereference() const {
@@ -69,8 +69,8 @@ public:
         return _iterator == b._iterator && (_full_rotation && b._full_rotation);
     }
 
-    LZ_NODISCARD constexpr bool eq(const S& other) const {
-        return _iterator == other && _full_rotation;
+    LZ_NODISCARD constexpr bool eq(const Iterator& start) const {
+        return _iterator == start && _full_rotation;
     }
 };
 } // namespace detail

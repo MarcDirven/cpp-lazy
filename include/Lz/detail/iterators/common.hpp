@@ -7,11 +7,13 @@
 #include "Lz/detail/variant.hpp"
 #include "Lz/iter_base.hpp"
 
+namespace lz {
+namespace detail {
+
 template<class Iterator, class S>
 class common_iterator : public iter_base<common_iterator<Iterator, S>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
-                                         diff_t<Iterator>, iter_cat<Iterator>> {
+                                         diff_type<Iterator>, iter_cat_t<Iterator>> {
     variant<Iterator, S> _data;
-    static_assert(!std::is_same<Iterator, S>::value, "Iterator and Sentinel must be different types");
 
     using traits = std::iterator_traits<Iterator>;
 

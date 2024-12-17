@@ -1,8 +1,9 @@
-#include <Lz/CString.hpp>
-#include <Lz/TakeEvery.hpp>
+#include <Lz/take_every.hpp>
+#include <Lz/c_string.hpp>
 #include <array>
 #include <catch2/catch.hpp>
 #include <list>
+
 
 TEST_CASE("take_every_iterable with sentinels") {
     auto cstr = lz::c_string("Hello");

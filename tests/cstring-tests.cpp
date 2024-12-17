@@ -1,5 +1,5 @@
 #include <Lz/c_string.hpp>
-#include <Lz/Common.hpp>
+#include <Lz/common.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 

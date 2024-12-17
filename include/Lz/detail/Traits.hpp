@@ -40,9 +40,9 @@ template<class T>
 using decay = typename std::decay<T>::type;
 
 template<std::size_t I, class T>
-using tuple_element = typename std::tuple_element<I, T>::type;
+using tup_element = typename std::tuple_element<I, T>::type;
 
-#define MAKE_BIN_OP(OP, VALUE_TYPE) OP<VALUE_TYPE>
+#define MAKE_BIN_PRED(OP, VALUE_TYPE) OP<VALUE_TYPE>
 #else // ^^^ has cxx 11 vvv cxx > 11
 template<std::size_t... N>
 using index_sequence = std::index_sequence<N...>;
@@ -54,9 +54,9 @@ template<class T>
 using decay = std::decay_t<T>;
 
 template<std::size_t I, class T>
-using tuple_element = std::tuple_element_t<I, T>;
+using tup_element = std::tuple_element_t<I, T>;
 
-#define MAKE_BIN_OP(OP, VALUE_TYPE) OP<>
+#define MAKE_BIN_PRED(OP, VALUE_TYPE) OP<>
 
 #endif // LZ_HAS_CXX_11
 
@@ -64,7 +64,7 @@ template<class Iterable>
 constexpr auto begin(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin());
 
 template<class Iterable>
-constexpr auto end(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).begin());
+constexpr auto end(Iterable&& c) noexcept -> decltype(std::forward<Iterable>(c).end());
 
 template<class T, size_t N>
 constexpr T* begin(T (&array)[N]) noexcept;
@@ -81,31 +81,31 @@ constexpr const T* end(const T (&array)[N]) noexcept;
 } // namespace detail
 
 template<class Iterable>
-using iter = decltype(detail::begin(std::forward<Iterable>(std::declval<Iterable>())));
+using iter_t = decltype(detail::begin(std::forward<Iterable>(std::declval<Iterable>())));
 
 template<class S>
-using sentinel = decltype(detail::end(std::forward<S>(std::declval<S>())));
+using sentinel_t = decltype(detail::end(std::forward<S>(std::declval<S>())));
 
 template<class Iterator>
-using value_type = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::value_type;
+using val_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::value_type;
 
 template<class Iterator>
-using ref = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::reference;
+using ref_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::reference;
 
 template<class Iterator>
-using pointer_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::pointer;
+using ptr_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::pointer;
 
 template<class Iterator>
 using diff_type = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::difference_type;
 
 template<class Iterator>
-using iter_cat = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::iterator_category;
+using iter_cat_t = typename std::iterator_traits<typename std::remove_reference<Iterator>::type>::iterator_category;
 
 template<class Iterable>
-using value_type_iterable = typename std::iterator_traits<iter<Iterable>>::value_type;
+using value_iterable_t = typename std::iterator_traits<iter_t<Iterable>>::value_type;
 
 template<class Iterable>
-using diff_iterable = typename std::iterator_traits<iter<Iterable>>::difference_type;
+using diff_iterable_t = typename std::iterator_traits<iter_t<Iterable>>::difference_type;
 
 namespace detail {
 
@@ -155,19 +155,19 @@ template<class IterTag>
 struct is_bidi_tag : std::is_convertible<IterTag, std::bidirectional_iterator_tag> {};
 
 template<class Iterator>
-struct is_bidi : is_bidi_tag<iter_cat<Iterator>> {};
+struct is_bidi : is_bidi_tag<iter_cat_t<Iterator>> {};
 
 template<class Iterator>
-struct is_fwd : std::is_convertible<iter_cat<Iterator>, std::forward_iterator_tag> {};
+struct is_fwd : std::is_convertible<iter_cat_t<Iterator>, std::forward_iterator_tag> {};
 
 template<class IterTag>
 struct is_ra_tag : std::is_convertible<IterTag, std::random_access_iterator_tag> {};
 
 template<class Iterator>
-struct is_ra : is_ra<iter_cat<Iterator>> {};
+struct is_ra : is_ra_tag<iter_cat_t<Iterator>> {};
 
 template<class Iterable>
-struct actual_sentinel : std::bool_constant<!std::is_same<iter<Iterable>, sentinel<Iterable>>::value> {};
+struct actual_sentinel : std::bool_constant<!std::is_same<iter_t<Iterable>, sentinel_t<Iterable>>::value> {};
 
 } // namespace detail
 

@@ -1,14 +1,15 @@
-#include <Lz/CString.hpp>
-#include <Lz/Drop.hpp>
-#include <Lz/Slice.hpp>
-#include <Lz/Take.hpp>
+#include <Lz/drop.hpp>
+#include <Lz/slice.hpp>
+#include <Lz/take.hpp>
+#include <Lz/c_string.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
+
 TEST_CASE("Take with sentinels") {
     const char* str = "Hello, world!";
-    auto cString = lz::c_string(str);
-    auto take = lz::take(cString, 5);
+    auto c_string = lz::c_string(str);
+    auto take = lz::take(c_string, 5);
     static_assert(!std::is_same<decltype(take.begin()), decltype(take.end())>::value, "Should be sentinel");
     auto expected = lz::c_string("Hello");
     REQUIRE(lz::equal(take, expected));
@@ -79,10 +80,10 @@ TEST_CASE("Take binary operations", "[Take][Binary ops]") {
 TEST_CASE("Take to containers", "[Take][To container]") {
     constexpr std::size_t size = 8;
     std::array<int, size> array = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    auto takeEvery = lz::take(array, 4);
+    auto take = lz::take(array, 4);
 
     SECTION("To array") {
-        auto arr = takeEvery.to<std::array<int, 4>>();
+        auto arr = take.to<std::array<int, 4>>();
         REQUIRE(arr.size() == 4);
         REQUIRE(arr[0] == 1);
         REQUIRE(arr[1] == 2);
@@ -91,24 +92,24 @@ TEST_CASE("Take to containers", "[Take][To container]") {
     }
 
     SECTION("To vector") {
-        auto vec = takeEvery.to_vector();
-        REQUIRE(std::equal(vec.begin(), vec.end(), takeEvery.begin()));
+        auto vec = take.to_vector();
+        REQUIRE(std::equal(vec.begin(), vec.end(), take.begin()));
     }
 
     SECTION("To other container using to<>()") {
-        auto lst = takeEvery.to<std::list<int>>();
-        REQUIRE(std::equal(lst.begin(), lst.end(), takeEvery.begin()));
+        auto lst = take.to<std::list<int>>();
+        REQUIRE(std::equal(lst.begin(), lst.end(), take.begin()));
     }
 
     SECTION("To map") {
-        auto map = takeEvery.to_map([](int i) { return std::make_pair(i, i); });
+        auto map = take.to_map([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);
     }
 
     SECTION("To unordered map") {
-        auto map = takeEvery.to_unordered_map([](int i) { return std::make_pair(i, i); });
+        auto map = take.to_unordered_map([](int i) { return std::make_pair(i, i); });
         REQUIRE(map.size() == 4);
         std::unordered_map<int, int> expected = { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 } };
         REQUIRE(map == expected);

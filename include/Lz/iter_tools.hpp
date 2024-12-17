@@ -73,7 +73,7 @@ LZ_NODISCARD string_splitter<String, typename String::value_type> lines(const St
  * @return A Join iterator that joins the strings in the container on `'\n'`.
  */
 template<class Strings>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter<Strings>, sentinel<Strings>> unlines(Strings&& strings) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter_t<Strings>, sentinel_t<Strings>> unlines(Strings&& strings) {
     return lz::join(strings, "\n");
 }
 
@@ -83,11 +83,11 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 join_iterable<iter<Strings>, sentinel<Strings>>
  * @return A Take view object contains the reverse order of [begin end)
  */
 template<LZ_CONCEPT_BIDIRECTIONAL_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<iter<Iterable>>> reverse(Iterable&& iterable) {
-    using iterator = iter<Iterable>;
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<iter_t<Iterable>>> reverse(Iterable&& iterable) {
+    using iterator = iter_t<Iterable>;
     std::reverse_iterator<iterator> rev_begin(detail::begin(std::forward<Iterable>(iterable)));
     std::reverse_iterator<iterator> rev_end(detail::end(std::forward<Iterable>(iterable)));
-    return { std::move(rev_begin), std::move(rev_end) };
+    return { std::move(rev_end), std::move(rev_begin) };
 }
 
 /**
@@ -97,15 +97,16 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<it
  * @return A map iterator that constructs To from each of the elements in the given container.
  */
 template<class T, LZ_CONCEPT_ITERATOR Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::convert_fn<T>> as(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter_t<Iterable>, sentinel_t<Iterable>, detail::convert_fn<T>>
+as(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::convert_fn<T>());
 }
 
 template<class Fn, class... Iterables>
-using zip_with_iterable =
-    map_iterable<decltype(detail::begin(std::forward<zip_iterable<iter<Iterables>...>>(std::declval<zip_iterable<iter<Iterables>...>>()))),
-        decltype(detail::end(std::forward<zip_iterable<iter<Iterables>...>>(std::declval<zip_iterable<iter<Iterables>...>>()))),
-        decltype(detail::make_expand_fn(std::move(std::declval<Fn>()), detail::make_index_sequence<sizeof...(Iterables)>()))>;
+using zip_with_iterable = map_iterable<
+    decltype(detail::begin(std::forward<zip_iterable<iter_t<Iterables>...>>(std::declval<zip_iterable<iter_t<Iterables>...>>()))),
+    decltype(detail::end(std::forward<zip_iterable<iter_t<Iterables>...>>(std::declval<zip_iterable<iter_t<Iterables>...>>()))),
+    decltype(detail::make_expand_fn(std::move(std::declval<Fn>()), detail::make_index_sequence<sizeof...(Iterables)>()))>;
 
 /**
  * Zips n containers and applies (simultaneously) the function given as argument, containing each of the containers' value types.
@@ -128,7 +129,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_with_iterable<Fn, Iterables...> zip_with(Fn
  * @return A zip iterator that accesses two adjacent elements of one container.
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter<Iterable>, iter<Iterable>> pairwise(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter_t<Iterable>, iter_t<Iterable>> pairwise(Iterable&& iterable) {
     LZ_ASSERT(lz::has_many(iterable), "length of the sequence must be greater than or equal to 2");
     auto begin = std::begin(iterable);
     auto end = std::end(iterable);
@@ -143,7 +144,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 zip_iterable<iter<Iterable>, iter<Iterable>> pa
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::get_fn<1>> values(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter_t<Iterable>, sentinel_t<Iterable>, detail::get_fn<1>>
+values(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::get_fn<1>());
 }
 
@@ -155,7 +157,8 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>
  * interface)`
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter<Iterable>, sentinel<Iterable>, detail::get_fn<0>> keys(Iterable&& iterable) {
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 map_iterable<iter_t<Iterable>, sentinel_t<Iterable>, detail::get_fn<0>>
+keys(Iterable&& iterable) {
     return lz::map(std::forward<Iterable>(iterable), detail::get_fn<0>());
 }
 
@@ -182,7 +185,7 @@ filter_map(Iterable&& iterable, UnaryFiltePredicate filter_predicate, UnaryMapOp
 
 // TODO: make typedef that works here for selector using std::tuple
 // template<class Iterable, class SelectorIterable>
-// using Selector = FilterMap<zip_iterable<iter<Iterable>, sentinel<Iterable>, iter<SelectorIterable>>, detail::get_fn<1>,
+// using Selector = FilterMap<zip_iterable<iter_t<Iterable>, sentinel_t<Iterable>, iter_t<SelectorIterable>>, detail::get_fn<1>,
 // detail::get_fn<0>>;
 
 /**
@@ -194,7 +197,7 @@ filter_map(Iterable&& iterable, UnaryFiltePredicate filter_predicate, UnaryMapOp
 template<class Iterable, class SelectorIterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto select(Iterable&& iterable, SelectorIterable&& selectors)
     -> decltype(filter_map(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
-                          detail::get_fn<0>())) {
+                           detail::get_fn<0>())) {
     return filter_map(zip(std::forward<Iterable>(iterable), std::forward<SelectorIterable>(selectors)), detail::get_fn<1>(),
                       detail::get_fn<0>());
 }
@@ -210,8 +213,7 @@ LZ_NODISCARD LZ_CONSTEXPR_CXX_20 auto select(Iterable&& iterable, SelectorIterab
  * @return An iterator view object.
  */
 template<class Iterable, class UnaryPredicateFirst, class UnaryPredicateLast>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 
-detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter<Iterable>>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter_t<Iterable>>>>
 trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
     auto taken_first = lz::drop_while(std::forward<Iterable>(iterable), std::move(first));
     auto taken_last = lz::drop_while(lz::reverse(std::move(taken_first)), std::move(last));
@@ -224,8 +226,7 @@ trim(Iterable&& iterable, UnaryPredicateFirst first, UnaryPredicateLast last) {
  * @return The string, with trimmed spaces/tabs/newlines at the front and end.
  */
 template<class String>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter<String>>>>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 detail::basic_iterable<std::reverse_iterator<std::reverse_iterator<iter_t<String>>>>
 trim_string(String&& s) {
     const auto is_space_fn = [](const char c) {
         return static_cast<bool>(std::isspace(static_cast<unsigned char>(c)));

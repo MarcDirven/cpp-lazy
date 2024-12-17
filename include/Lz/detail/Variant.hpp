@@ -9,6 +9,7 @@
 
 namespace lz {
 namespace detail {
+
 template<class T, class T2>
 using variant = std::variant<T, T2>;
 
@@ -185,9 +186,9 @@ auto get_if(variant<U, V>* t) -> decltype(t->get_if<T>()) {
     return t->get_if<T>();
 }
 
-#endif // !defined(__cpp_lib_variant) && !defined(LZ_HAS_CXX_17)
-
 } // namespace detail
 } // namespace lz
+
+#endif // !defined(__cpp_lib_variant) && !defined(LZ_HAS_CXX_17)
 
 #endif // LZ_DETAIL_VARIANT_HPP

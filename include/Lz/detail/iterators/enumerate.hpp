@@ -11,12 +11,12 @@ namespace lz {
 namespace detail {
 
 template<class Iterator>
-using enumerate_tag = iter_cat_decay<IterCat<Iterator>, std::random_access_iterator_tag, std::forward_iterator_tag>;
+using enumerate_tag = iter_cat_decay<iter_cat_t<Iterator>, std::random_access_iterator_tag, std::forward_iterator_tag>;
 
 template<class Iterator, class S, class Arithmetic>
 class enumerate_iterator final
     : public iter_base<enumerate_iterator<Iterator, S, Arithmetic>, std::pair<Arithmetic, ref_t<Iterator>>,
-                       fake_ptr_proxy<std::pair<Arithmetic, ref_t<Iterator>>>, diff_t<Iterator>, enumerate_tag<Iterator>,
+                       fake_ptr_proxy<std::pair<Arithmetic, ref_t<Iterator>>>, diff_type<Iterator>, enumerate_tag<Iterator>,
                        sentinel_selector<enumerate_tag<Iterator>, enumerate_iterator<Iterator, S, Arithmetic>, S>> {
 
     Iterator _iterator{};
@@ -59,7 +59,7 @@ public:
         return _iterator == other._iterator;
     }
 
-    LZ_CONSTEXPR_CXX_20 void plusIs(const difference_type n) {
+    LZ_CONSTEXPR_CXX_20 void plus_is(const difference_type n) {
         _index += static_cast<Arithmetic>(n);
         _iterator += n;
     }

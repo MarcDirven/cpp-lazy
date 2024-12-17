@@ -15,8 +15,8 @@ namespace detail {
 
 template<class Iterator, class S, class Iterator2, class S2>
 class split_iterator
-    : public iter_base<split_iterator<Iterator, S, Iterator2, S2>, view<Iterator>, fake_ptr_proxy<view<Iterator>>, std::ptrdiff_t,
-                       std::forward_iterator_tag, default_sentinel> {
+    : public iter_base<split_iterator<Iterator, S, Iterator2, S2>, basic_iterable<Iterator>,
+                       fake_ptr_proxy<basic_iterable<Iterator>>, std::ptrdiff_t, std::forward_iterator_tag, default_sentinel> {
 
     std::pair<Iterator, Iterator> _sub_range_end{};
     Iterator _sub_range_begin{};
@@ -26,14 +26,15 @@ class split_iterator
     bool _trailingEmpty{ true };
 
     std::pair<Iterator, Iterator> search() const {
-        return detail::search(_sub_range_end.second, _end, _to_search, _to_search_end);
+        return detail::search(_sub_range_end.second, _end, _to_search, _to_search_end,
+                              MAKE_BIN_PRED(std::equal_to, value_type){});
     }
 
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type = iterable<Iterator>;
+    using value_type = basic_iterable<Iterator>;
     using reference = value_type;
-    using difference_type = diff_t<Iterator>;
+    using difference_type = diff_type<Iterator>;
     using pointer = fake_ptr_proxy<reference>;
 
     LZ_CONSTEXPR_CXX_20 split_iterator(Iterator begin, S end, Iterator2 begin2, S2 end2) :

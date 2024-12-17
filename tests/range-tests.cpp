@@ -1,41 +1,41 @@
-#include <Lz/Range.hpp>
+#include <Lz/range.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]") {
     SECTION("Looping upwards") {
-        int expectedCounter = 0;
+        int expected_counter = 0;
 
         for (int i : lz::range(5)) {
-            CHECK(expectedCounter == i);
-            expectedCounter++;
+            CHECK(expected_counter == i);
+            expected_counter++;
         }
     }
 
     SECTION("Looping backwards") {
-        int expectedCounter = 5;
+        int expected_counter = 5;
 
         for (int i : lz::range(5, 0, -1)) {
-            CHECK(expectedCounter == i);
-            expectedCounter--;
+            CHECK(expected_counter == i);
+            expected_counter--;
         }
     }
 
     SECTION("Looping upwards with step") {
-        int expectedCounter = 0;
+        int expected_counter = 0;
 
         for (int i : lz::range(0, 5, 2)) {
-            CHECK(expectedCounter == i);
-            expectedCounter += 2;
+            CHECK(expected_counter == i);
+            expected_counter += 2;
         }
     }
 
     SECTION("Looping backwards with step") {
-        int expectedCounter = 5;
+        int expected_counter = 5;
 
         for (int i : lz::range(5, 0, -2)) {
-            CHECK(expectedCounter == i);
-            expectedCounter -= 2;
+            CHECK(expected_counter == i);
+            expected_counter -= 2;
         }
     }
 }
@@ -43,25 +43,25 @@ TEST_CASE("Range changing and creating elements", "[Range][Basic functionality]"
 TEST_CASE("Range binary operations", "[Range][Binary ops]") {
     constexpr int size = 10;
     auto range = lz::range(size);
-    auto fRange = lz::range(0., 10.5, 0.5);
+    auto f_range = lz::range(0., 10.5, 0.5);
     auto it = range.begin();
-    auto fIt = fRange.begin();
+    auto f_it = f_range.begin();
 
     CHECK(*it == 0);
-    CHECK(*fIt == 0.);
+    CHECK(*f_it == 0.);
 
     SECTION("Operator++") {
         ++it;
         CHECK(*it == 1);
-        ++fIt;
-        CHECK(*fIt == 0.5);
+        ++f_it;
+        CHECK(*f_it == 0.5);
     }
 
     SECTION("Operator--") {
         ++it, --it;
         CHECK(*it == 0);
-        ++fIt, --fIt;
-        CHECK(*fIt == 0);
+        ++f_it, --f_it;
+        CHECK(*f_it == 0);
     }
 
     SECTION("Operator== & Operator!=") {
@@ -73,29 +73,29 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
     SECTION("Operator+(int) offset, tests += as well") {
         CHECK(*(it + 2) == 2);
         CHECK(*(it + 4) == 4);
-        CHECK(*(fIt + 2) == 1.);
-        CHECK(*(fIt + 3) == 1.5);
-        CHECK(*(fIt + 5) == 2.5);
+        CHECK(*(f_it + 2) == 1.);
+        CHECK(*(f_it + 3) == 1.5);
+        CHECK(*(f_it + 5) == 2.5);
     }
 
     SECTION("Operator-(int) offset, tests -= as well") {
         CHECK(*((it + 2) - 1) == 1);
         CHECK(*((it + 4) - 2) == 2);
-        CHECK(*((fIt + 2) - 1) == .5);
-        CHECK(*((fIt + 3) - 2) == .5);
-        CHECK(*((fIt + 5) - 2) == 1.5);
+        CHECK(*((f_it + 2) - 1) == .5);
+        CHECK(*((f_it + 3) - 2) == .5);
+        CHECK(*((f_it + 5) - 2) == 1.5);
     }
 
     SECTION("Operator-(Iterator)") {
         CHECK(range.end() - it == 10);
-        CHECK(fRange.end() - fIt == 21);
+        CHECK(f_range.end() - f_it == 21);
 
         CHECK(range.end() - (it + 1) == 9);
-        CHECK(fRange.end() - (fIt + 1) == 20);
+        CHECK(f_range.end() - (f_it + 1) == 20);
     }
 
     SECTION("Operator[]()") {
-        CHECK(fIt[1] == .5);
+        CHECK(f_it[1] == .5);
         CHECK(it[1] == 1);
     }
 
@@ -109,13 +109,13 @@ TEST_CASE("Range binary operations", "[Range][Binary ops]") {
         CHECK(b + distance - 1 <= end);
         CHECK(b + size - 1 >= end - 1);
 
-        auto fB = range.begin();
-        auto fEnd = range.end();
+        auto f_b = range.begin();
+        auto f_end = range.end();
 
-        CHECK(fB < end);
-        CHECK(fB + distance - 1 > fEnd - distance);
-        CHECK(fB + distance - 1 <= fEnd);
-        CHECK(fB + 20 >= fEnd - 1);
+        CHECK(f_b < end);
+        CHECK(f_b + distance - 1 > f_end - distance);
+        CHECK(f_b + distance - 1 <= f_end);
+        CHECK(f_b + 20 >= f_end - 1);
     }
 }
 

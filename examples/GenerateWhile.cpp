@@ -1,7 +1,7 @@
-#include <Lz/GenerateWhile.hpp>
+#include <Lz/generate_while.hpp>
 
 int main() {
-    auto generator = lz::generateWhile(
+    auto generator = lz::generate_while(
         [](int& i) {
             auto copy = i++;
             // If `copy` == 4, stop generating values.

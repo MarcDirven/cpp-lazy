@@ -16,31 +16,31 @@ struct alias_wrapper_helper {
 template<class T, class U = void>
 using alias_wrapper = typename alias_wrapper_helper<T, U>::type;
 
-template<class T, class Enable = void>
+template<class, class = void>
 struct has_value_type : std::false_type {};
 
 template<class T>
 struct has_value_type<T, alias_wrapper<typename T::value_type>> : std::true_type {};
 
-template<class T, class Enable = void>
+template<class, class = void>
 struct has_diff_type : std::false_type {};
 
 template<class T>
 struct has_diff_type<T, alias_wrapper<typename T::difference_type>> : std::true_type {};
 
-template<class T, class Enable = void>
+template<class, class = void>
 struct has_ptr : std::false_type {};
 
 template<class T>
 struct has_ptr<T, alias_wrapper<typename T::pointer>> : std::true_type {};
 
-template<class T, class Enable = void>
+template<class, class = void>
 struct has_iter_cat : std::false_type {};
 
 template<class T>
 struct has_iter_cat<T, alias_wrapper<typename T::iterator_category>> : std::true_type {};
 
-template<class T, class Enable = void>
+template<class, class = void>
 struct has_ref : std::false_type {};
 
 template<class T>
@@ -74,13 +74,14 @@ struct count_dims_helper<true> {
     using inner = traits_or_underlying_type<typename T::value_type>;
 
     template<class T>
-    using type = std::integral_constant<int, 1 + count_dims_helper<is_iterator<Inner<T>>::value>::template type<Inner<T>>::value>;
+    using type =
+        std::integral_constant<std::size_t, 1 + count_dims_helper<is_iterator<inner<T>>::value>::template type<inner<T>>::value>;
 };
 
 template<>
 struct count_dims_helper<false> {
     template<class>
-    using type = std::integral_constant<int, 0>;
+    using type = std::integral_constant<std::size_t, 0>;
 };
 
 template<class T>
@@ -90,21 +91,21 @@ using count_dims = typename count_dims_helper<is_iterator<T>::value>::template t
 template<class Iterator, class S>
 class flatten_wrapper
     : public iter_base<
-          flatten_wrapper<Iterator, S>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>, diff_type<Iterator>,
-          common_type<std::bidirectional_iterator_tag, IterCat<Iterator>>,
-          sentinel_selector<common_type<std::bidirectional_iterator_tag, IterCat<Iterator>>, flatten_wrapper<Iterator, S>>> {
+          flatten_wrapper<Iterator, S>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>, diff_type<Iterator>,
+          common_type<std::bidirectional_iterator_tag, iter_cat_t<Iterator>>,
+          sentinel_selector<common_type<std::bidirectional_iterator_tag, iter_cat_t<Iterator>>, flatten_wrapper<Iterator, S>>> {
 
     Iterator _begin{};
     Iterator _current{};
     S _end{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using reference = typename iter < raits::reference;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
-    using value_type = typename iter < raits::value_type;
-    using difference_type = typename iter < raits::difference_type;
+    using value_type = typename traits::value_type;
+    using difference_type = typename traits::difference_type;
 
     constexpr flatten_wrapper() = default;
 
@@ -112,10 +113,6 @@ public:
         _begin(std::move(begin)),
         _current(std::move(current)),
         _end(std::move(end)) {
-    }
-
-    void toEnd() {
-        _current = _end;
     }
 
     LZ_CONSTEXPR_CXX_20 bool has_some() const noexcept {
@@ -159,10 +156,10 @@ using inner =
     flatten_iterator<decltype(std::begin(*std::declval<Iterator>())), decltype(std::end(*std::declval<Iterator>())), N - 1>;
 
 template<class Iterator, class S, int N>
-class flatten_iterator
-    : public iter_base<flatten_iterator<Iterator, S, N>, ref<inner<Iterator, N>>, fake_ptr_proxy<ref<inner<Iterator, N>>>,
-                       diff_type<inner<Iterator, N>>, common_type<std::bidirectional_iterator_tag, iter_cat<inner<Iterator, N>>>,
-                       sentinel_selector<iter_cat<inner<Iterator, N>>, flatten_iterator<Iterator, S, N>>> {
+class flatten_iterator : public iter_base<flatten_iterator<Iterator, S, N>, ref_t<inner<Iterator, N>>,
+                                          fake_ptr_proxy<ref_t<inner<Iterator, N>>>, diff_type<inner<Iterator, N>>,
+                                          common_type<std::bidirectional_iterator_tag, iter_cat_t<inner<Iterator, N>>>,
+                                          sentinel_selector<iter_cat_t<inner<Iterator, N>>, flatten_iterator<Iterator, S, N>>> {
 
     using this_inner = inner<Iterator, N>;
 
@@ -187,8 +184,8 @@ private:
         _inner_iter = {};
     }
 
-    flatten_wrapper<Iterator, S> _outer_iter{};
-    this_inner _inner_iter{};
+    flatten_wrapper<Iterator, S> _outer_iter;
+    this_inner _inner_iter;
 
 public:
     constexpr flatten_iterator() = default;
@@ -250,10 +247,10 @@ public:
 
 template<class Iterator, class S>
 class flatten_iterator<Iterator, S, 0>
-    : public iter_base<flatten_iterator<Iterator, S, 0>, ref<flatten_wrapper<Iterator, S>>,
-                       fake_ptr_proxy<ref<flatten_wrapper<Iterator, S>>>, diff_type<flatten_wrapper<Iterator, S>>,
-                       common_type<std::bidirectional_iterator_tag, IterCat<flatten_wrapper<Iterator, S>>>,
-                       sentinel_selector<common_type<IterCat<flatten_wrapper<Iterator, S>>, std::bidirectional_iterator_tag>,
+    : public iter_base<flatten_iterator<Iterator, S, 0>, ref_t<flatten_wrapper<Iterator, S>>,
+                       fake_ptr_proxy<ref_t<flatten_wrapper<Iterator, S>>>, diff_type<flatten_wrapper<Iterator, S>>,
+                       common_type<std::bidirectional_iterator_tag, iter_cat_t<flatten_wrapper<Iterator, S>>>,
+                       sentinel_selector<common_type<iter_cat_t<flatten_wrapper<Iterator, S>>, std::bidirectional_iterator_tag>,
                                          flatten_iterator<Iterator, S, 0>>> {
 
     flatten_wrapper<Iterator, S> _range;
@@ -291,7 +288,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(default_sentinel) const noexcept {
-        return !has_some();
+        return _range.eq(default_sentinel{});
     }
 
     LZ_CONSTEXPR_CXX_20 void increment() {

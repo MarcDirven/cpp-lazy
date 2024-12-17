@@ -3,10 +3,11 @@
 #ifndef LZ_GENERATE_ITERATOR_HPP
 #define LZ_GENERATE_ITERATOR_HPP
 
-#include "Lz/detail/Procs.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
 #include "Lz/detail/func_container.hpp"
+#include "Lz/detail/procs.hpp"
 #include "Lz/iter_base.hpp"
+
 
 namespace lz {
 namespace detail {
@@ -25,17 +26,17 @@ class generate_iterator : public iter_base<generate_iterator<GeneratorFunc, Args
 public:
     using iterator_category = std::forward_iterator_tag;
     using reference = tuple_invoker_ret<GeneratorFunc, Args...>;
-    using value_type = Decay<reference>;
+    using value_type = decay<reference>;
     using difference_type = std::ptrdiff_t;
     using pointer = fake_ptr_proxy<reference>;
 
     constexpr generate_iterator() = default;
 
     LZ_CONSTEXPR_CXX_14
-    generate_iterator(const std::size_t amount, GeneratorFunc generatorFunc, const bool is_inf_loop, std::tuple<Args...> args) :
+    generate_iterator(const std::size_t amount, GeneratorFunc generator_func, const bool is_inf_loop, std::tuple<Args...> args) :
         _args(std::move(args)),
         _amount(amount),
-        _tupleInvoker(make_expand_fn(std::move(generatorFunc), make_index_sequence<sizeof...(Args)>())),
+        _tupleInvoker(make_expand_fn(std::move(generator_func), make_index_sequence<sizeof...(Args)>())),
         _is_inf_loop(is_inf_loop) {
     }
 

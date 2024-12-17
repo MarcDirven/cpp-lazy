@@ -21,17 +21,17 @@ struct iter_tuple_type;
 
 template<class... Iterators>
 struct iter_tuple_type<std::tuple<Iterators...>, vt> {
-    using type = std::tuple<value_type<Iterators>...>;
+    using type = std::tuple<val_t<Iterators>...>;
 };
 
 template<class... Iterators>
 struct iter_tuple_type<std::tuple<Iterators...>, rt> {
-    using type = std::tuple<ref<Iterators>...>;
+    using type = std::tuple<ref_t<Iterators>...>;
 };
 
 template<class... Iterators>
 struct iter_tuple_type<std::tuple<Iterators...>, ic> {
-    using type = common_type<iter_cat<Iterators>...>;
+    using type = common_type<iter_cat_t<Iterators>...>;
 };
 
 template<class... Iterators>

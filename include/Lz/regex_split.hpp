@@ -15,7 +15,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 template<class RegexTokenIter>
 class regex_split_iterable final : public detail::basic_iterable<detail::regex_split_iterator<RegexTokenIter>, default_sentinel> {
 public:
-    using iterator = detail::regex_splitIterator<RegexTokenIter>;
+    using iterator = detail::regex_split_iterator<RegexTokenIter>;
     using const_iterator = iterator;
     using value_type = typename RegexTokenIter::value_type;
 

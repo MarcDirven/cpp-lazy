@@ -15,7 +15,7 @@ Example:
 
 int main() {
   std::array<int, 4> arr = {1, 2, 3, 4};
-  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "2 3 4 5"
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).to_string(" "); // == "2 3 4 5"
 }
 ```
 
@@ -133,7 +133,7 @@ target("test")
 
 int main() {
   std::array<int, 4> arr = {1, 2, 3, 4};
-  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "1 2 3 4"
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).to_string(" "); // == "1 2 3 4"
 }
 ```
 
@@ -149,7 +149,7 @@ int main() {
 
 int main() {
   std::array<int, 4> arr = {1, 2, 3, 4};
-  std::string result = lz::map(arr, [](int i) { return i + 1; }).toString(" "); // == "2 3 4 5"
+  std::string result = lz::map(arr, [](int i) { return i + 1; }).to_string(" "); // == "2 3 4 5"
 }
 ```
 

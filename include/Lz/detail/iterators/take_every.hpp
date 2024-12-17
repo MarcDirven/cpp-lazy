@@ -12,15 +12,15 @@ namespace lz {
 namespace detail {
 
 template<class Iterator, class S>
-class take_every_iterator : public iter_base<take_every_iterator<Iterator, S>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>,
+class take_every_iterator : public iter_base<take_every_iterator<Iterator, S>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
                                              diff_type<Iterator>, std::forward_iterator_tag, default_sentinel> {
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter < raits::value_type;
+    using value_type = typename traits::value_type;
     using iterator_category = std::forward_iterator_tag;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
     Iterator _iterator{};
@@ -62,15 +62,15 @@ public:
 
 template<class Iterator>
 class take_every_iterator<Iterator, Iterator>
-    : public iter_base<take_every_iterator<Iterator, Iterator>, ref<Iterator>, fake_ptr_proxy<ref<Iterator>>, diff_type<Iterator>,
-                       iter_cat<Iterator>> {
-    using iter < raits = std::iterator_traits<Iterator>;
+    : public iter_base<take_every_iterator<Iterator, Iterator>, ref_t<Iterator>, fake_ptr_proxy<ref_t<Iterator>>,
+                       diff_type<Iterator>, iter_cat_t<Iterator>> {
+    using traits = std::iterator_traits<Iterator>;
 
 public:
-    using value_type = typename iter < raits::value_type;
-    using iterator_category = typename iter < raits::iterator_category;
-    using difference_type = typename iter < raits::difference_type;
-    using reference = typename iter < raits::reference;
+    using value_type = typename traits::value_type;
+    using iterator_category = typename traits::iterator_category;
+    using difference_type = typename traits::difference_type;
+    using reference = typename traits::reference;
     using pointer = fake_ptr_proxy<reference>;
 
     Iterator _begin{};

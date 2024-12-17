@@ -1,14 +1,15 @@
-#include <Lz/CString.hpp>
-#include <Lz/IterTools.hpp>
-#include <Lz/Rotate.hpp>
+#include <Lz/iter_tools.hpp>
+#include <Lz/rotate.hpp>
+#include <Lz/c_string.hpp>
 #include <catch2/catch.hpp>
 #include <list>
 
+
 TEST_CASE("rotate_iterable with sentinels") {
-    auto cStr = lz::c_string("Hello, World!");
-    auto rotated = lz::rotate(cStr, std::next(cStr.begin(), 7));
+    auto c_str = lz::c_string("Hello, World!");
+    auto rotated = lz::rotate(c_str, std::next(c_str.begin(), 7));
     static_assert(!std::is_same<decltype(rotated.begin()), decltype(rotated.end())>::value, "Should be sentinel");
-    CHECK(rotated.toString() == "World!Hello, ");
+    CHECK(rotated.to_string() == "World!Hello, ");
 }
 
 TEST_CASE("rotate_iterable basic functionality", "[rotate_iterable][Basic functionality]") {
@@ -65,29 +66,29 @@ TEST_CASE("rotate_iterable binary operations", "[rotate_iterable][Binary ops]") 
         std::array<int, 5> container = { 1, 2, 3, 4, 5 };
         auto rotator = lz::rotate(container, container.begin() + 3);
 
-        auto unEvenBegin = rotator.begin();
-        auto unEvenEnd = rotator.end();
+        auto uneven_begin = rotator.begin();
+        auto uneven_end = rotator.end();
 
-        ++unEvenBegin;
-        REQUIRE(*unEvenBegin == 5);
-        --unEvenBegin;
-        REQUIRE(*unEvenBegin == 4);
-        ++unEvenBegin;
+        ++uneven_begin;
+        REQUIRE(*uneven_begin == 5);
+        --uneven_begin;
+        REQUIRE(*uneven_begin == 4);
+        ++uneven_begin;
 
-        ++unEvenBegin;
-        REQUIRE(*unEvenBegin == 1);
+        ++uneven_begin;
+        REQUIRE(*uneven_begin == 1);
 
-        --unEvenEnd;
-        REQUIRE(*unEvenEnd == 3);
+        --uneven_end;
+        REQUIRE(*uneven_end == 3);
 
-        --unEvenEnd;
-        REQUIRE(*unEvenEnd == 2);
+        --uneven_end;
+        REQUIRE(*uneven_end == 2);
 
-        --unEvenEnd;
-        REQUIRE(*unEvenEnd == 1);
+        --uneven_end;
+        REQUIRE(*uneven_end == 1);
 
-        --unEvenEnd;
-        REQUIRE(*unEvenEnd == 5);
+        --uneven_end;
+        REQUIRE(*uneven_end == 5);
     }
 }
 

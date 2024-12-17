@@ -1,11 +1,11 @@
-#include <Lz/Repeat.hpp>
+#include <Lz/repeat.hpp>
 #include <array>
 #include <catch2/catch.hpp>
 #include <list>
 
 TEST_CASE("repeat_iterable changing and creating elements", "[repeat_iterable][Basic functionality]") {
-    int toRepeat = 20;
-    auto repeater = lz::repeat(toRepeat, 5);
+    int to_repeat = 20;
+    auto repeater = lz::repeat(to_repeat, 5);
 
     SECTION("Should be 5 times 20") {
         std::size_t counter = 0;
@@ -18,7 +18,7 @@ TEST_CASE("repeat_iterable changing and creating elements", "[repeat_iterable][B
 
     SECTION("Should not be by reference") {
         auto start = repeater.begin();
-        CHECK(&(*start) != &toRepeat);
+        CHECK(&(*start) != &to_repeat);
     }
 }
 
@@ -43,20 +43,20 @@ TEST_CASE("repeat_iterable binary operations", "[repeat_iterable][Binary ops]") 
 
 TEST_CASE("repeat_iterable to containers", "[repeat_iterable][To container]") {
     constexpr auto times = 5;
-    const int toRepeat = 20;
-    auto repeater = lz::repeat(toRepeat, times);
+    const int to_repeat = 20;
+    auto repeater = lz::repeat(to_repeat, times);
 
     SECTION("To array") {
         std::array<int, times> array = repeater.to<std::array<int, times>>();
         for (int i : array) {
-            CHECK(i == toRepeat);
+            CHECK(i == to_repeat);
         }
     }
 
     SECTION("To vector") {
         std::vector<int> vec = repeater.to_vector();
         for (int i : vec) {
-            CHECK(i == toRepeat);
+            CHECK(i == to_repeat);
         }
         CHECK(vec.size() == times);
     }
@@ -64,7 +64,7 @@ TEST_CASE("repeat_iterable to containers", "[repeat_iterable][To container]") {
     SECTION("To other container using to<>()") {
         std::list<int> lst = repeater.to<std::list<int>>();
         for (int i : lst) {
-            CHECK(i == toRepeat);
+            CHECK(i == to_repeat);
         }
         CHECK(lst.size() == times);
     }

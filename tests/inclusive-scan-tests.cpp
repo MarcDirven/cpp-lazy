@@ -1,5 +1,5 @@
-#include <Lz/Generate.hpp>
-#include <Lz/InclusiveScan.hpp>
+#include <Lz/generate.hpp>
+#include <Lz/inclusive_scan.hpp>
 #include <catch2/catch.hpp>
 #include <iostream>
 #include <list>
@@ -7,7 +7,7 @@
 
 TEST_CASE("Inclusive scan with sentinels") {
     auto generator = lz::generate([](int i) { return i; }, 10, 1);
-    auto scan = lz::iScan(generator);
+    auto scan = lz::inclusive_scan(generator);
     static_assert(!std::is_same<decltype(scan.begin()), decltype(scan.end())>::value, "Should be sentinel");
     auto begin = scan.begin();
     for (int i = 1; i < 10; ++i) {
@@ -19,7 +19,7 @@ TEST_CASE("Inclusive scan with sentinels") {
 TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basic functionality]") {
     int arr[32]{};
     std::iota(std::begin(arr), std::end(arr), 0);
-    auto scan = lz::iScan(arr);
+    auto scan = lz::inclusive_scan(arr);
     auto begin = scan.begin();
 
     std::ptrdiff_t sum = 0;
@@ -38,7 +38,7 @@ TEST_CASE("Inclusive scan changing and creating elements", "[InclusiveScan][Basi
 
 TEST_CASE("Inclusive scan splitter binary operations", "[InclusiveScan][Binary ops]") {
     int arr[] = { 1, 2, 3, 4, 5 };
-    auto scan = lz::iScan(arr);
+    auto scan = lz::inclusive_scan(arr);
 
     SECTION("Operator++") {
         auto it = scan.begin();
@@ -64,8 +64,8 @@ TEST_CASE("Inclusive scan splitter binary operations", "[InclusiveScan][Binary o
 }
 
 TEST_CASE("Inclusive scan splitter to containers", "[InclusiveScan][To container]") {
-    int toScan[] = { 2, 5, 6, 4, 87, 8, 45, 7 };
-    auto scanner = lz::iScan(toScan);
+    int to_scan[] = { 2, 5, 6, 4, 87, 8, 45, 7 };
+    auto scanner = lz::inclusive_scan(to_scan);
 
     SECTION("To array") {
         std::array<int, 8> expected = { 2, 7, 13, 17, 104, 112, 157, 164 };
@@ -89,9 +89,6 @@ TEST_CASE("Inclusive scan splitter to containers", "[InclusiveScan][To container
         std::map<int, int> expected = { { 4, 2 },     { 14, 7 },    { 26, 13 },   { 34, 17 },
                                         { 208, 104 }, { 224, 112 }, { 314, 157 }, { 328, 164 } };
         auto actual = scanner.to_map([](int i) { return std::make_pair(i + i, i); });
-        for (auto&& p : actual) {
-            UNSCOPED_INFO(fmt::format("({}, {})", p.first, p.second));
-        }
         CHECK(expected == actual);
     }
 

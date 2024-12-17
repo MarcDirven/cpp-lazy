@@ -17,21 +17,21 @@ class exclusive_scan_iterator : public iter_base<exclusive_scan_iterator<Iterato
     S _end{};
     func_container<BinaryOp> _binary_op{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
     using reference = T&;
     using value_type = decay<reference>;
     using pointer = fake_ptr_proxy<reference>;
-    using difference_type = typename iter < raits::difference_type;
+    using difference_type = typename traits::difference_type;
 
     constexpr exclusive_scan_iterator() = default;
 
-    LZ_CONSTEXPR_CXX_14 exclusive_scan_iterator(Iterator iterator, S end, T init, BinaryOp binaryOp) :
+    LZ_CONSTEXPR_CXX_14 exclusive_scan_iterator(Iterator iterator, S end, T init, BinaryOp binary_op) :
         _reducer(std::move(init)),
         _iterator(std::move(iterator)),
         _end(std::move(end)),
-        _binary_op(std::move(binaryOp)) {
+        _binary_op(std::move(binary_op)) {
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 reference dereference() const {

@@ -52,9 +52,9 @@ public:
  * @param binary_op The fold function. Essentially, it is executed as (`init = binary_op(std::move(init), *iterator);`)
  * @return An inclusive scan view object.
  */
-template<LZ_CONCEPT_ITERABLE Iterable, class T = value_type_iterable<Iterable>,
-         class BinaryOp = MAKE_BIN_OP(std::plus, value_type_iterable<Iterable>)>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_14 inclusive_scan_iterable<iter<Iterable>, sentinel<Iterable>, T, BinaryOp>
+template<LZ_CONCEPT_ITERABLE Iterable, class T = value_iterable_t<Iterable>,
+         class BinaryOp = MAKE_BIN_PRED(std::plus, value_iterable_t<Iterable>)>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 inclusive_scan_iterable<iter_t<Iterable>, sentinel_t<Iterable>, T, BinaryOp>
 inclusive_scan(Iterable&& iterable, T init = {}, BinaryOp binary_op = {}) {
     LZ_ASSERT(std::begin(iterable) != std::end(iterable), "Iterable cannot be empty");
     auto begin = detail::begin(std::forward<Iterable>(iterable));

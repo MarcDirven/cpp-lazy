@@ -25,9 +25,9 @@ TEST_CASE("chunk_if changing and creating elements", "[chunk_if][Basic functiona
 
     SECTION("Should chunk correct length") {
         auto it = chunked.begin();
-        CHECK(it->toString() == "hello world");
+        CHECK(it->to_string() == "hello world");
         ++it;
-        CHECK(it->toString() == " this is a message");
+        CHECK(it->to_string() == " this is a message");
     }
 }
 
@@ -36,7 +36,7 @@ TEST_CASE("chunk_if variations") {
         std::string s = ";hello world;; this is a message;;; testing;;";
         auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
-        auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
+        auto vec = chunked.transform_as<std::vector<std::string>>([](const Range range) { return range.to_string(); });
         std::vector<std::string> expected = { "", "hello world", "", " this is a message", "", "", " testing", "", "" };
         CHECK(vec == expected);
     }
@@ -45,7 +45,7 @@ TEST_CASE("chunk_if variations") {
         std::string s = "hello world; this is a message;;";
         auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
-        auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
+        auto vec = chunked.transform_as<std::vector<std::string>>([](const Range range) { return range.to_string(); });
         std::vector<std::string> expected = { "hello world", " this is a message", "", "" };
         CHECK(vec == expected);
     }
@@ -54,7 +54,7 @@ TEST_CASE("chunk_if variations") {
         std::string s = "hello world; this is a message;";
         auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
-        auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
+        auto vec = chunked.transform_as<std::vector<std::string>>([](const Range range) { return range.to_string(); });
         std::vector<std::string> expected = { "hello world", " this is a message", "" };
         CHECK(vec == expected);
     }
@@ -63,7 +63,7 @@ TEST_CASE("chunk_if variations") {
         std::string s = "hello world; this is a message";
         auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
         using Range = typename decltype(chunked.begin())::value_type;
-        auto vec = chunked.transformAs<std::vector<std::string>>([](const Range range) { return range.toString(); });
+        auto vec = chunked.transform_as<std::vector<std::string>>([](const Range range) { return range.to_string(); });
         std::vector<std::string> expected = { "hello world", " this is a message" };
         CHECK(vec == expected);
     }
@@ -73,28 +73,28 @@ TEST_CASE("chunk_if binary operations", "[chunk_if][Binary ops]") {
     std::string s = ";hello world;; this is a message;;; testing;;";
     auto chunked = lz::chunk_if(s, [](const char c) { return c == ';'; });
     static_assert(!std::is_same<decltype(chunked.begin()), decltype(chunked.end())>::value, "Must be sentinel");
-    CHECK(chunked.begin()->toString().empty());
+    CHECK(chunked.begin()->to_string().empty());
 
     SECTION("Operator++") {
         CHECK(lz::distance(chunked.begin(), chunked.end()) == 9);
         auto begin = chunked.begin();
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
-        CHECK(begin->toString() == "hello world");
+        CHECK(begin->to_string() == "hello world");
         ++begin;
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
-        CHECK(begin->toString() == " this is a message");
+        CHECK(begin->to_string() == " this is a message");
         ++begin;
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
-        CHECK(begin->toString() == " testing");
+        CHECK(begin->to_string() == " testing");
         ++begin;
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
-        CHECK(begin->toString().empty());
+        CHECK(begin->to_string().empty());
         ++begin;
         CHECK(begin == chunked.end());
     }
@@ -120,21 +120,21 @@ TEST_CASE("chunk_if to containers", "[chunk_if][To container]") {
     SECTION("To array") {
         REQUIRE(lz::distance(chunked.begin(), chunked.end()) == 4);
         std::array<std::string, 4> arr;
-        lz::transform(chunked, arr.begin(), [](const Iterator& it) { return it.toString(); });
+        lz::transform(chunked, arr.begin(), [](const Iterator& it) { return it.to_string(); });
         CHECK(arr ==
               decltype(arr){ std::string{ "hello world" }, std::string{ " this is a message" }, std::string{}, std::string{} });
     }
 
     SECTION("To vector") {
         std::vector<std::string> vec;
-        lz::transform(chunked, std::back_inserter(vec), [](const Iterator& it) { return it.toString(); });
+        lz::transform(chunked, std::back_inserter(vec), [](const Iterator& it) { return it.to_string(); });
         CHECK(vec ==
               decltype(vec){ std::string{ "hello world" }, std::string{ " this is a message" }, std::string{}, std::string{} });
     }
 
     SECTION("To other container using to<>()") {
         std::list<std::string> list;
-        lz::transform(chunked, std::inserter(list, list.begin()), [](const Iterator& it) { return it.toString(); });
+        lz::transform(chunked, std::inserter(list, list.begin()), [](const Iterator& it) { return it.to_string(); });
         CHECK(list ==
               decltype(list){ std::string{ "hello world" }, std::string{ " this is a message" }, std::string{}, std::string{} });
     }

@@ -12,8 +12,8 @@ TEST_CASE("Basic CommonView test") {
 
 TEST_CASE("CommonView binary operations", "[CommonView][Binary ops]") {
     const char* a = "hello ";
-    auto cStringView = lz::c_string(a);
-    auto common = lz::common(cStringView);
+    auto c_string_view = lz::c_string(a);
+    auto common = lz::common(c_string_view);
 
     auto begin = common.begin();
     CHECK(*begin == 'h');
@@ -31,8 +31,8 @@ TEST_CASE("CommonView binary operations", "[CommonView][Binary ops]") {
 
 TEST_CASE("CommonView to containers", "[CommonView][To container]") {
     const char* a = "hello ";
-    auto cStringView = lz::c_string(a);
-    auto common = lz::common(cStringView);
+    auto c_string_view = lz::c_string(a);
+    auto common = lz::common(c_string_view);
 
     SECTION("To array") {
         CHECK(common.to<std::array<char, 6>>() == std::array<char, 6>{ 'h', 'e', 'l', 'l', 'o', ' ' });

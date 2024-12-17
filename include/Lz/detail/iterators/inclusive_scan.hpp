@@ -18,13 +18,13 @@ class inclusive_scan_iterator : public iter_base<inclusive_scan_iterator<Iterato
     S _end{};
     func_container<BinaryOp> _binary_op{};
 
-    using iter < raits = std::iterator_traits<Iterator>;
+    using traits = std::iterator_traits<Iterator>;
 
 public:
     using reference = T&;
     using value_type = T;
     using pointer = fake_ptr_proxy<reference>;
-    using difference_type = typename iter < raits::difference_type;
+    using difference_type = typename traits::difference_type;
     using iterator_category = std::forward_iterator_tag;
 
     constexpr inclusive_scan_iterator() = default;

@@ -77,7 +77,7 @@ public:
 template<class Iterator>
 class chunks_iterator<Iterator, Iterator /* Bidirectional or higher */>
     : public iter_base<chunks_iterator<Iterator, Iterator>, basic_iterable<Iterator>, fake_ptr_proxy<basic_iterable<Iterator>>,
-                       diff_type<Iterator>, iter_cat<Iterator>> {
+                       diff_type<Iterator>, iter_cat_t<Iterator>> {
 
     using iter_traits = std::iterator_traits<Iterator>;
 
@@ -97,7 +97,7 @@ private:
 
 #ifdef __cpp_if_constexpr
     LZ_CONSTEXPR_CXX_20 void next_chunk() {
-        if constexpr (is_ra<Iterator>::value) {
+        if constexpr (is_ra_tag<iterator_category>::value) {
             if (_end - _sub_range_end > _chunk_size) {
                 _sub_range_end += _chunk_size;
             }
@@ -111,8 +111,8 @@ private:
         }
     }
 
-    LZ_CONSTEXPR_CXX_20 void prevChunk() {
-        if constexpr (is_ra<Iterator>::value) {
+    LZ_CONSTEXPR_CXX_20 void prev_chunk() {
+        if constexpr (is_ra_tag<iterator_category>::value) {
             if (_sub_range_begin - _begin > _chunk_size) {
                 _sub_range_begin -= _chunk_size;
             }
@@ -126,8 +126,8 @@ private:
         }
     }
 #else
-    template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 enable_if<is_ra<I>::value, void> next_chunk() {
+    template<class I = iterator_category>
+    LZ_CONSTEXPR_CXX_20 enable_if<is_ra_tag<I>::value, void> next_chunk() {
         if (_end - _sub_range_end > _chunk_size) {
             _sub_range_end += _chunk_size;
         }
@@ -136,14 +136,14 @@ private:
         }
     }
 
-    template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 enable_if<!is_ra<I>::value> next_chunk() {
+    template<class I = iterator_category>
+    LZ_CONSTEXPR_CXX_20 enable_if<!is_ra_tag<I>::value> next_chunk() {
         for (difference_type count = 0; count < _chunk_size && _sub_range_end != _end; count++, ++_sub_range_end) {
         }
     }
 
-    template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 enable_if<is_ra<I>::value> prevChunk() {
+    template<class I = iterator_category>
+    LZ_CONSTEXPR_CXX_20 enable_if<is_ra_tag<I>::value> prev_chunk() {
         if (_sub_range_begin - _begin > _chunk_size) {
             _sub_range_begin -= _chunk_size;
         }
@@ -152,8 +152,8 @@ private:
         }
     }
 
-    template<class I = Iterator>
-    LZ_CONSTEXPR_CXX_20 enable_if<!is_ra<I>::value> prevChunk() {
+    template<class I = iterator_category>
+    LZ_CONSTEXPR_CXX_20 enable_if<!is_ra_tag<I>::value> prev_chunk() {
         for (difference_type count = _chunk_size; 0 < count && _sub_range_begin != _begin; count--, --_sub_range_begin) {
         }
     }
@@ -214,7 +214,7 @@ public:
 
     LZ_CONSTEXPR_CXX_20 void decrement() {
         _sub_range_end = _sub_range_begin;
-        prevChunk();
+        prev_chunk();
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool eq(const chunks_iterator& rhs) const noexcept {

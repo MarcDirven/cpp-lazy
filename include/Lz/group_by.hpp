@@ -37,8 +37,8 @@ public:
  * `[](string a, string b) { return a.length() == b.length() }` to make groups where sizes of the strings are equal.
  * @return A group_by_iterable iterator view object.
  */
-template<class Iterable, class BinaryPredicate = MAKE_BIN_OP(std::equal_to, value_type_iterable<Iterable>)>
-group_by_iterable<iter<Iterable>, sentinel<Iterable>, BinaryPredicate>
+template<class Iterable, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_iterable_t<Iterable>)>
+group_by_iterable<iter_t<Iterable>, sentinel_t<Iterable>, BinaryPredicate>
 group_by(Iterable&& iterable, BinaryPredicate binary_predicate = {}) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)),
              std::move(binary_predicate) };

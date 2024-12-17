@@ -27,7 +27,6 @@ export module lz;
 #define LZ_MODULE_EXPORT_SCOPE_END }
 
 export {
-#include "Lz/CString.hpp"
 #include "Lz/CartesianProduct.hpp"
 #include "Lz/ChunkIf.hpp"
 #include "Lz/Chunks.hpp"
@@ -36,7 +35,6 @@ export {
 #include "Lz/Except.hpp"
 #include "Lz/Exclude.hpp"
 #include "Lz/Filter.hpp"
-#include "Lz/Flatten.hpp"
 #include "Lz/Generate.hpp"
 #include "Lz/GroupBy.hpp"
 #include "Lz/IterTools.hpp"
@@ -55,5 +53,7 @@ export {
 #include "Lz/Unique.hpp"
 #include "Lz/Zip.hpp"
 #include "Lz/ZipLongest.hpp"
+#include "Lz/c_string.hpp"
+#include "Lz/flatten.hpp"
 
 }

@@ -13,7 +13,7 @@ LZ_MODULE_EXPORT_SCOPE_BEGIN
 template<LZ_CONCEPT_ITERATOR Iterator, class S, LZ_CONCEPT_INTEGRAL IntType>
 class enumerate_iterable final
     : public detail::basic_iterable<detail::enumerate_iterator<Iterator, S, IntType>,
-                                    typename detail::enumerate_iterator<Iterator, S, IntType::sentinel>> {
+                                    typename detail::enumerate_iterator<Iterator, S, IntType>::sentinel> {
 
 public:
     using iterator = detail::enumerate_iterator<Iterator, S, IntType>;
@@ -26,7 +26,7 @@ public:
 private:
     LZ_CONSTEXPR_CXX_20
     enumerate_iterable(Iterator begin, Iterator end, std::random_access_iterator_tag /* unused */, const IntType start = 0) :
-        detail::basic_iterable<iterator, iterator>(iterator(start, begin), iterator(end - begin, end)) {
+        detail::basic_iterable<iterator, iterator>(iterator(start, begin), iterator(static_cast<IntType>(end - begin), end)) {
     }
 
     LZ_CONSTEXPR_CXX_20
@@ -36,7 +36,7 @@ private:
 
 public:
     LZ_CONSTEXPR_CXX_20 enumerate_iterable(Iterator begin, S end, const IntType start = 0) :
-        enumerate(std::move(begin), std::move(end), iter_cat<iterator>{}, start) {
+        enumerate_iterable(std::move(begin), std::move(end), iter_cat_t<iterator>{}, start) {
     }
 };
 
@@ -58,7 +58,7 @@ public:
  * @return enumerate iterator object. One can iterate over this using `for (auto pair : lz::enumerate(..))`
  */
 template<LZ_CONCEPT_ARITHMETIC IntType = int, LZ_CONCEPT_ITERABLE Iterable>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 enumerate_iterable<iter<Iterable>, sentinel<Iterable>, IntType>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_20 enumerate_iterable<iter_t<Iterable>, sentinel_t<Iterable>, IntType>
 enumerate(Iterable&& iterable, const IntType start = 0) {
     return { detail::begin(std::forward<Iterable>(iterable)), detail::end(std::forward<Iterable>(iterable)), start };
 }
