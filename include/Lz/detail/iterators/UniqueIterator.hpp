@@ -9,7 +9,7 @@
 #include "Lz/detail/FunctionContainer.hpp"
 
 #ifdef LZ_HAS_EXECUTION
-#include "Procs.hpp"
+#include "Lz/detail/Procs.hpp"
 #endif
 
 #include <algorithm>
