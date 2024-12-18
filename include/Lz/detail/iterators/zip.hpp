@@ -3,11 +3,12 @@
 #ifndef LZ_ZIP_ITERATOR_HPP
 #define LZ_ZIP_ITERATOR_HPP
 
-#include "Lz/iter_base.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
 #include "Lz/detail/traits.hpp"
+#include "Lz/iterator_base.hpp"
 
 #include <algorithm>
+
 
 namespace lz {
 namespace detail {

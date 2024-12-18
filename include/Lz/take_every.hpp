@@ -3,8 +3,8 @@
 #ifndef LZ_TAKE_EVERY_HPP
 #define LZ_TAKE_EVERY_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/take_every.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/take_every.hpp"
 
 namespace lz {
 

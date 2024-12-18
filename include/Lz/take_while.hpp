@@ -3,8 +3,8 @@
 #ifndef LZ_TAKE_WHILE_HPP
 #define LZ_TAKE_WHILE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/take_while.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/take_while.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN

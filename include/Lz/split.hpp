@@ -3,8 +3,8 @@
 #ifndef LZ_STRING_SPLITTER_HPP
 #define LZ_STRING_SPLITTER_HPP
 
-#include "c_string.hpp"
-#include "detail/iterators/split.hpp"
+#include "Lz/c_string.hpp"
+#include "Lz/detail/iterators/split.hpp"
 
 namespace lz {
 

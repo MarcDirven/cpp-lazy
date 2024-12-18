@@ -3,8 +3,8 @@
 #ifndef LZ_ZIP_HPP
 #define LZ_ZIP_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/zip.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/zip.hpp"
 
 namespace lz {
 namespace detail {

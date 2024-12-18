@@ -12,6 +12,9 @@ namespace lz {
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
 
+/**
+ * This value is returned when index_of(_if) does not find the value specified.
+ */
 constexpr static std::size_t npos = static_cast<std::size_t>(-1);
 
 /**
@@ -446,31 +449,6 @@ LZ_CONSTEXPR_CXX_20 void transform(Iterable&& iterable, OutputIterator output, U
 template<class IterableA, class IterableB, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_iterable_t<IterableA>)>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool equal(const IterableA& a, const IterableB& b, BinaryPredicate binary_predicate = {}) {
     return detail::equal(std::begin(a), std::end(a), std::begin(b), std::end(b), std::move(binary_predicate));
-}
-
-/**
- * @brief Checks if the range [begin(iterable), end(iterable)) contains the value @p value
- *
- * @param iterable The iterable to check
- * @param value The value to check for
- * @return `true` if the value is found, `false` otherwise
- */
-template<class Iterable, class T>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool contains(Iterable&& iterable, const T& value) {
-    return detail::find(std::begin(iterable), std::end(iterable), value) != std::end(iterable);
-}
-
-/**
- * @brief Checks if the range [begin(iterable), end(iterable)) contains an element that satisfies the unary_predicate @p
- * unary_predicate
- *
- * @param iterable The iterable to check
- * @param unary_predicate The unary_predicate to check for
- * @return `true` if the unary_predicate is satisfied, `false` otherwise
- */
-template<class Iterable, class UnaryPredicate>
-LZ_NODISCARD LZ_CONSTEXPR_CXX_20 bool contains_if(Iterable&& iterable, UnaryPredicate unary_predicate) {
-    return detail::find_if(std::begin(iterable), std::end(iterable), std::move(unary_predicate)) != std::end(iterable);
 }
 
 /**

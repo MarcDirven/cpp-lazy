@@ -3,8 +3,8 @@
 #ifndef LZ_FILTER_HPP
 #define LZ_FILTER_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/filter.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/filter.hpp"
 
 namespace lz {
 

@@ -3,7 +3,7 @@
 #ifndef LZ_STRING_VIEW_HPP
 #define LZ_STRING_VIEW_HPP
 
-#include "detail/compiler_checks.hpp"
+#include "Lz/detail/compiler_checks.hpp"
 
 #ifdef LZ_HAS_STRING_VIEW
 #include <string_view>

@@ -4,7 +4,7 @@
 #define LZ_C_STRING_ITERATOR_HPP
 
 #include "Lz/detail/traits.hpp"
-#include "Lz/iter_base.hpp"
+#include "Lz/iterator_base.hpp"
 
 namespace lz {
 namespace detail {

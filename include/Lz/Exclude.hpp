@@ -3,8 +3,8 @@
 #ifndef LZ_EXCLUDE_HPP
 #define LZ_EXCLUDE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/exclude.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/exclude.hpp"
 
 namespace lz {
 

@@ -3,8 +3,8 @@
 #ifndef LZ_CONCATENATE_HPP
 #define LZ_CONCATENATE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/concatenate.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/concatenate.hpp"
 
 namespace lz {
 

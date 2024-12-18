@@ -3,8 +3,8 @@
 #ifndef LZ_UNIQUE_HPP
 #define LZ_UNIQUE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/unique.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/unique.hpp"
 
 namespace lz {
 

@@ -3,9 +3,9 @@
 #ifndef LZ_EXCLUSIVE_SCAN_HPP
 #define LZ_EXCLUSIVE_SCAN_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/exclusive_scan.hpp"
-#include "detail/traits.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/exclusive_scan.hpp"
+#include "Lz/detail/traits.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN
@@ -17,9 +17,9 @@ public:
     using iterator = detail::exclusive_scan_iterator<Iterator, S, T, BinaryOp>;
     using const_iterator = iterator;
 
-    constexpr exclusive_scan() = default;
+    constexpr exclusive_scan_iterable() = default;
 
-    LZ_CONSTEXPR_CXX_14 exclusive_scan(Iterator first, S last, T init, BinaryOp binary_op) :
+    LZ_CONSTEXPR_CXX_14 exclusive_scan_iterable(Iterator first, S last, T init, BinaryOp binary_op) :
         detail::basic_iterable<iterator, default_sentinel>(
             iterator(std::move(first), std::move(last), std::move(init), std::move(binary_op))) {
     }

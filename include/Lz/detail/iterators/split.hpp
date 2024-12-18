@@ -5,10 +5,11 @@
 
 #include "Lz/detail/compiler_checks.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
-#include "Lz/iter_base.hpp"
 #include "Lz/iterable.hpp"
+#include "Lz/iterator_base.hpp"
 
 #include <cstring>
+
 
 namespace lz {
 namespace detail {

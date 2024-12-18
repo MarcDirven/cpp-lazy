@@ -3,8 +3,8 @@
 #ifndef LZ_RANGE_HPP
 #define LZ_RANGE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/range.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/range.hpp"
 
 namespace lz {
 

@@ -3,8 +3,8 @@
 #ifndef LZ_GROUP_BY_HPP
 #define LZ_GROUP_BY_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/group_by.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/group_by.hpp"
 
 namespace lz {
 

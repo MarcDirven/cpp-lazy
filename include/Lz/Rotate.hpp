@@ -3,8 +3,8 @@
 #ifndef LZ_ROTATE_HPP
 #define LZ_ROTATE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/rotate.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/rotate.hpp"
 
 namespace lz {
 

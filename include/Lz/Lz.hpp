@@ -422,7 +422,7 @@ public:
     //! See algorithm.hpp `starts_with` for documentation
     template<class Iterable, class BinaryPredicate = MAKE_BIN_PRED(std::equal_to, value_type)>
     bool starts_with(const Iterable& iterable, BinaryPredicate compare = {}) const {
-        return lz::startsWith(*this, iterable, std::move(compare));
+        return lz::starts_with(*this, iterable, std::move(compare));
     }
 
     //! See algorithm.hpp `ends_with` for documentation

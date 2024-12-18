@@ -3,15 +3,15 @@
 #ifndef LZ_FUNCTION_TOOLS_HPP
 #define LZ_FUNCTION_TOOLS_HPP
 
-#include "concatenate.hpp"
-#include "drop_while.hpp"
-#include "filter.hpp"
-#include "join.hpp"
-#include "map.hpp"
-#include "split.hpp"
-#include "take.hpp"
-#include "take_while.hpp"
-#include "zip.hpp"
+#include "Lz/concatenate.hpp"
+#include "Lz/drop_while.hpp"
+#include "Lz/filter.hpp"
+#include "Lz/join.hpp"
+#include "Lz/map.hpp"
+#include "Lz/split.hpp"
+#include "Lz/take.hpp"
+#include "Lz/take_while.hpp"
+#include "Lz/zip.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -48,11 +48,6 @@ struct get_fn {
 } // namespace detail
 
 LZ_MODULE_EXPORT_SCOPE_BEGIN
-
-/**
- * This value is returned when index_of(_if) does not find the value specified.
- */
-constexpr LZ_INLINE_VAR std::size_t npos = (std::numeric_limits<std::size_t>::max)();
 
 /**
  * Returns a split_iterable iterator, that splits the string on `'\n'`.

@@ -3,8 +3,8 @@
 #ifndef LZ_LOOP_HPP
 #define LZ_LOOP_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/loop.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/loop.hpp"
 
 namespace lz {
 

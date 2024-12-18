@@ -1,8 +1,8 @@
 #ifndef LZ_FLATTEN_HPP
 #define LZ_FLATTEN_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/flatten.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/flatten.hpp"
 
 namespace lz {
 
@@ -69,7 +69,7 @@ inline constexpr std::size_t dimensions_v = dimensions<Iterable>::value;
  */
 template<LZ_CONCEPT_ITERABLE Iterable>
 LZ_NODISCARD LZ_CONSTEXPR_CXX_20
-// clang-format off
+    // clang-format off
 flatten_iterable<iter_t<Iterable>, sentinel_t<Iterable>, dimensions<Iterable>::value - !detail::is_c_array<Iterable>::value>
     flatten(Iterable&& iterable) {
     static constexpr auto dims = dimensions<Iterable>::value - !detail::is_c_array<Iterable>::value;

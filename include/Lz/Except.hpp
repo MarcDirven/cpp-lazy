@@ -3,8 +3,8 @@
 #ifndef LZ_EXCEPT_HPP
 #define LZ_EXCEPT_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/except.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/except.hpp"
 
 namespace lz {
 

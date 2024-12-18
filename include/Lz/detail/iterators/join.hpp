@@ -6,7 +6,7 @@
 #include "Lz/detail/compiler_checks.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
 #include "Lz/detail/traits.hpp"
-#include "Lz/iter_base.hpp"
+#include "Lz/iterator_base.hpp"
 
 #if defined(LZ_STANDALONE)
 #ifdef LZ_HAS_FORMAT

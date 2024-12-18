@@ -3,10 +3,9 @@
 #ifndef LZ_C_STRING_HPP
 #define LZ_C_STRING_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/c_string.hpp"
-#include "detail/traits.hpp"
-
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/c_string.hpp"
+#include "Lz/detail/traits.hpp"
 
 namespace lz {
 

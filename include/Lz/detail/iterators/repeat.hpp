@@ -3,10 +3,11 @@
 #ifndef LZ_REPEAT_ITERATOR_HPP
 #define LZ_REPEAT_ITERATOR_HPP
 
-#include "Lz/iter_base.hpp"
 #include "Lz/detail/compiler_checks.hpp"
+#include "Lz/iterator_base.hpp"
 
 #include <limits>
+
 
 namespace lz {
 namespace detail {

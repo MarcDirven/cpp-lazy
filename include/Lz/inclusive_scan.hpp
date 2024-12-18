@@ -3,8 +3,8 @@
 #ifndef LZ_INCLUSIVE_SCAN_HPP
 #define LZ_INCLUSIVE_SCAN_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/inclusive_scan.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/inclusive_scan.hpp"
 
 namespace lz {
 LZ_MODULE_EXPORT_SCOPE_BEGIN

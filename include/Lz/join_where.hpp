@@ -3,8 +3,8 @@
 #ifndef LZ_JOIN_WHERE_HPP
 #define LZ_JOIN_WHERE_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/join_where.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/join_where.hpp"
 
 namespace lz {
 

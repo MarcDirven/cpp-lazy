@@ -6,8 +6,7 @@
 #include "Lz/detail/fake_ptr_proxy.hpp"
 #include "Lz/detail/func_container.hpp"
 #include "Lz/detail/procs.hpp"
-#include "Lz/iter_base.hpp"
-
+#include "Lz/iterator_base.hpp"
 
 namespace lz {
 namespace detail {

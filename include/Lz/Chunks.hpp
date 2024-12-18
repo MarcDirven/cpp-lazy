@@ -3,7 +3,7 @@
 #ifndef LZ_CHUNKS_HPP
 #define LZ_CHUNKS_HPP
 
-#include "detail/iterators/chunks.hpp"
+#include "Lz/detail/iterators/chunks.hpp"
 
 namespace lz {
 

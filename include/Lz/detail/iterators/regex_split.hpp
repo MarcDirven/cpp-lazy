@@ -3,9 +3,10 @@
 #ifndef LZ_REGEX_SPLIT_ITERATOR_HPP
 #define LZ_REGEX_SPLIT_ITERATOR_HPP
 
-#include "Lz/iter_base.hpp"
 #include "Lz/detail/compiler_checks.hpp"
 #include "Lz/detail/fake_ptr_proxy.hpp"
+#include "Lz/iterator_base.hpp"
+
 
 namespace lz {
 namespace detail {

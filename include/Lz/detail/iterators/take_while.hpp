@@ -8,7 +8,7 @@
 #include "Lz/detail/func_container.hpp"
 #include "Lz/detail/iterators/common.hpp"
 #include "Lz/detail/traits.hpp"
-#include "Lz/iter_base.hpp"
+#include "Lz/iterator_base.hpp"
 
 namespace lz {
 namespace detail {

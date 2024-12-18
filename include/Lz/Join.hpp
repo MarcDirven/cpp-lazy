@@ -3,8 +3,8 @@
 #ifndef LZ_JOIN_HPP
 #define LZ_JOIN_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/join.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/join.hpp"
 
 // clang-format off
 #if defined(LZ_STANDALONE) && defined(LZ_HAS_FORMAT)

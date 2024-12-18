@@ -3,8 +3,8 @@
 #ifndef LZ_RANDOM_HPP
 #define LZ_RANDOM_HPP
 
-#include "detail/basic_iterable.hpp"
-#include "detail/iterators/random.hpp"
+#include "Lz/detail/basic_iterable.hpp"
+#include "Lz/detail/iterators/random.hpp"
 
 #include <random>
 
