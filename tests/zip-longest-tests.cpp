@@ -62,9 +62,7 @@ TEST_CASE("ZipLongest changing and creating elements", "[ZipLongest][Basic funct
 
     SECTION("Should not be by ref") {
         auto begin = ra.begin();
-        auto&& first = std::get<0>(*begin);
-        first = 2000;
-        CHECK(v[0] != *first);
+        static_assert(!std::is_lvalue_reference<decltype(*begin)>::value, "Value should not be by reference");
     }
 }
 
