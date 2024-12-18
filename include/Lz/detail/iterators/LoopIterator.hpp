@@ -65,7 +65,7 @@ public:
         _iterator -= offset == 0 ? dist : offset;
     }
 
-    LZ_NODISCARD constexpr difference_type difference(const LoopIterator& it) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_20 difference_type difference(const LoopIterator& it) const noexcept {
         if (it._iterator == _end) {
             return 0;
         }
