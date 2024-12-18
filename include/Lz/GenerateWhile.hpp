@@ -47,7 +47,7 @@ public:
  * @return A generator iterator view object.
  */
 template<class GeneratorFunc, class... Args>
-LZ_NODISCARD constexpr GenerateWhile<detail::Decay<GeneratorFunc>, detail::Decay<Args>...>
+LZ_NODISCARD LZ_CONSTEXPR_CXX_14 GenerateWhile<detail::Decay<GeneratorFunc>, detail::Decay<Args>...>
 generateWhile(GeneratorFunc&& generatorFunc, Args&&... args) {
     using Pair = decltype(generatorFunc(args...));
     using PairFirst = decltype(std::get<0>(std::declval<Pair>()));

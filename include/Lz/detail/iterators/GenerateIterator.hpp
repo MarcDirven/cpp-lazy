@@ -51,7 +51,7 @@ public:
         }
     }
 
-    LZ_NODISCARD constexpr bool eq(const GenerateIterator& b) const noexcept {
+    LZ_NODISCARD LZ_CONSTEXPR_CXX_14 bool eq(const GenerateIterator& b) const noexcept {
         LZ_ASSERT(_isWhileTrueLoop == b._isWhileTrueLoop, "incompatible iterator types: both must be while true or not");
         return _current == b._current;
     }
